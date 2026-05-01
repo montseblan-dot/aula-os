@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planificador Semanal · AULA OS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--card:#161b27;--card2:#1c2438;--card3:#222d42;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --white:#e8eeff;--muted:rgba(232,238,255,.4);
+  --gold:#fbbf24;--indigo:#818cf8;--green:#34d399;--blue:#60a5fa;
+  --red:#f87171;--teal:#2dd4bf;--orange:#fb923c;--purple:#c084fc;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;min-height:100vh}
+
+/* ── HEADER ── */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.btn{height:28px;padding:0 12px;border-radius:7px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:.7rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{border-color:rgba(255,255,255,.22);color:var(--white)}
+.btn-gold{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35);color:var(--gold)}
+.btn-gold:hover{background:rgba(251,191,36,.2)}
+.btn-indigo{background:rgba(129,140,248,.1);border-color:rgba(129,140,248,.3);color:var(--indigo)}
+
+/* ── WEEK NAV ── */
+.week-nav{background:var(--card);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.week-label{font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;color:var(--white);flex:1}
+.week-sub{font-size:.62rem;color:var(--muted);font-weight:700}
+.nav-btn{height:26px;padding:0 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.7rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.nav-btn:hover{color:var(--white);border-color:var(--border)}
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar{width:120px;height:5px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.progress-fill{height:100%;border-radius:999px;transition:width .4s}
+
+/* ── GRID ── */
+.planner-grid{display:grid;grid-template-columns:80px repeat(5,1fr);gap:1px;background:var(--border);margin:0}
+.grid-cell{background:var(--bg);min-height:60px}
+.day-header{background:var(--card);padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:50}
+.day-name{font-size:.72rem;font-weight:900;color:var(--white)}
+.day-date{font-size:.58rem;color:var(--muted);margin-top:1px}
+.day-header.hoxe{background:rgba(251,191,36,.08)}
+.day-header.hoxe .day-name{color:var(--gold)}
+.time-col{background:var(--card2);padding:6px 8px;display:flex;align-items:center;justify-content:flex-end;border-right:1px solid var(--border)}
+.time-lbl{font-size:.58rem;font-weight:800;color:var(--muted);font-family:'DM Mono',monospace}
+.mat-header{background:var(--card);padding:6px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);cursor:pointer}
+.mat-icon{font-size:.9rem}
+.mat-nome{font-size:.68rem;font-weight:900;color:var(--white)}
+
+/* ── SESION CELL ── */
+.ses-cell{background:var(--bg);padding:4px;min-height:64px;position:relative;transition:background .15s}
+.ses-cell:hover{background:var(--card2)}
+.ses-block{border-radius:8px;padding:6px 8px;margin-bottom:3px;cursor:pointer;position:relative;transition:all .15s;border:1.5px solid transparent}
+.ses-block:hover{filter:brightness(1.1)}
+.ses-block.planif{opacity:.7;border-style:dashed}
+.ses-block.real{opacity:1}
+.ses-block-ud{font-size:.58rem;font-weight:900;opacity:.8;margin-bottom:1px}
+.ses-block-tit{font-size:.65rem;font-weight:800;line-height:1.3}
+.ses-block-obs{font-size:.55rem;opacity:.65;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ses-block-badges{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+.badge-small{font-size:.48rem;font-weight:900;padding:1px 4px;border-radius:3px}
+.add-ses-btn{width:100%;height:24px;border-radius:6px;border:1px dashed var(--border2);background:transparent;color:var(--muted);font-size:.65rem;font-weight:800;cursor:pointer;transition:all .15s;display:block}
+.add-ses-btn:hover{border-color:rgba(129,140,248,.4);color:var(--indigo);background:rgba(129,140,248,.04)}
+
+/* ── SIDEBAR ── */
+.layout{display:grid;grid-template-columns:1fr 260px;gap:0}
+.sidebar{background:var(--card);border-left:1px solid var(--border);padding:14px;overflow-y:auto;height:calc(100vh - 52px - 44px);position:sticky;top:96px}
+.sidebar-title{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px}
+.ud-chip-list{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.ud-chip{padding:7px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px}
+.ud-chip:hover{border-color:var(--border2)}
+.ud-chip.dragging{opacity:.5}
+.ud-num{font-size:.62rem;font-weight:900;padding:1px 6px;border-radius:4px}
+.ud-tit{font-size:.65rem;font-weight:800;flex:1;line-height:1.3}
+.ud-ses{font-size:.55rem;color:var(--muted);font-weight:700}
+.ud-prog{height:3px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:4px}
+.ud-prog-fill{height:100%;border-radius:999px}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:22px;width:440px;max-width:96vw;border:1px solid var(--border2);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:14px}
+.modal-label{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:4px}
+.modal-inp{width:100%;height:34px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:0 10px;outline:none;margin-bottom:10px}
+.modal-inp:focus{border-color:rgba(251,191,36,.5)}
+.modal-sel{width:100%;height:34px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer;margin-bottom:10px}
+.modal-ta{width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;padding:8px 10px;outline:none;resize:vertical;min-height:60px;margin-bottom:10px}
+.modal-row{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;padding:8px 16px;border-radius:10px;font-size:.75rem;font-weight:800;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.3rem">📅</span>
+  <div>
+    <h1>Planificador Semanal</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-indigo" onclick="verProgreso()">📊 Progreso UDs</button>
+    <button class="btn" id="btn-vista" onclick="toggleVista()">📆 Vista mensual</button>
+    <button class="btn btn-gold" onclick="exportarPDF()">🖨️ Imprimir</button>
+    <a href="PORTAL_DOCENTE.html" class="btn" style="text-decoration:none;display:inline-flex;align-items:center" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html"><button class="btn">🏠 Portal</button></a>
+  </div>
+</div>
+
+<div class="week-nav">
+  <div>
+    <div class="week-label" id="week-label">—</div>
+    <div class="week-sub" id="week-sub">—</div>
+  </div>
+  <button class="nav-btn" onclick="navSem(-1)">◀ Anterior</button>
+  <button class="nav-btn" onclick="navSem(0)">Hoxe</button>
+  <button class="nav-btn" onclick="navSem(1)">Seguinte ▶</button>
+  <button class="nav-btn" onclick="copiarSemana()" style="border-color:rgba(251,191,36,.3);color:var(--gold)">📋 Copiar á seguinte</button>
+  <div class="progress-wrap" id="week-progress" style="margin-left:8px;display:none">
+    <span style="font-size:.6rem;font-weight:900;color:var(--muted)">Esta semana:</span>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="background:var(--green)"></div></div>
+    <span style="font-size:.62rem;font-weight:900;color:var(--green)" id="progress-lbl"></span>
+  </div>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="planner-grid" id="planner-grid"></div>
+  </div>
+  <div class="sidebar">
+    <div class="sidebar-title">📚 UDs programadas</div>
+    <select class="modal-sel" id="fil-mat" onchange="renderSidebar()" style="margin-bottom:10px;height:30px;font-size:.72rem">
+      <option value="">Todas as materias</option>
+    </select>
+    <div class="ud-chip-list" id="ud-list"></div>
+    <div class="sidebar-title" style="margin-top:12px">📌 Lenda</div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:.62rem;color:var(--muted)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(129,140,248,.3);border:1.5px dashed #818cf8"></div>Planificada</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:.62rem;color:var(--muted)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(52,211,153,.25)"></div>Realizada (con notas)</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:.62rem;color:var(--muted)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(251,191,36,.2)"></div>Realizada (sen notas)</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+
+// ── DATOS ──────────────────────────────────────────────────────────────────────
+let sesions=LS.get('ps_sesions',[]);  // [{id,data,materia,udNum,udTit,tipo,obs,realizada}]
+const materias=LS.get('sn3_materias',LS.get('pc_materias',[])).filter(m=>m.id!=='outras');
+const lomloeUDs=LS.get('lomloe_uds',{});
+const notas=LS.get('sn3_notas',[]);
+
+let semOffset=0;  // 0 = semana actual
+
+const DIAS=['Luns','Martes','Mércores','Xoves','Venres'];
+
+// ── SEMANA ─────────────────────────────────────────────────────────────────────
+function getLuns(offset=0){
+  const hoxe=new Date();
+  const day=hoxe.getDay();
+  const diff=day===0?-6:1-day;
+  const luns=new Date(hoxe);
+  luns.setDate(hoxe.getDate()+diff+offset*7);
+  luns.setHours(0,0,0,0);
+  return luns;
+}
+function getDiasSemana(offset=0){
+  const luns=getLuns(offset);
+  return Array.from({length:5},(_,i)=>{const d=new Date(luns);d.setDate(luns.getDate()+i);return d;});
+}
+function fmtDate(d){return d.toISOString().split('T')[0];}
+function fmtDateGL(d){return d.toLocaleDateString('gl-ES',{day:'2-digit',month:'short'});}
+function isHoxe(d){return fmtDate(d)===fmtDate(new Date());}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function init(){
+  const fm=document.getElementById('fil-mat');
+  fm.innerHTML='<option value="">Todas as materias</option>'+
+    materias.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('');
+  render();
+}
+
+// ── RENDER PRINCIPAL ──────────────────────────────────────────────────────────
+function render(){
+  if(vistaMode==='mensual'){renderMes();return;}
+  // Sincronizar con diario de aula: marcar como realizadas sesions con entrada no diario
+  const daEntradas=JSON.parse(localStorage.getItem('da_entradas')||'[]');
+  if(daEntradas.length){
+    let changed=false;
+    sesions.forEach(s=>{
+      if(!s.realizada){
+        const match=daEntradas.find(e=>e.data===s.data&&e.materia===s.materia);
+        if(match){s.realizada=true;changed=true;}
+      }
+    });
+    if(changed) LS.set('ps_sesions',sesions);
+  }
+  const dias=getDiasSemana(semOffset);
+  const hoxeStr=fmtDate(new Date());
+
+  // Week label
+  const luns=dias[0], ven=dias[4];
+  document.getElementById('week-label').textContent=
+    `Semana do ${fmtDateGL(luns)} ao ${fmtDateGL(ven)}`;
+
+  // Count sesions this week
+  const sesSemana=sesions.filter(s=>dias.some(d=>fmtDate(d)===s.data));
+  const sesReal=sesSemana.filter(s=>s.realizada).length;
+  const pctReal=sesSemana.length?Math.round(sesReal/sesSemana.length*100):0;
+  document.getElementById('week-sub').textContent=
+    `${sesReal}/${sesSemana.length} sesións realizadas esta semana`;
+
+  if(sesSemana.length){
+    document.getElementById('week-progress').style.display='flex';
+    document.getElementById('progress-fill').style.width=pctReal+'%';
+    document.getElementById('progress-lbl').textContent=pctReal+'%';
+  } else {
+    document.getElementById('week-progress').style.display='none';
+  }
+
+  // Build grid
+  const grid=document.getElementById('planner-grid');
+  let html='';
+
+  // Header row
+  html+='<div class="grid-cell day-header" style="background:var(--card2)"></div>';
+  dias.forEach(d=>{
+    const cls=isHoxe(d)?' hoxe':'';
+    html+=`<div class="grid-cell day-header${cls}">
+      <div class="day-name">${DIAS[d.getDay()-1]}</div>
+      <div class="day-date">${fmtDateGL(d)}</div>
+    </div>`;
+  });
+
+  // Rows per materia
+  materias.forEach(m=>{
+    const col=m.color||'#818cf8';
+    // Materia label cell
+    html+=`<div class="grid-cell" style="background:${col}10;border-right:1px solid ${col}25;padding:6px 8px;display:flex;flex-direction:column;justify-content:center;gap:2px">
+      <span style="font-size:.9rem">${m.icon||''}</span>
+      <span style="font-size:.55rem;font-weight:900;color:${col};line-height:1.2">${m.nome.substring(0,10)}</span>
+    </div>`;
+
+    dias.forEach(d=>{
+      const dateStr=fmtDate(d);
+      const cellSes=sesions.filter(s=>s.data===dateStr&&s.materia===m.id);
+      // Check if there are real notas this day for this materia
+      const hasNotas=notas.some(n=>n.materia===m.id&&n.data===dateStr);
+
+      let blocksHtml=cellSes.map(s=>{
+        const isReal=s.realizada||hasNotas;
+        const bg=isReal?`${col}28`:`rgba(129,140,248,.08)`;
+        const borderCol=isReal?col:'rgba(129,140,248,.3)';
+        const borderStyle=isReal?'solid':'dashed';
+        return `<div class="ses-block ${isReal?'real':'planif'}"
+          style="background:${bg};border-color:${borderCol};border-style:${borderStyle};position:relative">
+          <div style="display:flex;align-items:center;gap:4px;cursor:pointer" onclick="editSesion('${s.id}')">
+            <div class="ses-block-ud" style="color:${col};flex:1">UD${s.udNum||'?'}${s.udTit?' · '+s.udTit.substring(0,10):''}</div>
+            <span style="font-size:.6rem;color:var(--muted);opacity:.6" title="Editar">✏️</span>
+          </div>
+          <div contenteditable="true" class="ses-block-obs" id="obs-${s.id}"
+            style="outline:none;min-height:14px;cursor:text;font-size:.58rem;color:var(--muted);margin-top:2px"
+            onblur="gardaObsInline('${s.id}',this.textContent)"
+            onclick="event.stopPropagation()"
+            title="Edita directamente">${s.obs||'<span style=\'opacity:.35\'>+ obs.</span>'}</div>
+          <div class="ses-block-badges" style="margin-top:3px">
+            ${isReal?`<span class="badge-small" style="background:${col}20;color:${col}">✓ Real</span>`:'<span class="badge-small" style="background:rgba(255,255,255,.06);color:var(--muted)">Planif.</span>'}
+            ${hasNotas&&!s.realizada?`<span class="badge-small" style="background:rgba(52,211,153,.15);color:var(--green)">📝 Notas</span>`:''}
+          </div>
+        </div>`;
+      }).join('');
+
+      blocksHtml+=`<button class="add-ses-btn" onclick="novaSesion('${dateStr}','${m.id}')">+ Engadir</button>`;
+      html+=`<div class="grid-cell ses-cell" style="padding:4px">${blocksHtml}</div>`;
+    });
+  });
+
+  grid.innerHTML=html;
+  renderSidebar();
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function renderSidebar(){
+  const filMat=document.getElementById('fil-mat')?.value||'';
+  const el=document.getElementById('ud-list');
+  const mats=filMat?materias.filter(m=>m.id===filMat):materias;
+
+  let html='';
+  mats.forEach(m=>{
+    const udsMat=lomloeUDs[m.id]||[];
+    if(!udsMat.length) return;
+    const col=m.color||'#818cf8';
+    html+=`<div style="font-size:.58rem;font-weight:900;color:${col};margin:8px 0 4px;text-transform:uppercase;letter-spacing:.08em">${m.icon||''} ${m.nome}</div>`;
+    udsMat.sort((a,b)=>a.num-b.num).forEach(ud=>{
+      // Contar sesions planificadas desta UD
+      const nPlanif=sesions.filter(s=>s.materia===m.id&&s.udNum===ud.num).length;
+      // Contar sesions con notas reais
+      const nReal=notas.filter(n=>n.materia===m.id&&n.unidade?.num===ud.num).map(n=>n.data).filter((v,i,a)=>a.indexOf(v)===i).length;
+      const sesPrev=ud.sesions||0;
+      const pct=sesPrev?Math.min(100,Math.round(nPlanif/sesPrev*100)):nPlanif?100:0;
+      const pctReal=sesPrev?Math.min(100,Math.round(nReal/sesPrev*100)):0;
+      html+=`<div class="ud-chip" onclick="filtrarPorUD('${m.id}',${ud.num})" style="border-color:${col}25;background:${col}06">
+        <span class="ud-num" style="background:${col}18;color:${col}">UD${ud.num}</span>
+        <div style="flex:1;min-width:0">
+          <div class="ud-tit">${(ud.tit||'Sen título').substring(0,28)}</div>
+          <div class="ud-prog"><div class="ud-prog-fill" style="width:${pctReal}%;background:${col}"></div></div>
+          <div class="ud-ses">${nPlanif} planif. · ${nReal} ses. reais${sesPrev?' / '+sesPrev+' prev.':''}</div>
+        </div>
+      </div>`;
+    });
+  });
+  el.innerHTML=html||'<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:1rem">Sen UDs importadas</div>';
+}
+
+// ── NOVA SESION ───────────────────────────────────────────────────────────────
+function _executarCopiaConf(sesSemana,nextStrs,dateStrs){
+  const novas=sesSemana.map(s=>{
+    const diaIdx=dateStrs.indexOf(s.data);
+    return {
+      id:'ps_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),
+      data:nextStrs[diaIdx],
+      materia:s.materia,
+      udNum:s.udNum,
+      udTit:s.udTit,
+      obs:s.obs||'',
+      realizada:false
+    };
+  });
+  sesions.push(...novas);
+  LS.set('ps_sesions',sesions);
+  semOffset+=1;
+  render();
+  showToast('📋 '+novas.length+' sesións copiadas á semana seguinte','#34d399');
+}
+
+function copiarSemana(){
+  const dias=getDiasSemana(semOffset);
+  const dateStrs=dias.map(d=>fmtDate(d));
+  const sesSemana=sesions.filter(s=>dateStrs.includes(s.data));
+  if(!sesSemana.length){showToast('Esta semana non ten sesións planificadas','#f87171');return;}
+  const nextDias=getDiasSemana(semOffset+1);
+  const nextStrs=nextDias.map(d=>fmtDate(d));
+  // Verificar se a próxima semana xa ten sesións
+  const sesSiguiente=sesions.filter(s=>nextStrs.includes(s.data));
+  if(sesSiguiente.length){
+    _confirmar('A semana seguinte xa ten '+sesSiguiente.length+' sesión(s). Engadir igualmente?',
+      ()=>_executarCopiaConf(sesSemana,nextStrs,dateStrs),'Engadir igualmente');
+    return;
+  }
+  _executarCopiaConf(sesSemana,nextStrs,dateStrs);
+}
+
+function gardaObsInline(id, txt){
+  const s=sesions.find(x=>x.id===id);
+  if(!s) return;
+  const clean=txt.replace(/\+ obs\./g,'').trim();
+  s.obs=clean;
+  LS.set('ps_sesions',sesions);
+}
+
+function novaSesion(dateStr,matId){
+  const mat=materias.find(m=>m.id===matId);
+  const udsMat=lomloeUDs[matId]||[];
+  const col=mat?.color||'#818cf8';
+  const udOpts=udsMat.sort((a,b)=>a.num-b.num).map(u=>
+    `<option value="${u.num}">UD${u.num}${u.tit?' · '+u.tit.substring(0,26):''}</option>`).join('');
+
+  openModal(`<h3>➕ Nova sesión · ${mat?.icon||''} ${mat?.nome||matId}</h3>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:12px;padding:4px 8px;background:var(--card2);border-radius:6px">${dateStr}</div>
+    <label class="modal-label">📚 Unidade Didáctica</label>
+    <select class="modal-sel" id="ns-ud">
+      <option value="">— Seleccionar UD —</option>${udOpts}
+    </select>
+    <label class="modal-label">📝 Observacións / Contido previsto</label>
+    <textarea class="modal-ta" id="ns-obs" rows="3" placeholder="Que se vai traballar nesta sesión..."></textarea>
+    <label class="modal-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="ns-real" style="width:14px;height:14px;accent-color:var(--green)"/>
+      ✅ Marcar como realizada
+    </label>
+    <div class="modal-row" style="margin-top:12px">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarNovaSesion('${dateStr}','${matId}')">Gardar</button>
+    </div>`);
+}
+
+function gardarNovaSesion(dateStr,matId){
+  const udNum=parseInt(document.getElementById('ns-ud')?.value)||null;
+  const obs=document.getElementById('ns-obs')?.value.trim()||'';
+  const real=document.getElementById('ns-real')?.checked||false;
+  if(!udNum){alert('Selecciona unha UD');return;}
+  const udsMat=lomloeUDs[matId]||[];
+  const udObj=udsMat.find(u=>u.num===udNum);
+  // Detectar solapamento: mesma materia o mesmo día
+  const solapamento=sesions.find(s=>s.data===dateStr&&s.materia===matId);
+  if(solapamento){
+    _confirmar('⚠️ Xa existe unha sesión de '+(materias.find(m=>m.id===matId)?.nome||matId)+' para o '+dateStr+'. Engadir igualmente?',
+      ()=>_engadirSesionConf(matId,dateStr,udNum,obs,real),'Engadir igualmente');
+    return;
+  }
+  sesions.push({id:'ps_'+Date.now(),data:dateStr,materia:matId,udNum,udTit:udObj?.tit||'',obs,realizada:real});
+  LS.set('ps_sesions',sesions);
+  closeModal();render();
+  showToast('✅ Sesión engadida','#34d399');
+}
+function _engadirSesionConf(matId,dateStr,udNum,obs,real){
+  const udsMat2=lomloeUDs[matId]||[];
+  const udObj2=udsMat2.find(u=>u.num===udNum);
+  sesions.push({id:'ps_'+Date.now(),data:dateStr,materia:matId,udNum,udTit:udObj2?.tit||'',obs,realizada:real});
+  LS.set('ps_sesions',sesions);
+  closeModal();render();
+  showToast('✅ Sesión engadida','#34d399');
+}
+
+// ── EDITAR SESION ─────────────────────────────────────────────────────────────
+function editSesion(id){
+  const s=sesions.find(x=>x.id===id);
+  if(!s) return;
+  const mat=materias.find(m=>m.id===s.materia);
+  const udsMat=lomloeUDs[s.materia]||[];
+  const udOpts=udsMat.sort((a,b)=>a.num-b.num).map(u=>
+    `<option value="${u.num}"${u.num===s.udNum?' selected':''}>UD${u.num}${u.tit?' · '+u.tit.substring(0,26):''}</option>`).join('');
+
+  openModal(`<h3>✏️ Editar sesión · ${mat?.icon||''} ${mat?.nome||s.materia}</h3>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:12px;padding:4px 8px;background:var(--card2);border-radius:6px">${s.data}</div>
+    <label class="modal-label">📚 Unidade Didáctica</label>
+    <select class="modal-sel" id="es-ud">
+      <option value="">— Seleccionar UD —</option>${udOpts}
+    </select>
+    <label class="modal-label">📝 Observacións / Contido</label>
+    <textarea class="modal-ta" id="es-obs" rows="3">${s.obs||''}</textarea>
+    <label class="modal-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:12px">
+      <input type="checkbox" id="es-real" ${s.realizada?'checked':''} style="width:14px;height:14px;accent-color:var(--green)"/>
+      ✅ Marcar como realizada
+    </label>
+    <div class="modal-row">
+      <button class="btn btn-red" onclick="borrarSesion('${id}')">🗑 Borrar</button>
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarEditSesion('${id}')">Gardar</button>
+    </div>`);
+}
+
+function gardarEditSesion(id){
+  const s=sesions.find(x=>x.id===id);
+  if(!s) return;
+  const udNum=parseInt(document.getElementById('es-ud')?.value)||null;
+  const udsMat=lomloeUDs[s.materia]||[];
+  const udObj=udsMat.find(u=>u.num===udNum);
+  s.udNum=udNum;
+  s.udTit=udObj?.tit||'';
+  s.obs=document.getElementById('es-obs')?.value.trim()||'';
+  s.realizada=document.getElementById('es-real')?.checked||false;
+  LS.set('ps_sesions',sesions);
+  closeModal();render();
+}
+
+function borrarSesion(id){
+  const eliminada=sesions.find(s=>s.id===id);
+  if(!eliminada)return;
+  sesions=sesions.filter(s=>s.id!==id);
+  LS.set('ps_sesions',sesions);
+  closeModal();render();
+  const mat=materias.find(m=>m.id===eliminada.materia);
+  _toastDesfacer(
+    `Sesión ${mat?mat.nome+' ':''} ${eliminada.data} eliminada`,
+    ()=>{
+      sesions.push(eliminada);
+      sesions.sort((a,b)=>a.data.localeCompare(b.data));
+      LS.set('ps_sesions',sesions);render();
+    }
+  );
+}
+
+// ── FILTRAR POR UD ────────────────────────────────────────────────────────────
+function filtrarPorUD(matId,udNum){
+  showToast(`📚 UD${udNum} — ${lomloeUDs[matId]?.find(u=>u.num===udNum)?.tit||''}  ·  ${sesions.filter(s=>s.materia===matId&&s.udNum===udNum).length} sesión(s) planificadas`,'#818cf8');
+}
+
+// ── PROGRESO UDs ──────────────────────────────────────────────────────────────
+function verProgreso(){
+  // Stats globais
+  const totalSes=sesions.length;
+  const totalReal=sesions.filter(s=>s.realizada).length;
+  const pctGlobal=totalSes?Math.round(totalReal/totalSes*100):0;
+  const notasDias=[...new Set(JSON.parse(localStorage.getItem('sn3_notas')||'[]').filter(n=>n.unidade?.num).map(n=>n.data))].length;
+  let html='<h3>📊 Progreso de UDs e Sesións</h3>';
+  html+=`<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <div style="background:var(--card2);border-radius:10px;padding:10px 16px;flex:1;text-align:center"><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.4rem;color:var(--gold)">${totalSes}</div><div style="font-size:.58rem;font-weight:900;color:var(--muted);text-transform:uppercase">Sesións planif.</div></div>
+    <div style="background:var(--card2);border-radius:10px;padding:10px 16px;flex:1;text-align:center"><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.4rem;color:var(--green)">${totalReal}</div><div style="font-size:.58rem;font-weight:900;color:var(--muted);text-transform:uppercase">Realizadas</div></div>
+    <div style="background:var(--card2);border-radius:10px;padding:10px 16px;flex:1;text-align:center"><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.4rem;color:var(--indigo)">${pctGlobal}%</div><div style="font-size:.58rem;font-weight:900;color:var(--muted);text-transform:uppercase">Completado</div></div>
+    <div style="background:var(--card2);border-radius:10px;padding:10px 16px;flex:1;text-align:center"><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.4rem;color:var(--blue)">${notasDias}</div><div style="font-size:.58rem;font-weight:900;color:var(--muted);text-transform:uppercase">Días con notas</div></div>
+  </div>`;
+  materias.forEach(m=>{
+    const udsMat=lomloeUDs[m.id]||[];
+    if(!udsMat.length) return;
+    html+=`<div style="font-size:.72rem;font-weight:900;color:${m.color||'#818cf8'};margin:12px 0 6px">${m.icon||''} ${m.nome}</div>`;
+    udsMat.sort((a,b)=>a.num-b.num).forEach(ud=>{
+      const nPlanif=sesions.filter(s=>s.materia===m.id&&s.udNum===ud.num).length;
+      const nReal=sesions.filter(s=>s.materia===m.id&&s.udNum===ud.num&&s.realizada).length;
+      const nNotasDias=[...new Set(notas.filter(n=>n.materia===m.id&&n.unidade?.num===ud.num).map(n=>n.data))].length;
+      const sesPrev=ud.sesions||0;
+      const pct=sesPrev?Math.min(100,Math.round((nReal+nNotasDias)/(sesPrev)*100)):0;
+      const c=pct>=80?'#34d399':pct>=40?'#fbbf24':'#818cf8';
+      html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:6px 10px;background:var(--card2);border-radius:8px">
+        <span style="font-size:.62rem;font-weight:900;padding:1px 6px;border-radius:4px;background:${m.color||'#818cf8'}18;color:${m.color||'#818cf8'}">UD${ud.num}</span>
+        <span style="font-size:.7rem;font-weight:800;flex:1">${(ud.tit||'').substring(0,24)}</span>
+        <div style="width:80px;height:5px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${c};border-radius:999px"></div>
+        </div>
+        <span style="font-size:.62rem;font-weight:900;color:${c};min-width:30px;text-align:right">${pct}%</span>
+      </div>`;
+    });
+  });
+  html+=`<div class="modal-row"><button class="btn" onclick="closeModal()">Pechar</button></div>`;
+  openModal(html);
+}
+
+// ── NAVEGAR ───────────────────────────────────────────────────────────────────
+function navSem(d){
+  if(d===0) semOffset=0;
+  else semOffset+=d;
+  render();
+}
+
+// ── EXPORTAR PDF ──────────────────────────────────────────────────────────────
+function exportarPDF(){
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Planificador Semanal</title><style>body{font-family:sans-serif;padding:1cm;font-size:11px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:6px;vertical-align:top}th{background:#f5f5f5;font-weight:800}@page{size:A4 landscape}</style></head><body>');
+  w.document.write('<h2>Planificador Semanal · '+document.getElementById('week-label').textContent+'</h2>');
+  w.document.write('<table><tr><th>Materia</th>');
+  getDiasSemana(semOffset).forEach(d=>w.document.write('<th>'+DIAS[d.getDay()-1]+' '+fmtDateGL(d)+'</th>'));
+  w.document.write('</tr>');
+  materias.forEach(m=>{
+    w.document.write('<tr><td><strong>'+m.nome+'</strong></td>');
+    getDiasSemana(semOffset).forEach(d=>{
+      const ses=sesions.filter(s=>s.data===fmtDate(d)&&s.materia===m.id);
+      w.document.write('<td>'+(ses.map(s=>'UD'+s.udNum+(s.obs?' · '+s.obs:'')).join('<br>')||'—')+'</td>');
+    });
+    w.document.write('</tr>');
+  });
+  w.document.write('</table></body></html>');
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(){document.getElementById('modal-bg').classList.remove('show');}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg,col='#fbbf24'){
+  const t=document.createElement('div');
+  t.className='toast';t.style.background=col;t.style.color='#fff';t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);
+}
+
+window.addEventListener('storage',e=>{
+  if(['sn3_notas','ps_sesions'].includes(e.key)){
+    if(e.key==='ps_sesions') sesions=LS.get('ps_sesions',[]);
+    render();
+  }
+});
+
+// ── VISTA MENSUAL ─────────────────────────────────────────────────────────────
+let vistaMode='semanal';
+
+function toggleVista(){
+  vistaMode=vistaMode==='semanal'?'mensual':'semanal';
+  document.getElementById('btn-vista').textContent=vistaMode==='semanal'?'📆 Vista mensual':'📅 Vista semanal';
+  render();
+}
+
+function renderMes(){
+  const hoxe=new Date();
+  const ano=hoxe.getFullYear();
+  const mes=hoxe.getMonth()+semOffset; // reusar semOffset como mesOffset en vista mensual
+  const priDia=new Date(ano,mes,1);
+  const ultDia=new Date(ano,mes+1,0);
+  const label=priDia.toLocaleDateString('gl-ES',{month:'long',year:'numeric'});
+  document.getElementById('week-label').textContent=label[0].toUpperCase()+label.slice(1);
+
+  // Contar sesions do mes
+  const diasMes=Array.from({length:ultDia.getDate()},(_,i)=>{
+    const d=new Date(ano,mes,i+1);return fmtDate(d);
+  });
+  const sesMes=sesions.filter(s=>diasMes.includes(s.data));
+  const sesReal=sesMes.filter(s=>s.realizada).length;
+  document.getElementById('week-sub').textContent=`${sesReal}/${sesMes.length} sesións realizadas este mes`;
+
+  // Grid mensual: filas=materias, cols=semanas do mes
+  const semanas=[];
+  let cur=new Date(priDia);
+  // Ir ao luns da semana do primeiro día
+  const dow=cur.getDay();
+  cur.setDate(cur.getDate()-(dow===0?6:dow-1));
+  while(cur<=ultDia){
+    const sem=[];
+    for(let i=0;i<5;i++){
+      sem.push(new Date(cur));
+      cur.setDate(cur.getDate()+1);
+    }
+    cur.setDate(cur.getDate()+2); // saltar fin de semana
+    semanas.push(sem);
+  }
+
+  const grid=document.getElementById('planner-grid');
+  let html='<div class="grid-cell day-header" style="background:var(--card2)"></div>';
+  semanas.forEach((sem,si)=>{
+    const ini=sem[0],fin=sem[4];
+    html+=`<div class="grid-cell day-header"><div class="day-name" style="font-size:.62rem">Sem.${si+1}</div><div class="day-date">${fmtDateGL(ini)}–${fmtDateGL(fin)}</div></div>`;
+  });
+
+  materias.forEach(m=>{
+    const col=m.color||'#818cf8';
+    html+=`<div class="grid-cell" style="background:${col}10;border-right:1px solid ${col}25;padding:6px 8px;display:flex;flex-direction:column;justify-content:center;gap:2px">
+      <span style="font-size:.9rem">${m.icon||''}</span>
+      <span style="font-size:.55rem;font-weight:900;color:${col};line-height:1.2">${m.nome.substring(0,10)}</span>
+    </div>`;
+    semanas.forEach(sem=>{
+      const dateStrs=sem.map(d=>fmtDate(d));
+      const cellSes=sesions.filter(s=>dateStrs.includes(s.data)&&s.materia===m.id);
+      // Agrupar por UD
+      const udSet={};
+      cellSes.forEach(s=>{const k='UD'+(s.udNum||'?');if(!udSet[k])udSet[k]={udNum:s.udNum,udTit:s.udTit,count:0,real:0};udSet[k].count++;if(s.realizada)udSet[k].real++;});
+      const blocks=Object.values(udSet).map(u=>{
+        const isReal=u.real>0;
+        const bg=isReal?`${col}28`:`rgba(129,140,248,.08)`;
+        const bc=isReal?col:'rgba(129,140,248,.3)';
+        return `<div class="ses-block ${isReal?'real':'planif'}" style="background:${bg};border-color:${bc};border-style:${isReal?'solid':'dashed'};font-size:.58rem">
+          <div style="color:${col};font-weight:900">UD${u.udNum||'?'}${u.udTit?' · '+u.udTit.substring(0,10):''}</div>
+          <div style="color:var(--muted)">${u.count} ses.${u.real?' · '+u.real+' real':''}</div>
+        </div>`;
+      }).join('');
+      html+=`<div class="grid-cell ses-cell" style="padding:4px">${blocks||'<span style="font-size:.55rem;color:var(--border2);padding:4px">—</span>'}</div>`;
+    });
+  });
+  grid.innerHTML=html;
+  renderSidebar();
+}
+
+init();
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:400px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

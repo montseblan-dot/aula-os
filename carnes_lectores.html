@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnés Lectores · 4º B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700;9..40,800;9..40,900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+  --white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#fbbf24;--green:#22c55e;--red:#ef4444;
+  --purple:#a78bfa;--teal:#2dd4bf;--blue:#60a5fa;--orange:#fb923c;--shadow:0 4px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--white);font-size:14px}
+.header{background:var(--card);border-bottom:2px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1rem,3vw,1.5rem);color:var(--gold)}
+.btn{height:36px;padding:0 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;border:none;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--white);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-sm{height:30px;padding:0 10px;font-size:.72rem}
+.tab-nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none}
+.tab{padding:10px 16px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.section{display:none;padding:1.25rem;max-width:1100px;margin:0 auto}
+.section.show{display:block}
+.inp{width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 12px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--gold)}
+.label{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px;display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;margin-bottom:.75rem}
+
+/* GRID ALUMNOS */
+.al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.al-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;cursor:pointer;transition:all .2s}
+.al-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.al-card.active{border-color:var(--gold)}
+.al-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:white;margin-bottom:.5rem}
+.al-nm{font-weight:800;font-size:.85rem;margin-bottom:4px}
+.al-libros{font-size:.68rem;color:var(--muted);font-weight:700}
+.al-stars{color:var(--gold);font-size:.8rem}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:999px;background:var(--gold)}
+
+/* LIBRO FORM */
+.libro-list{display:flex;flex-direction:column;gap:8px}
+.libro-item{background:var(--card2);border-radius:12px;padding:12px 14px;border:1px solid var(--border)}
+.libro-title{font-weight:800;font-size:.88rem;margin-bottom:4px}
+.libro-meta{font-size:.68rem;color:var(--muted);font-weight:700}
+.stars-sel{display:flex;gap:4px;cursor:pointer;font-size:1.1rem}
+.star{transition:transform .1s;filter:grayscale(1);opacity:.4}
+.star.on{filter:none;opacity:1;transform:scale(1.1)}
+
+/* GRÁFICO SVG */
+.chart-wrap{overflow-x:auto}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:1.5rem;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;border:1px solid var(--border2)}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:10000;padding:9px 22px;border-radius:12px;font-size:.85rem;font-weight:800;color:white;pointer-events:none;opacity:0;transition:opacity .3s;font-family:'DM Sans',sans-serif}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.4rem">📚</span>
+  <div>
+    <h1>Carnés Lectores</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn btn-ghost btn-sm" onclick="showTab('alumnos')">👤 Alumnos</button>
+    <button class="btn btn-ghost btn-sm" onclick="showTab('libros')" id="btn-libros" style="display:none">📖 Rexistro</button>
+    <button class="btn btn-ghost btn-sm" onclick="showTab('stats')">📊 Estatísticas</button>
+    <button class="btn btn-ghost btn-sm" onclick="imprimirCarne()" id="btn-imprimir" style="display:none">🖨️ Carné PDF</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">📊 CSV</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">💾 JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="importarJSON()">📂 Importar</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <button class="btn btn-ghost btn-sm" onclick="toggleModo()">☀️ Claro</button>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <div class="tab active" id="tab-alumnos" onclick="showTab('alumnos')">👤 Todos/as</div>
+  <div class="tab" id="tab-libros" onclick="showTab('libros')">📖 Rexistro</div>
+  <div class="tab" id="tab-stats" onclick="showTab('stats')">📊 Estatísticas</div>
+</div>
+
+<div class="section show" id="sec-alumnos">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+    <div style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);font-size:1rem">📚 Lectura en curso · 4º B</div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <input id="al-search" placeholder="🔍 Buscar…" oninput="renderAlumnos()" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 10px;outline:none;width:160px">
+      <button class="btn btn-gold btn-sm" onclick="abrirModal()">+ Engadir lectura</button>
+    </div>
+  </div>
+  <div class="al-grid" id="al-grid"></div>
+</div>
+
+<div class="section" id="sec-libros">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+    <div id="libros-alumno-nome" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold)">Lecturas</div>
+    <select id="libros-al-sel" onchange="verAlumno(this.value)" style="height:30px;padding:0 8px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;max-width:180px">
+      <option value="">— Seleccionar —</option>
+    </select>
+    <button class="btn btn-gold btn-sm" onclick="abrirModal()" style="margin-left:auto">+ Nova lectura</button>
+    <button class="btn btn-ghost btn-sm" onclick="showTab('alumnos')">← Volver</button>
+  </div>
+  <div class="libro-list" id="libro-list"></div>
+</div>
+
+<div class="section" id="sec-stats">
+  <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:1rem">📊 Estatísticas de lectura da clase</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:1.25rem" id="stats-cards"></div>
+  <div class="card">
+    <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem">Libros lidos por alumno/a</div>
+    <div class="chart-wrap" id="stats-chart"></div>
+  </div>
+  <div class="card">
+    <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem">Ranking lector</div>
+    <div id="stats-ranking"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const AVCOLS=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#f97316','#14b8a6','#ef4444','#84cc16','#a855f7','#06b6d4','#f43f5e','#22c55e','#eab308','#6366f1','#64748b','#0ea5e9','#d946ef','#fb923c','#4ade80','#818cf8','#34d399','#fbbf24','#f87171'];
+
+let alumnos = (()=>{
+  const a=LS.get('pc_alumnos',[]);
+  if(a.length) return a;
+  const b=LS.get('sn3_alumnos',[]);
+  if(b.length) return b;
+  // Último recurso: extraer alumnos únicos das lecturas gardadas
+  const lects=LS.get('cl_lecturas',[]);
+  const unicos=[...new Set(lects.map(l=>l.alumno).filter(Boolean))].sort();
+  return unicos;
+})();
+// lecturas = [{id, alumno, titulo, autor, data, valoracion(1-5), comentario, paxinas}]
+let lecturas = LS.get('cl_lecturas',[]);
+let selAlumno = null;
+const META_ANUAL = LS.get('cl_meta', 12);
+
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();}
+function ac(i){return AVCOLS[i%AVCOLS.length];}
+function gardar(){LS.set('cl_lecturas',lecturas);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){}}
+function toast(msg,col='#22c55e'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=col;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2200);}
+
+function showTab(t){
+  document.querySelectorAll('.tab,.section').forEach(el=>el.classList.remove('active','show'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('sec-'+t).classList.add('show');
+  if(t==='alumnos') renderAlumnos();
+  if(t==='libros'){
+    // Poboar selector de alumno/a no Rexistro
+    const sel=document.getElementById('libros-al-sel');
+    if(sel&&alumnos.length){
+      const cur=sel.value;
+      sel.innerHTML='<option value="">— Seleccionar —</option>'+
+        alumnos.map(a=>`<option value="${a}"${(selAlumno===a||cur===a)?'selected':''}>${a}</option>`).join('');
+      if(selAlumno) sel.value=selAlumno;
+    }
+    renderLibros();
+  }
+  if(t==='stats') renderStats();
+}
+
+// ── ALUMNOS ────────────────────────────────────────────────────────────────────
+// ── INSIGNIAS ─────────────────────────────────────────────────────────────────
+function getInsignias(alumno){
+  const lects=lecturas.filter(l=>l.alumno===alumno);
+  const n=lects.length;
+  const ins=[];
+  if(n>=1)  ins.push({id:'primeiro',emoji:'📖',label:'Primeiro libro'});
+  if(n>=5)  ins.push({id:'cincolibros',emoji:'🌟',label:'5 libros lidos'});
+  if(n>=10) ins.push({id:'dezlibros',emoji:'🏆',label:'10 libros lidos'});
+  if(n>=META_ANUAL) ins.push({id:'meta',emoji:'🎯',label:'Meta anual acadada'});
+  const conVal=lects.filter(l=>l.valoracion>=5).length;
+  if(conVal>=3) ins.push({id:'critico',emoji:'⭐',label:'3 libros con 5 estrelas'});
+  return ins;
+}
+
+function renderInsigniasAlumno(alumno, el){
+  if(!el) return;
+  const ins=getInsignias(alumno);
+  if(!ins.length){el.innerHTML='';return;}
+  el.innerHTML=ins.map(i=>
+    `<span title="${i.label}" style="font-size:.72rem;padding:2px 8px;border-radius:999px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);color:var(--gold);margin-right:4px">${i.emoji} ${i.label}</span>`
+  ).join('');
+}
+
+function renderAlumnos(){
+  // Reintentar cargar alumnos se a lista está baleira
+  if(!alumnos.length){
+    const _a=LS.get('pc_alumnos',[]);
+    const _b=LS.get('sn3_alumnos',[]);
+    const _c=[...new Set(LS.get('cl_lecturas',[]).map(l=>l.alumno).filter(Boolean))].sort();
+    alumnos=_a.length?_a:_b.length?_b:_c;
+  }
+  const q=document.getElementById('al-search')?.value.toLowerCase()||'';
+  const list=alumnos.filter(a=>!q||a.toLowerCase().includes(q));
+  const grid=document.getElementById('al-grid');
+  if(!grid) return;
+  if(!alumnos.length){
+    grid.innerHTML=`<div style="text-align:center;padding:3rem;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:.75rem">👥</div>
+      <div style="font-size:.85rem;font-weight:800;margin-bottom:.5rem">Non se atoparon alumnos/as</div>
+      <div style="font-size:.72rem;margin-bottom:1rem">Abre o Panel de Clase ou o Caderno Docente primeiro para sincronizar o alumnado.</div>
+      <button onclick="alumnos=LS.get('pc_alumnos',LS.get('sn3_alumnos',[]));renderAlumnos();" style="height:32px;padding:0 16px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-size:.75rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">🔄 Sincronizar alumnado</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML=list.map(a=>{
+    const i=alumnos.indexOf(a);
+    const lects=lecturas.filter(l=>l.alumno===a);
+    const n=lects.length;
+    const pct=Math.min(100,Math.round(n/META_ANUAL*100));
+    const avg=n?+(lects.reduce((s,l)=>s+(l.valoracion||0),0)/n).toFixed(1):0;
+    const nIns=getInsignias(a).length;
+    return `<div class="al-card${selAlumno===a?' active':''}" onclick="verAlumno('${a.replace(/'/g,"\\'")}')">
+      <div class="al-av" style="background:${ac(i)}">${ini(a)}</div>
+      <div class="al-nm">${a}</div>
+      <div class="al-libros">${n} libro${n!==1?'s':''} · meta ${pct}%</div>
+      ${avg>0?`<div class="al-stars">${'⭐'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>`:''}
+      ${nIns>0?`<span style="font-size:.58rem;font-weight:900;padding:1px 5px;border-radius:999px;background:rgba(251,191,36,.15);color:var(--gold);margin-right:3px">${nIns} \uD83C\uDFC5</span>`:''}
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function verAlumno(nome){
+  selAlumno=nome;
+  document.getElementById('libros-alumno-nome').textContent='📖 '+nome;
+  document.getElementById('btn-libros').style.display='inline-flex';
+  document.getElementById('btn-imprimir').style.display='inline-flex';
+  showTab('libros');
+}
+
+// ── LIBROS ─────────────────────────────────────────────────────────────────────
+function renderLibros(){
+  // Show insignias
+  (function(){
+    var ic=document.getElementById('ins-chips');
+    if(!ic){ic=document.createElement('div');ic.id='ins-chips';ic.style.cssText='margin-bottom:.5rem;display:flex;flex-wrap:wrap;gap:4px';var ll=document.getElementById('libro-list');if(ll)ll.parentNode.insertBefore(ic,ll);}
+    if(selAlumno)renderInsigniasAlumno(selAlumno,ic);else ic.innerHTML='';
+  })();
+  if(!selAlumno){document.getElementById('libro-list').innerHTML='<div style="color:var(--muted);text-align:center;padding:2rem">Selecciona un alumno/a primeiro</div>';return;}
+  const lects=lecturas.filter(l=>l.alumno===selAlumno).sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const el=document.getElementById('libro-list');
+  if(!lects.length){el.innerHTML='<div class="card" style="text-align:center;padding:2rem;color:var(--muted)">Aínda non hai lecturas rexistradas. Preme "+ Nova lectura" para engadir.</div>';return;}
+  el.innerHTML=lects.map(l=>`
+    <div class="libro-item">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="flex:1">
+          <div class="libro-title">${l.titulo}</div>
+          <div class="libro-meta">${l.autor||'Autor/a descoñecido/a'}${l.dataIni?' · Inicio: '+l.dataIni:''}${l.data?' · Fin: '+l.data:''} ${l.paxinas?'· '+l.paxinas+' páx.':''}</div>
+          ${l.valoracion?`<div style="color:var(--gold);font-size:.9rem;margin-top:4px">${'⭐'.repeat(l.valoracion)}${'☆'.repeat(5-l.valoracion)}</div>`:''}
+          ${l.comentario?`<div style="font-size:.75rem;color:var(--muted);margin-top:6px;font-style:italic">"${l.comentario}"</div>`:''}
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button class="btn btn-ghost btn-sm" onclick="editarLibro('${l.id}')">✏️</button>
+          <button class="btn btn-red btn-sm" onclick="borrarLibro('${l.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── MODAL ENGADIR/EDITAR ────────────────────────────────────────────────────────
+function abrirModal(id=null){
+  // Reintentar cargar alumnos se está baleiro
+  if(!alumnos.length) alumnos=LS.get('pc_alumnos',LS.get('sn3_alumnos',[]));
+  const l=id?lecturas.find(x=>x.id===id):{};
+  const today=new Date().toISOString().split('T')[0];
+  const alumnoOpts=alumnos.map(a=>`<option value="${a}"${(l.alumno||selAlumno)===a?' selected':''}>${a}</option>`).join('');
+  document.getElementById('modal-content').innerHTML=`
+    <h3 style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);margin-bottom:1rem">${id?'✏️ Editar':'📖 Nova lectura'}</h3>
+    <div style="display:grid;gap:10px">
+      <div><label class="label">Alumno/a</label>
+        <select id="lb-alumno" class="inp" style="cursor:pointer">${alumnoOpts}</select></div>
+      <div><label class="label">Título do libro</label>
+        <input id="lb-titulo" class="inp" value="${l.titulo||''}" placeholder="Ex: Charlotte's Web"></div>
+      <div><label class="label">Autor/a</label>
+        <input id="lb-autor" class="inp" value="${l.autor||''}" placeholder="Ex: E.B. White"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="label">Data de inicio</label>
+          <input id="lb-data-ini" class="inp" type="date" value="${l.dataIni||''}"></div>
+        <div><label class="label">Data de fin</label>
+          <input id="lb-data" class="inp" type="date" value="${l.data||''}"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="label">Nº de páxinas</label>
+          <input id="lb-pax" class="inp" type="number" value="${l.paxinas||''}" placeholder="Ex: 120"></div>
+        <div></div>
+      </div>
+      <div><label class="label">Valoración</label>
+        <div class="stars-sel" id="stars-sel">
+          ${[1,2,3,4,5].map(n=>`<span class="star${(l.valoracion||0)>=n?' on':''}" data-v="${n}" onclick="selStar(${n})">⭐</span>`).join('')}
+        </div>
+        <input type="hidden" id="lb-val" value="${l.valoracion||0}">
+      </div>
+      <div><label class="label">Comentario do/a alumno/a</label>
+        <textarea id="lb-coment" rows="3" style="width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:8px 12px;outline:none;resize:vertical">${l.comentario||''}</textarea></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-bg').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarLibro('${id||''}')">💾 Gardar</button>
+    </div>`;
+  document.getElementById('modal-bg').classList.add('show');
+}
+
+function selStar(v){
+  document.getElementById('lb-val').value=v;
+  document.querySelectorAll('#stars-sel .star').forEach(s=>{
+    s.classList.toggle('on',parseInt(s.dataset.v)<=v);
+  });
+}
+
+function gardarLibro(id){
+  const titulo=document.getElementById('lb-titulo').value.trim();
+  if(!titulo){alert('Introduce o título do libro.');return;}
+  const obj={
+    id:id||'lb_'+Date.now(),
+    alumno:document.getElementById('lb-alumno').value,
+    titulo,
+    autor:document.getElementById('lb-autor').value.trim(),
+    dataIni:document.getElementById('lb-data-ini').value,
+    data:document.getElementById('lb-data').value,
+    paxinas:parseInt(document.getElementById('lb-pax').value)||null,
+    valoracion:parseInt(document.getElementById('lb-val').value)||0,
+    comentario:document.getElementById('lb-coment').value.trim(),
+    udTit:''
+  };
+  if(id){const i=lecturas.findIndex(l=>l.id===id);if(i>=0)lecturas[i]=obj;}
+  else lecturas.push(obj);
+  selAlumno=obj.alumno;
+  gardar();
+  document.getElementById('modal-bg').classList.remove('show');
+  renderLibros();
+  renderAlumnos();
+  toast('📖 Lectura gardada','#22c55e');
+}
+
+function editarLibro(id){abrirModal(id);}
+function borrarLibro(id){
+  const eliminada=lecturas.find(l=>l.id===id);
+  if(!eliminada)return;
+  lecturas=lecturas.filter(l=>l.id!==id);
+  gardar();renderLibros();renderAlumnos();
+  _toastDesfacer(
+    'Lectura eliminada',
+    ()=>{
+      lecturas.push(eliminada);
+      lecturas.sort((a,b)=>new Date(b.data)-new Date(a.data));
+      gardar();renderLibros();renderAlumnos();
+    }
+  );
+  // toast suprimido — substituído por _toastDesfacer
+  void('Lectura eliminada','#ef4444');
+}
+
+// ── ESTATÍSTICAS ────────────────────────────────────────────────────────────────
+function renderStats(){
+  const total=lecturas.length;
+  const conLect=new Set(lecturas.map(l=>l.alumno)).size;
+  const avg=alumnos.length?+(total/alumnos.length).toFixed(1):0;
+  const avgVal=lecturas.filter(l=>l.valoracion).length?+(lecturas.filter(l=>l.valoracion).reduce((s,l)=>s+l.valoracion,0)/lecturas.filter(l=>l.valoracion).length).toFixed(1):0;
+  document.getElementById('stats-cards').innerHTML=[
+    ['📚','Total lecturas',total,'var(--gold)'],
+    ['👤','Alumnos/as activos/as',conLect,'var(--green)'],
+    ['📖','Media por alumno/a',avg,'var(--blue)'],
+    ['⭐','Valoración media',avgVal?avgVal+'/5':'—','var(--orange)'],
+  ].map(([icon,label,val,col])=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px">
+      <div style="font-size:1.4rem;margin-bottom:4px">${icon}</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.6rem;color:${col}">${val}</div>
+      <div style="font-size:.68rem;color:var(--muted);font-weight:700">${label}</div>
+    </div>`).join('');
+
+  // Barras por alumno
+  const byAl=alumnos.map(a=>({a,n:lecturas.filter(l=>l.alumno===a).length})).sort((a,b)=>b.n-a.n);
+  const maxN=Math.max(1,...byAl.map(x=>x.n));
+  const W=Math.max(500,alumnos.length*50);
+  const H=200;const pad={t:20,r:20,b:60,l:40};
+  let svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">`;
+  [0,.25,.5,.75,1].forEach(f=>{
+    const y=pad.t+(1-f)*(H-pad.t-pad.b);
+    svg+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>`;
+    svg+=`<text x="${pad.l-5}" y="${y+4}" text-anchor="end" font-size="9" fill="rgba(238,242,255,.35)" font-family="'DM Sans',sans-serif">${Math.round(f*maxN)}</text>`;
+  });
+  const bw=Math.min(40,(W-pad.l-pad.r)/byAl.length-4);
+  byAl.forEach(({a,n},i)=>{
+    const x=pad.l+i*(W-pad.l-pad.r)/byAl.length+(W-pad.l-pad.r)/byAl.length/2-bw/2;
+    const bh=(n/maxN)*(H-pad.t-pad.b);
+    const y=H-pad.b-bh;
+    const col=AVCOLS[alumnos.indexOf(a)%AVCOLS.length];
+    svg+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="4" fill="${col}" opacity=".8"/>`;
+    svg+=`<text x="${x+bw/2}" y="${H-pad.b+14}" text-anchor="middle" font-size="8" fill="rgba(238,242,255,.5)" font-family="'DM Sans',sans-serif">${ini(a)}</text>`;
+    if(n>0)svg+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="9" font-weight="800" fill="${col}" font-family="'DM Sans',sans-serif">${n}</text>`;
+  });
+  svg+='</svg>';
+  document.getElementById('stats-chart').innerHTML=`<div style="overflow-x:auto">${svg}</div>`;
+
+  // Ranking
+  document.getElementById('stats-ranking').innerHTML=byAl.slice(0,10).map(({a,n},i)=>{
+    const medals=['🥇','🥈','🥉'];
+    const idx=alumnos.indexOf(a);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div style="min-width:28px;font-size:1rem">${medals[i]||i+1}</div>
+      <div style="width:26px;height:26px;border-radius:50%;background:${AVCOLS[idx%AVCOLS.length]};display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:white">${ini(a)}</div>
+      <div style="flex:1;font-weight:800;font-size:.82rem">${a}</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold)">${n}</div>
+      <div style="font-size:.65rem;color:var(--muted)">libro${n!==1?'s':''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── IMPRIMIR CARNÉ ─────────────────────────────────────────────────────────────
+function imprimirCarne(){
+  if(!selAlumno){alert('Selecciona un alumno/a primeiro.');return;}
+  const lects=lecturas.filter(l=>l.alumno===selAlumno).sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const idx=alumnos.indexOf(selAlumno);
+  const col=AVCOLS[idx%AVCOLS.length];
+  const n=lects.length;
+  const pct=Math.min(100,Math.round(n/META_ANUAL*100));
+  const avgVal=lects.filter(l=>l.valoracion).length?+(lects.filter(l=>l.valoracion).reduce((s,l)=>s+l.valoracion,0)/lects.filter(l=>l.valoracion).length).toFixed(1):0;
+  const html=`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Carné Lector · ${selAlumno}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',system-ui,sans-serif;background:#f8fafc;color:#1e293b;max-width:600px;margin:0 auto;padding:1.5rem}
+    @media print{body{padding:.2cm;max-width:100%;background:white}@page{margin:1cm;size:A5}.no-print{display:none}}
+    .carne{border:2px solid ${col};border-radius:16px;overflow:hidden}
+    .carne-header{background:${col};padding:16px 20px;display:flex;align-items:center;gap:14px}
+    .av{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:900;color:white}
+    .carne-nome{font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;color:white}
+    .carne-sub{font-size:.72rem;color:rgba(255,255,255,.75);font-weight:700}
+    .carne-body{padding:14px 18px;background:white}
+    .prog{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin:8px 0 4px}
+    .prog-fill{height:100%;border-radius:999px;background:${col}}
+    .lb-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #e2e8f0;font-size:.78rem}
+    .lb-row:last-child{border-bottom:none}
+    .lb-num{width:20px;height:20px;border-radius:50%;background:${col};color:white;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;flex-shrink:0;margin-top:1px}
+    .lb-tit{font-weight:800;font-size:.82rem;margin-bottom:1px}
+    .lb-meta{font-size:.68rem;color:#64748b}
+    .stars{color:#f59e0b}
+    .no-print{margin-top:1.5rem;display:flex;gap:8px}
+    button{height:34px;padding:0 18px;border:none;border-radius:9px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif}
+  </style></head><body>
+  <div class="carne">
+    <div class="carne-header">
+      <div class="av">${ini(selAlumno)}</div>
+      <div>
+        <div class="carne-nome">${selAlumno}</div>
+        <div class="carne-sub">Carné Lector · 4º B · CEIP Pío XII · Curso 2025–2026</div>
+      </div>
+    </div>
+    <div class="carne-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:.75rem;font-weight:800;color:#64748b">${n} libro${n!==1?'s':''} lidos de ${META_ANUAL} na meta anual</div>
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:${col}">${pct}%</div>
+      </div>
+      <div class="prog"><div class="prog-fill" style="width:${pct}%"></div></div>
+      ${avgVal?`<div style="font-size:.68rem;color:#64748b;margin-bottom:12px">Valoración media: <span style="color:#f59e0b">${'⭐'.repeat(Math.round(avgVal))}</span> ${avgVal}/5</div>`:'<div style="margin-bottom:12px"></div>'}
+      <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:8px">Lecturas rexistradas</div>
+      ${lects.map((l,i)=>`<div class="lb-row">
+        <div class="lb-num">${i+1}</div>
+        <div style="flex:1">
+          <div class="lb-tit">${l.titulo}</div>
+          <div class="lb-meta">${l.autor||''}${l.data?' · '+l.data:''}${l.paxinas?' · '+l.paxinas+' páx.':''}</div>
+          ${l.valoracion?`<div class="stars">${'⭐'.repeat(l.valoracion)}</div>`:''}
+          ${l.comentario?`<div style="font-size:.68rem;color:#94a3b8;font-style:italic;margin-top:2px">"${l.comentario}"</div>`:''}
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="no-print">
+    <button onclick="window.print()" style="background:#1e293b;color:white">🖨️ Imprimir / PDF</button>
+    <button onclick="window.close()" style="background:#f1f5f9;color:#475569">✕ Pechar</button>
+  </div>
+  </body></html>`;
+  const w=window.open('','_blank','width=700,height=600');
+  if(!w){const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(html);a.download='carne_lector_'+selAlumno.replace(/\s/g,'_')+'.html';a.click();return;}
+  w.document.write(html);w.document.close();
+}
+
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
+function exportarCSV(){
+  const rows = [['Alumno/a','Título','Autor/a','Data','Páxinas','Valoración (1-5)','Comentario'].join(',')];
+  lecturas.sort((a,b) => a.alumno.localeCompare(b.alumno)).forEach(l => {
+    rows.push([
+      '"'+l.alumno+'"',
+      '"'+(l.titulo||'')+'"',
+      '"'+(l.autor||'')+'"',
+      l.data||'',
+      l.paxinas||'',
+      l.valoracion||'',
+      '"'+(l.comentario||'')+'"'
+    ].join(','));
+  });
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.join('\n'));
+  a.download = 'carnes_lectores_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  toast('📊 CSV exportado', '#22c55e');
+}
+
+// ── EXPORTAR / IMPORTAR JSON ──────────────────────────────────────────────────
+function exportarJSON(){
+  const data = {lecturas, meta: LS.get('cl_meta', 12), exportado: new Date().toISOString()};
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
+  a.download = 'carnes_lectores_backup_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  toast('💾 JSON exportado', '#22c55e');
+}
+
+function importarJSON(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json';
+  inp.onchange = e => {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if(data.lecturas && Array.isArray(data.lecturas)){
+          _confirmar(
+            'Importar ' + data.lecturas.length + ' lecturas? Os datos actuais manteranse (non se borran).',
+            ()=>{
+              const existingIds = new Set(lecturas.map(l => l.id));
+              const novos = data.lecturas.filter(l => !existingIds.has(l.id));
+              lecturas = [...lecturas, ...novos];
+              gardar();
+              renderAlumnos();
+              toast('✅ ' + novos.length + ' lecturas importadas', '#22c55e');
+            }
+          );
+        } else {
+          alert('Formato incorrecto. Usa un ficheiro exportado desde Carnés Lectores.');
+        }
+      } catch(ex) { alert('Erro ao ler o ficheiro: ' + ex.message); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+
+// ── MODO CLARO/ESCURO ──────────────────────────────────────────────────────────
+function toggleModo(){const a=localStorage.getItem('cl_modo')||'escuro';const n=a==='escuro'?'claro':'escuro';aplicarModo(n);localStorage.setItem('cl_modo',n);}
+function aplicarModo(m){
+  const r=document.documentElement.style,btn=document.querySelector('[onclick="toggleModo()"]');
+  if(m==='claro'){r.setProperty('--bg','#f0f4f8');r.setProperty('--card','#ffffff');r.setProperty('--card2','#f5f8fb');r.setProperty('--border','rgba(15,23,42,.10)');r.setProperty('--border2','rgba(15,23,42,.18)');r.setProperty('--white','#1e293b');r.setProperty('--muted','rgba(30,41,59,.50)');if(btn)btn.textContent='🌙 Escuro';}
+  else{r.setProperty('--bg','#0f172a');r.setProperty('--card','#1e293b');r.setProperty('--card2','#263347');r.setProperty('--border','rgba(255,255,255,.08)');r.setProperty('--border2','rgba(255,255,255,.14)');r.setProperty('--white','#f1f5f9');r.setProperty('--muted','rgba(241,245,249,.45)');if(btn)btn.textContent='☀️ Claro';}
+}
+
+// ── AUTOGUARDADO ──────────────────────────────────────────────────────────────
+window.addEventListener('beforeunload',gardar);
+setInterval(gardar,30000);
+window.addEventListener('storage',e=>{
+  if(e.key==='pc_alumnos'||e.key==='sn3_alumnos'){
+    const a=LS.get('pc_alumnos',[]);
+    const b=LS.get('sn3_alumnos',[]);
+    alumnos=a.length?a:b;
+    renderAlumnos();
+  }
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+aplicarModo(localStorage.getItem('cl_modo')||'escuro');
+renderAlumnos();
+
+function mesNavegar(d) {
+  if (d === 0) { _mesOffset = 0; }
+  else { _mesOffset += d; }
+  renderRankingMes();
+}
+
+function renderRankingMes() {
+  var el = document.getElementById('stats-ranking-mes');
+  var labelEl = document.getElementById('mes-ranking-label');
+  if (!el) return;
+
+  var now = new Date();
+  var viewDate = new Date(now.getFullYear(), now.getMonth() + _mesOffset, 1);
+  var ano = viewDate.getFullYear();
+  var mes = viewDate.getMonth(); // 0-indexed
+
+  var GL_MESES = ['Xaneiro','Febreiro','Marzo','Abril','Maio','Xu\xF1o','Xullo','Agosto','Setembro','Outubro','Novembro','Decembro'];
+  if (labelEl) labelEl.textContent = GL_MESES[mes] + ' ' + ano;
+
+  // Filter lecturas for this month
+  var mesStr = ano + '-' + (mes + 1).toString().padStart(2, '0');
+  var lecsMes = lecturas.filter(function(l) {
+    return l.data && l.data.startsWith(mesStr);
+  });
+
+  if (!lecsMes.length) {
+    el.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.82rem">'
+      + 'Sen lecturas rexistradas en ' + GL_MESES[mes] + ' ' + ano + '</div>';
+    return;
+  }
+
+  // Count books per alumno this month
+  var byAl = {};
+  lecsMes.forEach(function(l) {
+    if (!byAl[l.alumno]) byAl[l.alumno] = { n: 0, lects: [], totalVal: 0, nVal: 0 };
+    byAl[l.alumno].n++;
+    byAl[l.alumno].lects.push(l);
+    if (l.valoracion) { byAl[l.alumno].totalVal += l.valoracion; byAl[l.alumno].nVal++; }
+  });
+
+  var ranking = Object.keys(byAl).map(function(a) {
+    var d = byAl[a];
+    return { a: a, n: d.n, lects: d.lects, avgVal: d.nVal ? +(d.totalVal / d.nVal).toFixed(1) : 0 };
+  }).sort(function(a, b) { return b.n - a.n || b.avgVal - a.avgVal; });
+
+  // Most read book this month
+  var bookCount = {};
+  lecsMes.forEach(function(l) {
+    var k = l.titulo || '?';
+    if (!bookCount[k]) bookCount[k] = { titulo: l.titulo, autor: l.autor, n: 0, val: [], data: l.data };
+    bookCount[k].n++;
+    if (l.valoracion) bookCount[k].val.push(l.valoracion);
+  });
+  var topBook = Object.values(bookCount).sort(function(a, b) { return b.n - a.n; })[0];
+  var avgValMes = lecsMes.filter(function(l) { return l.valoracion; }).length
+    ? +(lecsMes.filter(function(l) { return l.valoracion; }).reduce(function(s,l){return s+l.valoracion;},0)
+       / lecsMes.filter(function(l) { return l.valoracion; }).length).toFixed(1)
+    : null;
+
+  // KPI chips
+  var html = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.85rem">'
+    + '<div style="background:var(--card2);border-radius:10px;padding:8px 12px;text-align:center;flex:1;min-width:80px">'
+    + '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.4rem;color:var(--gold)">' + lecsMes.length + '</div>'
+    + '<div style="font-size:.6rem;color:var(--muted);font-weight:700">Lecturas este mes</div></div>'
+    + '<div style="background:var(--card2);border-radius:10px;padding:8px 12px;text-align:center;flex:1;min-width:80px">'
+    + '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.4rem;color:var(--teal)">' + ranking.length + '</div>'
+    + '<div style="font-size:.6rem;color:var(--muted);font-weight:700">Lectores/as activos/as</div></div>'
+    + (avgValMes !== null
+      ? '<div style="background:var(--card2);border-radius:10px;padding:8px 12px;text-align:center;flex:1;min-width:80px">'
+        + '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.4rem;color:var(--orange)">' + avgValMes + '\u2605</div>'
+        + '<div style="font-size:.6rem;color:var(--muted);font-weight:700">Valoraci\xF3n media</div></div>' : '')
+    + '</div>';
+
+  // Libro máis lido
+  if (topBook) {
+    html += '<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:8px 12px;margin-bottom:.85rem;display:flex;align-items:center;gap:10px">'
+      + '<span style="font-size:1.2rem;flex-shrink:0">\uD83D\uDCDA</span>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:2px">Libro m\xE1is lido do mes</div>'
+      + '<div style="font-weight:800;font-size:.82rem;color:var(--white)">' + (topBook.titulo || '?') + '</div>'
+      + (topBook.autor ? '<div style="font-size:.68rem;color:var(--muted)">' + topBook.autor + '</div>' : '')
+      + '</div>'
+      + '<span style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.1rem;color:var(--gold);font-weight:700">' + topBook.n + 'x</span>'
+      + '</div>';
+  }
+
+  // Podio visual (top 3)
+  var top3 = ranking.slice(0, 3);
+  var medals = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49'];
+  var platH = [70, 50, 38];
+  var platCol = ['linear-gradient(160deg,#b45309,#78350f)', 'linear-gradient(160deg,#475569,#1e293b)', 'linear-gradient(160deg,#7c3d12,#431407)'];
+  var avSize = [44, 36, 30];
+
+  if (top3.length >= 2) {
+    // Reorder: 2nd left, 1st center, 3rd right
+    var podioOrder = top3.length === 1 ? [top3[0]] : top3.length === 2 ? [top3[1], top3[0]] : [top3[1], top3[0], top3[2]];
+    var podioPos = top3.length === 1 ? [0] : top3.length === 2 ? [1, 0] : [1, 0, 2];
+
+    html += '<div class="podio-mes">'
+      + podioOrder.map(function(item, idx) {
+          var pos = podioPos[idx];
+          var realIdx = ranking.indexOf(item);
+          var col = AVCOLS[alumnos.indexOf(item.a) % AVCOLS.length];
+          var sz = avSize[pos];
+          var ph = platH[pos];
+          var stars = item.avgVal ? '\u2B50'.repeat(Math.round(item.avgVal)) : '';
+          return '<div class="podio-col-mes" style="flex:1;max-width:140px">'
+            + '<div style="font-size:' + (pos === 0 ? '1.5rem' : '1.1rem') + ';margin-bottom:2px">' + medals[pos] + '</div>'
+            + '<div class="podio-av-mes" style="width:' + sz + 'px;height:' + sz + 'px;background:' + col + ';font-size:' + (sz*0.35) + 'px;margin:0 auto 3px">' + ini(item.a) + '</div>'
+            + '<div style="font-size:' + (pos === 0 ? '.78rem' : '.68rem') + ';font-weight:800;color:var(--white);text-align:center;line-height:1.2">' + item.a.split(' ')[0] + '</div>'
+            + '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:' + (pos === 0 ? '1.3rem' : '1rem') + ';color:' + col + ';text-align:center">' + item.n + '</div>'
+            + (stars ? '<div style="font-size:.55rem;text-align:center;opacity:.7">' + stars + '</div>' : '')
+            + '<div class="podio-plat-mes" style="height:' + ph + 'px;background:' + platCol[pos] + ';width:' + (sz + 20) + 'px;margin-top:4px">' + (pos + 1) + '</div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
+  // Full ranking list (4th onwards or full if no podio)
+  var restStart = top3.length >= 2 ? 3 : 0;
+  if (ranking.length > restStart || top3.length < 2) {
+    html += '<div style="margin-top:' + (top3.length >= 2 ? '.5rem' : '0') + '">';
+    var showList = top3.length < 2 ? ranking : ranking.slice(3);
+    showList.forEach(function(item, i) {
+      var pos = top3.length < 2 ? i : i + 3;
+      var col = AVCOLS[alumnos.indexOf(item.a) % AVCOLS.length];
+      var starsHtml = item.avgVal
+        ? '<span style="font-size:.6rem;color:var(--orange)">' + '\u2605'.repeat(Math.round(item.avgVal)) + '</span>'
+        : '';
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">'
+        + '<div style="min-width:24px;font-size:.75rem;font-weight:900;color:var(--muted);text-align:center">' + (pos + 1) + '</div>'
+        + '<div style="width:24px;height:24px;border-radius:50%;background:' + col + ';display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:white;flex-shrink:0">' + ini(item.a) + '</div>'
+        + '<div style="flex:1;font-weight:800;font-size:.8rem">' + item.a + '</div>'
+        + starsHtml
+        + '<div style="font-family:\'DM Serif Display\',Georgia,serif;color:var(--gold)">' + item.n + '</div>'
+        + '<div style="font-size:.62rem;color:var(--muted)">libro' + (item.n !== 1 ? 's' : '') + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Confirmar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

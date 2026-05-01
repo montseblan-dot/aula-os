@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obradoiro de Expresión – Aula</title>
+<meta name="author" content="Montserrat Blanco Vázquez" />
+<meta name="copyright" content="© 2026 Montserrat Blanco Vázquez. CC BY-NC-SA 4.0" />
+<meta name="license" content="https://creativecommons.org/licenses/by-nc-sa/4.0/" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+ --bg: #fdf4ff;
+ --card: #ffffff;
+ --border: #e9d5ff;
+ --text: #0f172a;
+ --muted: #6b7280;
+ --purple: #7c3aed;
+ --purpleL: #ede9fe;
+ --pink: #be185d;
+ --pinkL: #fce7f3;
+ --teal: #0d9488;
+ --tealL: #ccfbf1;
+ --orange: #c2410c;
+ --orangeL:#ffedd5;
+ --green: #15803d;
+ --greenL: #dcfce7;
+ --blue: #1d4ed8;
+ --blueL: #dbeafe;
+}
+body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+
+/* Layout */
+.page { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto 1fr; min-height: 100vh; }
+
+/* Header */
+.header {
+ grid-column: 1/-1;
+ background: white; border-bottom: 2px solid var(--border);
+ padding: 1rem 1.5rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.header h1 { font-family: 'Fredoka One', cursive; font-size: clamp(1.5rem,4vw,2rem); color: var(--purple); }
+.header p { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+
+/* Nav tabs */
+.nav-tabs {
+ grid-column: 1/-1;
+ display: flex; background: white; border-bottom: 2px solid var(--border);
+ overflow-x: auto;
+}
+.nav-tab {
+ padding: 12px 20px; cursor: pointer; white-space: nowrap;
+ font-family: 'Fredoka One', cursive; font-size: 0.95rem;
+ color: var(--muted); border-bottom: 3px solid transparent;
+ transition: all 0.15s; display: flex; align-items: center; gap: 7px;
+}
+.nav-tab:hover { color: var(--purple); }
+.nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+/* Sections */
+.section { display: none; grid-column: 1/-1; padding: 1.5rem; gap: 1.25rem; flex-direction: column; }
+.section.active { display: flex; }
+.section.two-col { display: none; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.section.two-col.active { display: grid; }
+
+/* Section cards */
+.s-card {
+ background: white; border: 2px solid var(--border);
+ border-radius: 18px; padding: 1.25rem;
+ box-shadow: 0 3px 14px rgba(124,58,237,0.06);
+}
+.s-card-title {
+ font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+ margin-bottom: 0.9rem; display: flex; align-items: center; gap: 8px;
+}
+
+/* ══ SECCIÓN 1: TARXETAS DE FRASE ══ */
+.phrase-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+.filter-btn {
+ padding: 5px 14px; border-radius: 999px; border: 2px solid var(--border);
+ font-size: 0.75rem; font-weight: 800; background: white; color: var(--muted);
+ cursor: pointer; transition: all 0.15s;
+}
+.filter-btn:hover { border-color: var(--purple); color: var(--purple); }
+.filter-btn.active { color: white; border-color: transparent; }
+
+.phrase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.phrase-card {
+ border-radius: 14px; padding: 14px; cursor: pointer;
+ border: 2px solid transparent; transition: transform 0.15s, box-shadow 0.15s;
+ position: relative;
+}
+.phrase-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+.phrase-cat { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 5px; }
+.phrase-text { font-family: 'Fredoka One', cursive; font-size: 1rem; line-height: 1.35; }
+.phrase-example { font-size: 0.72rem; font-weight: 700; margin-top: 6px; opacity: 0.7; font-style: italic; }
+.phrase-copy { position: absolute; top: 8px; right: 8px; font-size: 0.7rem; font-weight: 900; opacity: 0; transition: opacity 0.15s; }
+.phrase-card:hover .phrase-copy { opacity: 1; }
+
+/* ══ SECCIÓN 2: GUÍA ORAL ══ */
+.oral-steps { display: flex; flex-direction: column; gap: 10px; }
+.oral-step {
+ display: flex; gap: 12px; align-items: flex-start;
+ padding: 14px; border-radius: 14px; border: 2px solid var(--border);
+ background: #fafafa; transition: border-color 0.2s;
+}
+.oral-step:hover { border-color: var(--purple); }
+.oral-step-num {
+ width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+ display: flex; align-items: center; justify-content: center;
+ font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: white;
+}
+.oral-step-content { flex: 1; }
+.oral-step-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin-bottom: 4px; }
+.oral-step-desc { font-size: 0.8rem; color: var(--muted); font-weight: 700; line-height: 1.5; }
+.oral-step-phrases { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.oral-phrase-chip {
+ font-size: 0.72rem; font-weight: 800; padding: 3px 10px;
+ border-radius: 999px; background: var(--purpleL); color: var(--purple);
+ cursor: pointer; transition: background 0.15s;
+}
+.oral-phrase-chip:hover { background: #ddd6fe; }
+
+/* ══ SECCIÓN 3: PROMPTS DE ESCRITURA ══ */
+.prompt-display {
+ background: var(--purpleL); border: 2px solid #c4b5fd;
+ border-radius: 16px; padding: 1.5rem; text-align: center; min-height: 120px;
+ display: flex; flex-direction: column; align-items: center; justify-content: center;
+ gap: 10px; margin-bottom: 1rem;
+}
+.prompt-type-badge {
+ font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+ letter-spacing: 0.14em; padding: 4px 14px; border-radius: 999px;
+ background: var(--purple); color: white;
+}
+.prompt-text {
+ font-family: 'Fredoka One', cursive; font-size: clamp(1rem,2.5vw,1.3rem);
+ color: var(--purple); line-height: 1.4;
+}
+.prompt-tip { font-size: 0.78rem; color: #6d28d9; font-weight: 700; }
+.prompt-types { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+.prompt-type-btn {
+ padding: 6px 14px; border-radius: 999px; border: 2px solid var(--border);
+ font-size: 0.75rem; font-weight: 800; background: white; color: var(--muted);
+ cursor: pointer; transition: all 0.15s;
+}
+.prompt-type-btn:hover { border-color: var(--purple); color: var(--purple); }
+.prompt-type-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+.btn-gen-prompt {
+ width: 100%; height: 48px;
+ font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+ background: linear-gradient(135deg, var(--purple), #4f46e5);
+ color: white; border: none; border-radius: 13px; cursor: pointer;
+ transition: transform 0.12s, box-shadow 0.15s;
+ box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+}
+.btn-gen-prompt:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(124,58,237,0.5); }
+.prompt-write-area {
+ width: 100%; min-height: 120px; padding: 12px 14px; resize: vertical;
+ border: 2px solid var(--border); border-radius: 12px; margin-top: 10px;
+ font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700;
+ color: var(--text); background: white; outline: none; line-height: 1.6;
+ transition: border-color 0.2s;
+}
+.prompt-write-area:focus { border-color: var(--purple); }
+.prompt-write-area::placeholder { color: #cbd5e1; font-weight: 400; }
+.word-count { font-size: 0.72rem; font-weight: 800; color: var(--muted); text-align: right; margin-top: 4px; }
+
+/* ══ SECCIÓN 4: RÚBRICA ══ */
+.rubric-title-input {
+ width: 100%; height: 40px; padding: 0 12px; font-size: 0.95rem; font-weight: 700;
+ border: 2px solid var(--border); border-radius: 10px; font-family: 'Nunito', sans-serif;
+ color: var(--text); background: #fafafa; outline: none; margin-bottom: 1rem;
+ transition: border-color 0.2s;
+}
+.rubric-title-input:focus { border-color: var(--purple); background: white; }
+
+.rubric-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.82rem; }
+.rubric-table th {
+ padding: 8px 10px; font-size: 0.65rem; font-weight: 900;
+ text-transform: uppercase; letter-spacing: 0.1em;
+ background: var(--purpleL); color: var(--purple); border: 1px solid var(--border);
+}
+.rubric-table td { padding: 8px 10px; border: 1px solid var(--border); vertical-align: top; }
+.rubric-criteria { font-weight: 800; color: var(--text); }
+.rubric-levels { display: flex; gap: 4px; }
+.rubric-level {
+ width: 100%; padding: 10px 8px; border-radius: 10px; text-align: center;
+ cursor: pointer; border: 3px solid transparent;
+ transition: all 0.15s; line-height: 1.45; display: flex; flex-direction: column; gap: 5px;
+}
+.rubric-level .lv-label { font-size: 1rem; }
+.rubric-level .lv-comment { font-size: 0.68rem; font-weight: 700; opacity: 0.9; text-align: left; line-height: 1.4; }
+.level-1 { background: #fee2e2; color: #991b1b; }
+.level-1.sel { border-color: #991b1b; box-shadow: 0 0 0 3px #fecaca; transform: scale(1.04); }
+.level-2 { background: var(--greenL); color: var(--green); }
+.level-2.sel { border-color: var(--green); box-shadow: 0 0 0 3px #bbf7d0; transform: scale(1.04); }
+.level-3 { background: #dbeafe; color: #1d4ed8; }
+.level-3.sel { border-color: #1d4ed8; box-shadow: 0 0 0 3px #bfdbfe; transform: scale(1.04); }
+
+.score-bar-wrap { background: #f3f4f6; border-radius: 999px; height: 12px; overflow: hidden; margin: 4px 0; }
+.score-bar-fill { height: 100%; border-radius: 999px; background: var(--purple); transition: width 0.4s ease; }
+.score-summary {
+ display: flex; align-items: center; justify-content: space-between;
+ background: var(--purpleL); border-radius: 12px; padding: 12px 16px;
+ margin-top: 10px;
+}
+.score-big { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--purple); }
+.score-label { font-size: 0.72rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.score-note-input {
+ width: 100%; min-height: 60px; padding: 10px 12px; resize: vertical; margin-top: 10px;
+ border: 2px solid var(--border); border-radius: 10px; font-family: 'Nunito', sans-serif;
+ font-size: 0.88rem; font-weight: 700; color: var(--text); background: white;
+ outline: none; transition: border-color 0.2s;
+}
+.score-note-input:focus { border-color: var(--purple); }
+.score-note-input::placeholder { color: #cbd5e1; font-weight: 400; }
+
+/* Action buttons */
+.action-btn {
+ height: 36px; padding: 0 16px; font-family: 'Nunito', sans-serif;
+ font-size: 0.8rem; font-weight: 800; background: white;
+ border: 2px solid var(--border); border-radius: 9px;
+ color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.action-btn:hover { color: var(--text); border-color: #a78bfa; }
+.action-btn.primary { background: var(--purple); color: white; border-color: var(--purple); }
+.action-btn.primary:hover { background: #6d28d9; }
+
+/* License */
+.license-footer { grid-column: 1/-1; padding: 0.9rem 1.5rem; background: white; border-top: 1px solid var(--border); }
+.license-cc { display: flex; gap: 4px; margin-bottom: 4px; }
+.cc-pill { font-size: 0.58rem; font-weight: 900; padding: 2px 6px; border-radius: 999px; background: var(--purpleL); color: var(--purple); }
+.license-footer p { font-size: 0.62rem; color: var(--muted); line-height: 1.5; }
+.license-footer a { color: var(--purple); text-decoration: none; }
+
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+
+@media (max-width: 700px) {
+ .page { grid-template-columns: 1fr; }
+ .section.two-col.active { grid-template-columns: 1fr; display: flex; flex-direction: column; }
+}
+@media print {
+ .nav-tabs, .header p { display: none; }
+ .section { display: flex !important; }
+ body { background: white; }
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="page">
+
+ <div class="header">
+ <div style="flex:1">
+ <h1>✍️ Obradoiro de Expresión</h1>
+ <p>Oral e escrita — estruturas de frase, guía de exposición, prompts e rúbrica</p>
+ <p id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted);margin-top:2px"></p>
+ </div>
+ <a href="PORTAL_DOCENTE.html" style="font-size:.72rem;font-weight:700;color:var(--muted);text-decoration:none;opacity:.7;align-self:flex-start;margin-top:4px" title="Configuración docente">⚙️</a>
+ </div>
+
+ <!-- Nav -->
+ <div class="nav-tabs">
+ <div class="nav-tab active" onclick="showSection('phrases')">💬 Tarxetas de frase</div>
+ <div class="nav-tab" onclick="showSection('oral')">🎤 Guía oral</div>
+ <div class="nav-tab" onclick="showSection('prompts')">✨ Prompts de escrita</div>
+ <div class="nav-tab" onclick="showSection('rubric')">📊 Rúbrica</div>
+ </div>
+
+ <!-- ══ SECCIÓN 1: TARXETAS DE FRASE ══ -->
+ <div class="section active" id="sec-phrases">
+ <div class="s-card">
+ <div class="s-card-title" style="color:var(--purple)">💬 Estruturas de frase para falar e escribir</div>
+ <div class="phrase-filters" id="phrase-filters">
+ <button class="filter-btn active" onclick="filterPhrases('all')" style="background:var(--purple)">Todas</button>
+ <button class="filter-btn" onclick="filterPhrases('inicio')">Inicio</button>
+ <button class="filter-btn" onclick="filterPhrases('desenvolv')">Desenvolvemento</button>
+ <button class="filter-btn" onclick="filterPhrases('remate')">Remate</button>
+ <button class="filter-btn" onclick="filterPhrases('opinion')">Opinión</button>
+ <button class="filter-btn" onclick="filterPhrases('exemplo')">Exemplos</button>
+ <button class="filter-btn" onclick="filterPhrases('contraste')">Contraste</button>
+ <button class="filter-btn" onclick="filterPhrases('causa')">Causa</button>
+ </div>
+ <div class="phrase-grid" id="phrase-grid"></div>
+ <div style="font-size:0.72rem;color:var(--muted);margin-top:10px;text-align:center">Fai clic nunha tarxeta para copiala ao portapapeis</div>
+ </div>
+ </div>
+
+ <!-- ══ SECCIÓN 2: GUÍA ORAL ══ -->
+ <div class="section" id="sec-oral">
+ <div class="s-card" style="grid-column:1/-1">
+ <div class="s-card-title" style="color:var(--teal)">🎤 Guía de exposición oral paso a paso</div>
+ <div class="oral-steps" id="oral-steps"></div>
+ </div>
+ </div>
+
+ <!-- ══ SECCIÓN 3: PROMPTS ══ -->
+ <div class="section two-col" id="sec-prompts">
+ <div class="s-card">
+ <div class="s-card-title" style="color:var(--pink)">✨ Xerador de prompts de escritura</div>
+ <div class="prompt-types" id="prompt-types"></div>
+ <div class="prompt-display" id="prompt-display">
+ <div class="prompt-text" style="color:var(--muted)">Selecciona un tipo e xera un prompt</div>
+ </div>
+ <button class="btn-gen-prompt" onclick="generatePrompt()">✨ Xerar prompt!</button>
+ </div>
+ <div class="s-card">
+ <div class="s-card-title" style="color:var(--pink)">📝 O meu texto</div>
+ <textarea class="prompt-write-area" id="write-area" placeholder="Escribe aquí o teu texto...&#10;&#10;Toma o teu tempo, pensa antes de escribir, e lembra usar estruturas variadas."></textarea>
+ <div class="word-count" id="word-count">0 palabras</div>
+ <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+ <button class="action-btn primary" onclick="clearWriteArea()">↺ Limpar</button>
+ <button class="action-btn" onclick="window.print()">🖨️ Imprimir</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- ══ SECCIÓN 4: RÚBRICA ══ -->
+ <div class="section two-col" id="sec-rubric">
+ <div class="s-card">
+ <div class="s-card-title" style="color:var(--orange)">📊 Rúbrica de avaliación oral/escrita</div>
+ <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">
+  <select id="rubric-alumno" style="flex:1;height:34px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:9px;color:#f0f4ff;font-family:'DM Sans',system-ui,sans-serif;font-size:.78rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">
+    <option value="">— Selecciona alumno/a —</option>
+  </select>
+  <button onclick="gardarEvalAlumno()" style="height:34px;padding:0 12px;border-radius:9px;border:1.5px solid rgba(34,197,94,.4);background:rgba(34,197,94,.1);color:#22c55e;font-family:'DM Sans',system-ui,sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+  <button onclick="verHistorialAlumno()" style="height:34px;padding:0 12px;border-radius:9px;border:1.5px solid rgba(96,165,250,.4);background:rgba(96,165,250,.1);color:#60a5fa;font-family:'DM Sans',system-ui,sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">📋 Historial</button>
+ </div>
+ <input class="rubric-title-input" id="rubric-title" placeholder="Título da tarefa ou observacións..." />
+ <table class="rubric-table" id="rubric-table"></table>
+ <div class="score-bar-wrap"><div class="score-bar-fill" id="rubric-bar" style="width:0%"></div></div>
+ <div class="score-summary">
+ <div>
+ <div class="score-label">Puntuación total</div>
+ <div class="score-big" id="rubric-score">0 / 0</div>
+ </div>
+ <div style="text-align:right">
+ <div class="score-label">Nivel</div>
+ <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--purple)" id="rubric-level">—</div>
+ </div>
+ </div>
+ <textarea class="score-note-input" id="rubric-notes" placeholder="Observacións e comentarios da mestra..."></textarea>
+ </div>
+ <div class="s-card">
+ <div class="s-card-title" style="color:var(--orange)">⚙️ Criterios da rúbrica</div>
+ <div id="rubric-editor"></div>
+ <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+ <button class="action-btn primary" onclick="resetRubric()">↺ Restablecer</button>
+ <button class="action-btn" onclick="window.print()">🖨️ Imprimir</button>
+ </div>
+ </div>
+ </div>
+
+ <div class="license-footer">
+ <div class="license-cc">
+ <span class="cc-pill">CC</span><span class="cc-pill">BY</span>
+ <span class="cc-pill">NC</span><span class="cc-pill">SA</span>
+ </div>
+ <p>© 2026 Montserrat Blanco Vázquez · ·
+ <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.gl" target="_blank">CC BY-NC-SA 4.0</a>
+ </p>
+ </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// DATOS
+// ══════════════════════════════════════════════════════════════════════════════
+
+const PHRASES = [
+ // Inicio
+ { cat:'inicio', bg:'#ede9fe', tc:'#6d28d9', text:'O tema do que vou falar é...', ex:'O tema do que vou falar é a contaminación do aire.' },
+ { cat:'inicio', bg:'#ede9fe', tc:'#6d28d9', text:'Hoxe quero contarvos...', ex:'Hoxe quero contarvos como funciona o ciclo da auga.' },
+ { cat:'inicio', bg:'#ede9fe', tc:'#6d28d9', text:'Imos falar sobre...', ex:'Imos falar sobre os animais en perigo de extinción.' },
+ { cat:'inicio', bg:'#ede9fe', tc:'#6d28d9', text:'O meu texto trata de...', ex:'O meu texto trata de como coidar o medio ambiente.' },
+ { cat:'inicio', bg:'#ede9fe', tc:'#6d28d9', text:'Primeiro de todo, presentarei...', ex:'Primeiro de todo, presentarei as causas do problema.' },
+ // Desenvolvemento
+ { cat:'desenvolv', bg:'#dbeafe', tc:'#1d4ed8', text:'En primeiro lugar,...', ex:'En primeiro lugar, os animais necesitan auga limpa.' },
+ { cat:'desenvolv', bg:'#dbeafe', tc:'#1d4ed8', text:'En segundo lugar,...', ex:'En segundo lugar, o bosque proporciona osíxeno.' },
+ { cat:'desenvolv', bg:'#dbeafe', tc:'#1d4ed8', text:'Ademais,...', ex:'Ademais, os plásticos tardan centos de anos en desaparecer.' },
+ { cat:'desenvolv', bg:'#dbeafe', tc:'#1d4ed8', text:'Tamén é importante destacar que...', ex:'Tamén é importante destacar que reciclar aforra enerxía.' },
+ { cat:'desenvolv', bg:'#dbeafe', tc:'#1d4ed8', text:'Por outra parte,...', ex:'Por outra parte, moitos países xa prohíben as bolsas plásticas.' },
+ { cat:'desenvolv', bg:'#dbeafe', tc:'#1d4ed8', text:'Cómpre saber que...', ex:'Cómpre saber que os océanos absorben CO₂.' },
+ // Remate
+ { cat:'remate', bg:'#dcfce7', tc:'#15803d', text:'En conclusión,...', ex:'En conclusión, todos podemos axudar a coidar o planeta.' },
+ { cat:'remate', bg:'#dcfce7', tc:'#15803d', text:'Para rematar,...', ex:'Para rematar, gustaríame dicir que o cambio comeza en cada un de nós.' },
+ { cat:'remate', bg:'#dcfce7', tc:'#15803d', text:'Polo tanto, podemos dicir que...', ex:'Polo tanto, podemos dicir que a reciclaxe é fundamental.' },
+ { cat:'remate', bg:'#dcfce7', tc:'#15803d', text:'En definitiva,...', ex:'En definitiva, a natureza necesita a nosa axuda.' },
+ { cat:'remate', bg:'#dcfce7', tc:'#15803d', text:'Como conclusión, quero destacar que...', ex:'Como conclusión, quero destacar que pequenos xestos fan grandes cambios.' },
+ // Opinión
+ { cat:'opinion', bg:'#fce7f3', tc:'#be185d', text:'Na miña opinión,...', ex:'Na miña opinión, deberiamos usar máis o transporte público.' },
+ { cat:'opinion', bg:'#fce7f3', tc:'#be185d', text:'Creo que...', ex:'Creo que é importante aprender a reciclar desde pequenos.' },
+ { cat:'opinion', bg:'#fce7f3', tc:'#be185d', text:'Penso que...', ex:'Penso que os animais teñen dereito a vivir en liberdade.' },
+ { cat:'opinion', bg:'#fce7f3', tc:'#be185d', text:'Ao meu ver,...', ex:'Ao meu ver, a lectura é a mellor forma de aprender.' },
+ { cat:'opinion', bg:'#fce7f3', tc:'#be185d', text:'Estou convencido/a de que...', ex:'Estou convencido/a de que podemos mellorar o noso mundo.' },
+ // Exemplo
+ { cat:'exemplo', bg:'#fef9c3', tc:'#b45309', text:'Por exemplo,...', ex:'Por exemplo, os delfíns son mamíferos mariños.' },
+ { cat:'exemplo', bg:'#fef9c3', tc:'#b45309', text:'Un exemplo disto é...', ex:'Un exemplo disto é o oso panda, que está en perigo.' },
+ { cat:'exemplo', bg:'#fef9c3', tc:'#b45309', text:'Isto pódese ver en...', ex:'Isto pódese ver en países como Noruega ou Dinamarca.' },
+ { cat:'exemplo', bg:'#fef9c3', tc:'#b45309', text:'Como podemos observar en...', ex:'Como podemos observar en Galicia, os bosques son fondamentais.' },
+ // Contraste
+ { cat:'contraste', bg:'#ccfbf1', tc:'#0d9488', text:'Porén,...', ex:'Porén, non todos os animais se adaptan ben ao cambio climático.' },
+ { cat:'contraste', bg:'#ccfbf1', tc:'#0d9488', text:'Non obstante,...', ex:'Non obstante, moitas persoas non coñecen este problema.' },
+ { cat:'contraste', bg:'#ccfbf1', tc:'#0d9488', text:'Aínda que... , ...', ex:'Aínda que pareza difícil, podemos conseguilo.' },
+ { cat:'contraste', bg:'#ccfbf1', tc:'#0d9488', text:'A diferenza de..., ...', ex:'A diferenza dos reptís, os mamíferos son de sangue quente.' },
+ // Causa
+ { cat:'causa', bg:'#ffedd5', tc:'#c2410c', text:'Isto débese a que...', ex:'Isto débese a que a temperatura global está a subir.' },
+ { cat:'causa', bg:'#ffedd5', tc:'#c2410c', text:'A causa principal é...', ex:'A causa principal é a contaminación provocada polas fábricas.' },
+ { cat:'causa', bg:'#ffedd5', tc:'#c2410c', text:'Como consecuencia,...', ex:'Como consecuencia, moitos animais están a perder o seu hábitat.' },
+ { cat:'causa', bg:'#ffedd5', tc:'#c2410c', text:'Grazas a... , ...', ex:'Grazas ao esforzo de moitas persoas, os pandas recuperáronse.' },
+];
+
+const CAT_LABELS = {
+ inicio:'Inicio', desenvolv:'Desenvolvemento', remate:'Remate',
+ opinion:'Opinión', exemplo:'Exemplos', contraste:'Contraste', causa:'Causa'
+};
+
+const ORAL_STEPS = [
+ { color:'#7c3aed', icon:'🧠', title:'Prepárate', desc:'Antes de falar, pensa no que vas dicir. Podes facer un esquema con 3-4 ideas clave.',
+ phrases:['O tema é...','As ideas principais son...','Vou falar de 3 puntos:'] },
+ { color:'#1d4ed8', icon:'👋', title:'Preséntate e presenta o tema', desc:'Saudar, di o teu nome e presenta o tema de forma clara e chamativa.',
+ phrases:['Ola a todos/as! Hoxe vou falarles de...','O tema do que vou falar é...','Bos días! Chámome... e vou presentarvos...'] },
+ { color:'#0d9488', icon:'📢', title:'Desenvolve as ideas', desc:'Explica cada punto con claridade. Usa conectores para ordenar as ideas.',
+ phrases:['En primeiro lugar,...','En segundo lugar,...','Ademais,...','Tamén é importante...'] },
+ { color:'#c2410c', icon:'💡', title:'Pon exemplos', desc:'Os exemplos axudan a entender mellor. Usa cousas que coñezas.',
+ phrases:['Por exemplo,...','Un caso concreto é...','Isto pódese ver en...'] },
+ { color:'#be185d', icon:'🎯', title:'Dá a túa opinión', desc:'Se procede, di o que pensas de forma respectuosa e xustificada.',
+ phrases:['Na miña opinión,...','Creo que...','Ao meu ver,...'] },
+ { color:'#15803d', icon:'🏁', title:'Remata e agradece', desc:'Resume brevemente o máis importante e dá as grazas pola atención.',
+ phrases:['En conclusión,...','Para rematar,...','Moitas grazas pola vosa atención!'] },
+];
+
+const PROMPT_TYPES = [
+ { id:'narrativo', label:'📖 Narrativo', color:'#7c3aed' },
+ { id:'descritivo',label:'🌿 Descritivo', color:'#0d9488' },
+ { id:'opinión', label:'💬 Opinión', color:'#be185d' },
+ { id:'imaxinativo',label:'✨ Imaxinativo', color:'#c2410c' },
+ { id:'carta', label:'💌 Carta', color:'#1d4ed8' },
+];
+
+const PROMPTS = {
+ narrativo: [
+ { text:'Conta o día que un animal salvaxe apareceu no teu colexio.', tip:'Usa o pasado e describe as reaccións de todos.' },
+ { text:'Un neno/a descobre que pode falar coas plantas. Que pasa?', tip:'Inventa un diálogo entre o neno/a e a planta.' },
+ { text:'Narra o día que toda a clase decidiu facer algo especial para a escola.', tip:'Di quen tivo a idea, que fixeron e como acabou.' },
+ { text:'Conta a aventura máis emocionante que vivirías nunha illa deserta.', tip:'Describe o lugar, os problemas e como os resolviste.' },
+ { text:'Un robot chega á vosa aula. Que aprende de vós?', tip:'Pensa en cousas que un robot non sabería facer.' },
+ { text:'Narra o día que o teu xoguete favorito cobrou vida.', tip:'Usa diálogos e describe as emocións.' },
+ ],
+ descritivo: [
+ { text:'Describe o lugar máis bonito de Galicia que coñeces.', tip:'Usa os 5 sentidos: que ves, escoitas, cheiras...' },
+ { text:'Describe o animal que máis che gusta como se ninguén o coñecese.', tip:'Fala do seu aspecto, movementos, sons e hábitat.' },
+ { text:'Describe a túa aula ideal para aprender mellor.', tip:'Pensa no espazo, os materiais e como estaría organizada.' },
+ { text:'Describe o mercado local ou a feira do teu pobo ou cidade.', tip:'Usa cores, sons, olores e movemento.' },
+ { text:'Describe como é un día de inverno en Galicia.', tip:'Inclúe a luz, o frío, as actividades e o ambiente.' },
+ ],
+ opinión: [
+ { text:'Cres que os animais deben vivir en zoos? Por que?', tip:'Dá polo menos dous argumentos e unha conclusión.' },
+ { text:'É importante aprender idiomas desde pequenos?', tip:'Pensa en vantaxes, desvantaxes e a túa experiencia.' },
+ { text:'Deberían os nenos e as nenas ter menos deberes?', tip:'Argumenta con razóns concretas e exemplos.' },
+ { text:'Cal cres que é a materia máis importante na escola? Por que?', tip:'Xustifica a túa elección con polo menos tres razóns.' },
+ { text:'Cres que é importante coidar o medio ambiente? Que podemos facer?', tip:'Propón accións concretas que poidamos facer cada día.' },
+ ],
+ imaxinativo: [
+ { text:'Se puideses inventar un superpoder útil para o mundo, cal sería?', tip:'Explica como funcionaría e para que o usarías.' },
+ { text:'Imaxina que atopas unha porta secreta na escola. A onde leva?', tip:'Describe o outro lado con moitos detalles.' },
+ { text:'Se puideses viaxar ao futuro, que che gustaría ver?', tip:'Pensa en como será a escola, a cidade e a natureza.' },
+ { text:'Inventa un país onde os nenos e as nenas mandan. Como sería?', tip:'Describe as leis, a escola e o día a día.' },
+ { text:'Un alieníxena visita a Terra por primeira vez. Que lle parece todo?', tip:'Escribe desde o punto de vista do alieníxena.' },
+ ],
+ carta: [
+ { text:'Escribe unha carta a ti mesmo/a do futuro (daqui a 10 anos).', tip:'Conta como es agora, os teus soños e preguntas para o futuro.' },
+ { text:'Escribe unha carta ao/á alcalde/sa da túa cidade propoñendo melloras.', tip:'Sé respectuoso/a e pon argumentos concretos.' },
+ { text:'Escribe unha carta a un personaxe dun libro que teñas lido.', tip:'Dille o que che gustou, o que non e as túas preguntas.' },
+ { text:'Escribe unha carta de agradecemento a alguén que te axudou.', tip:'Sé específico/a: di que fixo esa persoa e como te axudou.' },
+ { text:'Escribe unha carta a un neno/a doutro país explicándolle como é a túa vida en Galicia.', tip:'Fala da comida, o tempo, as festas e a escola.' },
+ ],
+};
+
+const RUBRIC_CRITERIA = [
+ {
+ label: 'Adecuación ao tema',
+ levels: [
+ 'O texto non responde ao que se pedía ou afástase completamente do tema.',
+ 'O texto responde parcialmente ao que se pedía, aínda que se desvía nalgunhas partes.',
+ 'O texto responde con precisión ao que se pedía, mantendo o tema en todo momento.',
+ ]
+ },
+ {
+ label: 'Organización e estrutura',
+ levels: [
+ 'Non se aprecia inicio, desenvolvemento nin remate. As ideas aparecen desordenadas.',
+ 'Intenta organizar o texto pero o inicio, desenvolvemento ou remate están pouco definidos.',
+ 'Ten un inicio claro, un desenvolvemento ordenado e un remate ben diferenciado.',
+ ]
+ },
+ {
+ label: 'Vocabulario',
+ levels: [
+ 'O vocabulario é moi limitado, repetitivo ou inadecuado para o tipo de texto.',
+ 'Usa un vocabulario básico con algunhas repeticións, pero comprensible.',
+ 'Emprega vocabulario variado, preciso e adecuado ao tema e ao tipo de texto.',
+ ]
+ },
+ {
+ label: 'Coherencia e cohesión',
+ levels: [
+ 'As ideas non están relacionadas. É difícil entender a mensaxe do texto.',
+ 'As ideas teñen certa relación pero faltan conectores ou a progresión non é clara.',
+ 'As ideas están ben enlazadas con conectores variados. A mensaxe é clara e fluída.',
+ ]
+ },
+ {
+ label: 'Ortografía',
+ levels: [
+ 'Presenta numerosos erros ortográficos que dificultan a comprensión.',
+ 'Presenta algúns erros ortográficos pero non impiden entender o texto.',
+ 'Ten poucos ou ningún erro ortográfico. Demostra dominio das normas básicas.',
+ ]
+ },
+ {
+ label: 'Puntuación',
+ levels: [
+ 'Non usa puntos, comas nin maiúsculas, ou faino de forma moi incorrecta.',
+ 'Usa algúns signos de puntuación e maiúsculas, con erros frecuentes.',
+ 'Usa correctamente puntos, comas, maiúsculas e outros signos ao longo do texto.',
+ ]
+ },
+ {
+ label: 'Orixinalidade e expresividade',
+ levels: [
+ 'O texto é moi xeral e non achega ideas propias nin creativas.',
+ 'Amosa algunha idea propia pero o texto é pouco expresivo ou previsible.',
+ 'O texto é persoal e creativo. Achega ideas propias e un estilo expresivo.',
+ ]
+ },
+];
+
+const LEVEL_LABELS = [
+ { label: '🔴 Non acadado', comment: 'Non demostra o criterio ou presenta moitas dificultades.' },
+ { label: '🟢 Acadado', comment: 'Demostra o criterio de forma correcta e satisfactoria.' },
+ { label: '🔵 Excelente', comment: 'Supera o esperado. Traballo de gran calidade.' },
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SECTION NAVIGATION
+// ══════════════════════════════════════════════════════════════════════════════
+function showSection(id) {
+ document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+ document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+ document.getElementById(`sec-${id}`).classList.add('active');
+ event.currentTarget.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TARXETAS DE FRASE
+// ══════════════════════════════════════════════════════════════════════════════
+let activeFilter = 'all';
+
+function filterPhrases(cat) {
+ activeFilter = cat;
+ document.querySelectorAll('.filter-btn').forEach(b => {
+ const isActive = b.textContent.toLowerCase().includes(cat === 'all' ? 'todas' : CAT_LABELS[cat]?.toLowerCase().slice(0,4) || cat);
+ b.classList.toggle('active', isActive);
+ b.style.background = isActive ? 'var(--purple)' : '';
+ b.style.color = isActive ? 'white' : '';
+ b.style.borderColor = isActive ? 'transparent' : '';
+ });
+ renderPhrases();
+}
+
+function renderPhrases() {
+ const grid = document.getElementById('phrase-grid');
+ const filtered = activeFilter === 'all' ? PHRASES : PHRASES.filter(p => p.cat === activeFilter);
+ grid.innerHTML = filtered.map(p => `
+ <div class="phrase-card" style="background:${p.bg}" onclick="copyPhrase('${p.text.replace(/'/g,"\\'")}')">
+ <div class="phrase-cat" style="color:${p.tc}">${CAT_LABELS[p.cat] || p.cat}</div>
+ <div class="phrase-text" style="color:${p.tc}">${p.text}</div>
+ <div class="phrase-example">${p.ex}</div>
+ <div class="phrase-copy" style="color:${p.tc}">📋 Copiar</div>
+ </div>`).join('');
+}
+
+function copyPhrase(text) {
+ navigator.clipboard?.writeText(text).catch(() => {});
+ // Visual feedback
+ const cards = document.querySelectorAll('.phrase-card');
+ cards.forEach(c => {
+ if (c.querySelector('.phrase-text')?.textContent === text) {
+ c.style.outline = '3px solid var(--purple)';
+ setTimeout(() => c.style.outline = '', 600);
+ }
+ });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// GUÍA ORAL
+// ══════════════════════════════════════════════════════════════════════════════
+function renderOralSteps() {
+ const container = document.getElementById('oral-steps');
+ container.innerHTML = ORAL_STEPS.map((s, i) => `
+ <div class="oral-step">
+ <div class="oral-step-num" style="background:${s.color}">${i+1}</div>
+ <div class="oral-step-content">
+ <div class="oral-step-title" style="color:${s.color}">${s.icon} ${s.title}</div>
+ <div class="oral-step-desc">${s.desc}</div>
+ <div class="oral-step-phrases">
+ ${s.phrases.map(ph => `<span class="oral-phrase-chip" onclick="copyPhrase('${ph.replace(/'/g,"\\'")}') ">${ph}</span>`).join('')}
+ </div>
+ </div>
+ </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PROMPTS
+// ══════════════════════════════════════════════════════════════════════════════
+let activePromptType = 'narrativo';
+let lastPromptIdx = -1;
+
+function renderPromptTypes() {
+ const container = document.getElementById('prompt-types');
+ container.innerHTML = PROMPT_TYPES.map(t =>
+ `<button class="prompt-type-btn${t.id === activePromptType ? ' active' : ''}"
+ onclick="setPromptType('${t.id}')">${t.label}</button>`
+ ).join('');
+}
+
+function setPromptType(id) {
+ activePromptType = id;
+ renderPromptTypes();
+}
+
+function generatePrompt() {
+ const pool = PROMPTS[activePromptType] || [];
+ if (!pool.length) return;
+ let idx;
+ do { idx = Math.floor(Math.random() * pool.length); } while (idx === lastPromptIdx && pool.length > 1);
+ lastPromptIdx = idx;
+ const prompt = pool[idx];
+ const type = PROMPT_TYPES.find(t => t.id === activePromptType);
+ const display = document.getElementById('prompt-display');
+ display.innerHTML = `
+ <div class="prompt-type-badge" style="background:${type.color}">${type.label}</div>
+ <div class="prompt-text">${prompt.text}</div>
+ <div class="prompt-tip">💡 ${prompt.tip}</div>`;
+ display.style.borderColor = type.color + '66';
+ display.style.background = type.color + '15';
+}
+
+// Word count
+document.addEventListener('DOMContentLoaded', () => {
+ const wa = document.getElementById('write-area');
+ if (wa) wa.addEventListener('input', () => {
+ const words = wa.value.trim() === '' ? 0 : wa.value.trim().split(/\s+/).length;
+ document.getElementById('word-count').textContent = `${words} ${words === 1 ? 'palabra' : 'palabras'}`;
+ });
+});
+
+function clearWriteArea() {
+ document.getElementById('write-area').value = '';
+ document.getElementById('word-count').textContent = '0 palabras';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RÚBRICA
+// ══════════════════════════════════════════════════════════════════════════════
+let rubricScores = {}; // { criteriaIdx: level (1-4) }
+
+function renderRubric() {
+ const table = document.getElementById('rubric-table');
+ table.innerHTML = `<thead><tr>
+ <th style="width:22%">Criterio</th>
+ <th style="width:26%">🔴 Non acadado</th>
+ <th style="width:26%">🟢 Acadado</th>
+ <th style="width:26%">🔵 Excelente</th>
+ </tr></thead><tbody>` +
+ RUBRIC_CRITERIA.map((c, i) => `
+ <tr>
+ <td><div class="rubric-criteria">${c.label}</div></td>
+ ${[0,1,2].map(lv => `
+ <td style="padding:6px">
+ <div class="rubric-level level-${lv+1}${rubricScores[i]===(lv+1)?' sel':''}"
+ onclick="setRubricScore(${i},${lv+1})">
+ <span class="lv-label">${lv===0?'🔴':lv===1?'🟢':'🔵'}</span>
+ <span class="lv-comment">${c.levels[lv]}</span>
+ </div>
+ </td>`).join('')}
+ </tr>`).join('') + '</tbody>';
+}
+
+function setRubricScore(i, lv) {
+ rubricScores[i] = lv;
+ updateRubricScore();
+ renderRubric();
+}
+
+function updateRubricScore() {
+ const total = RUBRIC_CRITERIA.length * 3;
+ const scored = Object.values(rubricScores).reduce((a, b) => a + b, 0);
+ const pct = total > 0 ? Math.round((scored / total) * 100) : 0;
+ const rated = Object.keys(rubricScores).length;
+ document.getElementById('rubric-bar').style.width = pct + '%';
+ document.getElementById('rubric-score').textContent = `${scored} / ${rated * 3}`;
+ const level = pct >= 85 ? '🌟 Excelente' : pct >= 65 ? '✅ Conseguido' : pct >= 40 ? '🔄 En proceso' : '⚠️ Inicio';
+ document.getElementById('rubric-level').textContent = level;
+}
+
+function renderRubricEditor() {
+ const ed = document.getElementById('rubric-editor');
+ ed.innerHTML = `<div style="font-size:0.72rem;font-weight:800;color:var(--muted);margin-bottom:8px">Criterios activos na rúbrica</div>` +
+ RUBRIC_CRITERIA.map((c, i) => `
+ <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+ <span style="font-size:0.82rem;font-weight:700;flex:1">${c.label}</span>
+ <span style="font-size:0.68rem;color:var(--muted)">${rubricScores[i] ? (rubricScores[i]===1?'🔴 Non acadado':rubricScores[i]===2?'🟢 Acadado':'🔵 Excelente') : '—'}</span>
+ </div>`).join('');
+}
+
+function resetRubric() {
+ rubricScores = {};
+ document.getElementById('rubric-title').value = '';
+ document.getElementById('rubric-notes').value = '';
+ updateRubricScore();
+ renderRubric();
+ renderRubricEditor();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════════════════════════════════════
+let confettiFrame = null;
+function launchConfetti(accent) {
+ if (confettiFrame) { cancelAnimationFrame(confettiFrame); confettiFrame = null; }
+ const c = document.getElementById('confetti');
+ const cx = c.getContext('2d');
+ c.width = window.innerWidth; c.height = window.innerHeight;
+ const palette = [accent,'#ffd700','#fff','#f472b6','#34d399'];
+ const pieces = Array.from({length:90},()=>({
+ x:Math.random()*c.width,y:-10,w:6+Math.random()*8,h:10+Math.random()*7,
+ color:palette[Math.floor(Math.random()*palette.length)],
+ vx:(Math.random()-.5)*6,vy:3+Math.random()*5,
+ rot:Math.random()*360,rotV:(Math.random()-.5)*9,alpha:1
+ }));
+ function draw(){
+ cx.clearRect(0,0,c.width,c.height);
+ let alive=false;
+ pieces.forEach(p=>{
+ if(p.alpha<=0)return;alive=true;
+ p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;
+ if(p.y>c.height*.65)p.alpha-=.022;
+ cx.save();cx.globalAlpha=Math.max(0,p.alpha);
+ cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);
+ cx.fillStyle=p.color;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+ cx.restore();
+ });
+ if(alive)confettiFrame=requestAnimationFrame(draw);
+ else{cx.clearRect(0,0,c.width,c.height);confettiFrame=null;}
+ }
+ draw();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════════
+renderPhrases();
+renderOralSteps();
+renderPromptTypes();
+renderRubric();
+renderRubricEditor();
+
+// Observe rubric score changes
+const rubricObserver = new MutationObserver(renderRubricEditor);
+const rubricTable = document.getElementById('rubric-table');
+if (rubricTable) rubricObserver.observe(rubricTable, { subtree: true, attributes: true });
+// ── AVALIACIÓN POR ALUMNO/A ───────────────────────────────────────────────────
+const OE_EVALS_KEY='oe_evals';
+function _oeGetEvals(){try{return JSON.parse(localStorage.getItem(OE_EVALS_KEY)||'[]');}catch{return[];}}
+function _oeSetEvals(v){try{localStorage.setItem(OE_EVALS_KEY,JSON.stringify(v));}catch{}}
+
+function initAlumnoSelect(){
+  const sel=document.getElementById('rubric-alumno');if(!sel)return;
+  const alumnos=JSON.parse(localStorage.getItem('pc_alumnos')||'[]');
+  if(!alumnos.length) return;
+  sel.innerHTML='<option value="">— Selecciona alumno/a —</option>'+alumnos.map(a=>`<option value="${a}">${a}</option>`).join('');
+}
+initAlumnoSelect();
+window.addEventListener('storage',e=>{if(e.key==='pc_alumnos')initAlumnoSelect();});
+
+function gardarEvalAlumno(){
+  const alumno=document.getElementById('rubric-alumno')?.value;
+  if(!alumno){alert('Selecciona un alumno/a primeiro.');return;}
+  const titulo=document.getElementById('rubric-title')?.value||'Sen título';
+  const notes=document.getElementById('rubric-notes')?.value||'';
+  const evals=_oeGetEvals();
+  evals.unshift({id:'e'+Date.now(),alumno,titulo,scores:{...rubricScores},notes,ts:new Date().toLocaleDateString('gl-ES'),hora:new Date().toLocaleTimeString('gl-ES',{hour:'2-digit',minute:'2-digit'})});
+  if(evals.length>200)evals.pop();
+  _oeSetEvals(evals);
+  // Flash confirmation
+  const btn=document.querySelector('[onclick="gardarEvalAlumno()"]');
+  if(btn){const orig=btn.textContent;btn.textContent='✅ Gardado!';setTimeout(()=>btn.textContent=orig,1500);}
+}
+
+function verHistorialAlumno(){
+  const alumno=document.getElementById('rubric-alumno')?.value||'';
+  const overlay=document.getElementById('oe-hist-overlay');
+  const title=document.getElementById('oe-hist-title');
+  const list=document.getElementById('oe-hist-list');
+  if(!overlay||!list)return;
+  const evals=_oeGetEvals().filter(e=>!alumno||e.alumno===alumno);
+  title.textContent=alumno?`Historial: ${alumno}`:'Historial de avaliacións';
+  const LEVEL_LABELS=['','🔴 Non acadado','🟢 Acadado','🔵 Excelente'];
+  if(!evals.length){list.innerHTML='<div style="text-align:center;padding:2rem;font-size:.8rem;color:rgba(238,242,255,.4)">Sen avaliacións gardadas</div>';overlay.style.display='flex';return;}
+  list.innerHTML=evals.map(e=>{
+    const total=RUBRIC_CRITERIA.length*3;
+    const scored=Object.values(e.scores||{}).reduce((a,b)=>a+b,0);
+    const pct=total>0?Math.round(scored/total*100):0;
+    const col=pct>=85?'#22c55e':pct>=65?'#60a5fa':pct>=40?'#fbbf24':'#ef4444';
+    return `<div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,.07)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:.88rem;flex:1">${e.alumno}</div>
+        <div style="font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:999px;background:${col}18;color:${col}">${pct}%</div>
+        <div style="font-size:.65rem;color:rgba(238,242,255,.4)">${e.ts} ${e.hora}</div>
+      </div>
+      <div style="font-size:.75rem;font-weight:700;color:rgba(238,242,255,.6);margin-bottom:4px">${e.titulo}</div>
+      ${e.notes?`<div style="font-size:.68rem;color:rgba(238,242,255,.4);font-style:italic">${e.notes}</div>`:''}
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+        ${RUBRIC_CRITERIA.map((c,i)=>e.scores[i]!==undefined?`<span style="font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.06);color:rgba(238,242,255,.6)">${c.label.split(' ')[0]}: ${LEVEL_LABELS[e.scores[i]]||'—'}</span>`:'').join('')}
+      </div>
+    </div>`;
+  }).join('');
+  overlay.style.display='flex';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('oe-hist-overlay').style.display='none';});
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PERSISTENCIA localStorage — ESTADO DO OBRADOIRO
+// ══════════════════════════════════════════════════════════════════════════════
+const OE_KEY = 'oe_estado';
+
+function oeGardar() {
+  const wa = document.getElementById('write-area');
+  const rn = document.getElementById('rubric-notes');
+  const rt = document.getElementById('rubric-title');
+  const estado = {
+    rubricScores,
+    writeArea: wa ? wa.value : '',
+    promptType: typeof activePromptType !== 'undefined' ? activePromptType : '',
+    rubricNotes: rn ? rn.value : '',
+    rubricTitle: rt ? rt.value : '',
+    ts: Date.now()
+  };
+  try {
+    localStorage.setItem(OE_KEY, JSON.stringify(estado));
+    localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+  } catch(e) {}
+}
+
+function oeCargar() {
+  try {
+    const raw = localStorage.getItem(OE_KEY);
+    if (!raw) return;
+    const estado = JSON.parse(raw);
+    if (estado.rubricScores) { rubricScores = estado.rubricScores; }
+    if (estado.writeArea) {
+      const wa = document.getElementById('write-area');
+      if (wa) {
+        wa.value = estado.writeArea;
+        const words = wa.value.trim() === '' ? 0 : wa.value.trim().split(/\s+/).length;
+        const wc = document.getElementById('word-count');
+        if (wc) wc.textContent = `${words} ${words === 1 ? 'palabra' : 'palabras'}`;
+      }
+    }
+    if (estado.rubricNotes) { const rn = document.getElementById('rubric-notes'); if (rn) rn.value = estado.rubricNotes; }
+    if (estado.rubricTitle) { const rt = document.getElementById('rubric-title'); if (rt) rt.value = estado.rubricTitle; }
+    if (estado.promptType && typeof setPromptType === 'function') { setPromptType(estado.promptType); }
+  } catch(e) {}
+}
+
+// Autogardar en cada cambio de campo
+document.querySelectorAll('textarea, input[type="text"]').forEach(el => {
+  el.addEventListener('input', oeGardar);
+});
+
+// Autogardar ao pechar
+window.addEventListener('beforeunload', () => {
+  oeGardar();
+  localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+});
+
+// Gardado periódico cada 30 s
+setInterval(oeGardar, 30000);
+
+// Patch resetRubric to also save
+const _origResetRubric = typeof resetRubric === 'function' ? resetRubric : null;
+if (_origResetRubric) {
+  resetRubric = function() { _origResetRubric(); oeGardar(); };
+}
+
+// Cargar ao inicio (tras render)
+setTimeout(() => {
+  oeCargar();
+  if (typeof renderRubric === 'function') renderRubric();
+  if (typeof renderRubricEditor === 'function') renderRubricEditor();
+
+  // Autogardar ao modificar rúbrica
+  const rubricTable = document.getElementById('rubric-table');
+  if (rubricTable) {
+    const rubricObserver = new MutationObserver(() => { if(typeof renderRubricEditor==='function') renderRubricEditor(); oeGardar(); });
+    rubricObserver.observe(rubricTable, { subtree: true, attributes: true });
+  }
+  const rn2 = document.getElementById('rubric-notes');
+  if (rn2) rn2.addEventListener('input', oeGardar);
+  const rt2 = document.getElementById('rubric-title');
+  if (rt2) rt2.addEventListener('input', oeGardar);
+}, 100);
+
+
+function confirmarExportCaderno() {
+  const ov = document.getElementById('oe-caderno-overlay');
+  if (!ov) return;
+
+  const alumno = ov._alumno;
+  const nota = ov._nota;
+  const titulo = ov._titulo;
+  const obs = ov._obs;
+
+  const matId = document.getElementById('oe-cad-mat')?.value || 'outras';
+  const grupoId = document.getElementById('oe-cad-grupo')?.value || '';
+  const label = document.getElementById('oe-cad-label')?.value?.trim() || titulo;
+  const peso = parseInt(document.getElementById('oe-cad-peso')?.value) || 0;
+
+  function lsGet(k, d) { try { const v = localStorage.getItem(k); return v != null ? JSON.parse(v) : d; } catch { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+  const notas = lsGet('sn3_notas', []);
+  const escala = lsGet('sn3_config', {escala:10}).escala || 10;
+
+  // Determinar trimestre actual por datas
+  function getTrimActual() {
+    const trimDatas = lsGet('sn3_trimDatas', {});
+    const hoxe = new Date().toISOString().split('T')[0];
+    for (let t = 1; t <= 3; t++) {
+      const rango = trimDatas['t'+t];
+      if (rango?.ini && rango?.fin && hoxe >= rango.ini && hoxe <= rango.fin) return t;
+    }
+    const m = new Date().getMonth();
+    return m >= 8 ? 1 : m >= 1 && m <= 4 ? 2 : 3;
+  }
+
+  const trimestre = getTrimActual();
+  const dataHoxe = new Date().toISOString().split('T')[0];
+  const nextId = notas.length ? Math.max(...notas.map(n => n.id||0)) + 1 : 1;
+
+  // Build a nota compatible with Caderno Docente structure
+  notas.push({
+    id: nextId,
+    alumno: alumno,
+    materia: matId,
+    tipo: 'escrita',
+    subtipo: 'expresion',
+    valor: Math.min(escala, Math.max(0, nota)),
+    peso: peso,
+    grupoId: grupoId,
+    label: label,
+    data: dataHoxe,
+    comentario: obs || ('R\xFAbrica expresi\xF3n escrita: ' + ov._scored + '/' + ov._total + ' pts'),
+    materiaNome: matId === 'outras' ? 'Expresi\xF3n escrita' : '',
+    trimestre: trimestre,
+    rubricaVals: null,
+    ausente: false,
+    unidade: (()=>{const n=parseInt(document.getElementById('oe-cad-ud-num')?.value)||null;const t=document.getElementById('oe-cad-ud-tit')?.value.trim()||'';return n?{num:n,tit:t}:null;})()
+  });
+
+  lsSet('sn3_notas', notas);
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch {}
+
+  ov.style.display = 'none';
+
+  // Also save locally in oe_evals
+  gardarEvalAlumno();
+
+  // Flash button
+  const btn = document.getElementById('btn-exp-caderno');
+  if (btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '\u2705 Exportado!';
+    btn.style.borderColor = 'rgba(34,197,94,.6)';
+    btn.style.color = '#22c55e';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor = 'rgba(251,191,36,.4)'; btn.style.color = '#fbbf24'; }, 2000);
+  }
+}
+
+function exportarAoCaderno() {
+  const alumno = document.getElementById('rubric-alumno')?.value;
+  if (!alumno) { alert('Selecciona un alumno/a primeiro.'); return; }
+  if (!Object.keys(rubricScores).length) { alert('Puntua polo menos un criterio antes de exportar.'); return; }
+
+  // Calcular nota /10 a partir da puntuación da rúbrica
+  const total = RUBRIC_CRITERIA.length * 3;
+  const scored = Object.values(rubricScores).reduce((a,b) => a+b, 0);
+  const nota10 = total > 0 ? Math.round((scored / total) * 10 * 10) / 10 : 0;
+  const titulo = document.getElementById('rubric-title')?.value || 'Expresi\xF3n escrita';
+  const obs = document.getElementById('rubric-notes')?.value || '';
+
+  // Ler datos do Caderno Docente (sn3_*)
+  function lsGet(k, d) { try { const v = localStorage.getItem(k); return v != null ? JSON.parse(v) : d; } catch { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+  const materias = lsGet('sn3_materias', []);
+  const grupos = lsGet('sn3_grupos', []);
+  const notas = lsGet('sn3_notas', []);
+  const escala = lsGet('sn3_config', {escala:10}).escala || 10;
+
+  // Buscar materias de lingua (Lingua Galega ou Lingua Castelá)
+  const matLingua = materias.filter(m =>
+    m.nome && (m.nome.toLowerCase().includes('lingua') || m.nome.toLowerCase().includes('galega') ||
+               m.nome.toLowerCase().includes('castelán') || m.nome.toLowerCase().includes('castellano') ||
+               m.nome.toLowerCase().includes('expresi'))
+  );
+
+  // Build modal content
+  const matOpts = matLingua.length
+    ? matLingua.map(m => '<option value="' + m.id + '">' + (m.icon||'') + ' ' + m.nome + '</option>').join('')
+    + (materias.filter(m=>!matLingua.includes(m) && m.id!=='outras').length
+      ? '<optgroup label="Outras materias">' + materias.filter(m=>!matLingua.includes(m) && m.id!=='outras').map(m=>'<option value="'+m.id+'">'+(m.icon||'')+' '+m.nome+'</option>').join('') + '</optgroup>'
+      : '')
+    : materias.filter(m=>m.id!=='outras').map(m=>'<option value="'+m.id+'">'+(m.icon||'')+' '+m.nome+'</option>').join('');
+
+  const grupoOpts = grupos.map(g => '<option value="' + g.id + '">' + g.nome + ' (' + g.peso + '%)</option>').join('');
+
+  // Detect if overlay already exists, else create
+  let ov = document.getElementById('oe-caderno-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'oe-caderno-overlay';
+    ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem';
+    ov.innerHTML = '<div style="background:#1e293b;border-radius:20px;padding:1.5rem;max-width:460px;width:100%;border:1px solid rgba(255,255,255,.12);max-height:90vh;overflow-y:auto">'
+      + '<h3 style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.1rem;color:#fbbf24;margin-bottom:1rem">&#x1F4D2; Exportar ao Caderno Docente</h3>'
+      + '<div id="oe-cad-info" style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px 14px;margin-bottom:.75rem;font-size:.78rem"></div>'
+      + '<div style="display:grid;gap:10px;margin-bottom:.75rem">'
+      + '<div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">Materia no Caderno</label>'
+      + '<select id="oe-cad-mat" style="width:100%;height:36px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">'
+      + (matOpts || '<option value="outras">Outras materias</option>')
+      + '</select></div>'
+      + '<div style="display:grid;grid-template-columns:100px 1fr;gap:8px"><div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">📚 UD</label>'      + '<select id="oe-cad-ud-num" onchange="(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem(\'lomloe_uds\')||\'{}\');const mat=document.getElementById(\'oe-cad-mat\')?.value||\'\';const udsMat=lomloeUDs[mat]||[];const ud=udsMat.find(u=>u.num===parseInt(this.value));document.getElementById(\'oe-cad-ud-tit\').value=ud?.tit||\'\';}catch{}})()" style="width:100%;height:36px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.82rem;font-weight:700;padding:0 8px;outline:none;cursor:pointer">'      + '<option value="">Sen UD</option>'      + (()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const allUDs=new Map();Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));return[...allUDs.entries()].sort((a,b)=>a[0]-b[0]).map(([num,tit])=>'<option value="'+num+'">UD'+num+(tit?' · '+tit.substring(0,20):'')+'</option>').join('');}catch{return '';}})()
+      + '</select></div>'      + '<div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">TÍTULO UD</label>'      + '<input id="oe-cad-ud-tit" style="width:100%;height:36px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.82rem;font-weight:700;padding:0 10px;outline:none" placeholder="Autocompletado"></div></div>'      + '<div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">Grupo / Tipo de avaliaci\xF3n</label>'
+      + '<select id="oe-cad-grupo" style="width:100%;height:36px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">'
+      + (grupoOpts || '<option value="">Sen grupos definidos</option>')
+      + '</select></div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      + '<div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">Etiqueta</label>'
+      + '<input id="oe-cad-label" style="width:100%;height:36px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 10px;outline:none"></div>'
+      + '<div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">Peso (%)</label>'
+      + '<input id="oe-cad-peso" type="number" min="0" max="100" value="0" style="width:100%;height:36px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 10px;outline:none"></div>'
+      + '</div></div>'
+      + '<div style="font-size:.68rem;color:rgba(238,242,255,.3);background:rgba(99,102,241,.08);border-radius:8px;padding:7px 10px;margin-bottom:.75rem">'
+      + '&#x1F4A1; A nota exportarase para <strong id="oe-cad-alumno-nome" style="color:#fbbf24"></strong>. Tamb\xE9n podes exportar ao resto da clase desde o historial.'
+      + '</div>'
+      + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+      + '<button onclick="document.getElementById(\'oe-caderno-overlay\').style.display=\'none\'" style="height:36px;padding:0 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;color:rgba(238,242,255,.6);font-family:\'DM Sans\',system-ui,sans-serif;font-size:.82rem;font-weight:700;cursor:pointer">Cancelar</button>'
+      + '<button onclick="confirmarExportCaderno()" style="height:36px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:10px;color:#fbbf24;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.82rem;font-weight:800;cursor:pointer">&#x1F4D2; Gardar no Caderno</button>'
+      + '</div></div>';
+    document.body.appendChild(ov);
+  }
+
+  // Update dynamic content
+  const infoEl = document.getElementById('oe-cad-info');
+  if (infoEl) {
+    const pct = total > 0 ? Math.round((scored/total)*100) : 0;
+    const col = pct>=85?'#22c55e':pct>=65?'#60a5fa':pct>=40?'#fbbf24':'#ef4444';
+    infoEl.innerHTML = '<div style="display:flex;align-items:center;gap:10px">'
+      + '<div style="text-align:center;min-width:48px"><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.6rem;color:' + col + '">' + nota10 + '</div><div style="font-size:.55rem;font-weight:900;color:rgba(238,242,255,.4)">NOTA /10</div></div>'
+      + '<div><div style="font-size:.82rem;font-weight:800;color:#f0f4ff">' + alumno + '</div>'
+      + '<div style="font-size:.72rem;color:rgba(238,242,255,.5)">' + titulo + '</div>'
+      + '<div style="font-size:.65rem;color:rgba(238,242,255,.35)">' + scored + '/' + total + ' puntos \xB7 ' + pct + '%</div>'
+      + '</div></div>';
+  }
+  const labelEl = document.getElementById('oe-cad-label');
+  if (labelEl) labelEl.value = titulo;
+  const nomeEl = document.getElementById('oe-cad-alumno-nome');
+  if (nomeEl) nomeEl.textContent = alumno;
+
+  // Store current values for confirmar
+  ov._alumno = alumno;
+  ov._nota = nota10;
+  ov._titulo = titulo;
+  ov._obs = obs;
+  ov._scored = scored;
+  ov._total = total;
+
+  ov.style.display = 'flex';
+}
+
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

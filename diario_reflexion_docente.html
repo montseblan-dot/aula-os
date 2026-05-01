@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diario de Reflexión Docente · AULA OS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1120;--card:#131f35;--card2:#192844;--card3:#1e3050;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --white:#eef2ff;--muted:rgba(238,242,255,.42);
+  --gold:#fbbf24;--indigo:#818cf8;--green:#34d399;--blue:#60a5fa;
+  --red:#f87171;--teal:#2dd4bf;--orange:#fb923c;--purple:#c084fc;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ── HEADER ── */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:1.15rem;color:var(--gold)}
+.header-sub{font-size:.68rem;color:var(--muted);font-weight:700}
+.hdr-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.btn{height:30px;padding:0 14px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:.72rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{border-color:rgba(255,255,255,.25);color:var(--white)}
+.btn-gold{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.4);color:var(--gold)}
+.btn-gold:hover{background:rgba(251,191,36,.25)}
+.btn-green{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.35);color:var(--green)}
+.btn-indigo{background:rgba(129,140,248,.12);border-color:rgba(129,140,248,.35);color:var(--indigo)}
+.btn-red{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3);color:var(--red)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 56px)}
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px;overflow-y:auto}
+.main{padding:20px;overflow-y:auto}
+
+/* ── SIDEBAR ── */
+.sidebar-title{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px;padding:0 4px}
+.ud-sel{width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer;margin-bottom:12px}
+.mat-sel{width:100%;height:32px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 8px;outline:none;cursor:pointer;margin-bottom:12px}
+.entry-list{display:flex;flex-direction:column;gap:5px}
+.entry-item{padding:10px 12px;background:var(--card2);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.entry-item:hover{border-color:var(--border2)}
+.entry-item.sel{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.06)}
+.entry-item-ud{font-size:.6rem;font-weight:900;color:var(--indigo);margin-bottom:2px}
+.entry-item-date{font-size:.65rem;font-weight:800;color:var(--white);margin-bottom:2px}
+.entry-item-mat{font-size:.6rem;color:var(--muted)}
+.entry-item-cumpr{float:right;font-size:.58rem;font-weight:900;padding:1px 6px;border-radius:999px}
+.cumpr-alto{background:rgba(52,211,153,.15);color:var(--green)}
+.cumpr-medio{background:rgba(251,191,36,.15);color:var(--gold)}
+.cumpr-baixo{background:rgba(248,113,113,.12);color:var(--red)}
+.cumpr-nd{background:rgba(255,255,255,.06);color:var(--muted)}
+.new-btn{width:100%;height:34px;border-radius:10px;border:1.5px dashed rgba(251,191,36,.3);background:transparent;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;margin-bottom:10px;transition:all .15s}
+.new-btn:hover{background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.5)}
+
+/* ── FORM ── */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.form-card-title{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.field-grid{display:grid;gap:12px}
+.field-grid-2{grid-template-columns:1fr 1fr}
+.field-grid-3{grid-template-columns:1fr 1fr 1fr}
+.field-grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.field-label{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;display:block}
+.inp{width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 12px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:rgba(251,191,36,.5)}
+.inp[type=number]{-moz-appearance:textfield}
+.textarea{width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;padding:10px 12px;outline:none;resize:vertical;min-height:80px;line-height:1.55;transition:border-color .15s}
+.textarea:focus{border-color:rgba(251,191,36,.5)}
+.sel{width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer;transition:border-color .15s}
+.sel:focus{border-color:rgba(251,191,36,.5)}
+
+/* Progress bar sesions */
+.ses-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:4px}
+.ses-bar-fill{height:100%;border-radius:999px;transition:width .4s}
+
+/* ── STATS KPIs ── */
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;min-width:110px;flex:1}
+.kpi-val{font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;font-weight:900}
+.kpi-lbl{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:2px}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:10px}
+.tl-dot{position:absolute;left:-17px;top:12px;width:10px;height:10px;border-radius:50%;border:2px solid var(--card);background:var(--indigo)}
+.tl-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.tl-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.tl-ud{font-size:.6rem;font-weight:900;padding:1px 6px;border-radius:4px;background:rgba(129,140,248,.12);color:var(--indigo)}
+.tl-date{font-size:.62rem;font-weight:800;color:var(--muted)}
+.tl-mat{font-size:.6rem;color:var(--muted)}
+.tl-body{font-size:.75rem;color:rgba(238,242,255,.7);line-height:1.5}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.empty-icon{font-size:3rem;margin-bottom:1rem;opacity:.5}
+.empty-txt{font-size:.85rem;font-weight:700;margin-bottom:.5rem;color:var(--white)}
+.empty-sub{font-size:.72rem}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--card2);border-radius:10px;padding:3px;border:1px solid var(--border)}
+.tab{flex:1;height:30px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;transition:all .15s}
+.tab.sel{background:var(--card);color:var(--white);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;display:none}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:18px;padding:24px;width:480px;max-width:95vw;border:1px solid var(--border2);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold);margin-bottom:16px}
+.modal-row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.4rem">📔</span>
+  <div>
+    <h1>Diario de Reflexión Docente</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <span class="header-sub" id="hdr-curso"></span>
+  <div class="hdr-right">
+    <button class="btn btn-indigo" onclick="showTab('timeline')">📅 Liña temporal</button>
+    <button class="btn btn-indigo" onclick="showTab('stats')">📊 Estatísticas</button>
+    <button class="btn btn-gold" onclick="novaNota()">+ Nova reflexión</button>
+    <button class="btn btn-gold" onclick="exportarInformePDF()">🖨️ Informe UD</button>
+    <button class="btn btn-green" onclick="exportarMemoriaPDF()">📄 Memoria curso</button>
+    <button class="btn" onclick="exportarJSON()">📥 Exportar</button>
+    <a href="PORTAL_DOCENTE.html" class="btn" style="text-decoration:none;display:inline-flex;align-items:center" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html"><button class="btn">🏠 Portal</button></a>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-title">Filtrar</div>
+    <select class="mat-sel" id="fil-mat" onchange="render()">
+      <option value="">Todas as materias</option>
+    </select>
+    <select class="mat-sel" id="fil-cumpr" onchange="render()">
+      <option value="">Todos os graos</option>
+      <option value="alto">✅ Alto</option>
+      <option value="medio">🟡 Medio</option>
+      <option value="baixo">🔴 Baixo</option>
+    </select>
+    <button class="new-btn" onclick="novaNota()">+ Nova reflexión</button>
+    <div class="sidebar-title" style="margin-top:8px">Reflexións</div>
+    <div class="entry-list" id="entry-list"></div>
+  </div>
+
+  <div class="main" id="main-area">
+    <div class="tabs" id="main-tabs">
+      <button class="tab sel" onclick="showTab('form')" id="tab-form">📝 Editar</button>
+      <button class="tab" onclick="showTab('timeline')" id="tab-timeline">📅 Timeline</button>
+      <button class="tab" onclick="showTab('stats')" id="tab-stats">📊 Stats</button>
+      <button class="tab" onclick="showTab('comp')" id="tab-comp">📊 Comparativa UDs</button>
+      <button class="tab" onclick="showTab('cal')" id="tab-cal">📆 Calendario</button>
+    </div>
+
+    <!-- FORM -->
+    <div id="view-form">
+      <div id="form-empty" class="empty">
+        <div class="empty-icon">📔</div>
+        <div class="empty-txt">Ningún rexistro seleccionado</div>
+        <div class="empty-sub">Selecciona un rexistro á esquerda ou crea un novo</div>
+      </div>
+      <div id="form-content" style="display:none">
+        <!-- Identificación UD -->
+        <div class="form-card">
+          <div class="form-card-title">📚 Identificación da Unidade Didáctica</div>
+          <div class="field-grid field-grid-2">
+            <div>
+              <label class="field-label">Materia</label>
+              <select class="sel" id="f-mat" onchange="onMatChange()">
+                <option value="">— Seleccionar —</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Unidade Didáctica</label>
+              <select class="sel" id="f-ud" onchange="onUDChange()">
+                <option value="">— Seleccionar UD —</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-grid field-grid-2" style="margin-top:10px">
+            <div>
+              <label class="field-label">Data de alta</label>
+              <input class="inp" id="f-alta" type="date" readonly style="color:var(--muted)"/>
+            </div>
+            <div>
+              <label class="field-label">Última modificación</label>
+              <input class="inp" id="f-mod" type="date" readonly style="color:var(--muted)"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seguimento temporal -->
+        <div class="form-card">
+          <div class="form-card-title">📅 Seguimento temporal e de sesións</div>
+          <div class="field-grid field-grid-4">
+            <div>
+              <label class="field-label">Data inicio</label>
+              <input class="inp" id="f-ini" type="date" oninput="markDirty()"/>
+            </div>
+            <div>
+              <label class="field-label">Data fin</label>
+              <input class="inp" id="f-fin" type="date" oninput="markDirty()"/>
+            </div>
+            <div>
+              <label class="field-label">Sesións previstas</label>
+              <input class="inp" id="f-ses-prev" type="number" min="1" max="99" oninput="updateSesBar();markDirty()"/>
+            </div>
+            <div>
+              <label class="field-label">Sesións realizadas</label>
+              <input class="inp" id="f-ses-real" type="number" min="0" max="99" oninput="updateSesBar();markDirty()"/>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:.62rem;font-weight:800;color:var(--muted)">Progreso de sesións</span>
+              <span id="ses-pct-lbl" style="font-size:.62rem;font-weight:900;color:var(--green)">—</span>
+            </div>
+            <div class="ses-bar"><div class="ses-bar-fill" id="ses-bar-fill" style="width:0%;background:var(--green)"></div></div>
+          </div>
+        </div>
+
+        <!-- Avaliación -->
+        <div class="form-card">
+          <div class="form-card-title">✅ Avaliación e grao de cumprimento</div>
+          <div class="field-grid field-grid-2">
+            <div>
+              <label class="field-label">Grao de cumprimento</label>
+              <select class="sel" id="f-cumpr" oninput="markDirty()">
+                <option value="">— Seleccionar —</option>
+                <option value="alto">✅ Alto</option>
+                <option value="medio">🟡 Medio</option>
+                <option value="baixo">🔴 Baixo</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Valoración global (1–5 ⭐)</label>
+              <div style="display:flex;gap:6px;margin-top:6px" id="stars-row">
+                ${[1,2,3,4,5].map(i=>`<span class="star" data-v="${i}" onclick="setStar(${i})" style="font-size:1.4rem;cursor:pointer;opacity:.3;transition:opacity .15s">⭐</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reflexión -->
+        <div class="form-card">
+          <div class="form-card-title">💭 Reflexión e propostas de mellora</div>
+          <div class="field-grid" style="gap:14px">
+            <div>
+              <label class="field-label">Propostas de modificación e/ou mellora</label>
+              <textarea class="textarea" id="f-mellora" rows="4" placeholder="Que cambiarías? Que funcionou mal? Ideas para a próxima vez..." oninput="markDirty()"></textarea>
+            </div>
+            <div>
+              <label class="field-label">Observacións / Desviacións e xustificación</label>
+              <textarea class="textarea" id="f-obs" rows="4" placeholder="Por que houbo desviacións do planificado? Incidencias, causas..." oninput="markDirty()"></textarea>
+            </div>
+            <div>
+              <label class="field-label">Logros e aspectos positivos</label>
+              <textarea class="textarea" id="f-logros" rows="3" placeholder="Que funcionou ben? Que repetiría? Momentos destacados..." oninput="markDirty()"></textarea>
+            </div>
+            <div>
+              <label class="field-label">Recursos e materiais utilizados</label>
+              <textarea class="textarea" id="f-recursos" rows="2" placeholder="Materiais, recursos dixitais, actividades..." oninput="markDirty()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultados académicos -->
+        <div class="form-card">
+          <div class="form-card-title">📊 Resultados académicos do grupo</div>
+          <div class="field-grid field-grid-3">
+            <div>
+              <label class="field-label">Media da clase nesta UD</label>
+              <input class="inp" id="f-media-classe" readonly style="color:var(--green)" placeholder="Calculado automát."/>
+            </div>
+            <div>
+              <label class="field-label">% Aprobados</label>
+              <input class="inp" id="f-pct-apr" readonly style="color:var(--blue)" placeholder="Calculado automát."/>
+            </div>
+            <div>
+              <label class="field-label">Nº de alumnos/as avaliados</label>
+              <input class="inp" id="f-n-aval" readonly style="color:var(--muted)" placeholder="Calculado automát."/>
+            </div>
+          </div>
+          <div id="mat-results" style="margin-top:10px;display:none">
+            <!-- renderizado por JS -->
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:40px">
+          <button class="btn btn-red" onclick="borrarNota()" id="btn-borrar" style="display:none">🗑 Borrar</button>
+          <button class="btn btn-green" onclick="gardarNota()" id="btn-gardar">💾 Gardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div id="view-timeline" style="display:none">
+      <div id="timeline-content"></div>
+    </div>
+
+    <!-- STATS -->
+    <div id="view-stats" style="display:none">
+      <div id="stats-content"></div>
+    </div>
+
+    <!-- CALENDARIO -->
+    <div id="view-cal" style="display:none">
+      <div id="cal-content"></div>
+    </div>
+
+    <!-- COMPARATIVA -->
+    <div id="view-comp" style="display:none">
+      <div id="comp-content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+
+// ── DATOS ──────────────────────────────────────────────────────────────────────
+let reflexions=LS.get('dr_reflexions',[]);
+let selId=null;
+let selStar=0;
+let dirty=false;
+
+const materias=LS.get('sn3_materias',LS.get('pc_materias',[])).filter(m=>m.id!=='outras');
+const lomloeUDs=LS.get('lomloe_uds',{});
+const notas=LS.get('sn3_notas',[]);
+const escala=LS.get('sn3_escala',10);
+const corte=LS.get('sn3_corte',5);
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function init(){
+  // Poblar filtro materias
+  const fm=document.getElementById('fil-mat');
+  fm.innerHTML='<option value="">Todas as materias</option>'+
+    materias.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('');
+
+  // Poblar selector materia do form
+  const fm2=document.getElementById('f-mat');
+  fm2.innerHTML='<option value="">— Seleccionar —</option>'+
+    materias.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('');
+
+  // Render estrellas
+  document.getElementById('stars-row').innerHTML=
+    [1,2,3,4,5].map(i=>`<span class="star" data-v="${i}" onclick="setStar(${i})" style="font-size:1.4rem;cursor:pointer;opacity:.3;transition:opacity .15s">⭐</span>`).join('');
+
+  render();
+}
+
+// ── RENDER SIDEBAR ────────────────────────────────────────────────────────────
+function render(){
+  const filMat=document.getElementById('fil-mat')?.value||'';
+  const filCumpr=document.getElementById('fil-cumpr')?.value||'';
+
+  let list=[...reflexions].filter(r=>{
+    if(filMat&&r.materia!==filMat) return false;
+    if(filCumpr&&r.cumprimento!==filCumpr) return false;
+    return true;
+  }).sort((a,b)=>new Date(b.modif||b.alta)-new Date(a.modif||a.alta));
+
+  const el=document.getElementById('entry-list');
+  if(!list.length){
+    el.innerHTML='<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:2rem 0">Sen reflexións.<br>Crea a primeira!</div>';
+    return;
+  }
+  el.innerHTML=list.map(r=>{
+    const mat=materias.find(m=>m.id===r.materia);
+    const cumprClass={alto:'cumpr-alto',medio:'cumpr-medio',baixo:'cumpr-baixo'}[r.cumprimento]||'cumpr-nd';
+    const cumprLabel={alto:'Alto',medio:'Medio',baixo:'Baixo'}[r.cumprimento]||'—';
+    return `<div class="entry-item${r.id===selId?' sel':''}" onclick="selEntry('${r.id}')">
+      <span class="entry-item-cumpr ${cumprClass}">${cumprLabel}</span>
+      <div class="entry-item-ud">${r.udNum?'UD'+r.udNum+(r.udTit?' · '+r.udTit.substring(0,18):''):'Sen UD'}</div>
+      <div class="entry-item-date">${r.modif||r.alta||'—'}</div>
+      <div class="entry-item-mat">${mat?mat.icon+' '+mat.nome:'—'}</div>
+      ${r.estrelas?'<div style="font-size:.65rem;margin-top:3px">'+'⭐'.repeat(r.estrelas)+'</div>':''}
+    </div>`;
+  }).join('');
+
+  if(document.getElementById('view-timeline').style.display!=='none') renderTimeline();
+  if(document.getElementById('view-stats').style.display!=='none') renderStats();
+}
+
+// ── SELECCIONAR ENTRADA ───────────────────────────────────────────────────────
+function selEntry(id){
+  if(dirty){
+    _confirmar('Hai cambios sen gardar. Se continúas perderanse.',
+      ()=>{ dirty=false; selEntry(id); }, 'Continuar sen gardar');
+    return;
+  }
+  selId=id;
+  dirty=false;
+  const r=reflexions.find(x=>x.id===id);
+  if(!r) return;
+  showTab('form');
+  document.getElementById('form-empty').style.display='none';
+  document.getElementById('form-content').style.display='block';
+  document.getElementById('btn-borrar').style.display='inline-flex';
+
+  // Fill form
+  const matSel=document.getElementById('f-mat');
+  matSel.value=r.materia||'';
+  populateUDs(r.materia,r.udNum);
+  document.getElementById('f-ud').value=r.udNum||'';
+  document.getElementById('f-alta').value=r.alta||'';
+  document.getElementById('f-mod').value=r.modif||'';
+  document.getElementById('f-ini').value=r.ini||'';
+  document.getElementById('f-fin').value=r.fin||'';
+  document.getElementById('f-ses-prev').value=r.sesPrev||'';
+  document.getElementById('f-ses-real').value=r.sesReal||'';
+  document.getElementById('f-cumpr').value=r.cumprimento||'';
+  document.getElementById('f-mellora').value=r.mellora||'';
+  document.getElementById('f-obs').value=r.obs||'';
+  document.getElementById('f-logros').value=r.logros||'';
+  document.getElementById('f-recursos').value=r.recursos||'';
+  selStar=r.estrelas||0;
+  renderStars();
+  updateSesBar();
+  calcResultados(r.materia,r.udNum);
+  render();
+}
+
+// ── NOVA NOTA ─────────────────────────────────────────────────────────────────
+function novaNota(){
+  if(dirty){
+    _confirmar('Hai cambios sen gardar. Se continúas perderanse.',
+      ()=>{ dirty=false; novaNota(); }, 'Continuar sen gardar');
+    return;
+  }
+  const hoxe=new Date().toISOString().split('T')[0];
+  const newR={id:'dr_'+Date.now(),alta:hoxe,modif:hoxe,materia:'',udNum:null,udTit:'',
+    ini:'',fin:'',sesPrev:'',sesReal:'',cumprimento:'',mellora:'',obs:'',logros:'',recursos:'',estrelas:0};
+  reflexions.unshift(newR);
+  LS.set('dr_reflexions',reflexions);
+  selId=newR.id;
+  dirty=false;
+  showTab('form');
+  document.getElementById('form-empty').style.display='none';
+  document.getElementById('form-content').style.display='block';
+  document.getElementById('btn-borrar').style.display='inline-flex';
+  document.getElementById('f-mat').value='';
+  document.getElementById('f-ud').innerHTML='<option value="">— Seleccionar UD —</option>';
+  document.getElementById('f-alta').value=hoxe;
+  document.getElementById('f-mod').value=hoxe;
+  document.getElementById('f-ini').value='';
+  document.getElementById('f-fin').value='';
+  document.getElementById('f-ses-prev').value='';
+  document.getElementById('f-ses-real').value='';
+  document.getElementById('f-cumpr').value='';
+  document.getElementById('f-mellora').value='';
+  document.getElementById('f-obs').value='';
+  document.getElementById('f-logros').value='';
+  document.getElementById('f-recursos').value='';
+  selStar=0; renderStars();
+  updateSesBar();
+  document.getElementById('mat-results').style.display='none';
+  render();
+}
+
+// ── GARDAR ───────────────────────────────────────────────────────────────────
+function gardarNota(){
+  const r=reflexions.find(x=>x.id===selId);
+  if(!r) return;
+  const hoxe=new Date().toISOString().split('T')[0];
+  const udNum=parseInt(document.getElementById('f-ud')?.value)||null;
+  const udsMat=lomloeUDs[document.getElementById('f-mat')?.value]||[];
+  const udObj=udsMat.find(u=>u.num===udNum);
+  r.materia=document.getElementById('f-mat')?.value||'';
+  r.udNum=udNum;
+  r.udTit=udObj?.tit||'';
+  r.modif=hoxe;
+  r.ini=document.getElementById('f-ini')?.value||'';
+  r.fin=document.getElementById('f-fin')?.value||'';
+  r.sesPrev=document.getElementById('f-ses-prev')?.value||'';
+  r.sesReal=document.getElementById('f-ses-real')?.value||'';
+  r.cumprimento=document.getElementById('f-cumpr')?.value||'';
+  r.mellora=document.getElementById('f-mellora')?.value||'';
+  r.obs=document.getElementById('f-obs')?.value||'';
+  r.logros=document.getElementById('f-logros')?.value||'';
+  r.recursos=document.getElementById('f-recursos')?.value||'';
+  r.estrelas=selStar;
+  document.getElementById('f-mod').value=hoxe;
+  LS.set('dr_reflexions',reflexions);
+  dirty=false;
+  showToast('💾 Gardado correctamente','#34d399');
+  render();
+}
+
+// ── BORRAR ────────────────────────────────────────────────────────────────────
+function borrarNota(){
+  const eliminada=reflexions.find(r=>r.id===selId);
+  if(!eliminada)return;
+  reflexions=reflexions.filter(r=>r.id!==selId);
+  LS.set('dr_reflexions',reflexions);
+  const idEliminado=selId;
+  selId=null; dirty=false;
+  document.getElementById('form-empty').style.display='block';
+  document.getElementById('form-content').style.display='none';
+  render();
+  _toastDesfacer(
+    `Reflexión ${eliminada.udNum?'UD'+eliminada.udNum+' ':''}eliminada`,
+    ()=>{
+      reflexions.unshift(eliminada);
+      LS.set('dr_reflexions',reflexions);
+      selId=idEliminado; dirty=false;
+      render();
+      document.getElementById('form-empty').style.display='none';
+      document.getElementById('form-content').style.display='block';
+      document.getElementById('btn-borrar').style.display='inline-flex';
+    }
+  );
+}
+
+// ── POBLAR UDs ────────────────────────────────────────────────────────────────
+function populateUDs(matId,selNum=null){
+  const sel=document.getElementById('f-ud');
+  const udsMat=lomloeUDs[matId]||[];
+  sel.innerHTML='<option value="">— Seleccionar UD —</option>'+
+    udsMat.sort((a,b)=>a.num-b.num).map(u=>`<option value="${u.num}"${u.num===selNum?' selected':''}>${'UD'+u.num+(u.tit?' · '+u.tit:'')} (${u.sesions||'—'} ses.)</option>`).join('');
+  if(udsMat.length===0)
+    sel.innerHTML+='<option disabled>Sen UDs importadas para esta materia</option>';
+}
+
+function onMatChange(){
+  const matId=document.getElementById('f-mat')?.value||'';
+  populateUDs(matId);
+  // Preenchear sesions previstas desde lomloe_uds
+  markDirty();
+}
+
+function onUDChange(){
+  const matId=document.getElementById('f-mat')?.value||'';
+  const udNum=parseInt(document.getElementById('f-ud')?.value)||null;
+  if(udNum&&matId){
+    const udsMat=lomloeUDs[matId]||[];
+    const ud=udsMat.find(u=>u.num===udNum);
+    if(ud?.sesions) document.getElementById('f-ses-prev').value=ud.sesions;
+    calcResultados(matId,udNum);
+  }
+  markDirty();
+}
+
+// ── CALCULAR RESULTADOS ───────────────────────────────────────────────────────
+function calcResultados(matId,udNum){
+  const el=document.getElementById('mat-results');
+  if(!matId||!udNum){el.style.display='none';return;}
+  const notasUD=notas.filter(n=>n.materia===matId&&n.unidade?.num===udNum);
+  if(!notasUD.length){el.style.display='none';return;}
+
+  // Media e % aprobados por alumno (últimas notas de cada alumno nesta UD)
+  const byAl={};
+  notasUD.forEach(n=>{if(!byAl[n.alumno])byAl[n.alumno]=[];byAl[n.alumno].push(n.valor);});
+  const medias=Object.values(byAl).map(vs=>vs.reduce((s,v)=>s+v,0)/vs.length);
+  const mediaClasse=medias.length?+(medias.reduce((s,v)=>s+v,0)/medias.length).toFixed(2):null;
+  const nApr=medias.filter(m=>m>=corte).length;
+  const pctApr=medias.length?Math.round(nApr/medias.length*100):null;
+
+  document.getElementById('f-media-classe').value=mediaClasse!==null?mediaClasse+'/'+escala:'—';
+  document.getElementById('f-pct-apr').value=pctApr!==null?pctApr+'%':'—';
+  document.getElementById('f-n-aval').value=medias.length||'—';
+
+  const c=mediaClasse!==null?(mediaClasse/escala>=.85?'var(--green)':mediaClasse/escala>=.65?'var(--blue)':mediaClasse/escala>=.5?'var(--gold)':'var(--red)'):'var(--muted)';
+  document.getElementById('f-media-classe').style.color=c;
+
+  el.style.display='block';
+  el.innerHTML=`<div style="font-size:.62rem;font-weight:900;color:var(--muted);margin-bottom:6px">DISTRIBUCIÓN POR ALUMNO/A</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">
+    ${Object.entries(byAl).map(([al,vs])=>{
+      const med=+(vs.reduce((s,v)=>s+v,0)/vs.length).toFixed(1);
+      const cc=med/escala>=.85?'var(--green)':med/escala>=.65?'var(--blue)':med/escala>=.5?'var(--gold)':'var(--red)';
+      return `<span style="font-size:.6rem;font-weight:800;padding:2px 7px;border-radius:5px;background:${cc}18;color:${cc}">${al.split(' ')[0]} ${med}</span>`;
+    }).join('')}
+    </div>`;
+}
+
+// ── SESIONS BAR ───────────────────────────────────────────────────────────────
+function updateSesBar(){
+  const prev=parseInt(document.getElementById('f-ses-prev')?.value)||0;
+  const real=parseInt(document.getElementById('f-ses-real')?.value)||0;
+  const pct=prev?Math.min(100,Math.round(real/prev*100)):0;
+  const c=pct>=90?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
+  const fill=document.getElementById('ses-bar-fill');
+  const lbl=document.getElementById('ses-pct-lbl');
+  if(fill){fill.style.width=pct+'%';fill.style.background=c;}
+  if(lbl) lbl.textContent=prev?`${real}/${prev} sesións (${pct}%)`:'—';
+}
+
+// ── ESTRELLAS ─────────────────────────────────────────────────────────────────
+function setStar(v){selStar=v===selStar?0:v;renderStars();markDirty();}
+function renderStars(){
+  document.querySelectorAll('.star').forEach(s=>{
+    s.style.opacity=parseInt(s.dataset.v)<=selStar?'1':'.25';
+  });
+}
+
+// ── DIRTY ─────────────────────────────────────────────────────────────────────
+function markDirty(){dirty=true;}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(t){
+  ['form','timeline','stats','comp','cal'].forEach(x=>{
+    document.getElementById('view-'+x).style.display=x===t?'block':'none';
+    document.getElementById('tab-'+x)?.classList.toggle('sel',x===t);
+  });
+  if(t==='timeline') renderTimeline();
+  if(t==='stats') renderStats();
+  if(t==='comp') renderComp();
+  if(t==='cal') renderCal();
+}
+
+// ── TIMELINE ──────────────────────────────────────────────────────────────────
+function renderTimeline(){
+  const filMat=document.getElementById('fil-mat')?.value||'';
+  let list=[...reflexions].filter(r=>!filMat||r.materia===filMat)
+    .sort((a,b)=>new Date(b.modif||b.alta)-new Date(a.modif||a.alta));
+  const el=document.getElementById('timeline-content');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📔</div><div class="empty-txt">Sen reflexións</div></div>';return;}
+  el.innerHTML='<div class="timeline">'+list.map(r=>{
+    const mat=materias.find(m=>m.id===r.materia);
+    const cumprColors={alto:'var(--green)',medio:'var(--gold)',baixo:'var(--red)'}[r.cumprimento]||'var(--indigo)';
+    const snippets=[r.logros,r.obs,r.mellora].find(x=>x?.trim());
+    return `<div class="tl-item">
+      <div class="tl-dot" style="background:${cumprColors}"></div>
+      <div class="tl-card">
+        <div class="tl-header">
+          ${r.udNum?`<span class="tl-ud">UD${r.udNum}${r.udTit?' · '+r.udTit.substring(0,18):''}</span>`:''}
+          <span class="tl-date">${r.modif||r.alta||'—'}</span>
+          ${mat?`<span class="tl-mat">${mat.icon||''} ${mat.nome}</span>`:''}
+          ${r.cumprimento?`<span style="font-size:.58rem;font-weight:900;padding:1px 6px;border-radius:999px;background:${cumprColors}18;color:${cumprColors};margin-left:auto">${{alto:'✅ Alto',medio:'🟡 Medio',baixo:'🔴 Baixo'}[r.cumprimento]}</span>`:''}
+          ${r.estrelas?`<span style="font-size:.62rem">${'⭐'.repeat(r.estrelas)}</span>`:''}
+        </div>
+        ${snippets?`<div class="tl-body">${snippets.substring(0,140)}${snippets.length>140?'…':''}</div>`:''}
+        ${r.sesPrev?`<div style="margin-top:6px"><div class="ses-bar"><div class="ses-bar-fill" style="width:${r.sesReal&&r.sesPrev?Math.min(100,Math.round(r.sesReal/r.sesPrev*100)):0}%;background:${cumprColors}"></div></div></div>`:''}
+        <button onclick="selEntry('${r.id}')" style="margin-top:6px;height:22px;padding:0 10px;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:.62rem;font-weight:800;cursor:pointer">✏️ Editar</button>
+      </div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderGraficoAnual(){
+  const ano=new Date().getFullYear();
+  const meses=['Xan','Feb','Mar','Abr','Mai','Xuñ','Xul','Ago','Set','Out','Nov','Dec'];
+  const cumprCols={alto:'#34d399',medio:'#fbbf24',baixo:'#f87171'};
+  // Por mes, contar reflexions e media de grao
+  const byMes=Array.from({length:12},(_,m)=>{
+    const refs=reflexions.filter(r=>{
+      const d=r.modif||r.alta||'';
+      return d.startsWith(ano+'-'+String(m+1).padStart(2,'0'));
+    });
+    const cumprVals={alto:3,medio:2,baixo:1};
+    const vals=refs.filter(r=>r.cumprimento).map(r=>cumprVals[r.cumprimento]||0);
+    const avg=vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:null;
+    return {m,n:refs.length,avg,alto:refs.filter(r=>r.cumprimento==='alto').length,medio:refs.filter(r=>r.cumprimento==='medio').length,baixo:refs.filter(r=>r.cumprimento==='baixo').length};
+  });
+  const maxN=Math.max(...byMes.map(m=>m.n),1);
+  const bars=byMes.map((m,i)=>{
+    if(!m.n) return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+      <div style="flex:1;display:flex;align-items:flex-end;min-height:80px">
+        <div style="width:100%;height:4px;background:rgba(255,255,255,.04);border-radius:4px 4px 0 0"></div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted)">${meses[i]}</div>
+    </div>`;
+    const pct=Math.round(m.n/maxN*100);
+    const c=m.avg?m.avg>=2.5?'var(--green)':m.avg>=1.5?'var(--gold)':'var(--red)':'var(--indigo)';
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1" title="${meses[i]}: ${m.n} reflexión(s)${m.avg?', grao medio '+m.avg.toFixed(1):''}">
+      <div style="font-size:.6rem;font-weight:900;color:${c}">${m.n}</div>
+      <div style="flex:1;display:flex;align-items:flex-end;min-height:80px;width:100%">
+        <div style="width:100%;height:${pct}%;min-height:4px;background:${c};border-radius:4px 4px 0 0;opacity:.85;transition:height .4s"></div>
+      </div>
+      <div style="font-size:.6rem;color:var(--muted)">${meses[i]}</div>
+    </div>`;
+  }).join('');
+  return `<div class="form-card" style="margin-top:12px">
+    <div class="form-card-title">📊 Actividade mensual ${ano}</div>
+    <div style="display:flex;gap:4px;height:130px;align-items:flex-end">${bars}</div>
+    <div style="display:flex;gap:10px;margin-top:8px;font-size:.62rem;color:var(--muted)">
+      <span style="color:var(--green)">■ Alto</span>
+      <span style="color:var(--gold)">■ Medio</span>
+      <span style="color:var(--red)">■ Baixo</span>
+      <span style="color:var(--indigo)">■ Sen grao</span>
+    </div>
+  </div>`;
+}
+
+function renderStats(){
+  const el=document.getElementById('stats-content');
+  if(!reflexions.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Sen datos</div></div>';return;}
+
+  const total=reflexions.length;
+  const conCumpr=reflexions.filter(r=>r.cumprimento);
+  const alto=conCumpr.filter(r=>r.cumprimento==='alto').length;
+  const medio=conCumpr.filter(r=>r.cumprimento==='medio').length;
+  const baixo=conCumpr.filter(r=>r.cumprimento==='baixo').length;
+  const mediaEstr=reflexions.filter(r=>r.estrelas).reduce((s,r)=>s+(r.estrelas||0),0)/(reflexions.filter(r=>r.estrelas).length||1);
+
+  const kpis=`<div class="kpis">
+    <div class="kpi"><div class="kpi-val" style="color:var(--gold)">${total}</div><div class="kpi-lbl">Reflexións</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--green)">${alto}</div><div class="kpi-lbl">Grao alto</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--gold)">${medio}</div><div class="kpi-lbl">Grao medio</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--red)">${baixo}</div><div class="kpi-lbl">Grao baixo</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--indigo)">${mediaEstr.toFixed(1)} ⭐</div><div class="kpi-lbl">Valoración media</div></div>
+  </div>`;
+
+  // Por materia
+  const byMat={};
+  reflexions.forEach(r=>{if(!byMat[r.materia])byMat[r.materia]=[];byMat[r.materia].push(r);});
+  const matRows=Object.entries(byMat).map(([matId,rs])=>{
+    const mat=materias.find(m=>m.id===matId);
+    const pctAlto=rs.length?Math.round(rs.filter(r=>r.cumprimento==='alto').length/rs.length*100):0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--card2);border-radius:10px;margin-bottom:6px">
+      <span style="font-size:.75rem;font-weight:800;flex:1">${mat?mat.icon+' '+mat.nome:matId||'Sen materia'}</span>
+      <span style="font-size:.7rem;font-weight:900;color:var(--muted)">${rs.length} reflexión${rs.length!==1?'s':''}</span>
+      <div style="width:80px;height:6px;background:var(--border);border-radius:999px;overflow:hidden">
+        <div style="height:100%;width:${pctAlto}%;background:var(--green);border-radius:999px"></div>
+      </div>
+      <span style="font-size:.68rem;font-weight:900;color:var(--green)">${pctAlto}% alto</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=kpis+renderGraficoAnual()+`
+    <div class="form-card">
+      <div class="form-card-title">📚 Por materia</div>
+      ${matRows||'<div style="color:var(--muted);font-size:.78rem">Sen datos</div>'}
+    </div>`;
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg,col='#fbbf24'){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText=`position:fixed;bottom:20px;right:20px;background:${col};color:#fff;font-size:.78rem;font-weight:800;padding:8px 16px;border-radius:10px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s`;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);
+}
+
+// ── EXPORTAR ──────────────────────────────────────────────────────────────────
+function exportarInformePDF(){
+  if(!selId){showToast('Selecciona unha reflexión primeiro','#f87171');return;}
+  const r=reflexions.find(x=>x.id===selId);
+  if(!r){return;}
+  const mat=materias.find(m=>m.id===r.materia);
+  const notas2=notas.filter(n=>n.materia===r.materia&&n.unidade?.num===r.udNum);
+  const byAl={};notas2.forEach(n=>{if(!byAl[n.alumno])byAl[n.alumno]=[];byAl[n.alumno].push(n.valor);});
+  const medias=Object.values(byAl).map(vs=>+(vs.reduce((s,v)=>s+v,0)/vs.length).toFixed(1));
+  const mediaClasse=medias.length?+(medias.reduce((s,v)=>s+v,0)/medias.length).toFixed(2):null;
+  const pctApr=medias.length?Math.round(medias.filter(m=>m>=corte).length/medias.length*100):null;
+  const cumprColors={alto:'#059669',medio:'#d97706',baixo:'#dc2626'};
+  const cumprColor=cumprColors[r.cumprimento]||'#64748b';
+  const cumprLabel={alto:'✅ Alto',medio:'🟡 Medio',baixo:'🔴 Baixo'}[r.cumprimento]||'—';
+  const estrelas=r.estrelas?'⭐'.repeat(r.estrelas):'—';
+
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Informe UD${r.udNum||''} · ${mat?.nome||''}</title>
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Georgia',serif;padding:2cm;font-size:11px;color:#1e293b;line-height:1.6}
+  h1{font-size:18px;color:#1e2a4a;margin-bottom:4px}
+  h2{font-size:13px;color:#1e2a4a;margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid #e2e8f0}
+  .meta{font-size:10px;color:#64748b;margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap}
+  .kpis{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 16px;text-align:center;min-width:90px}
+  .kpi-val{font-size:20px;font-weight:900;font-family:sans-serif}
+  .kpi-lbl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+  .field{margin-bottom:12px;padding:10px 14px;background:#f8fafc;border-radius:8px;border-left:3px solid #e2e8f0}
+  .field-lbl{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:4px}
+  .field-val{font-size:11px;color:#334155;line-height:1.6}
+  .al-grid{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .al-chip{font-size:9px;font-weight:700;padding:1px 7px;border-radius:4px}
+  @page{size:A4;margin:2cm}@media print{body{padding:0}}
+  </style></head><body>
+  <h1>📔 Informe de Unidade Didáctica</h1>
+  <div class="meta">
+    <span>${mat?mat.nome:r.materia||'—'}</span>
+    ${r.udNum?`<span>UD${r.udNum}${r.udTit?' · '+r.udTit:''}</span>`:''}
+    <span>Modificado: ${r.modif||r.alta||'—'}</span>
+    <span>Grao: <strong style="color:${cumprColor}">${cumprLabel}</strong></span>
+    <span>Valoración: ${estrelas}</span>
+  </div>
+  <div class="kpis">
+    ${r.ini?`<div class="kpi"><div class="kpi-val">${r.ini}</div><div class="kpi-lbl">Inicio</div></div>`:''}
+    ${r.fin?`<div class="kpi"><div class="kpi-val">${r.fin}</div><div class="kpi-lbl">Fin</div></div>`:''}
+    ${r.sesPrev?`<div class="kpi"><div class="kpi-val">${r.sesReal||0}/${r.sesPrev}</div><div class="kpi-lbl">Sesións</div></div>`:''}
+    ${mediaClasse!==null?`<div class="kpi"><div class="kpi-val" style="color:${mediaClasse/escala>=.65?'#059669':'#dc2626'}">${mediaClasse}</div><div class="kpi-lbl">Media clase</div></div>`:''}
+    ${pctApr!==null?`<div class="kpi"><div class="kpi-val" style="color:${pctApr>=70?'#059669':'#dc2626'}">${pctApr}%</div><div class="kpi-lbl">Aprobados</div></div>`:''}
+  </div>
+  ${r.logros?`<h2>🌟 Logros e aspectos positivos</h2><div class="field"><div class="field-val">${r.logros}</div></div>`:''}
+  ${r.mellora?`<h2>🔧 Propostas de modificación e mellora</h2><div class="field"><div class="field-val">${r.mellora}</div></div>`:''}
+  ${r.obs?`<h2>📌 Observacións e desviacións</h2><div class="field"><div class="field-val">${r.obs}</div></div>`:''}
+  ${r.recursos?`<h2>📦 Recursos utilizados</h2><div class="field"><div class="field-val">${r.recursos}</div></div>`:''}
+  ${Object.keys(byAl).length?`<h2>📊 Resultados por alumno/a</h2>
+    <div class="al-grid">${Object.entries(byAl).map(([al,vs])=>{
+      const med=+(vs.reduce((s,v)=>s+v,0)/vs.length).toFixed(1);
+      const c=med/escala>=.85?'#dcfce7':med/escala>=.65?'#dbeafe':med/escala>=.5?'#fef9c3':'#fee2e2';
+      const tc=med/escala>=.85?'#166534':med/escala>=.65?'#1e40af':med/escala>=.5?'#854d0e':'#991b1b';
+      return `<span class="al-chip" style="background:${c};color:${tc}">${al.split(' ')[0]} ${med}</span>`;
+    }).join('')}</div>`:''}
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+function renderGraficoAnual(){
+  const el=document.getElementById('comp-content');
+  if(!el) return;
+  const ano=new Date().getFullYear();
+  const meses=['Xan','Feb','Mar','Abr','Mai','Xuñ','Xul','Ago','Set','Out','Nov','Dec'];
+  const cumprMap={alto:3,medio:2,baixo:1};
+  const cumprCols={alto:'#34d399',medio:'#fbbf24',baixo:'#f87171'};
+  // Agrupar por mes
+  const byMes=Array.from({length:12},(_,i)=>({mes:i,refs:[]}));
+  reflexions.forEach(r=>{
+    const d=new Date((r.modif||r.alta||''));
+    if(!isNaN(d)&&d.getFullYear()===ano) byMes[d.getMonth()].refs.push(r);
+  });
+  const maxRefs=Math.max(...byMes.map(m=>m.refs.length),1);
+  const bars=byMes.map(m=>{
+    const n=m.refs.length;
+    const altos=m.refs.filter(r=>r.cumprimento==='alto').length;
+    const medios=m.refs.filter(r=>r.cumprimento==='medio').length;
+    const baixos=m.refs.filter(r=>r.cumprimento==='baixo').length;
+    const pct=Math.round(n/maxRefs*100);
+    const mainCumpr=altos>=medios&&altos>=baixos?'alto':medios>=baixos?'medio':baixos?'baixo':'nd';
+    const c=cumprCols[mainCumpr]||'var(--border2)';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1">'
+      +'<div style="font-size:.6rem;font-weight:900;color:var(--muted)">'+(n||'')+'</div>'
+      +'<div style="width:100%;height:80px;background:rgba(255,255,255,.04);border-radius:6px 6px 0 0;overflow:hidden;display:flex;align-items:flex-end">'
+      +(n?'<div style="width:100%;height:'+pct+'%;background:'+c+';border-radius:4px 4px 0 0;min-height:4px"></div>':'')
+      +'</div>'
+      +'<div style="font-size:.6rem;color:var(--muted);text-align:center">'+meses[m.mes]+'</div>'
+      +'</div>';
+  }).join('');
+
+  const filMat=document.getElementById('fil-mat')?.value||'';
+  const matHtml=renderComp_inner(filMat);
+  el.innerHTML='<div class="form-card" style="margin-bottom:12px">'
+    +'<div class="form-card-title">📊 Actividade mensual '+ano+'</div>'
+    +'<div style="display:flex;gap:4px;align-items:flex-end;height:110px;padding:0 4px">'+bars+'</div>'
+    +'<div style="display:flex;gap:10px;margin-top:8px;font-size:.6rem;flex-wrap:wrap">'
+    +'<span style="color:#34d399">■ Alto</span><span style="color:#fbbf24">■ Medio</span><span style="color:#f87171">■ Baixo</span>'
+    +'</div></div>'+matHtml;
+}
+
+function renderComp_inner(filMat){
+  const mats=filMat?materias.filter(m=>m.id===filMat):materias;
+  const gc2=v=>{if(v===null)return'var(--muted)';const p=v/escala;return p>=.85?'var(--green)':p>=.65?'var(--blue)':p>=.5?'var(--gold)':'var(--red)';};
+  let html='';
+  mats.forEach(mat=>{
+    const refs=reflexions.filter(r=>r.materia===mat.id&&r.udNum);
+    if(!refs.length) return;
+    html+='<div class="form-card"><div class="form-card-title">'+( mat.icon||'')+' '+mat.nome+'</div>';
+    const byUD={};
+    refs.forEach(r=>{if(!byUD[r.udNum])byUD[r.udNum]={udNum:r.udNum,udTit:r.udTit||'',refs:[]};byUD[r.udNum].refs.push(r);});
+    Object.values(byUD).sort((a,b)=>a.udNum-b.udNum).forEach(u=>{
+      const r=u.refs[u.refs.length-1];
+      const sesReal=parseInt(r.sesReal)||0;
+      const sesPrev=parseInt(r.sesPrev)||0;
+      const pctSes=sesPrev?Math.round(sesReal/sesPrev*100):0;
+      const cumprCol={alto:'var(--green)',medio:'var(--gold)',baixo:'var(--red)'}[r.cumprimento]||'var(--muted)';
+      const notasUD=notas.filter(n=>n.materia===mat.id&&n.unidade?.num===u.udNum);
+      const mediaUD=notasUD.length?+(notasUD.reduce((s,n)=>s+n.valor,0)/notasUD.length).toFixed(1):null;
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
+        +'<span style="font-size:.62rem;font-weight:900;padding:1px 7px;border-radius:5px;background:rgba(129,140,248,.12);color:var(--indigo)">UD'+u.udNum+'</span>'
+        +'<span style="font-size:.72rem;font-weight:800;flex:1;color:var(--white)">'+u.udTit.substring(0,24)+'</span>'
+        +(r.cumprimento?'<span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:999px;background:'+cumprCol+'18;color:'+cumprCol+'">'+{alto:'✅ Alto',medio:'🟡 Medio',baixo:'🔴 Baixo'}[r.cumprimento]+'</span>':'')
+        +(r.estrelas?'<span style="font-size:.68rem">'+'⭐'.repeat(r.estrelas)+'</span>':'')
+        +(mediaUD!==null?'<span style="font-family:DM Serif Display,Georgia,serif;font-size:.9rem;color:'+gc2(mediaUD)+'">'+mediaUD+'/'+escala+'</span>':'<span style="font-size:.65rem;color:var(--muted)">Sen notas</span>')
+        +(sesPrev?'<div style="width:60px;height:5px;background:var(--border);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pctSes+'%;background:'+cumprCol+';border-radius:999px"></div></div>':'')
+        +'</div>';
+    });
+    html+='</div>';
+  });
+  return html||'<div style="color:var(--muted);font-size:.78rem;padding:2rem;text-align:center">Sen reflexións con UD asignada.</div>';
+}
+
+function renderComp(){
+  const el=document.getElementById('comp-content');
+  if(!el) return;
+  renderGraficoAnual();
+}
+
+
+function renderCal(){
+  const el=document.getElementById('cal-content');
+  if(!el) return;
+  const ano=new Date().getFullYear();
+  const cumprCols={alto:'rgba(52,211,153,.7)',medio:'rgba(251,191,36,.7)',baixo:'rgba(248,113,113,.6)',nd:'rgba(255,255,255,.12)'};
+  const cumprLabels={alto:'✅',medio:'🟡',baixo:'🔴'};
+  // Map reflexions por data
+  const byData={};
+  reflexions.forEach(r=>{if(r.modif||r.alta){const d=r.modif||r.alta;if(!byData[d])byData[d]=[];byData[d].push(r);}});
+  const MESES=['Xan','Feb','Mar','Abr','Mai','Xuñ','Xul','Ago','Set','Out','Nov','Dec'];
+  let html='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">';
+  for(let m=0;m<12;m++){
+    const diasMes=new Date(ano,m+1,0).getDate();
+    html+=`<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px">
+      <div style="font-size:.65rem;font-weight:900;color:var(--muted);margin-bottom:6px">${MESES[m]} ${ano}</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">`;
+    // Día da semana do primeiro día
+    const priDow=new Date(ano,m,1).getDay();
+    const offset=priDow===0?6:priDow-1;
+    for(let i=0;i<offset;i++) html+='<div></div>';
+    for(let d=1;d<=diasMes;d++){
+      const key=`${ano}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const refs=byData[key]||[];
+      const cumpr=refs[0]?.cumprimento||null;
+      const bg=cumpr?cumprCols[cumpr]:refs.length?cumprCols.nd:'transparent';
+      const border=refs.length?'1px solid rgba(255,255,255,.15)':'none';
+      const title=refs.length?refs.map(r=>`UD${r.udNum||'?'} ${cumprLabels[r.cumprimento]||''}`).join(', '):'';
+      html+=`<div onclick="if('${key}' in ${JSON.stringify(byData)})selRefsByData('${key}')" style="width:100%;aspect-ratio:1;border-radius:3px;background:${bg};border:${border};cursor:${refs.length?'pointer':'default'};title:'${title}'" title="${title}"></div>`;
+    }
+    html+='</div></div>';
+  }
+  html+='</div>';
+  html+='<div style="margin-top:12px;display:flex;gap:10px;font-size:.62rem;color:var(--muted);align-items:center;flex-wrap:wrap">';
+  html+='<span>Lenda:</span>';
+  Object.entries({alto:'✅ Alto',medio:'🟡 Medio',baixo:'🔴 Baixo',nd:'Sen grao'}).forEach(([k,v])=>{
+    html+=`<span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:2px;background:${cumprCols[k]};display:inline-block"></span>${v}</span>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function selRefsByData(data){
+  const refs=reflexions.filter(r=>(r.modif||r.alta)===data);
+  if(refs.length===1){selId=refs[0].id;showTab('form');selEntry(refs[0].id);}
+}
+
+function exportarMemoriaPDF(){
+  if(!reflexions.length){showToast('Sen reflexións para exportar','#f87171');return;}
+  const filMat=document.getElementById('fil-mat')?.value||'';
+  const list=reflexions.filter(r=>!filMat||r.materia===filMat).sort((a,b)=>(a.modif||a.alta||'').localeCompare(b.modif||b.alta||''));
+  const cumprColors={alto:'#15803d',medio:'#d97706',baixo:'#dc2626'};
+  const cumprLabels={alto:'✅ Alto',medio:'🟡 Medio',baixo:'🔴 Baixo'};
+  const w=window.open('','_blank');
+  const seccions=list.map((r,i)=>{
+    const mat=materias.find(m=>m.id===r.materia);
+    const notasUD=notas.filter(n=>n.materia===r.materia&&n.unidade?.num===r.udNum);
+    const media=notasUD.length?+(notasUD.reduce((s,n)=>s+n.valor,0)/notasUD.length).toFixed(1):null;
+    const pctSes=r.sesPrev?Math.round((parseInt(r.sesReal)||0)/parseInt(r.sesPrev)*100):null;
+    return `<div style="page-break-inside:avoid;margin-bottom:28px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+      <div style="background:#1e2a4a;color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <span style="font-size:14px;font-weight:700">${mat?mat.nome+' · ':''}UD${r.udNum||'?'}${r.udTit?' · '+r.udTit:''}</span>
+          ${r.cumprimento?`<span style="margin-left:10px;font-size:11px;padding:1px 8px;border-radius:999px;background:${cumprColors[r.cumprimento]}33;color:${cumprColors[r.cumprimento]==='#15803d'?'#86efac':cumprColors[r.cumprimento]==='#d97706'?'#fde68a':'#fca5a5'}">${cumprLabels[r.cumprimento]}</span>`:''}
+        </div>
+        <div style="text-align:right;font-size:10px;color:#94a3b8">
+          ${r.ini&&r.fin?r.ini+' → '+r.fin:r.modif||r.alta||'—'}
+          ${r.estrelas?' · '+'⭐'.repeat(r.estrelas):''}
+        </div>
+      </div>
+      <div style="padding:12px 16px">
+        ${r.sesPrev?`<div style="margin-bottom:8px"><span style="font-size:10px;color:#64748b;font-weight:700">Sesións: ${r.sesReal||0}/${r.sesPrev} (${pctSes}%)</span>
+          <div style="height:6px;background:#e8eeff;border-radius:999px;margin-top:3px;overflow:hidden"><div style="height:100%;width:${pctSes||0}%;background:${pctSes>=80?'#15803d':pctSes>=50?'#2563eb':'#dc2626'};border-radius:999px"></div></div>
+        </div>`:''}
+        ${media!==null?`<div style="margin-bottom:8px;font-size:10px"><strong>Media clase:</strong> <span style="font-weight:900;color:${media/escala>=.65?'#15803d':'#dc2626'}">${media}/${escala}</span></div>`:''}
+        ${r.logros?`<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Logros</div><div style="font-size:11px;line-height:1.6">${r.logros}</div></div>`:''}
+        ${r.mellora?`<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Propostas de mellora</div><div style="font-size:11px;line-height:1.6">${r.mellora}</div></div>`:''}
+        ${r.obs?`<div style="margin-bottom:6px"><div style="font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Observacións</div><div style="font-size:11px;line-height:1.6">${r.obs}</div></div>`:''}
+        ${r.recursos?`<div><div style="font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Recursos</div><div style="font-size:11px;line-height:1.6">${r.recursos}</div></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const kpiTot=list.length;
+  const kpiAlto=list.filter(r=>r.cumprimento==='alto').length;
+  const kpiMed=list.filter(r=>r.cumprimento==='medio').length;
+  const kpiBaixo=list.filter(r=>r.cumprimento==='baixo').length;
+  const kpiEstr=list.filter(r=>r.estrelas).reduce((s,r)=>s+(r.estrelas||0),0)/(list.filter(r=>r.estrelas).length||1);
+
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Memoria de curso · Reflexión Docente</title>
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Georgia,serif;padding:2cm;color:#1e293b;font-size:11px;line-height:1.6}
+  h1{font-size:22px;color:#1e2a4a;margin-bottom:6px}
+  h2{font-size:14px;color:#1e2a4a;margin:20px 0 10px}
+  .kpis{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  .kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 16px;text-align:center;min-width:80px}
+  .kpi-val{font-size:20px;font-weight:900;font-family:sans-serif}
+  .kpi-lbl{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+  @page{size:A4;margin:2cm}@media print{body{padding:0}}
+  </style></head><body>
+  <h1>📔 Memoria de Reflexión Docente</h1>
+  <p style="font-size:11px;color:#64748b;margin-bottom:16px">Curso ${new Date().getFullYear()-1}/${new Date().getFullYear()} · Xerado o ${new Date().toLocaleDateString('gl-ES')}${filMat?' · '+materias.find(m=>m.id===filMat)?.nome:''}</p>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-val">${kpiTot}</div><div class="kpi-lbl">Reflexións</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#15803d">${kpiAlto}</div><div class="kpi-lbl">Grao alto</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#d97706">${kpiMed}</div><div class="kpi-lbl">Grao medio</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#dc2626">${kpiBaixo}</div><div class="kpi-lbl">Grao baixo</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#1e2a4a">${kpiEstr.toFixed(1)}⭐</div><div class="kpi-lbl">Val. media</div></div>
+  </div>
+  <h2>📚 Reflexións por Unidade Didáctica</h2>
+  ${seccions}
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+function exportarJSON(){
+  const data={_meta:{app:'AULA OS · Diario Reflexión',data:new Date().toISOString()},reflexions};
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='diario_reflexion_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+
+function closeModal(){document.getElementById('modal-bg').classList.remove('show');}
+
+// ── STORAGE SYNC ──────────────────────────────────────────────────────────────
+window.addEventListener('storage',e=>{
+  if(e.key==='dr_reflexions'){reflexions=LS.get('dr_reflexions',[]);render();}
+});
+
+init();
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:400px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

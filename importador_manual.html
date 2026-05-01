@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Importar Programación Didáctica · Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#263347;--card3:#2d3d55;
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.15);
+  --white:#f1f5f9;--muted:rgba(241,245,249,.45);
+  --gold:#fbbf24;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--purple:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;min-height:100vh}
+
+/* HEADER */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:8px}
+
+/* BUTTONS */
+.btn{height:32px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:800;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn-ghost{background:rgba(255,255,255,.07);color:var(--white);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.13)}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-gold:hover{background:#f59e0b}
+.btn-gold:disabled{opacity:.4;cursor:not-allowed}
+.btn-green{background:var(--green);color:#052e16}
+.btn-green:hover{background:#16a34a}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-red:hover{background:rgba(239,68,68,.25)}
+.btn-sm{height:26px;padding:0 10px;font-size:.68rem}
+
+/* LAYOUT */
+.main{max-width:960px;margin:0 auto;padding:24px 20px}
+
+/* STEPS */
+.steps{display:flex;gap:0;margin-bottom:28px}
+.step{flex:1;text-align:center;padding:10px;position:relative}
+.step::after{content:'';position:absolute;top:50%;right:0;transform:translateY(-50%);width:1px;height:60%;background:var(--border)}
+.step:last-child::after{display:none}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--card2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;margin:0 auto 5px;transition:all .3s}
+.step-num.done{background:var(--green);border-color:var(--green);color:#052e16}
+.step-num.active{background:var(--gold);border-color:var(--gold);color:#0f172a}
+.step-label{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+
+/* CARDS */
+.card{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-header h2{font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;flex:1}
+.card-body{padding:18px}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+.inp{width:100%;height:36px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:700;padding:0 12px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--gold)}
+.inp-sm{width:100px}
+.inp-num{width:80px;text-align:center}
+select.inp{cursor:pointer}
+.row{display:flex;gap:12px;align-items:flex-end}
+.row .field{flex:1}
+
+/* UD BLOCK */
+.ud-block{background:var(--card2);border-radius:12px;border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.ud-block-header{padding:12px 16px;display:flex;align-items:center;gap:10px;background:rgba(251,191,36,.05);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.ud-block-header:hover{background:rgba(251,191,36,.09)}
+.ud-num-badge{font-size:.62rem;font-weight:900;padding:2px 10px;border-radius:999px;background:rgba(251,191,36,.12);color:var(--gold);border:1px solid rgba(251,191,36,.2)}
+.ud-title-preview{font-size:.83rem;font-weight:800;flex:1}
+.ud-collapse-icon{font-size:.7rem;color:var(--muted);transition:transform .2s}
+.ud-block-body{padding:14px 16px}
+.ud-block.collapsed .ud-block-body{display:none}
+.ud-block.collapsed .ud-collapse-icon{transform:rotate(-90deg)}
+
+/* CONTIDO ROW */
+.contido-row{background:rgba(0,0,0,.2);border-radius:8px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+.contido-row .inp{margin-bottom:0}
+.contido-label-wrap{flex:1}
+.contido-comps{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.comp-chip{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:7px;padding:3px 8px}
+.comp-chip label{font-size:.6rem;font-weight:900;min-width:38px;cursor:pointer}
+.comp-chip input[type=number]{width:38px;height:22px;background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:5px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;text-align:center;padding:0 4px;outline:none}
+.comp-chip input[type=number]:focus{border-color:var(--gold)}
+
+/* TRIM SELECTOR */
+.trim-sel{display:flex;gap:6px}
+.trim-btn{height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--border2);background:rgba(255,255,255,.05);color:var(--muted);font-size:.72rem;font-weight:800;cursor:pointer;transition:all .15s}
+.trim-btn.active{background:rgba(99,102,241,.2);border-color:#818cf8;color:#818cf8}
+
+/* CRITERIOS */
+.criterio-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.criterio-tag{display:flex;align-items:center;gap:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);border-radius:6px;padding:3px 8px;font-size:.65rem;font-weight:800;color:var(--blue)}
+.criterio-tag button{background:none;border:none;color:var(--red);cursor:pointer;font-size:.7rem;padding:0;line-height:1}
+.criterio-inp-wrap{display:flex;gap:6px;margin-top:6px}
+.criterio-inp-wrap .inp{flex:1;height:30px}
+
+/* MATERIA SELECTOR */
+.mat-card{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);border-radius:12px;padding:16px;margin-bottom:16px}
+
+/* SUMMARY */
+.ud-summary-list{margin-top:10px}
+.ud-sum-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.75rem}
+.ud-sum-num{font-size:.6rem;font-weight:900;padding:1px 8px;border-radius:999px;background:rgba(251,191,36,.1);color:var(--gold)}
+.ud-sum-title{flex:1;font-weight:700}
+.ud-sum-meta{color:var(--muted);font-size:.68rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#052e16;padding:10px 18px;border-radius:10px;font-size:.78rem;font-weight:800;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999}
+
+/* SUCCESS */
+.success-screen{text-align:center;padding:48px 20px}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .row{flex-direction:column}
+  .inp-num{width:100%}
+  .contido-comps{gap:4px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.4rem">📥</span>
+  <div>
+    <h1>Importar Programación Didáctica · Manual</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="hdr-right">
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none">🏠 Portal</a>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STEPS -->
+  <div class="steps" id="steps">
+    <div class="step"><div class="step-num active" id="s1">1</div><div class="step-label">Datos xerais</div></div>
+    <div class="step"><div class="step-num" id="s2">2</div><div class="step-label">Unidades didácticas</div></div>
+    <div class="step"><div class="step-num" id="s3">3</div><div class="step-label">Asignar materia</div></div>
+    <div class="step"><div class="step-num" id="s4">4</div><div class="step-label">Importar</div></div>
+  </div>
+
+  <!-- PASO 1: DATOS XERAIS -->
+  <div id="paso1">
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:1.1rem">📋</span>
+        <h2>Datos xerais da programación</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="field">
+            <label>Nome da materia</label>
+            <input class="inp" id="g-materia" type="text" placeholder="Ex: Ciencias Sociais" oninput="actualizarPreview()">
+          </div>
+          <div class="field" style="max-width:140px">
+            <label>Curso</label>
+            <input class="inp" id="g-curso" type="text" value="4º Primaria">
+          </div>
+          <div class="field" style="max-width:120px">
+            <label>Sesións anuais</label>
+            <input class="inp inp-num" id="g-sesions" type="number" min="1" max="300" placeholder="105">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:1.1rem">📚</span>
+        <h2>Número de unidades didácticas</h2>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <span style="font-size:.8rem;color:var(--muted)">Cantas UDs ten a programación?</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="setNumUDs(4)">4 UDs</button>
+            <button class="btn btn-ghost btn-sm" onclick="setNumUDs(5)">5 UDs</button>
+            <button class="btn btn-ghost btn-sm" onclick="setNumUDs(6)">6 UDs</button>
+            <button class="btn btn-ghost btn-sm" onclick="setNumUDs(7)">7 UDs</button>
+            <button class="btn btn-ghost btn-sm" onclick="setNumUDs(8)">8 UDs</button>
+          </div>
+          <span style="font-size:.8rem;color:var(--muted)">ou</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="inp inp-num" id="num-uds-custom" type="number" min="1" max="20" placeholder="N" style="width:70px" oninput="setNumUDs(parseInt(this.value)||0)">
+            <span style="font-size:.75rem;color:var(--muted)">UDs</span>
+          </div>
+        </div>
+        <div id="num-uds-info" style="margin-top:10px;font-size:.72rem;color:var(--muted)">Selecciona o número de UDs para continuar</div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-gold" id="btn-paso1" onclick="irPaso2()" disabled>Continuar → Editar UDs</button>
+    </div>
+  </div>
+
+  <!-- PASO 2: UNIDADES DIDÁCTICAS -->
+  <div id="paso2" style="display:none">
+    <div id="uds-container"></div>
+    <div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px">
+      <button class="btn btn-ghost" onclick="irPaso1()">← Volver</button>
+      <button class="btn btn-gold" onclick="irPaso3()">Continuar → Asignar materia</button>
+    </div>
+  </div>
+
+  <!-- PASO 3: ASIGNAR MATERIA + RESUMO -->
+  <div id="paso3" style="display:none">
+    <div class="mat-card">
+      <div style="font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin-bottom:10px">🔗 Asignar ao Caderno Docente</div>
+      <p style="font-size:.75rem;color:var(--muted);margin-bottom:12px">Selecciona a materia do Caderno Docente á que se importará esta programación.</p>
+      <select class="inp" id="mat-sel" onchange="seleccionarMateria(this.value)">
+        <option value="">— Selecciona a materia —</option>
+      </select>
+      <div id="mat-warn" style="display:none;font-size:.72rem;color:var(--gold);margin-top:6px">⚠️ Define as materias no Caderno Docente primeiro e volve aquí.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:1.1rem">📋</span>
+        <h2>Resumo da programación</h2>
+        <span id="resumo-meta" style="font-size:.7rem;color:var(--muted)"></span>
+      </div>
+      <div class="card-body">
+        <div id="resumo-uds"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <button class="btn btn-ghost" onclick="irPaso2()">← Volver</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="import-status" style="font-size:.72rem;color:var(--muted)">Selecciona a materia para importar</span>
+        <button class="btn btn-green" id="btn-import" onclick="executarImport()" disabled>📥 Importar ao sistema</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 4: ÉXITO -->
+  <div id="paso4" style="display:none">
+    <div class="success-screen">
+      <div style="font-size:3rem;margin-bottom:14px">✅</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;margin-bottom:8px">Programación importada correctamente</div>
+      <div id="success-desc" style="font-size:.8rem;color:var(--muted);margin-bottom:24px"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-gold" onclick="window.location.href='competencias_lomloe.html'">🎓 Ver en Competencias LOMLOE</button>
+        <button class="btn btn-ghost" onclick="window.location.href='caderno_docente.html'">📓 Ir ao Caderno Docente</button>
+        <button class="btn btn-ghost" onclick="location.reload()">📥 Importar outra materia</button>
+      </div>
+      <div id="success-list" style="margin-top:24px;background:var(--card);border-radius:12px;padding:16px;text-align:left;border:1px solid var(--border)"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+
+const COMPS = ['CCL','CP','STEM','CD','CPSAA','CC','CE','CCEC'];
+const COMP_COLS = {CCL:'#3b82f6',CP:'#06b6d4',STEM:'#f97316',CD:'#8b5cf6',CPSAA:'#ec4899',CC:'#14b8a6',CE:'#fbbf24',CCEC:'#a78bfa'};
+
+let numUDs = 0;
+let matSelId = null;
+
+// ── PASO 1 ───────────────────────────────────────────────────────────────────
+function setNumUDs(n){
+  if(!n||n<1) return;
+  numUDs = n;
+  document.getElementById('num-uds-custom').value = n;
+  document.getElementById('num-uds-info').innerHTML =
+    `<span style="color:var(--green)">✓ Crearanse ${n} bloques de unidade didáctica</span>`;
+  const mat = document.getElementById('g-materia').value.trim();
+  document.getElementById('btn-paso1').disabled = !mat;
+}
+
+function actualizarPreview(){
+  const mat = document.getElementById('g-materia').value.trim();
+  document.getElementById('btn-paso1').disabled = !(mat && numUDs > 0);
+}
+
+function irPaso1(){
+  show('paso1'); setStep(1);
+}
+
+function irPaso2(){
+  const mat = document.getElementById('g-materia').value.trim();
+  if(!mat){toast('Introduce o nome da materia','#ef4444');return;}
+  if(!numUDs){toast('Selecciona o número de UDs','#ef4444');return;}
+  construirUDs();
+  show('paso2'); setStep(2);
+}
+
+// ── PASO 2: CONSTRUÍR UDs ────────────────────────────────────────────────────
+function construirUDs(){
+  const c = document.getElementById('uds-container');
+  // Preserve existing data if already built
+  const existing = c.querySelectorAll('.ud-block');
+  if(existing.length === numUDs) return; // already built, don't reset
+  c.innerHTML = '';
+  for(let i=1;i<=numUDs;i++) c.appendChild(crearUDBlock(i));
+}
+
+function crearUDBlock(n){
+  const div = document.createElement('div');
+  div.className = 'ud-block';
+  div.id = `ud-${n}`;
+  div.innerHTML = `
+    <div class="ud-block-header" onclick="toggleUD(${n})">
+      <span class="ud-num-badge">UD${n}</span>
+      <span class="ud-title-preview" id="ud-title-prev-${n}">Sen título</span>
+      <span style="font-size:.65rem;color:var(--muted)" id="ud-trim-prev-${n}"></span>
+      <span class="ud-collapse-icon" id="ud-col-${n}">▼</span>
+    </div>
+    <div class="ud-block-body">
+
+      <div class="row">
+        <div class="field">
+          <label>Título da UD</label>
+          <input class="inp" id="ud-tit-${n}" type="text" placeholder="Ex: Como é a Terra?" oninput="actualizarTitulo(${n})">
+        </div>
+        <div class="field" style="max-width:110px">
+          <label>Nº sesións</label>
+          <input class="inp inp-num" id="ud-ses-${n}" type="number" min="1" max="50" placeholder="18">
+        </div>
+        <div class="field" style="max-width:100px">
+          <label>Peso (%)</label>
+          <input class="inp inp-num" id="ud-peso-${n}" type="number" min="1" max="100" placeholder="17">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Trimestre</label>
+        <div class="trim-sel" id="ud-trim-${n}">
+          <button class="trim-btn" onclick="setTrim(${n},1)">1º trim.</button>
+          <button class="trim-btn" onclick="setTrim(${n},2)">2º trim.</button>
+          <button class="trim-btn" onclick="setTrim(${n},3)">3º trim.</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Criterios de avaliación <span style="font-weight:400;text-transform:none;font-size:.65rem">(opcional — ex: CS1.1, CS2.3)</span></label>
+        <div class="criterio-inp-wrap">
+          <input class="inp" id="crit-inp-${n}" type="text" placeholder="Ex: CS1.1" onkeydown="if(event.key==='Enter'||event.key===','){engadirCriterio(${n});event.preventDefault()}">
+          <button class="btn btn-ghost btn-sm" onclick="engadirCriterio(${n})">+ Engadir</button>
+        </div>
+        <div class="criterio-tags" id="crit-tags-${n}"></div>
+      </div>
+
+      <div class="field">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label style="margin-bottom:0">Contidos <span style="font-weight:400;text-transform:none;font-size:.65rem">(con pesos competenciais 0-5)</span></label>
+          <button class="btn btn-ghost btn-sm" onclick="engadirContido(${n})">+ Contido</button>
+        </div>
+        <div id="contidos-${n}">
+          ${crearContidoHTML(n,1)}
+          ${crearContidoHTML(n,2)}
+          ${crearContidoHTML(n,3)}
+        </div>
+      </div>
+
+    </div>`;
+  return div;
+}
+
+function crearContidoHTML(udN, cN){
+  const id = `c${udN}_${cN}`;
+  const chipsHTML = COMPS.map(k=>`
+    <div class="comp-chip">
+      <label style="color:${COMP_COLS[k]}">${k}</label>
+      <input type="number" id="comp-${id}-${k}" min="0" max="5" value="0" title="${k}">
+    </div>`).join('');
+  return `<div class="contido-row" id="crow-${id}">
+    <div class="contido-label-wrap">
+      <input class="inp" type="text" id="clabel-${id}" placeholder="Descrición do contido (máx 60 caracteres)" maxlength="60">
+      <div class="contido-comps">${chipsHTML}</div>
+    </div>
+    <button class="btn btn-red btn-sm" onclick="borrarContido('${id}')" title="Eliminar contido" style="align-self:flex-start;margin-top:2px">✕</button>
+  </div>`;
+}
+
+let contidoCounters = {};
+function engadirContido(udN){
+  contidoCounters[udN] = (contidoCounters[udN]||3) + 1;
+  const cN = contidoCounters[udN];
+  const cont = document.getElementById(`contidos-${udN}`);
+  const div = document.createElement('div');
+  div.innerHTML = crearContidoHTML(udN, cN);
+  cont.appendChild(div.firstElementChild);
+  toast('Contido engadido');
+}
+
+function borrarContido(id){
+  const el = document.getElementById(`crow-${id}`);
+  if(!el) return;
+  const parent = el.parentNode;
+  const nextSib = el.nextSibling;
+  el.remove();
+  _toastDesfacer(
+    'Contido eliminado',
+    ()=>{
+      if(nextSib && nextSib.parentNode===parent) parent.insertBefore(el,nextSib);
+      else parent.appendChild(el);
+    }
+  );
+}
+
+function toggleUD(n){
+  const b = document.getElementById(`ud-${n}`);
+  b.classList.toggle('collapsed');
+}
+
+function actualizarTitulo(n){
+  const v = document.getElementById(`ud-tit-${n}`).value.trim();
+  document.getElementById(`ud-title-prev-${n}`).textContent = v || 'Sen título';
+}
+
+let trimValues = {};
+function setTrim(n, t){
+  trimValues[n] = t;
+  const btns = document.querySelectorAll(`#ud-trim-${n} .trim-btn`);
+  btns.forEach((b,i)=>b.classList.toggle('active', i+1===t));
+  document.getElementById(`ud-trim-prev-${n}`).textContent = `T${t}`;
+}
+
+const criterios = {};
+function engadirCriterio(n){
+  const inp = document.getElementById(`crit-inp-${n}`);
+  const val = inp.value.trim().replace(/,$/,'').toUpperCase();
+  if(!val) return;
+  if(!criterios[n]) criterios[n]=[];
+  if(criterios[n].includes(val)){inp.value='';return;}
+  criterios[n].push(val);
+  renderCriterios(n);
+  inp.value='';
+}
+function borrarCriterio(n, val){
+  criterios[n] = (criterios[n]||[]).filter(c=>c!==val);
+  renderCriterios(n);
+}
+function renderCriterios(n){
+  const el = document.getElementById(`crit-tags-${n}`);
+  el.innerHTML = (criterios[n]||[]).map(c=>`
+    <span class="criterio-tag">${c}
+      <button onclick="borrarCriterio(${n},'${c}')">✕</button>
+    </span>`).join('');
+}
+
+// ── PASO 3 ───────────────────────────────────────────────────────────────────
+function irPaso3(){
+  // Validar que todas as UDs teñen título e trimestre
+  for(let i=1;i<=numUDs;i++){
+    const tit = document.getElementById(`ud-tit-${i}`)?.value.trim();
+    if(!tit){toast(`UD${i} non ten título`,'#ef4444');document.getElementById(`ud-${i}`)?.classList.remove('collapsed');return;}
+    if(!trimValues[i]){toast(`UD${i}: selecciona o trimestre`,'#ef4444');document.getElementById(`ud-${i}`)?.classList.remove('collapsed');return;}
+  }
+  renderResumo();
+  cargarMaterias();
+  show('paso3'); setStep(3);
+}
+
+function renderResumo(){
+  const matNome = document.getElementById('g-materia').value.trim();
+  const ses = document.getElementById('g-sesions').value;
+  document.getElementById('resumo-meta').textContent =
+    `${numUDs} UDs · ${ses||'?'} sesións anuais`;
+
+  let html = '';
+  for(let i=1;i<=numUDs;i++){
+    const tit = document.getElementById(`ud-tit-${i}`).value.trim();
+    const sesUD = document.getElementById(`ud-ses-${i}`).value||'?';
+    const peso = document.getElementById(`ud-peso-${i}`).value||'?';
+    const trim = trimValues[i]||'?';
+    const nCont = document.getElementById(`contidos-${i}`)?.querySelectorAll('.contido-row').length||0;
+    html += `<div class="ud-sum-row">
+      <span class="ud-sum-num">UD${i}</span>
+      <span class="ud-sum-title">${tit}</span>
+      <span class="ud-sum-meta">${sesUD} sess. · ${peso}% · T${trim} · ${nCont} contidos</span>
+    </div>`;
+  }
+  document.getElementById('resumo-uds').innerHTML = html;
+}
+
+function cargarMaterias(){
+  const mats = LS.get('sn3_materias',[]).filter(m=>m.id!=='outras');
+  const sel = document.getElementById('mat-sel');
+  sel.innerHTML = '<option value="">— Selecciona a materia —</option>';
+  if(mats.length){
+    mats.forEach(m=>{ const o=document.createElement('option'); o.value=m.id; o.textContent=(m.icon||'')+' '+m.nome; sel.appendChild(o); });
+    document.getElementById('mat-warn').style.display='none';
+  } else {
+    document.getElementById('mat-warn').style.display='block';
+  }
+}
+
+function seleccionarMateria(id){
+  matSelId = id||null;
+  const btn = document.getElementById('btn-import');
+  const st = document.getElementById('import-status');
+  if(id){
+    btn.disabled=false;
+    const mat = LS.get('sn3_materias',[]).find(m=>m.id===id);
+    st.textContent=`Importará ${numUDs} UDs para "${mat?.nome||id}"`;
+    st.style.color='var(--green)';
+  } else {
+    btn.disabled=true;
+    st.textContent='Selecciona a materia para importar';
+    st.style.color='var(--muted)';
+  }
+}
+
+// ── IMPORTAR ─────────────────────────────────────────────────────────────────
+function recopilarDatos(){
+  const uds = [];
+  for(let i=1;i<=numUDs;i++){
+    const tit = document.getElementById(`ud-tit-${i}`).value.trim();
+    const sesions = parseInt(document.getElementById(`ud-ses-${i}`).value)||10;
+    const peso = parseInt(document.getElementById(`ud-peso-${i}`).value)||Math.round(100/numUDs);
+    const trim = trimValues[i]||1;
+    const crit = criterios[i]||[];
+
+    // Recopilar contidos
+    const contRows = document.getElementById(`contidos-${i}`)?.querySelectorAll('.contido-row')||[];
+    const contidos = [];
+    contRows.forEach((row, j)=>{
+      const idBase = row.id.replace('crow-','');
+      const label = document.getElementById(`clabel-${idBase}`)?.value.trim();
+      if(!label) return; // skip empty
+      const comps = {};
+      COMPS.forEach(k=>{
+        const v = parseInt(document.getElementById(`comp-${idBase}-${k}`)?.value)||0;
+        if(v>0) comps[k]=v;
+      });
+      contidos.push({id:`c${i}_${j+1}`, label, comps});
+    });
+
+    uds.push({num:i, tit, sesions, trimestre:trim, peso, criterios:crit, ia:[], contidos});
+  }
+  return {
+    materia: document.getElementById('g-materia').value.trim(),
+    curso: document.getElementById('g-curso').value.trim()||'4º Primaria',
+    sesionsAnuais: parseInt(document.getElementById('g-sesions').value)||null,
+    uds
+  };
+}
+
+function executarImport(){
+  if(!matSelId) return;
+  const datos = recopilarDatos();
+  const lomloeUDs = LS.get('lomloe_uds',{});
+  const existing = (lomloeUDs[matSelId]||[]).length;
+  if(existing>0){
+    _confirmar(
+      `Esta materia xa ten ${existing} UD${existing!==1?'s':''}. Sobreescribir coa nova programación?`,
+      ()=>_executarImport(matSelId, datos, lomloeUDs),
+      'Sobreescribir'
+    );
+    return;
+  }
+
+  _executarImport(matSelId, datos, lomloeUDs);
+}
+
+function _executarImport(matSelId, datos, lomloeUDs){
+  lomloeUDs[matSelId] = datos.uds.map(ud=>({
+    num: ud.num, tit: ud.tit, sesions: ud.sesions,
+    trimestre: ud.trimestre, peso: ud.peso,
+    criterios: ud.criterios||[],
+    contidos: ud.contidos.map(c=>({id:c.id, label:c.label, comps:{...c.comps}}))
+  }));
+  LS.set('lomloe_uds', lomloeUDs);
+
+  const asign = LS.get('lomloe_asign',{});
+  const allComps = new Set();
+  datos.uds.forEach(ud=>ud.contidos.forEach(c=>Object.keys(c.comps).forEach(k=>allComps.add(k))));
+  asign[matSelId]=[...allComps];
+  LS.set('lomloe_asign', asign);
+
+  const mat = LS.get('sn3_materias',[]).find(m=>m.id===matSelId);
+  document.getElementById('success-desc').innerHTML =
+    `${datos.uds.length} unidades didácticas de <strong style="color:var(--white)">${mat?.nome||matSelId}</strong><br>cargadas en Competencias LOMLOE e dispoñibles no Caderno Docente`;
+  document.getElementById('success-list').innerHTML =
+    datos.uds.map(ud=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.73rem">
+      <span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:999px;background:rgba(251,191,36,.1);color:var(--gold)">UD${ud.num}</span>
+      <span style="flex:1;font-weight:700">${ud.tit}</span>
+      <span style="color:var(--muted)">${ud.contidos.length} contidos</span>
+      <span style="color:#818cf8;font-size:.6rem">T${ud.trimestre}</span>
+    </div>`).join('');
+
+  show('paso4'); setStep(4);
+}
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+function show(id){
+  ['paso1','paso2','paso3','paso4'].forEach(p=>document.getElementById(p).style.display='none');
+  document.getElementById(id).style.display='block';
+}
+function setStep(n){
+  [1,2,3,4].forEach(i=>{
+    const el=document.getElementById('s'+i);
+    el.classList.remove('done','active');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  });
+}
+function toast(msg,col='#22c55e'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=col; t.style.opacity='1';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.opacity='0',2200);
+}
+
+// Init: autoactivate button on materia input
+document.getElementById('g-materia').addEventListener('input', actualizarPreview);
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:400px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

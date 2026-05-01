@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medidas de Apoio · AULA OS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b1120;--card:#131c2e;--card2:#192035;--card3:#1f2844;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);--border3:rgba(255,255,255,.2);
+  --white:#eef2ff;--muted:rgba(238,242,255,.42);--muted2:rgba(238,242,255,.25);
+  --gold:#fbbf24;--gold2:rgba(251,191,36,.15);
+  --re:#f97316;--re-bg:rgba(249,115,22,.1);--re-border:rgba(249,115,22,.3);
+  --ec:#818cf8;--ec-bg:rgba(129,140,248,.1);--ec-border:rgba(129,140,248,.3);
+  --ac:#34d399;--ac-bg:rgba(52,211,153,.08);--ac-border:rgba(52,211,153,.25);
+  --green:#22c55e;--red:#ef4444;--blue:#60a5fa;--purple:#c084fc;
+  --shadow:0 8px 32px rgba(0,0,0,.5);
+}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px}
+
+/* ── HEADER ── */
+.hdr{background:var(--card);border-bottom:1px solid var(--border);padding:13px 22px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
+.hdr-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.35rem;flex:1}
+.hdr-title em{color:var(--gold);font-style:normal}
+.save-flash{font-size:.65rem;font-weight:900;color:var(--ac);opacity:0;transition:opacity .4s;letter-spacing:.06em}
+.save-flash.on{opacity:1}
+
+/* ── BOTÓNS ── */
+.btn{height:30px;padding:0 13px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{border-color:var(--re-border);background:var(--gold2);color:var(--gold)}
+.btn-re{border-color:var(--re-border);background:var(--re-bg);color:var(--re)}
+.btn-ec{border-color:var(--ec-border);background:var(--ec-bg);color:var(--ec)}
+.btn-ac{border-color:var(--ac-border);background:var(--ac-bg);color:var(--ac)}
+.btn-ghost{border-color:var(--border);color:var(--muted)}
+.btn-red{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red)}
+
+/* ── TABS ── */
+.tabs{background:var(--card);border-bottom:1px solid var(--border);display:flex;padding:0 22px;gap:2px}
+.tab{padding:11px 18px;font-size:.75rem;font-weight:800;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;user-select:none}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.section{display:none}.section.show{display:block}
+
+/* ── LAYOUT ── */
+.wrap{padding:18px 22px;max-width:1440px}
+.grid2{display:grid;grid-template-columns:250px 1fr;gap:14px}
+
+/* ── SIDEBAR ── */
+.al-item{padding:8px 11px;border-radius:9px;border:1.5px solid var(--border);background:var(--card2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.al-item:hover{border-color:var(--border2)}
+.al-item.active{border-color:var(--gold);background:rgba(251,191,36,.05)}
+.al-nome{font-size:.76rem;font-weight:800;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{font-size:.55rem;font-weight:900;padding:2px 7px;border-radius:5px;letter-spacing:.04em;white-space:nowrap}
+.badge-re{background:var(--re-bg);color:var(--re);border:1px solid var(--re-border)}
+.badge-ec{background:var(--ec-bg);color:var(--ec);border:1px solid var(--ec-border)}
+.badge-ac{background:var(--ac-bg);color:var(--ac);border:1px solid var(--ac-border)}
+.badge-nin{background:rgba(255,255,255,.04);color:var(--muted2);border:1px solid var(--border)}
+.alerta-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0}
+
+/* ── CARDS ── */
+.card{background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:11px}
+.card-hdr{font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;color:var(--gold);margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.card-hdr span{flex:1}
+
+/* ── CAMPOS ── */
+.row{display:grid;gap:9px;margin-bottom:9px}
+.row.c2{grid-template-columns:1fr 1fr}
+.row.c3{grid-template-columns:1fr 1fr 1fr}
+.row.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+.lbl{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);display:block;margin-bottom:4px}
+.inp,.sel{width:100%;height:32px;background:var(--card);border:1.5px solid var(--border2);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;padding:0 10px;outline:none;transition:border-color .15s}
+.inp:focus,.sel:focus{border-color:var(--gold)}
+.ta{width:100%;background:var(--card);border:1.5px solid var(--border2);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;padding:8px 10px;outline:none;resize:vertical;line-height:1.6;transition:border-color .15s}
+.ta:focus{border-color:var(--gold)}
+.sel{cursor:pointer}
+
+/* ── TIPO SELECTOR ── */
+.tipo-wrap{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.tipo-btn{height:30px;padding:0 13px;border-radius:7px;border:2px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:900;cursor:pointer;transition:all .15s;color:var(--muted)}
+.tipo-btn.re{border-color:var(--re-border);color:var(--re)}.tipo-btn.re.sel{background:var(--re-bg)}
+.tipo-btn.ec{border-color:var(--ec-border);color:var(--ec)}.tipo-btn.ec.sel{background:var(--ec-bg)}
+.tipo-btn.ac{border-color:var(--ac-border);color:var(--ac)}.tipo-btn.ac.sel{background:var(--ac-bg)}
+.tipo-btn.nin{border-color:var(--border)}.tipo-btn.nin.sel{background:rgba(255,255,255,.04);border-color:var(--border2);color:var(--white)}
+
+/* ── MATERIAS CHIPS ── */
+.chip-wrap{display:flex;flex-wrap:wrap;gap:5px}
+.chip{height:24px;padding:0 9px;border-radius:5px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.63rem;font-weight:800;cursor:pointer;color:var(--muted);transition:all .15s}
+.chip.sel{border-color:var(--gold);background:var(--gold2);color:var(--gold)}
+
+/* ── PROFESIONAIS ── */
+.prof-btn{height:26px;padding:0 10px;border-radius:5px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.63rem;font-weight:800;cursor:pointer;color:var(--muted);transition:all .15s}
+.prof-btn.sel{border-color:var(--ec-border);background:var(--ec-bg);color:var(--ec)}
+
+/* ── NIVEL BOTÓNS ── */
+.nivel-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.nvl{height:22px;padding:0 8px;border-radius:5px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:800;cursor:pointer;color:var(--muted);transition:all .15s}
+.nvl.sel-0{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:#ef4444}
+.nvl.sel-1{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:var(--gold)}
+.nvl.sel-2{background:rgba(34,211,153,.08);border-color:rgba(52,211,153,.25);color:var(--ac)}
+.nvl.sel-3{background:rgba(129,140,248,.1);border-color:rgba(129,140,248,.3);color:var(--ec)}
+
+/* ── TRIM GRID ── */
+.trim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.trim-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px}
+.trim-lbl{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:7px}
+
+/* ── SEGUIMENTO ── */
+.seg-item{padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:9px;margin-bottom:5px;position:relative}
+.seg-meta{font-size:.6rem;font-weight:900;color:var(--muted);margin-bottom:4px}
+.seg-txt{font-size:.76rem;line-height:1.5;color:var(--white)}
+.seg-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.seg-chip{font-size:.58rem;font-weight:900;padding:2px 7px;border-radius:4px}
+.p-ben{background:rgba(34,211,153,.1);color:var(--ac)}
+.p-reg{background:rgba(251,191,36,.1);color:var(--gold)}
+.p-dif{background:rgba(239,68,68,.08);color:var(--red)}
+.p-acc{background:var(--ec-bg);color:var(--ec)}
+.seg-del{position:absolute;top:7px;right:8px;height:18px;width:18px;border-radius:4px;border:none;background:transparent;color:var(--muted);font-size:.6rem;cursor:pointer;transition:color .15s}
+.seg-del:hover{color:var(--red)}
+
+/* ── ALERTAS ── */
+.alerta{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-radius:9px;margin-bottom:7px;font-size:.74rem;font-weight:700;line-height:1.4}
+.alerta-warn{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);color:#fde68a}
+.alerta-err{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);color:#fca5a5}
+.alerta-ico{font-size:1rem;flex-shrink:0;margin-top:1px}
+
+/* ── RESUMO TABLE ── */
+.resumo-tbl{width:100%;border-collapse:collapse;font-size:.75rem}
+.resumo-tbl th{padding:8px 12px;text-align:left;font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);letter-spacing:.07em}
+.resumo-tbl td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.resumo-tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ── KPI CARDS ── */
+.kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.kpi{flex:1;min-width:100px;background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:11px 14px;text-align:center}
+.kpi-val{font-family:'DM Serif Display',Georgia,serif;font-size:1.7rem;line-height:1.1}
+.kpi-lbl{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:3px}
+
+/* ── REUNIONS ── */
+.reun-item{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:13px 16px;margin-bottom:8px;position:relative}
+.reun-hdr{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card2);border-radius:15px;padding:22px;width:100%;max-width:520px;border:1px solid var(--border2);box-shadow:var(--shadow);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:14px}
+.modal-row{display:flex;gap:7px;justify-content:flex-end;margin-top:13px}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:3rem 2rem;color:var(--muted)}
+.empty-ico{font-size:2.8rem;margin-bottom:10px;display:block}
+
+/* ── CHECK ITEMS ── */
+.check-grid{display:flex;flex-direction:column;gap:4px}
+.check-item{display:flex;align-items:flex-start;gap:9px;padding:7px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;transition:all .15s;user-select:none}
+.check-item:hover{border-color:var(--border2);background:var(--card3)}
+.check-item.checked{border-color:var(--gold);background:rgba(251,191,36,.06)}
+.check-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);flex-shrink:0;margin-top:2px;cursor:pointer}
+.check-item-txt{font-size:.76rem;font-weight:700;color:var(--muted);line-height:1.4;transition:color .15s}
+.check-item.checked .check-item-txt{color:var(--white)}
+
+@media print{
+  .hdr button,.tabs,.sidebar-col,.btn,.tipo-btn,.chip,.prof-btn,.nvl,.modal-bg,.seg-del{display:none!important}
+  body{background:#fff;color:#1e293b;font-size:11px}
+  .card{border:1px solid #e2e8f0;page-break-inside:avoid;margin-bottom:10px;padding:12px;border-radius:0}
+  :root{--white:#1e293b;--muted:#64748b;--gold:#b45309;--card:#fff;--card2:#f8fafc}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <span style="font-size:1.5rem">📋</span>
+  <div style="flex:1">
+    <div class="hdr-title">Medidas de Apoio</div>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:1px"></div>
+  </div>
+  <span class="save-flash" id="save-flash">✓ GARDADO</span>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn" id="btn-pdf-al" style="display:none" onclick="exportarPDFAlumno()">🖨️ PDF alumno/a</button>
+    <button class="btn btn-gold" onclick="exportarPDFClase()">📄 PDF clase</button>
+    <button class="btn" onclick="exportarMemoriaPDF()">📚 Memoria completa</button>
+    <button class="btn btn-ghost" onclick="exportarJSON()">📤 JSON</button>
+    <button class="btn btn-ghost" onclick="importarJSON()">📥 JSON</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none">🏠 Portal</a>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" id="tab-fichas" onclick="showTab('fichas')">📋 Fichas individuais</div>
+  <div class="tab" id="tab-resumo" onclick="showTab('resumo')">📊 Resumo clase</div>
+  <div class="tab" id="tab-reunions" onclick="showTab('reunions')">🤝 Reunións</div>
+</div>
+
+<!-- ── FICHAS ── -->
+<div class="section show" id="sec-fichas">
+  <div class="wrap">
+    <div class="grid2">
+      <div class="sidebar-col">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px">
+          <span style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Alumnos/as</span>
+          <span id="cnt-badge" style="font-size:.58rem;font-weight:900;padding:1px 7px;border-radius:999px;background:var(--gold2);color:var(--gold)"></span>
+        </div>
+        <div id="al-list"></div>
+      </div>
+      <div id="ficha-main">
+        <div class="empty"><span class="empty-ico">👈</span>Selecciona un alumno/a para ver ou editar a súa ficha de medidas de apoio.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESUMO ── -->
+<div class="section" id="sec-resumo">
+  <div class="wrap" id="resumo-wrap"></div>
+</div>
+
+<!-- ── REUNIONS ── -->
+<div class="section" id="sec-reunions">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold)">🤝 Reunións de coordinación</div>
+      <button class="btn btn-gold" onclick="novaReunion()" style="margin-left:auto">+ Nova reunión</button>
+    </div>
+    <div id="reunions-list"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-inner"><div id="modal-content"></div></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// DATOS E CONSTANTES
+// ══════════════════════════════════════════════════════════════════════════════
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+
+const MATERIAS_DEF=[
+  {id:'gl',   nome:'Lingua Galega',      icon:'📘',color:'#3b82f6'},
+  {id:'es',   nome:'Lingua Castelá',     icon:'📙',color:'#a78bfa'},
+  {id:'mates',nome:'Matemáticas',        icon:'📗',color:'#22c55e'},
+  {id:'nat',  nome:'CC. Naturais',       icon:'🌿',color:'#f97316'},
+  {id:'soc',  nome:'CC. Sociais',        icon:'🌍',color:'#fbbf24'},
+  {id:'ing',  nome:'Inglés',             icon:'🗣️',color:'#f472b6'},
+  {id:'ef',   nome:'Ed. Física',         icon:'⚽',color:'#ef4444'},
+  {id:'plas', nome:'Ed. Plástica',       icon:'🎨',color:'#2dd4bf'},
+  {id:'mus',  nome:'Música',             icon:'🎵',color:'#8b5cf6'},
+  {id:'prox', nome:'Proxecto Compet.',   icon:'🚀',color:'#6366f1'},
+];
+
+const SUBTIPOS={
+  re:['Apoio dentro da aula','Apoio fóra da aula','Reforzo de contidos básicos','Reforzo de hábitos e técnicas de estudo','Reforzo de lectoescritura','Reforzo de cálculo','Outro reforzo'],
+  ec:['Ampliación de contidos','Proxecto de investigación autónomo','Actividades de enriquecemento dentro da aula','Participación en programas externos','Mentoring / titoría entre iguais','Outro enriquecemento'],
+  ac:['Modificación de obxectivos','Adaptación de contidos','Adaptación de criterios de avaliación','Modificación de materiais e actividades','Adaptación de tempo e espazo','Adaptación significativa (cambio de currículo)','Outra adaptación']
+};
+
+// ── BANCO DE ÍTEMS POR TIPO ──────────────────────────────────────────────────
+const BANCO_OBXECTIVOS={
+  re:[
+    'Mellorar a comprensión lectora e a velocidade lectora',
+    'Consolidar os contidos básicos das materias instrumentais',
+    'Desenvolver a competencia matemática básica (cálculo e resolución de problemas)',
+    'Mellorar a expresión escrita: ortografía, estrutura e coherencia',
+    'Adquirir hábitos de traballo autónomo e organización do estudo',
+    'Mellorar a atención e a concentración na tarefa',
+    'Superar as dificultades de aprendizaxe detectadas en áreas específicas',
+    'Adquirir estratexias de comprensión e expresión oral',
+    'Reducir o número de faltas de ortografía na escrita espontánea',
+    'Mellorar a fluidez e precisión no cálculo aritmético',
+    'Consolidar a lectura comprensiva de enunciados matemáticos',
+    'Desenvolver estratexias de autoavaliación e corrección',
+  ],
+  ec:[
+    'Ampliar e profundar nos contidos curriculares das áreas de maior interese',
+    'Desenvolver o pensamento crítico e a capacidade de investigación autónoma',
+    'Traballar a creatividade e a resolución de problemas complexos',
+    'Fomentar a capacidade de síntese, análise e argumentación',
+    'Promover a iniciativa persoal e o liderado positivo no grupo',
+    'Estimular o interese pola ciencia, as matemáticas ou as humanidades',
+    'Desenvolver competencias dixitais e de xestión da información',
+    'Potenciar a produción creativa (literaria, artística, científica)',
+    'Fomentar a mentalidade global e a empatía intercultural',
+    'Preparar para actividades extracurriculares de alto nivel',
+    'Desenvolver habilidades de comunicación e presentación oral',
+    'Traballar a metacognición e as estratexias de aprendizaxe avanzadas',
+  ],
+  ac:[
+    'Acadar os obxectivos mínimos do curso adaptados ao nivel do/a alumno/a',
+    'Desenvolver a comunicación funcional oral e escrita adaptada',
+    'Adquirir competencias matemáticas básicas e funcionais',
+    'Mellorar a autonomía persoal e as habilidades de vida cotiá',
+    'Desenvolver habilidades sociais e de relación cos iguais',
+    'Adquirir estratexias de compensación para as dificultades específicas',
+    'Lograr un nivel de lectura funcional adaptado',
+    'Desenvolver a comprensión e expresión oral como vía principal de aprendizaxe',
+    'Adquirir nocións básicas de tempo, espazo e contorna',
+    'Participar activamente nas actividades de aula con apoio',
+    'Mellorar a autoestima e a motivación cara á aprendizaxe',
+    'Consolidar hábitos de traballo, orde e responsabilidade adaptados',
+  ],
+};
+
+const BANCO_ESTRATEXIAS={
+  re:[
+    'Proporcionar materiais simplificados e adaptados ao nivel real do/a alumno/a',
+    'Tempo adicional para a realización de actividades e probas',
+    'Redución da cantidade de actividades mantendo a calidade',
+    'Apoio individualizado ou en pequeno grupo dentro da aula',
+    'Apoio fóra da aula con PT ou especialista (indicar frecuencia)',
+    'Uso de organizadores gráficos, esquemas e mapas conceptuais',
+    'Instrucións orais ademais das escritas',
+    'Sentar preto do/a mestre/a ou da encerada',
+    'Permitir o uso de calculadora ou táboa de multiplicar',
+    'Avaliar mediante probas orais ademais das escritas',
+    'Fragmentar as tarefas en pasos máis pequenos',
+    'Reforzar positivamente os logros, por pequenos que sexan',
+    'Supervisión frecuente do caderno e das tarefas',
+    'Proporcionar modelos e exemplos resoltos',
+    'Utilizar soporte visual e manipulativo nas explicacións',
+  ],
+  ec:[
+    'Proporcionar materiais de ampliación e enriquecemento de maior complexidade',
+    'Proxectos de investigación autónoma sobre temas de interese',
+    'Actividades de pensamento de orde superior (análise, síntese, avaliación)',
+    'Roles de liderado en traballos cooperativos e proxectos de grupo',
+    'Titoría entre iguais: o/a alumno/a axuda a compañeiros/as',
+    'Acceso a recursos bibliográficos e dixitais avanzados',
+    'Participación en concursos, olimpíadas ou actividades externas',
+    'Conexión con expertos/as ou institucións do ámbito de interese',
+    'Elaboración de producións orixinais para compartir coa clase',
+    'Flexibilidade nos prazos para proxectos de maior envergadura',
+    'Avaliación mediante rúbricas con criterios de excelencia',
+    'Posibilidade de elección de temas e formatos de traballo',
+  ],
+  ac:[
+    'Adaptación dos criterios de avaliación: avaliar o progreso individual, non o estándar do curso',
+    'Modificación dos contidos: seleccionar os esenciais e funcionais',
+    'Uso de pictogramas, imaxes e apoio visual nas explicacións e fichas',
+    'Instrucións sinxelas, claras e secuenciadas paso a paso',
+    'Material manipulativo e concreto para traballar conceptos abstractos',
+    'Tempo adicional significativo ou sen límite de tempo en actividades e probas',
+    'Adaptación do espazo: sentar estratexicamente, eliminar distraccións',
+    'Reducir a cantidade de actividades ao mínimo esencial',
+    'Probas adaptadas: enunciados máis sinxelos, menos preguntas, formato diferente',
+    'Apoio sistemático de PT e/ou AL (indicar frecuencia e modalidade)',
+    'Comunicación frecuente coa familia para coordinación de estratexias',
+    'Uso de axudas técnicas ou tecnolóxicas se é necesario',
+    'Fomentar a participación oral cando a escrita presenta grandes dificultades',
+    'Reforzo positivo sistemático e celebración de pequenos logros',
+  ],
+};
+
+const PROFESIONAIS=['Titora / Mestra','PT – Ped. Terapéutica','AL – Audición e Linguaxe','Orientador/a','EEII – Ed. Especial','Traballador/a social','Médico/a / Pediatra','Logopeda externo/a','Psicólogo/a externo/a','Outro profesional'];
+
+const NIVEIS=['Non acadado','En proceso','Acadado','Sobresaliente'];
+const NIVEL_COL=['#ef4444','#fbbf24','#22c55e','#818cf8'];
+
+const TIPO_META={
+  re:{label:'R.E.',long:'Reforzo Educativo',    color:'var(--re)',bg:'var(--re-bg)',border:'var(--re-border)',ico:'🟠'},
+  ec:{label:'E.C.',long:'Enriquecemento Curr.', color:'var(--ec)',bg:'var(--ec-bg)',border:'var(--ec-border)',ico:'🟣'},
+  ac:{label:'A.C.',long:'Adaptación Curricular',color:'var(--ac)',bg:'var(--ac-bg)',border:'var(--ac-border)',ico:'🟢'},
+  ninguna:{label:'—',long:'Sen medida',         color:'var(--muted)',bg:'transparent',border:'var(--border)',ico:''},
+};
+
+let alumnos=[];
+let materias=[];
+let fichas={};   // {alumno: ficha}
+let reunions=[];
+let selAl=null;
+let _segProg='regular';
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════════
+function init(){
+  const a1=LS.get('pc_alumnos',null);
+  const a2=LS.get('sn3_alumnos',null);
+  const ns=LS.get('sn3_notas',[]);
+  alumnos=a1?.length>3?a1:a2?.length?a2:[...new Set(ns.map(n=>n.alumno).filter(Boolean))].sort();
+  if(!alumnos.length) alumnos=['Alumno/a 1','Alumno/a 2','Alumno/a 3'];
+  materias=LS.get('sn3_materias',MATERIAS_DEF).filter(m=>m.id!=='outras');
+  fichas=LS.get('medidas_apoio',{});
+  reunions=LS.get('medidas_reunions',[]);
+  renderSidebar();
+  renderReunions();
+}
+
+function gardar(){
+  LS.set('medidas_apoio',fichas);
+  LS.set('medidas_reunions',reunions);
+  const f=document.getElementById('save-flash');
+  if(f){f.classList.add('on');setTimeout(()=>f.classList.remove('on'),1800);}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════════════════════════════════════
+function getFicha(al){
+  if(!fichas[al]) fichas[al]={
+    tipo:null,subtipo:'',subtipoSel:{},materias:[],prof:[],obxectivos:'',estratexias:'',
+    dataInicio:'',renovacion:'',nivelConcrecion:'',
+    trim:{t1:{nivel:null,obs:''},t2:{nivel:null,obs:''},t3:{nivel:null,obs:''}},
+    seguimento:[],obsXerais:'',coordReunions:''
+  };
+  return fichas[al];
+}
+
+function getTipoLabel(al){
+  const t=fichas[al]?.tipo;
+  return t&&t!=='ninguna'?TIPO_META[t]?.label||'—':'—';
+}
+
+function temAlerta(al){
+  const f=fichas[al];
+  if(!f||!f.tipo||f.tipo==='ninguna') return false;
+  const hoxe=new Date().toISOString().split('T')[0];
+  if(f.renovacion&&f.renovacion<hoxe) return true;
+  const last=f.seguimento?.slice(-1)[0];
+  const haiTresMeses=new Date();haiTresMeses.setMonth(haiTresMeses.getMonth()-3);
+  if(!last||(last.data&&last.data<haiTresMeses.toISOString().split('T')[0])) return true;
+  return false;
+}
+
+function renderSidebar(){
+  const list=document.getElementById('al-list');
+  const cnt=document.getElementById('cnt-badge');
+  const n=alumnos.filter(a=>fichas[a]?.tipo&&fichas[a].tipo!=='ninguna').length;
+  if(cnt) cnt.textContent=n+' con medida';
+  list.innerHTML=alumnos.map(al=>{
+    const t=fichas[al]?.tipo;
+    const meta=t&&t!=='ninguna'?TIPO_META[t]:null;
+    const badgeCls=meta?`badge-${t}`:'badge-nin';
+    const badgeTxt=meta?meta.label:'Sen medida';
+    const alerta=temAlerta(al);
+    return `<div class="al-item${al===selAl?' active':''}" onclick="selAlumno('${al.replace(/'/g,"\\'")}')" >
+      ${alerta?'<div class="alerta-dot" title="Revisión pendente"></div>':''}
+      <span class="al-nome">${al}</span>
+      <span class="badge ${badgeCls}">${badgeTxt}</span>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CHECK ITEMS PARA OBXECTIVOS E ESTRATEXIAS
+// ══════════════════════════════════════════════════════════════════════════════
+function renderSubtipoItems(al,f){
+  const items=SUBTIPOS[f.tipo]||[];
+  if(!items.length) return '';
+  const sel=f.subtipoSel||{};
+  const alJ=al.replace(/"/g,'&quot;');
+  return '<div style="margin-top:10px">'
+    +'<span class="lbl">Subtipo / modalidade concreta <span style="font-weight:600;color:var(--muted2)">(podes marcar varios)</span></span>'
+    +'<div class="check-grid" style="margin-top:5px">'
+    +items.map((txt,i)=>{
+      const entry=sel[i]||{checked:false,resp:''};
+      const chk=entry.checked?' checked':'';
+      return '<div class="check-item'+chk+'">'
+        +'<input type="checkbox"'+chk+' style="width:15px;height:15px;accent-color:var(--gold);flex-shrink:0;margin-top:3px;cursor:pointer"'
+        +' onchange="toggleSubtipo(&quot;'+alJ+'&quot;,'+i+',this.checked)"/>'
+        +'<div style="flex:1">'
+        +'<div class="check-item-txt" style="cursor:pointer" onclick="toggleSubtipoByClick(&quot;'+alJ+'&quot;,'+i+')">'+txt+'</div>'
+        +(entry.checked
+          ? '<div style="display:flex;align-items:center;gap:6px;margin-top:5px">'
+            +'<span style="font-size:.6rem;font-weight:900;color:var(--muted);white-space:nowrap">Responsable:</span>'
+            +'<input value="'+(entry.resp||'')+'" placeholder="Ex: PT, AL, Titora..."'
+            +' style="flex:1;height:24px;background:var(--card);border:1px solid var(--border2);border-radius:5px;color:var(--white);font-size:.7rem;padding:0 7px;outline:none"'
+            +' oninput="setSubtipoResp(&quot;'+alJ+'&quot;,'+i+',this.value)" onclick="event.stopPropagation()"/>'
+            +'</div>'
+          : '')
+        +'</div></div>';
+    }).join('')
+    +'</div></div>';
+}
+
+function toggleSubtipo(al,idx,checked){
+  const f=getFicha(al);
+  if(!f.subtipoSel) f.subtipoSel={};
+  if(!f.subtipoSel[idx]) f.subtipoSel[idx]={checked:false,resp:''};
+  f.subtipoSel[idx].checked=checked;
+  const first=Object.entries(f.subtipoSel).find(([,v])=>v.checked);
+  f.subtipo=first?(SUBTIPOS[f.tipo]||[])[parseInt(first[0])]||'':'';
+  gardar();
+  const wId='subtipo-wrap-'+al.replace(/ /g,'_');
+  const w=document.getElementById(wId);
+  if(w) w.innerHTML=renderSubtipoItems(al,f);
+}
+
+function toggleSubtipoByClick(al,idx){
+  const f=getFicha(al);
+  if(!f.subtipoSel) f.subtipoSel={};
+  const cur=(f.subtipoSel[idx]?.checked)||false;
+  toggleSubtipo(al,idx,!cur);
+}
+
+function setSubtipoResp(al,idx,val){
+  const f=getFicha(al);
+  if(!f.subtipoSel) f.subtipoSel={};
+  if(!f.subtipoSel[idx]) f.subtipoSel[idx]={checked:true,resp:''};
+  f.subtipoSel[idx].resp=val;
+  gardar();
+}
+
+function renderCheckItems(al, field, items, f){
+  if(!items||!items.length){
+    const t=f?.tipo;
+    if(!t||t==='ninguna') return '<div style="color:var(--muted);font-size:.74rem;padding:4px 0">Selecciona primeiro o tipo de medida (R.E./E.C./A.C.) para ver os ítems dispoñibles.</div>';
+    return '<div style="color:var(--muted);font-size:.74rem">Sen ítems dispoñibles para este tipo.</div>';
+  }
+  const sel=f[field]||[];
+  return '<div class="check-grid">'+items.map((txt,i)=>{
+    const isChecked=sel.includes(i);
+    return `<label class="check-item${isChecked?' checked':''}" onclick="event.preventDefault();toggleCheckItem('${al.replace(/'/g,"\\'")}','${field}',${i},this)">
+      <input type="checkbox" ${isChecked?'checked':''} onclick="event.stopPropagation()"/>
+      <span class="check-item-txt">${txt}</span>
+    </label>`;
+  }).join('')+'</div>';
+}
+
+function toggleCheckItem(al,field,idx,labelEl){
+  const f=getFicha(al);
+  if(!f[field]) f[field]=[];
+  const i=f[field].indexOf(idx);
+  if(i>=0){f[field].splice(i,1);labelEl.classList.remove('checked');labelEl.querySelector('input').checked=false;}
+  else{f[field].push(idx);labelEl.classList.add('checked');labelEl.querySelector('input').checked=true;}
+  gardar();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FICHA
+// ══════════════════════════════════════════════════════════════════════════════
+function selAlumno(al){
+  selAl=al;
+  renderSidebar();
+  renderFicha(al);
+  const btn=document.getElementById('btn-pdf-al');
+  if(btn) btn.style.display='inline-flex';
+}
+
+function renderFicha(al){
+  const f=getFicha(al);
+  const main=document.getElementById('ficha-main');
+  if(!main) return;
+
+  // ALERTAS
+  const hoxe=new Date().toISOString().split('T')[0];
+  let alertasHtml='';
+  if(f.renovacion&&f.renovacion<hoxe){
+    alertasHtml+=`<div class="alerta alerta-err"><span class="alerta-ico">⚠️</span><span>A medida caducou o <strong>${f.renovacion}</strong>. Actualiza a data de revisión.</span></div>`;
+  }
+  const last=f.seguimento?.slice(-1)[0];
+  const haiTresMeses=new Date();haiTresMeses.setMonth(haiTresMeses.getMonth()-3);
+  if(f.tipo&&f.tipo!=='ninguna'&&(!last||(last.data&&last.data<haiTresMeses.toISOString().split('T')[0]))){
+    alertasHtml+=`<div class="alerta alerta-warn"><span class="alerta-ico">🔔</span><span>Non hai rexistro de seguimento nos últimos 3 meses. Recoméndase actualizar.</span></div>`;
+  }
+
+  // TIPO BUTTONS
+  const tipoHtml=['ninguna','re','ec','ac'].map(t=>{
+    const m=TIPO_META[t];
+    return `<button class="tipo-btn ${t}${f.tipo===t?' sel':''}" onclick="setTipo('${al.replace(/'/g,"\\'")}','${t}',this)">${m.ico?m.ico+' ':''} ${m.long}</button>`;
+  }).join('');
+
+  const subtipoHtml=(f.tipo&&f.tipo!=='ninguna')?renderSubtipoItems(al,f):'';
+  // MATERIAS
+  const matHtml=`<div class="chip-wrap">${materias.map(m=>`<button class="chip${(f.materias||[]).includes(m.id)?' sel':''}" onclick="toggleMat('${al.replace(/'/g,"\\'")}','${m.id}',this)">${m.icon||''} ${m.nome}</button>`).join('')}</div>`;
+
+  // PROFESIONAIS
+  const profHtml=`<div class="chip-wrap">${PROFESIONAIS.map(p=>`<button class="prof-btn${(f.prof||[]).includes(p)?' sel':''}" onclick="toggleProf('${al.replace(/'/g,"\\'")}','${encodeURIComponent(p)}',this)">${p}</button>`).join('')}</div>`;
+
+  // TRIM
+  const trimHtml=`<div class="trim-grid">${['t1','t2','t3'].map((tk,ti)=>{
+    const t=f.trim?.[tk]||{nivel:null,obs:''};
+    const nvls=NIVEIS.map((n,ni)=>`<button class="nvl${t.nivel===ni?' sel-'+ni:''}" onclick="setNivel('${al.replace(/'/g,"\\'")}','${tk}',${ni},this)">${n}</button>`).join('');
+    return `<div class="trim-card">
+      <div class="trim-lbl">Trimestre ${ti+1}</div>
+      <div class="nivel-row">${nvls}</div>
+      <textarea class="ta" rows="2" style="font-size:.72rem" placeholder="Observacións T${ti+1}..." oninput="setTrimObs('${al.replace(/'/g,"\\'")}','${tk}',this.value)">${t.obs||''}</textarea>
+    </div>`;
+  }).join('')}</div>`;
+
+  // SEGUIMENTO
+  const segHtml=(f.seguimento||[]).length===0
+    ?`<div style="color:var(--muted);font-size:.74rem;padding:6px 0">Sen rexistros de seguimento aínda.</div>`
+    :(f.seguimento||[]).slice().reverse().map((s,i)=>{
+      const idx=(f.seguimento.length-1-i);
+      const progCls={ben:'p-ben',regular:'p-reg',dif:'p-dif'}[s.prog]||'p-reg';
+      const progTxt={ben:'✅ Progresa ben',regular:'🟡 Progreso regular',dif:'🔴 Con dificultades'}[s.prog]||'—';
+      return `<div class="seg-item">
+        <div class="seg-meta">${s.data||'—'}${s.trim?' · T'+s.trim:''}${s.feito?' · '+s.feito:''}</div>
+        <div class="seg-txt">${s.texto||''}</div>
+        <div class="seg-chips">
+          <span class="seg-chip ${progCls}">${progTxt}</span>
+          ${s.accion?`<span class="seg-chip p-acc">🔧 ${s.accion}</span>`:''}
+        </div>
+        <button class="seg-del" onclick="borrarSeg('${al.replace(/'/g,"\\'")}',${idx})" title="Borrar">✕</button>
+      </div>`;
+    }).join('');
+
+  main.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.2rem">${al}</div>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-gold" onclick="abrirNovoSeg('${al.replace(/'/g,"\\'")}')">+ Seguimento</button>
+      </div>
+    </div>
+    ${alertasHtml}
+
+    <!-- 1. TIPO -->
+    <div class="card">
+      <div class="card-hdr"><span>📌 Tipo de medida</span></div>
+      <div class="tipo-wrap">${tipoHtml}</div>
+      <div id="subtipo-wrap-${selAl?.replace(/ /g,'_')}">${subtipoHtml}</div>
+      <div class="row c3" style="margin-top:${subtipoHtml?'10px':'0'}">
+        <div><span class="lbl">Data de inicio</span>
+          <input class="inp" type="date" value="${f.dataInicio||''}" oninput="setField('${al.replace(/'/g,"\\'")}','dataInicio',this.value)"></div>
+        <div><span class="lbl">Data de revisión / renovación</span>
+          <input class="inp" type="date" value="${f.renovacion||''}" oninput="setField('${al.replace(/'/g,"\\'")}','renovacion',this.value)"></div>
+        <div><span class="lbl">Nivel de concreción</span>
+          <select class="sel" onchange="setField('${al.replace(/'/g,"\\'")}','nivelConcrecion',this.value)">
+            <option value="">—</option>
+            <option value="aula"${f.nivelConcrecion==='aula'?' selected':''}>Nivel de aula</option>
+            <option value="centro"${f.nivelConcrecion==='centro'?' selected':''}>Nivel de centro</option>
+            <option value="individual"${f.nivelConcrecion==='individual'?' selected':''}>Individual (ACI)</option>
+          </select></div>
+      </div>
+    </div>
+
+    <!-- 2. MATERIAS -->
+    <div class="card">
+      <div class="card-hdr"><span>📚 Materias e áreas afectadas</span></div>
+      ${matHtml}
+    </div>
+
+    <!-- 3. OBXECTIVOS E ESTRATEXIAS -->
+    <div class="card">
+      <div class="card-hdr"><span>🎯 Obxectivos prioritarios</span></div>
+      <div id="obx-check-${al.replace(/ /g,'_')}">${renderCheckItems(al, 'obxSel', BANCO_OBXECTIVOS[f.tipo]||[], f)}</div>
+      <div style="margin-top:10px">
+        <span class="lbl">Notas adicionais</span>
+        <textarea class="ta" rows="2" placeholder="Outros obxectivos específicos non recollidos arriba..." oninput="setField('${al.replace(/'/g,"\\'")}','obxectivos',this.value)">${f.obxectivos||''}</textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><span>⚙️ Estratexias e adaptacións</span></div>
+      <div id="estr-check-${al.replace(/ /g,'_')}">${renderCheckItems(al, 'estrSel', BANCO_ESTRATEXIAS[f.tipo]||[], f)}</div>
+      <div style="margin-top:10px">
+        <span class="lbl">Notas adicionais</span>
+        <textarea class="ta" rows="2" placeholder="Outras estratexias específicas non recollidas arriba..." oninput="setField('${al.replace(/'/g,"\\'")}','estratexias',this.value)">${f.estratexias||''}</textarea>
+      </div>
+    </div>
+
+    <!-- 4. PROFESIONAIS -->
+    <div class="card">
+      <div class="card-hdr"><span>👥 Profesionais implicados</span></div>
+      ${profHtml}
+      <div class="row" style="margin-top:10px">
+        <div><span class="lbl">Coordinación prevista</span>
+          <input class="inp" value="${f.coordReunions||''}" placeholder="Ex: Reunión mensual PT + titoría, revisión trimestral con orientación..." oninput="setField('${al.replace(/'/g,"\\'")}','coordReunions',this.value)"></div>
+      </div>
+    </div>
+
+    <!-- 5. AVALIACIÓN TRIMESTRAL -->
+    <div class="card">
+      <div class="card-hdr"><span>📅 Avaliación por trimestres</span></div>
+      ${trimHtml}
+    </div>
+
+    <!-- 6. SEGUIMENTO -->
+    <div class="card">
+      <div class="card-hdr"><span>📈 Historial de seguimento</span>
+        <button class="btn" style="font-size:.62rem;height:24px" onclick="abrirNovoSeg('${al.replace(/'/g,"\\'")}')">+ Engadir</button>
+      </div>
+      ${segHtml}
+    </div>
+
+    <!-- 7. OBSERVACIÓNS XERAIS -->
+    <div class="card">
+      <div class="card-hdr"><span>📝 Observacións xerais e contexto</span></div>
+      <textarea class="ta" rows="3" placeholder="Contexto familiar, informes externos, acordos coa familia, historial relevante, outras consideracións..." oninput="setField('${al.replace(/'/g,"\\'")}','obsXerais',this.value)">${f.obsXerais||''}</textarea>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ACCIÓNS FICHA
+// ══════════════════════════════════════════════════════════════════════════════
+function setTipo(al,tipo,btn){
+  const f=getFicha(al);
+  if(f.tipo!==tipo){f.obxSel=[];f.estrSel=[];f.subtipoSel={};}
+  f.tipo=tipo;
+  gardar();renderSidebar();
+  btn.closest('.tipo-wrap').querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const wId='subtipo-wrap-'+al.replace(/ /g,'_');
+  const wrap=document.getElementById(wId);
+  if(wrap) wrap.innerHTML=tipo&&tipo!=='ninguna'?renderSubtipoItems(al,f):'';
+  // Actualizar checkboxes de obxectivos/estratexias
+  const obxW=document.getElementById('obx-check-'+al.replace(/ /g,'_'));
+  if(obxW) obxW.innerHTML=renderCheckItems(al,'obxSel',BANCO_OBXECTIVOS[tipo]||[],f);
+  const estrW=document.getElementById('estr-check-'+al.replace(/ /g,'_'));
+  if(estrW) estrW.innerHTML=renderCheckItems(al,'estrSel',BANCO_ESTRATEXIAS[tipo]||[],f);
+}
+
+function toggleMat(al,matId,btn){
+  const f=getFicha(al);
+  if(!f.materias) f.materias=[];
+  const i=f.materias.indexOf(matId);
+  i>=0?f.materias.splice(i,1):f.materias.push(matId);
+  btn.classList.toggle('sel');
+  gardar();
+}
+
+function toggleProf(al,profEnc,btn){
+  const prof=decodeURIComponent(profEnc);
+  const f=getFicha(al);
+  if(!f.prof) f.prof=[];
+  const i=f.prof.indexOf(prof);
+  i>=0?f.prof.splice(i,1):f.prof.push(prof);
+  btn.classList.toggle('sel');
+  gardar();
+}
+
+function setField(al,field,val){getFicha(al)[field]=val;gardar();}
+
+function setNivel(al,trim,nivel,btn){
+  getFicha(al).trim[trim].nivel=nivel;
+  btn.closest('.nivel-row').querySelectorAll('.nvl').forEach(b=>{b.className='nvl';});
+  btn.classList.add('sel-'+nivel);
+  gardar();
+}
+
+function setTrimObs(al,trim,val){getFicha(al).trim[trim].obs=val;gardar();}
+
+function borrarSeg(al,idx){
+  const f=getFicha(al);
+  const eliminado=f.seguimento[idx];
+  if(!eliminado)return;
+  f.seguimento.splice(idx,1);
+  gardar();renderFicha(al);
+  _toastDesfacer(
+    `Seguimento do ${eliminado.data||'rexistro'} eliminado`,
+    ()=>{
+      getFicha(al).seguimento.splice(idx,0,eliminado);
+      gardar();renderFicha(al);
+    }
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODAL SEGUIMENTO
+// ══════════════════════════════════════════════════════════════════════════════
+function abrirNovoSeg(al){
+  _segProg='regular';
+  openModal(`<h3>📈 Novo seguimento · ${al}</h3>
+    <div class="row c2" style="margin-bottom:9px">
+      <div><span class="lbl">Data</span>
+        <input class="inp" id="sg-data" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div><span class="lbl">Trimestre</span>
+        <select class="sel" id="sg-trim"><option value="">—</option><option>1</option><option>2</option><option>3</option></select></div>
+    </div>
+    <div style="margin-bottom:9px"><span class="lbl">Feito por</span>
+      <input class="inp" id="sg-feito" placeholder="Ex: Titora, PT, Equipo docente..."></div>
+    <div style="margin-bottom:9px"><span class="lbl">Observacións de seguimento</span>
+      <textarea class="ta" id="sg-txt" rows="4" placeholder="Como progresa o alumno/a? Que medidas se aplicaron? Que cambios se observan? Hai melloras ou retrocesos?"></textarea></div>
+    <div style="margin-bottom:9px"><span class="lbl">Progreso xeral</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn" id="sg-ben" onclick="_setSgProg('ben',this)" style="border-color:rgba(52,211,153,.3);color:var(--ac)">✅ Progresa ben</button>
+        <button class="btn" id="sg-reg" onclick="_setSgProg('regular',this)" style="border-color:rgba(251,191,36,.3);color:var(--gold);background:rgba(251,191,36,.1)">🟡 Progreso regular</button>
+        <button class="btn" id="sg-dif" onclick="_setSgProg('dif',this)" style="border-color:rgba(239,68,68,.25);color:var(--red)">🔴 Con dificultades</button>
+      </div></div>
+    <div style="margin-bottom:9px"><span class="lbl">Acción ou axuste proposto</span>
+      <input class="inp" id="sg-accion" placeholder="Ex: Aumentar o apoio PT, revisar os obxectivos, citar á familia..."></div>
+    <div class="modal-row">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarSeg('${al.replace(/'/g,"\\'")}')">💾 Gardar</button>
+    </div>`);
+}
+
+function _setSgProg(v,btn){
+  _segProg=v;
+  const bgMap={ben:'rgba(52,211,153,.15)',regular:'rgba(251,191,36,.1)',dif:'rgba(239,68,68,.1)'};
+  ['sg-ben','sg-reg','sg-dif'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b) b.style.background='transparent';
+  });
+  btn.style.background=bgMap[v];
+}
+
+function gardarSeg(al){
+  const txt=document.getElementById('sg-txt')?.value.trim();
+  if(!txt){alert('Escribe algunhas observacións antes de gardar.');return;}
+  const f=getFicha(al);
+  if(!f.seguimento) f.seguimento=[];
+  f.seguimento.push({
+    data:document.getElementById('sg-data')?.value||'',
+    trim:document.getElementById('sg-trim')?.value||'',
+    feito:document.getElementById('sg-feito')?.value.trim()||'',
+    texto:txt,
+    prog:_segProg,
+    accion:document.getElementById('sg-accion')?.value.trim()||''
+  });
+  gardar();closeModal();renderFicha(al);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESUMO CLASE
+// ══════════════════════════════════════════════════════════════════════════════
+function renderResumo(){
+  const wrap=document.getElementById('resumo-wrap');
+  if(!wrap) return;
+  const conMedida=alumnos.filter(a=>fichas[a]?.tipo&&fichas[a].tipo!=='ninguna');
+  const reList=alumnos.filter(a=>fichas[a]?.tipo==='re');
+  const ecList=alumnos.filter(a=>fichas[a]?.tipo==='ec');
+  const acList=alumnos.filter(a=>fichas[a]?.tipo==='ac');
+  const conAlerta=alumnos.filter(a=>temAlerta(a));
+
+  const kpiHtml=`<div class="kpi-row">
+    <div class="kpi"><div class="kpi-val" style="color:var(--re)">${reList.length}</div><div class="kpi-lbl">R.E. · Reforzo</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--ec)">${ecList.length}</div><div class="kpi-lbl">E.C. · Enriquecemento</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--ac)">${acList.length}</div><div class="kpi-lbl">A.C. · Adaptación</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--white)">${conMedida.length}/${alumnos.length}</div><div class="kpi-lbl">Total con medida</div></div>
+    ${conAlerta.length?`<div class="kpi"><div class="kpi-val" style="color:var(--red)">${conAlerta.length}</div><div class="kpi-lbl">Con alerta</div></div>`:''}
+  </div>`;
+
+  const rows=alumnos.map(al=>{
+    const f=fichas[al];
+    const t=f?.tipo;
+    const meta=t&&t!=='ninguna'?TIPO_META[t]:null;
+    const mats=(f?.materias||[]).map(m=>{const mat=materias.find(x=>x.id===m);return mat?mat.icon+' '+mat.nome:'';}).filter(Boolean).join(', ')||'—';
+    const profs=(f?.prof||[]).join(', ')||'—';
+    const alerta=temAlerta(al);
+    const t1n=f?.trim?.t1?.nivel;const t2n=f?.trim?.t2?.nivel;const t3n=f?.trim?.t3?.nivel;
+    const nvlChip=(n)=>n!==null&&n!==undefined?`<span style="font-size:.6rem;font-weight:900;padding:1px 6px;border-radius:4px;background:${NIVEL_COL[n]}18;color:${NIVEL_COL[n]}">${NIVEIS[n]}</span>`:'-';
+    return `<tr>
+      <td style="font-weight:800">${alerta?'⚠️ ':''}<span onclick="selAlumno('${al.replace(/'/g,"\\'")}');showTab('fichas')" style="cursor:pointer;color:${meta?meta.color:'var(--muted)'}">${al}</span></td>
+      <td>${meta?`<span style="font-size:.68rem;font-weight:900;padding:2px 8px;border-radius:5px;background:${meta.bg};color:${meta.color};border:1px solid ${meta.border}">${meta.ico} ${meta.label} · ${meta.long}</span>`:'<span style="color:var(--muted);font-size:.75rem">—</span>'}</td>
+      <td style="font-size:.72rem;color:var(--muted)">${f?.subtipo||'—'}</td>
+      <td style="font-size:.72rem">${mats}</td>
+      <td>${nvlChip(t1n)} ${nvlChip(t2n)} ${nvlChip(t3n)}</td>
+      <td style="font-size:.68rem;color:var(--muted)">${profs}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML=kpiHtml+`
+    <div class="card">
+      <div class="card-hdr"><span>📊 Táboa resumo · 4º B</span>
+        <button class="btn" style="font-size:.62rem;height:24px" onclick="exportarPDFClase()">🖨️ PDF</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="resumo-tbl">
+          <thead><tr><th>Alumno/a</th><th>Medida</th><th>Subtipo</th><th>Materias</th><th>T1 · T2 · T3</th><th>Profesionais</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// REUNIONS
+// ══════════════════════════════════════════════════════════════════════════════
+function renderReunions(){
+  const list=document.getElementById('reunions-list');
+  if(!list) return;
+  if(!reunions.length){list.innerHTML='<div class="empty"><span class="empty-ico">📅</span>Non hai reunións rexistradas.</div>';return;}
+  list.innerHTML=reunions.slice().reverse().map((r,ri)=>{
+    const idx=reunions.length-1-ri;
+    return `<div class="reun-item">
+      <div class="reun-hdr">
+        <span style="font-size:.8rem;font-weight:900">${r.data||'—'}</span>
+        <span style="font-size:.72rem;color:var(--muted)">${r.tipo||'Reunión'}</span>
+        <div style="margin-left:auto;display:flex;gap:5px">
+          <button class="btn btn-ghost" style="height:22px;font-size:.6rem" onclick="borrarReunion(${idx})">✕ Borrar</button>
+        </div>
+      </div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px">Asistentes: ${r.asistentes||'—'}</div>
+      <div style="font-size:.78rem;line-height:1.5">${r.resumo||''}</div>
+      ${r.acordos?`<div style="margin-top:6px;padding:6px 10px;background:rgba(251,191,36,.06);border-radius:7px;font-size:.72rem;border-left:2px solid var(--gold)"><strong>Acordos:</strong> ${r.acordos}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function novaReunion(){
+  openModal(`<h3>🤝 Nova reunión de coordinación</h3>
+    <div class="row c2" style="margin-bottom:9px">
+      <div><span class="lbl">Data</span>
+        <input class="inp" id="ru-data" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div><span class="lbl">Tipo de reunión</span>
+        <select class="sel" id="ru-tipo">
+          <option>Reunión de coordinación</option>
+          <option>Reunión con familias</option>
+          <option>Reunión con orientación</option>
+          <option>Reunión equipo docente</option>
+          <option>Reunión PT / AL</option>
+          <option>Comisión de coordinación pedagóxica</option>
+          <option>Outra reunión</option>
+        </select></div>
+    </div>
+    <div style="margin-bottom:9px"><span class="lbl">Asistentes</span>
+      <input class="inp" id="ru-asist" placeholder="Ex: Titora, PT, orientador/a, familia de..."></div>
+    <div style="margin-bottom:9px"><span class="lbl">Resumo e contidos tratados</span>
+      <textarea class="ta" id="ru-resumo" rows="4" placeholder="Que se tratou? Que alumnos/as se mencionaron? Que información se compartiu?"></textarea></div>
+    <div style="margin-bottom:9px"><span class="lbl">Acordos adoptados</span>
+      <textarea class="ta" id="ru-acordos" rows="2" placeholder="Decisións concretas, compromisos, próximos pasos..."></textarea></div>
+    <div class="modal-row">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarReunion()">💾 Gardar</button>
+    </div>`);
+}
+
+function gardarReunion(){
+  reunions.push({
+    data:document.getElementById('ru-data')?.value||'',
+    tipo:document.getElementById('ru-tipo')?.value||'',
+    asistentes:document.getElementById('ru-asist')?.value.trim()||'',
+    resumo:document.getElementById('ru-resumo')?.value.trim()||'',
+    acordos:document.getElementById('ru-acordos')?.value.trim()||''
+  });
+  gardar();closeModal();renderReunions();
+}
+
+function borrarReunion(idx){
+  const eliminada=reunions[idx];
+  if(!eliminada)return;
+  reunions.splice(idx,1);gardar();renderReunions();
+  _toastDesfacer(
+    `Reunión ${eliminada.data||''} ${eliminada.participantes||''} eliminada`.trim(),
+    ()=>{
+      reunions.splice(idx,0,eliminada);
+      gardar();renderReunions();
+    }
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORTAR PDF ALUMNO
+// ══════════════════════════════════════════════════════════════════════════════
+function exportarPDFAlumno(){
+  if(!selAl){alert('Selecciona primeiro un alumno/a.');return;}
+  const al=selAl;const f=getFicha(al);
+  const meta=f.tipo&&f.tipo!=='ninguna'?TIPO_META[f.tipo]:null;
+  const mats=(f.materias||[]).map(m=>materias.find(x=>x.id===m)?.nome||m).join(', ')||'—';
+  const profs=(f.prof||[]).join(', ')||'—';
+  const NVL_TXT=['Non acadado','En proceso','Acadado','Sobresaliente'];
+  const NVL_COL=['#dc2626','#d97706','#059669','#4f46e5'];
+  const trimHtml=['t1','t2','t3'].map((tk,ti)=>{
+    const t=f.trim?.[tk]||{};const n=t.nivel;
+    return `<td style="padding:8px 12px;border:1px solid #e2e8f0;vertical-align:top">
+      ${n!==null&&n!==undefined?`<strong style="color:${NVL_COL[n]}">${NVL_TXT[n]}</strong>`:'—'}
+      ${t.obs?`<div style="font-size:10px;color:#64748b;margin-top:4px">${t.obs}</div>`:''}
+    </td>`;
+  }).join('');
+  const segRows=(f.seguimento||[]).map(s=>`<tr><td style="padding:5px 10px;border:1px solid #e2e8f0;font-size:10px">${s.data||'—'}</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-size:10px">${s.feito||'—'}</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-size:11px">${s.texto||''}</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-size:10px">${{ben:'✅ Ben',regular:'🟡 Regular',dif:'🔴 Dificultades'}[s.prog]||'—'}</td></tr>`).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Medidas Apoio · ${al}</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;padding:2cm;font-size:11px;color:#1e293b;line-height:1.6}
+  h1{font-size:18px;margin-bottom:4px}h2{font-size:13px;margin:14px 0 5px;padding-bottom:3px;border-bottom:1px solid #e2e8f0}
+  .meta{font-size:10px;color:#64748b;margin-bottom:14px}table{width:100%;border-collapse:collapse}
+  th{background:#1e2a4a;color:#fff;padding:7px 10px;text-align:left;font-size:10px}
+  @page{size:A4;margin:2cm}@media print{body{padding:0}}</style>
+  </head><body>
+  <h1>📋 Medidas de Apoio à Diversidade</h1>
+  <div class="meta">CEIP Pío XII · 4º B · ${al} · Xerado o ${new Date().toLocaleDateString('gl-ES')}</div>
+  ${meta?`<div style="padding:8px 12px;background:${meta.bg.replace('var(--re-bg)','#fff3e0').replace('var(--ec-bg)','#ede9fe').replace('var(--ac-bg)','#d1fae5')};border-left:4px solid ${meta.color.replace('var(--re)','#f97316').replace('var(--ec)','#818cf8').replace('var(--ac)','#34d399')};border-radius:4px;margin-bottom:14px;">
+      <strong>${meta.ico} ${meta.long}</strong>
+      ${Object.entries(f.subtipoSel||{}).filter(([,v])=>v.checked).map(([i,v])=>`<div style="font-size:10px;margin-top:4px">• ${(SUBTIPOS[f.tipo]||[])[parseInt(i)]||''}${v.resp?' <em style="color:#64748b">('+v.resp+')</em>':''}</div>`).join('')}
+    </div>`:``}
+  <div class="meta"><strong>Inicio:</strong> ${f.dataInicio||'—'} · <strong>Revisión:</strong> ${f.renovacion||'—'} · <strong>Concreción:</strong> ${f.nivelConcrecion||'—'}</div>
+  ${mats!=='—'?`<h2>📚 Materias afectadas</h2><p>${mats}</p>`:''}
+        ${(()=>{const bO=BANCO_OBXECTIVOS[f.tipo]||[];const oSel=(f.obxSel||[]).map(i=>bO[i]).filter(Boolean);const oTxt=f.obxectivos||'';if(!oSel.length&&!oTxt)return '';return '<div style="margin-bottom:6px"><strong style="font-size:10px">Obxectivos:</strong>'+(oSel.length?'<ul style="margin:4px 0 0 14px">'+oSel.map(o=>'<li style="font-size:10px;color:#334155">'+o+'</li>').join('')+'</ul>':'')+(oTxt?'<div style="font-size:10px;color:#64748b;white-space:pre-wrap">'+oTxt+'</div>':'')+'</div>';})()} 
+        ${(()=>{const bE=BANCO_ESTRATEXIAS[f.tipo]||[];const eSel=(f.estrSel||[]).map(i=>bE[i]).filter(Boolean);const eTxt=f.estratexias||'';if(!eSel.length&&!eTxt)return '';return '<div style="margin-bottom:6px"><strong style="font-size:10px">Estratexias:</strong>'+(eSel.length?'<ul style="margin:4px 0 0 14px">'+eSel.map(e=>'<li style="font-size:10px;color:#334155">'+e+'</li>').join('')+'</ul>':'')+(eTxt?'<div style="font-size:10px;color:#64748b;white-space:pre-wrap">'+eTxt+'</div>':'')+'</div>';})()} 
+  ${profs!=='—'?`<h2>👥 Profesionais</h2><p>${profs}</p>`:''}
+  ${f.coordReunions?`<p style="margin-top:4px;color:#64748b;font-size:10px">${f.coordReunions}</p>`:''}
+  <h2>📅 Avaliación trimestral</h2>
+  <table><thead><tr><th>Trimestre 1</th><th>Trimestre 2</th><th>Trimestre 3</th></tr></thead><tbody><tr>${trimHtml}</tr></tbody></table>
+  ${segRows?`<h2>📈 Historial de seguimento</h2><table><thead><tr><th>Data</th><th>Responsable</th><th>Observacións</th><th>Progreso</th></tr></thead><tbody>${segRows}</tbody></table>`:''}
+  ${f.obsXerais?`<h2>📝 Observacións xerais</h2><p style="white-space:pre-wrap">${f.obsXerais}</p>`:''}
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORTAR PDF CLASE
+// ══════════════════════════════════════════════════════════════════════════════
+function exportarPDFClase(){
+  const NVL_TXT=['Non acadado','En proceso','Acadado','Sobresaliente'];
+  const NVL_COL=['#dc2626','#d97706','#059669','#4f46e5'];
+  const rows=alumnos.map(al=>{
+    const f=fichas[al];const t=f?.tipo;
+    const meta=t&&t!=='ninguna'?TIPO_META[t]:null;
+    const mats=(f?.materias||[]).map(m=>materias.find(x=>x.id===m)?.nome||m).join(', ')||'—';
+    const t1=f?.trim?.t1?.nivel;const t2=f?.trim?.t2?.nivel;const t3=f?.trim?.t3?.nivel;
+    const nvl=(n)=>n!==null&&n!==undefined?`<span style="font-weight:900;color:${NVL_COL[n]}">${NVL_TXT[n]}</span>`:'—';
+    const alerta=temAlerta(al)?'⚠️ ':'';
+    return `<tr style="border-bottom:1px solid #e2e8f0">
+      <td style="padding:5px 10px;font-weight:700">${alerta}${al}</td>
+      <td style="padding:5px 10px">${meta?`<strong style="color:${meta.color.replace('var(--re)','#ea580c').replace('var(--ec)','#6366f1').replace('var(--ac)','#16a34a')}">${meta.ico} ${meta.label}</strong> ${f?.subtipo?'· '+f.subtipo:''}`:'—'}</td>
+      <td style="padding:5px 10px;font-size:10px;color:#64748b">${mats}</td>
+      <td style="padding:5px 10px;text-align:center">${nvl(t1)}</td>
+      <td style="padding:5px 10px;text-align:center">${nvl(t2)}</td>
+      <td style="padding:5px 10px;text-align:center">${nvl(t3)}</td>
+      <td style="padding:5px 10px;font-size:10px;color:#64748b">${(f?.prof||[]).slice(0,2).join(', ')||'—'}</td>
+    </tr>`;
+  }).join('');
+  const reN=alumnos.filter(a=>fichas[a]?.tipo==='re').length;
+  const ecN=alumnos.filter(a=>fichas[a]?.tipo==='ec').length;
+  const acN=alumnos.filter(a=>fichas[a]?.tipo==='ac').length;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Resumo Medidas · 4º B</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;padding:1.5cm;font-size:11px;color:#1e293b}
+  h1{font-size:16px;margin-bottom:4px}table{width:100%;border-collapse:collapse}
+  th{background:#1e2a4a;color:#fff;padding:7px 10px;text-align:left;font-size:10px}
+  @page{size:A4 landscape;margin:1.5cm}@media print{body{padding:0}}</style>
+  </head><body>
+  <h1>📋 Resumo de Medidas de Apoio · 4º B · CEIP Pío XII</h1>
+  <p style="font-size:10px;color:#64748b;margin-bottom:10px">${new Date().toLocaleDateString('gl-ES')} · R.E.: ${reN} · E.C.: ${ecN} · A.C.: ${acN} · Total: ${reN+ecN+acN}/${alumnos.length}</p>
+  <table><thead><tr><th>Alumno/a</th><th>Medida / Subtipo</th><th>Materias</th><th>T1</th><th>T2</th><th>T3</th><th>Profesionais</th></tr></thead>
+  <tbody>${rows}</tbody></table>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TABS + MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+t));
+  document.querySelectorAll('.section').forEach(el=>el.classList.toggle('show',el.id==='sec-'+t));
+  if(t==='resumo') renderResumo();
+  if(t==='reunions') renderReunions();
+}
+
+function openModal(html){
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('modal-bg').classList.add('show');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('show');}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MEMORIA COMPLETA PDF
+// ══════════════════════════════════════════════════════════════════════════════
+function exportarMemoriaPDF(){
+  const conMedida=alumnos.filter(a=>fichas[a]?.tipo&&fichas[a].tipo!=='ninguna');
+  if(!conMedida.length){alert('Non hai alumnos/as con medida de apoio rexistrada.');return;}
+  const NVL_TXT=['Non acadado','En proceso','Acadado','Sobresaliente'];
+  const NVL_COL=['#dc2626','#d97706','#059669','#4f46e5'];
+  const TIPO_LONG={re:'Reforzo Educativo',ec:'Enriquecemento Curricular',ac:'Adaptación Curricular'};
+  const TIPO_COL={re:'#ea580c',ec:'#4f46e5',ac:'#059669'};
+  const fichasHtml=conMedida.map(al=>{
+    const f=fichas[al];
+    const col=TIPO_COL[f.tipo]||'#64748b';
+    const mats=(f.materias||[]).map(m=>materias.find(x=>x.id===m)?.nome||m).join(', ')||'—';
+    const profs=(f.prof||[]).join(', ')||'—';
+    const trimHtml=['t1','t2','t3'].map((tk,ti)=>{
+      const t=f.trim?.[tk]||{};const n=t.nivel;
+      return `<td style="padding:5px 8px;border:1px solid #e2e8f0;vertical-align:top;font-size:10px">${n!==null&&n!==undefined?`<strong style="color:${NVL_COL[n]}">${NVL_TXT[n]}</strong>`:'—'}${t.obs?`<br><span style="color:#64748b">${t.obs}</span>`:''}</td>`;
+    }).join('');
+    const segRows=(f.seguimento||[]).map(s=>`<tr><td style="padding:3px 7px;font-size:9px;border:1px solid #f1f5f9">${s.data||'—'}</td><td style="padding:3px 7px;font-size:9px;border:1px solid #f1f5f9">${s.feito||'—'}</td><td style="padding:3px 7px;font-size:9px;border:1px solid #f1f5f9">${s.texto||''}</td><td style="padding:3px 7px;font-size:9px;border:1px solid #f1f5f9">${{ben:'✅',regular:'🟡',dif:'🔴'}[s.prog]||'—'}</td></tr>`).join('');
+    return `<div style="page-break-inside:avoid;margin-bottom:24px;border:1px solid #e2e8f0;border-top:4px solid ${col};border-radius:6px;overflow:hidden">
+      <div style="background:#f8fafc;padding:10px 14px;border-bottom:1px solid #e2e8f0">
+        <div style="font-size:14px;font-weight:700">${al}</div>
+        <div style="font-size:10px;color:${col};font-weight:700;margin-top:2px">${TIPO_LONG[f.tipo]||''}${f.subtipo?' · '+f.subtipo:''}</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px">Inicio: ${f.dataInicio||'—'} · Revisión: ${f.renovacion||'—'} · Concreción: ${f.nivelConcrecion||'—'}</div>
+      </div>
+      <div style="padding:10px 14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px">
+          <div><strong style="font-size:10px">Materias:</strong> <span style="font-size:10px">${mats}</span></div>
+          <div><strong style="font-size:10px">Profesionais:</strong> <span style="font-size:10px">${profs}</span></div>
+        </div>
+        ${f.obxectivos?`<div style="margin-bottom:6px"><strong style="font-size:10px">Obxectivos:</strong><div style="font-size:10px;color:#334155;white-space:pre-wrap">${f.obxectivos}</div></div>`:''}
+        ${f.estratexias?`<div style="margin-bottom:6px"><strong style="font-size:10px">Estratexias:</strong><div style="font-size:10px;color:#334155;white-space:pre-wrap">${f.estratexias}</div></div>`:''}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:8px"><thead><tr><th style="padding:4px 8px;background:#1e2a4a;color:#fff;font-size:9px">T1</th><th style="padding:4px 8px;background:#1e2a4a;color:#fff;font-size:9px">T2</th><th style="padding:4px 8px;background:#1e2a4a;color:#fff;font-size:9px">T3</th></tr></thead><tbody><tr>${trimHtml}</tr></tbody></table>
+        ${segRows?`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:3px 7px;background:#f1f5f9;font-size:9px">Data</th><th style="padding:3px 7px;background:#f1f5f9;font-size:9px">Responsable</th><th style="padding:3px 7px;background:#f1f5f9;font-size:9px">Observacións</th><th style="padding:3px 7px;background:#f1f5f9;font-size:9px">Progreso</th></tr></thead><tbody>${segRows}</tbody></table>`:''}
+        ${f.obsXerais?`<div style="margin-top:6px;padding:6px 10px;background:#f8fafc;border-radius:4px;font-size:10px"><strong>Obs.:</strong> ${f.obsXerais}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Memoria Medidas Apoio · 4º B</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;padding:2cm;font-size:11px;color:#1e293b}h1{font-size:18px;margin-bottom:4px}@page{size:A4;margin:2cm}@media print{body{padding:0}}</style>
+  </head><body>
+  <h1>📋 Memoria de Medidas de Atención á Diversidade</h1>
+  <p style="font-size:10px;color:#64748b;margin-bottom:16px">CEIP Pío XII · 4º B · ${new Date().toLocaleDateString('gl-ES')} · ${conMedida.length} alumno${conMedida.length!==1?'s/as':'/a'} con medida</p>
+  ${fichasHtml}
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// IMPORTAR / EXPORTAR JSON
+// ══════════════════════════════════════════════════════════════════════════════
+function exportarJSON(){
+  const data={_meta:{app:'AULA OS · Medidas de Apoio',ts:new Date().toISOString()},fichas,reunions};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='medidas_apoio_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+function importarJSON(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file) return;
+    try{
+      const data=JSON.parse(await file.text());
+      if(!data.fichas){alert('Formato non recoñecido');return;}
+      if(!confirm('Isto sobrescribirá os datos actuais de medidas. Continuar?')) return;
+      fichas=data.fichas||{};
+      reunions=data.reunions||[];
+      gardar();init();
+      alert('✅ Importación completada correctamente');
+    }catch(e){alert('Erro ao ler o ficheiro: '+e.message);}
+  };
+  inp.click();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ARRANQUE
+// ══════════════════════════════════════════════════════════════════════════════
+init();
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

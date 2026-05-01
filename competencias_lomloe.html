@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avaliación Competencial LOMLOE · 4º B</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#fbbf24;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--shadow:0 4px 24px rgba(0,0,0,.4);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;min-height:100vh}
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{height:32px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:800;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn-ghost{background:rgba(255,255,255,.07);color:var(--white);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.13)}
+.btn-gold{background:var(--gold);color:#0f172a}
+.tabs{display:flex;gap:4px;padding:10px 20px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{height:30px;padding:0 14px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:.75rem;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tab.active{background:var(--gold);color:#0f172a;border-color:var(--gold)}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 96px)}
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:12px;overflow-y:auto}
+.sidebar-title{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;padding:0 4px}
+.al-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;cursor:pointer;transition:background .12s;margin-bottom:2px}
+.al-item:hover{background:var(--card2)}
+.al-item.sel{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2)}
+.al-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;color:white;flex-shrink:0}
+.al-name{font-size:.78rem;font-weight:800}
+.al-mini-bars{display:flex;gap:2px;align-items:flex-end;margin-top:2px}
+.al-mini-bar{width:5px;border-radius:1px;transition:height .3s}
+.main{padding:20px;overflow-y:auto}
+.comp-card{background:var(--card);border-radius:14px;border:2px solid var(--border);padding:16px;margin-bottom:12px;transition:border-color .2s}
+.comp-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.comp-icon{font-size:1.4rem;flex-shrink:0}
+.comp-info{flex:1}
+.comp-code{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.comp-name{font-size:.88rem;font-weight:800;margin-top:1px}
+.comp-desc{font-size:.7rem;color:var(--muted);margin-top:2px;line-height:1.4}
+/* Escala botóns */
+.escala-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.esc-btn{height:36px;min-width:36px;padding:0 10px;border-radius:10px;border:2px solid transparent;cursor:pointer;font-size:.75rem;font-weight:800;font-family:'DM Sans',sans-serif;transition:all .15s;background:rgba(255,255,255,.04);color:var(--muted)}
+.esc-btn:hover{transform:scale(1.05)}
+.esc-btn.sel{transform:scale(1.08)}
+/* Barra global */
+.global-bar{background:var(--card2);border-radius:12px;padding:12px 16px;margin-bottom:16px;border:1px solid var(--border)}
+.radar-wrap{display:flex;justify-content:center;margin:10px 0}
+/* Selector de materia para asignación */
+.asign-chip{font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:5px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .12s}
+.asign-chip.sel{border-color:var(--gold);color:var(--gold);background:rgba(251,191,36,.08)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:18px;padding:22px;width:480px;max-width:100%;border:1px solid var(--border2);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;margin-bottom:12px;color:var(--gold)}
+.inp{width:100%;height:36px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 12px;outline:none;margin-bottom:8px}
+.modal-row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+body.claro{--bg:#f0f4f8;--card:#fff;--card2:#edf0fa;--border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);--white:#1e2a4a;--muted:rgba(30,42,74,.5)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span style="font-size:1.4rem">🎓</span>
+  <div>
+    <h1>Avaliación Competencial LOMLOE</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-ghost" onclick="openAsignacion()">🔗 Asignar materias</button>
+    <button class="btn btn-ghost" onclick="exportarInforme()">🖨️ Informe PDF</button>
+    <button class="btn btn-ghost" onclick="exportarCSV()">📊 CSV</button>
+    <button class="btn btn-ghost" onclick="toggleModo()" id="btn-modo">☀️ Claro</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none">🏠 Portal</a>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab active" id="tab-alumno" onclick="setTab('alumno')">👤 Por alumno/a</button>
+  <button class="tab" id="tab-clase" onclick="setTab('clase')">🏫 Vista clase</button>
+  <button class="tab" id="tab-asign" onclick="setTab('asign')">🔗 Asignacións</button>
+  <button class="tab" id="tab-uds" onclick="setTab('uds')">📚 Programación UD</button>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <input style="width:100%;height:30px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.72rem;padding:0 8px;outline:none;margin-bottom:10px" id="search" placeholder="🔍 Buscar..." oninput="renderAlList()">
+    <div class="sidebar-title">Alumnado</div>
+    <div id="al-list"></div>
+  </div>
+  <div class="main" id="main">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:12px;color:var(--muted)">
+      <span style="font-size:2.5rem">🎓</span>
+      <span style="font-size:.85rem">Selecciona un alumno/a para avaliar as competencias LOMLOE</span>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)"><div class="modal" id="modal-content"></div></div>
+
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+const AVCOLS=['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fbbf24','#ef4444','#06b6d4','#84cc16'];
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();}
+
+// ── COMPETENCIAS LOMLOE (RD 157/2022) ────────────────────────────────────────
+const COMPETENCIAS=[
+  {id:'CCL',emoji:'📖',nome:'Competencia en comunicación lingüística',desc:'Expresarse e comprender en distintas linguas e contextos',col:'#3b82f6'},
+  {id:'CP',emoji:'🌍',nome:'Competencia plurilingüe',desc:'Usar distintas linguas de forma apropiada e eficaz',col:'#06b6d4'},
+  {id:'STEM',emoji:'🔬',nome:'Competencia matemática e en ciencia, tecnoloxía e enxeñaría',desc:'Aplicar o pensamento matemático e científico para resolver problemas',col:'#f97316'},
+  {id:'CD',emoji:'💻',nome:'Competencia dixital',desc:'Utilizar dispositivos e ferramentas dixitais con criterio',col:'#8b5cf6'},
+  {id:'CPSAA',emoji:'🧠',nome:'Competencia persoal, social e de aprender a aprender',desc:'Autorregularse, relacionarse e desenvolvemento do pensamento crítico',col:'#ec4899'},
+  {id:'CC',emoji:'⚖️',nome:'Competencia cidadá',desc:'Participar en sociedade de forma activa, democrática e responsable',col:'#14b8a6'},
+  {id:'CE',emoji:'💡',nome:'Competencia emprendedora',desc:'Desenvolver proxectos creativos con iniciativa e responsabilidade',col:'#fbbf24'},
+  {id:'CCEC',emoji:'🎨',nome:'Competencia en conciencia e expresión cultural',desc:'Comprender e expresarse a través das artes e a cultura',col:'#a78bfa'},
+];
+
+const ESCALA=[
+  {v:1,label:'Inicio',emoji:'1️⃣',col:'#ef4444'},
+  {v:2,label:'Proceso',emoji:'2️⃣',col:'#f97316'},
+  {v:3,label:'Acadado',emoji:'3️⃣',col:'#fbbf24'},
+  {v:4,label:'Avanzado',emoji:'4️⃣',col:'#22c55e'},
+];
+
+// Datos gardados
+let vals = LS.get('lomloe_vals',{});      // {alumno: {CCL: {v,nota,trim}, ...}}
+let asignacions = LS.get('lomloe_asign',{}); // {matId: [competId, ...]}
+let selAlumno = null;
+let selTrim = 0;
+const alumnos = LS.get('pc_alumnos',LS.get('sn3_alumnos',[]));
+const materias = LS.get('sn3_materias',[]).filter(m=>m.id!=='outras');
+const notas = LS.get('sn3_notas',[]);
+
+function save(){LS.set('lomloe_vals',vals);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch{}}
+
+function getVal(al,compId){return (vals[al]||{})[selTrim+':'+compId]||null;}
+function setVal(al,compId,v){
+  if(!vals[al]) vals[al]={};
+  if(v===null){delete vals[al][selTrim+':'+compId];}
+  else vals[al][selTrim+':'+compId]={v,ts:new Date().toISOString(),trim:selTrim};
+  save();updateAlList(al);
+}
+
+// Calcular media desde notas do caderno via asignacións
+function calcMediaDesdeNotas(al, compId){
+  const mats=Object.entries(asignacions).filter(([m,cs])=>cs.includes(compId)).map(([m])=>m);
+  if(!mats.length) return null;
+  const ns=notas.filter(n=>n.alumno===al&&mats.includes(n.materia)&&(!selTrim||n.trimestre===selTrim));
+  if(!ns.length) return null;
+  const esc=LS.get('sn3_escala',10);
+  const media=ns.reduce((s,n)=>s+n.valor,0)/ns.length;
+  // Converter escala 0-10 a 1-4
+  const pct=media/esc;
+  if(pct>=.88) return 4; if(pct>=.65) return 3; if(pct>=.45) return 2; return 1;
+}
+
+// ── RENDER LISTA ─────────────────────────────────────────────────────────────
+function renderAlList(){
+  const q=document.getElementById('search')?.value?.toLowerCase()||'';
+  document.getElementById('al-list').innerHTML=alumnos.filter(a=>!q||a.toLowerCase().includes(q)).map((a,i)=>{
+    const valsAl=Object.entries(vals[a]||{}).filter(([k])=>!selTrim||k.startsWith(selTrim+':')).map(([,v])=>v?.v).filter(Boolean);
+    const media=valsAl.length?+(valsAl.reduce((s,v)=>s+v,0)/valsAl.length).toFixed(1):null;
+    const col=media>=3.5?'#22c55e':media>=2.5?'#fbbf24':media>=1.5?'#f97316':media?'#ef4444':'#475569';
+    return `<div class="al-item${selAlumno===a?' sel':''}" onclick="selAl('${a.replace(/'/g,"\\'")}')">
+      <div class="al-avatar" style="background:${AVCOLS[i%AVCOLS.length]}">${ini(a)}</div>
+      <div style="flex:1">
+        <div class="al-name">${a}</div>
+        ${media!==null?`<div style="font-size:.6rem;font-weight:900;color:${col}">${media}/4 · ${valsAl.length}/${COMPETENCIAS.length} avaliadas</div>`:'<div style="font-size:.6rem;color:var(--muted)">Sen avaliación</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+function updateAlList(al){renderAlList();}
+
+function selAl(nome){selAlumno=nome;renderAlList();renderMain();}
+
+// ── RENDER MAIN ───────────────────────────────────────────────────────────────
+function renderEvolucionTrimestral(nome){
+  const gc=v=>{if(!v)return'#94a3b8';return v>=3.5?'#22c55e':v>=2.5?'#60a5fa':v>=1.5?'#fbbf24':'#ef4444';};
+  const trims=[1,2,3];
+  const rows=COMPETENCIAS.map(c=>{
+    const vals=trims.map(t=>{
+      // Calcular nivel desta competencia neste trimestre
+      const ns=LS.get('sn3_notas',[]).filter(n=>n.alumno===nome&&n.trimestre===t);
+      if(!ns.length) return null;
+      // Usar calcularCompetenciasDesdeUDs ou calcMediaDesdeNotas
+      const auto=calcMediaDesdeNotas(nome,c.id,t);
+      return auto;
+    });
+    const hasData=vals.some(v=>v!==null);
+    if(!hasData) return '';
+    const bars=vals.map((v,i)=>{
+      const col=gc(v);
+      const pct=v?Math.round(v/4*100):0;
+      return `<div style="flex:1;text-align:center">
+        <div style="font-size:.65rem;font-weight:900;color:${col};margin-bottom:3px">${v??'—'}</div>
+        <div style="height:50px;background:rgba(255,255,255,.05);border-radius:4px 4px 0 0;overflow:hidden;display:flex;align-items:flex-end">
+          <div style="width:100%;height:${pct}%;background:${col}88;border-radius:4px 4px 0 0;min-height:${v?2:0}px"></div>
+        </div>
+        <div style="font-size:.55rem;color:var(--muted);margin-top:3px">T${i+1}</div>
+      </div>`;
+    }).join('');
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:1.1rem">${c.emoji}</span>
+      <span style="font-size:.72rem;font-weight:800;min-width:50px;color:${c.col}">${c.id}</span>
+      <div style="display:flex;gap:6px;flex:1;align-items:flex-end">${bars}</div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  openModal(`<h3>📈 Evolución trimestral · ${nome}</h3>
+    <div style="max-height:420px;overflow-y:auto">${rows||'<div style="color:var(--muted);padding:2rem;text-align:center">Sen datos trimestrais. Asegúrate de que as notas teñen trimestre asignado.</div>'}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-ghost" onclick="closeModal()">Pechar</button></div>`);
+}
+
+function calcTendencia(nome,compId){
+  // Calcular tendencia de T1→T2→T3
+  const trims=[1,2,3];
+  const vals=trims.map(t=>calcMediaDesdeNotas(nome,compId,t));
+  const conVals=vals.filter(v=>v!==null);
+  if(conVals.length<2) return null;
+  // Regresión lineal simple
+  const n=conVals.length;
+  const xs=conVals.map((_,i)=>i+1);
+  const ys=conVals;
+  const sumX=xs.reduce((s,v)=>s+v,0);
+  const sumY=ys.reduce((s,v)=>s+v,0);
+  const sumXY=xs.reduce((s,x,i)=>s+x*ys[i],0);
+  const sumX2=xs.reduce((s,x)=>s+x*x,0);
+  const slope=(n*sumXY-sumX*sumY)/(n*sumX2-sumX*sumX);
+  return {slope,last:ys[ys.length-1],trend:slope>0.3?'subindo':slope<-0.3?'baixando':'estable'};
+}
+
+function suxerirNivelTendencia(nome){
+  const sugs=COMPETENCIAS.map(c=>{
+    const tend=calcTendencia(nome,c.id);
+    if(!tend) return null;
+    const {slope,last,trend}=tend;
+    const man=getVal(nome,c.id);
+    const sugerido=tend.trend==='subindo'?Math.min(4,Math.ceil(last+0.5)):tend.trend==='baixando'?Math.max(1,Math.floor(last-0.3)):Math.round(last);
+    const arrow=trend==='subindo'?'↗ Subindo':trend==='baixando'?'↘ Baixando':'→ Estable';
+    const arrowCol=trend==='subindo'?'#22c55e':trend==='baixando'?'#ef4444':'#fbbf24';
+    return {c,tend,sugerido,arrow,arrowCol,man};
+  }).filter(Boolean);
+
+  if(!sugs.length){showToast('Sen datos trimestrais para calcular tendencia','#f87171');return;}
+
+  const rows=sugs.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:1.1rem">${s.c.emoji}</span>
+      <span style="font-size:.72rem;font-weight:800;color:${s.c.col};min-width:50px">${s.c.id}</span>
+      <span style="font-size:.65rem;font-weight:900;color:${s.arrowCol}">${s.arrow}</span>
+      <span style="font-size:.7rem;color:var(--muted)">Actual: <strong style="color:var(--white)">${s.man?.v||s.tend.last||'—'}/4</strong></span>
+      <span style="font-size:.7rem;color:var(--indigo)">Suxestión: <strong>Nivel ${s.sugerido}/4</strong></span>
+      <button onclick="aplicarSuxerencia('${s.c.id}',${s.sugerido},'${nome}')" style="height:22px;padding:0 9px;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.25);border-radius:6px;color:#818cf8;font-size:.6rem;font-weight:800;cursor:pointer;margin-left:auto">Aplicar</button>
+    </div>`).join('');
+
+  openModal(`<h3>🔮 Suxestión de niveis por tendencia · ${nome}</h3>
+    <div style="font-size:.65rem;color:var(--muted);margin-bottom:10px">Baseado na evolución T1→T2→T3 de cada competencia</div>
+    <div style="max-height:380px;overflow-y:auto">${rows}</div>
+    <div class="modal-row">
+      <button class="btn btn-gold" onclick="aplicarTodasSuxerencias(${JSON.stringify(sugs.map(s=>({id:s.c.id,v:s.sugerido}))).replace(/"/g,'&quot;')},'${nome}')">✓ Aplicar todas</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Pechar</button>
+    </div>`);
+}
+
+function aplicarSuxerencia(compId,nivel,nome){
+  setVal(nome,compId,nivel,'auto');
+  showToast('✓ Nivel '+nivel+' aplicado a '+compId,'#34d399');
+  closeModal();
+  suxerirNivelTendencia(nome);
+}
+
+function aplicarTodasSuxerencias(sugsJson,nome){
+  let sugs;
+  try{sugs=typeof sugsJson==='string'?JSON.parse(sugsJson.replace(/&quot;/g,'"')):sugsJson;}catch{return;}
+  sugs.forEach(s=>setVal(nome,s.id,s.v,'auto'));
+  save();renderMain();
+  showToast('✓ '+sugs.length+' niveis actualizados','#34d399');
+  closeModal();
+}
+
+function renderMain(){
+  if(!selAlumno) return;
+  const nome=selAlumno;
+  const idx=alumnos.indexOf(nome);
+  const col=AVCOLS[idx%AVCOLS.length];
+  setTimeout(()=>{
+    const bExist=document.getElementById('btn-evo-trim');
+    if(!bExist){const b=document.createElement('button');b.id='btn-evo-trim';b.textContent='📈 Evolución T';b.style.cssText='height:24px;padding:0 10px;border-radius:7px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:.62rem;font-weight:800;cursor:pointer;font-family:\'DM Sans\',sans-serif;margin-left:6px';b.onclick=()=>renderEvolucionTrimestral(nome);
+    const bt=document.createElement('button');bt.style.cssText='height:24px;padding:0 10px;border-radius:7px;border:1.5px solid rgba(129,140,248,.3);background:rgba(129,140,248,.08);color:#818cf8;font-size:.62rem;font-weight:800;cursor:pointer;font-family:\'DM Sans\',sans-serif;margin-left:4px';bt.textContent='🔮 Suxerir niveis';bt.onclick=()=>suxerirNivelTendencia(nome);
+    const hdr=document.querySelector('#main h2')||document.querySelector('#main');if(hdr){hdr.after?hdr.after(b):hdr.parentNode.insertBefore(b,hdr.nextSibling);b.after?b.after(bt):b.parentNode.insertBefore(bt,b.nextSibling);}}
+  },150);
+
+  // KPIs
+  const valsAl=COMPETENCIAS.map(c=>{
+    const man=getVal(nome,c.id);
+    const auto=calcMediaDesdeNotas(nome,c.id);
+    return {c,v:man?.v||auto||null,man:!!man?.v};
+  });
+  const avaliadas=valsAl.filter(x=>x.v!==null).length;
+  const mediaGl=avaliadas?+(valsAl.filter(x=>x.v).reduce((s,x)=>s+x.v,0)/avaliadas).toFixed(1):null;
+
+  const trimSel=`<div style="display:flex;gap:5px;margin-bottom:16px">
+    ${[{v:0,l:'Todos'},{v:1,l:'T1'},{v:2,l:'T2'},{v:3,l:'T3'}].map(t=>`
+      <button onclick="selTrim2(${t.v})" style="height:26px;padding:0 12px;border-radius:999px;border:1.5px solid ${selTrim===t.v?'var(--gold)':'var(--border2)'};background:${selTrim===t.v?'rgba(251,191,36,.1)':'transparent'};color:${selTrim===t.v?'var(--gold)':'var(--muted)'};font-size:.68rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">${t.l}</button>`).join('')}
+  </div>`;
+
+  // Radar SVG
+  const radarHtml=renderRadar(valsAl);
+
+  // Cards por competencia
+  const cardsHtml=COMPETENCIAS.map(comp=>{
+    const man=getVal(nome,comp.id);
+    const auto=calcMediaDesdeNotas(nome,comp.id);
+    const valActual=man?.v||null;
+    const autoV=auto;
+    return `<div class="comp-card" style="${valActual?'border-color:'+comp.col+'40':''}">
+      <div class="comp-header">
+        <span class="comp-icon">${comp.emoji}</span>
+        <div class="comp-info">
+          <div class="comp-code">${comp.id}</div>
+          <div class="comp-name">${comp.nome}</div>
+          <div class="comp-desc">${comp.desc}</div>
+        </div>
+        ${valActual?`<div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:${ESCALA.find(e=>e.v===valActual)?.col||'#94a3b8'}">${valActual}/4</div>`:''}
+      </div>
+      ${(()=>{
+        const calc=calcularCompetenciasDesdeUDs(nome,selTrim||null)[comp.id];
+        const calcRound=calc?Math.round(calc):null;
+        const autoV2=calcMediaDesdeNotas(nome,comp.id);
+        const showCalc=calc&&!man?.v;
+        const showSimple=autoV2&&!man?.v&&!calc;
+        // UDs que contribúen a esta competencia
+        let udContrib=[];
+        if(showCalc){
+          const notasAl=LS.get('sn3_notas',[]).filter(n=>n.alumno===nome&&n.unidade?.num);
+          materias.forEach(mat=>{
+            const udsMat=uds[mat.id]||[];
+            notasAl.filter(n=>n.materia===mat.id).forEach(nota=>{
+              const ud=udsMat.find(u=>u.num===nota.unidade.num);
+              if(!ud) return;
+              const traballa=ud.contidos?.some(c=>c.comps&&c.comps[comp.id]>0);
+              if(traballa&&!udContrib.find(u=>u.num===nota.unidade.num))
+                udContrib.push({num:nota.unidade.num,tit:nota.unidade.tit||''});
+            });
+          });
+          udContrib.sort((a,b)=>a.num-b.num);
+        }
+        const udChips=udContrib.map(u=>`<span style="font-size:.58rem;font-weight:900;padding:1px 5px;border-radius:4px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)">UD${u.num}${u.tit?' '+u.tit.substring(0,10):''}</span>`).join(' ');
+        return showCalc?`<div style="font-size:.68rem;color:var(--muted);margin-bottom:8px;padding:6px 10px;background:rgba(99,102,241,.08);border-radius:6px;border:1px solid rgba(99,102,241,.2)">
+            <div>🎓 Cálculo por UDs: <strong style="color:${ESCALA.find(e=>e.v===calcRound)?.col||'#94a3b8'}">${calc?.toFixed(1)}/4 (${ESCALA.find(e=>e.v===calcRound)?.label||'—'})</strong></div>
+            ${udChips?`<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px">${udChips}</div>`:''}</div>`
+             :showSimple?`<div style="font-size:.68rem;color:var(--muted);margin-bottom:8px;padding:4px 8px;background:rgba(255,255,255,.04);border-radius:6px;display:inline-block">💡 Suxerencia das notas: <strong style="color:${ESCALA.find(e=>e.v===autoV2)?.col}">${autoV2}/4 (${ESCALA.find(e=>e.v===autoV2)?.label})</strong></div>`:'';
+      })()}
+      <div class="escala-btns">
+        <span style="font-size:.6rem;font-weight:900;color:var(--muted);align-self:center;margin-right:4px">Nivel:</span>
+        ${ESCALA.map(e=>`<button class="esc-btn${valActual===e.v?' sel':''}" style="${valActual===e.v?'border-color:'+e.col+';background:'+e.col+'18;color:'+e.col:''}" onclick="setVal('${nome.replace(/'/g,"\\'")}','${comp.id}',${valActual===e.v?null:e.v})">${e.emoji} ${e.label}</button>`).join('')}
+        ${valActual?`<button onclick="setVal('${nome.replace(/'/g,"\\'")}','${comp.id}',null)" style="height:36px;padding:0 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--muted);cursor:pointer;font-size:.7rem">✕</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('main').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div class="al-avatar" style="background:${col};width:38px;height:38px;font-size:.85rem">${ini(nome)}</div>
+      <div>
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem">${nome}</div>
+        <div style="font-size:.68rem;color:var(--muted)">${avaliadas}/${COMPETENCIAS.length} competencias avaliadas${mediaGl?` · Media: ${mediaGl}/4`:''}</div>
+      </div>
+    </div>
+    ${trimSel}
+    ${radarHtml}
+    ${cardsHtml}
+  `;
+}
+
+function selTrim2(t){selTrim=t;renderMain();}
+
+// ── RADAR SVG ─────────────────────────────────────────────────────────────────
+function renderRadar(valsAl){
+  const n=COMPETENCIAS.length, R=90, cx=130, cy=110;
+  const pts=COMPETENCIAS.map((_,i)=>{
+    const ang=-Math.PI/2+(2*Math.PI/n)*i;
+    return {ax:cx+R*Math.cos(ang),ay:cy+R*Math.sin(ang)};
+  });
+  // Grid
+  const grids=[1,2,3,4].map(lv=>{
+    const r=R*lv/4;
+    const poly=COMPETENCIAS.map((_,i)=>{const a=-Math.PI/2+(2*Math.PI/n)*i;return `${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`;}).join(' ');
+    return `<polygon points="${poly}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>`;
+  }).join('');
+  // Axes
+  const axes=pts.map(p=>`<line x1="${cx}" y1="${cy}" x2="${p.ax.toFixed(1)}" y2="${p.ay.toFixed(1)}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>`).join('');
+  // Labels
+  const labels=COMPETENCIAS.map((c,i)=>{
+    const p=pts[i];
+    const tx=(cx+(R+18)*Math.cos(-Math.PI/2+(2*Math.PI/n)*i)).toFixed(1);
+    const ty=(cy+(R+18)*Math.sin(-Math.PI/2+(2*Math.PI/n)*i)).toFixed(1);
+    return `<text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="${c.col}" font-weight="800">${c.id}</text>`;
+  }).join('');
+  // Data polygon
+  const dataPolygon=(()=>{
+    const ps=valsAl.map((x,i)=>{
+      const r=R*(x.v||0)/4;
+      const a=-Math.PI/2+(2*Math.PI/n)*i;
+      return `${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`;
+    }).join(' ');
+    return `<polygon points="${ps}" fill="rgba(251,191,36,.15)" stroke="#fbbf24" stroke-width="2"/>`;
+  })();
+  // Dots
+  const dots=valsAl.map((x,i)=>{
+    if(!x.v) return '';
+    const r=R*x.v/4, a=-Math.PI/2+(2*Math.PI/n)*i;
+    return `<circle cx="${(cx+r*Math.cos(a)).toFixed(1)}" cy="${(cy+r*Math.sin(a)).toFixed(1)}" r="4" fill="${x.c.col||'#fbbf24'}" stroke="var(--card)" stroke-width="2"/>`;
+  }).join('');
+
+  return `<div style="background:var(--card);border-radius:14px;border:1px solid var(--border);padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <svg width="260" height="220" viewBox="0 0 260 220" font-family="'DM Sans',sans-serif">
+      ${grids}${axes}${labels}${dataPolygon}${dots}
+    </svg>
+    <div style="flex:1;min-width:180px">
+      ${valsAl.map(x=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+        <span style="font-size:.65rem;font-weight:900;color:${x.c.col};min-width:44px">${x.c.id}</span>
+        <div style="flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden">
+          <div style="height:100%;width:${x.v?x.v/4*100:0}%;background:${x.c.col};border-radius:999px"></div>
+        </div>
+        <span style="font-size:.65rem;font-weight:900;color:${ESCALA.find(e=>e.v===x.v)?.col||'var(--muted)'};">${x.v?x.v+'/4':'\u2014'}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── ASIGNACIÓN MATERIAS-COMPETENCIAS ─────────────────────────────────────────
+function openAsignacion(){
+  const html=`<h3>🔗 Asignar materias a competencias</h3>
+    <p style="font-size:.72rem;color:var(--muted);margin-bottom:12px;line-height:1.5">Indica que competencias traballa cada materia. Isto permite calcular suxerencias automáticas.</p>
+    ${COMPETENCIAS.map(comp=>`
+      <div style="margin-bottom:12px">
+        <div style="font-size:.7rem;font-weight:900;color:${comp.col};margin-bottom:5px">${comp.emoji} ${comp.id} — ${comp.nome}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${materias.map(m=>{
+            const sel=(asignacions[m.id]||[]).includes(comp.id);
+            return `<button onclick="toggleAsign('${m.id}','${comp.id}',this)" class="asign-chip${sel?' sel':''}" style="${sel?'border-color:'+comp.col+';color:'+comp.col+';background:'+comp.col+'10':''}">
+              ${m.icon||''} ${m.nome}</button>`;
+          }).join('')}
+        </div>
+      </div>`).join('')}
+    <div class="modal-row">
+      <button class="btn btn-ghost" onclick="closeModal()">Pechar</button>
+      <button class="btn btn-gold" onclick="closeModal();renderMain()">✅ Aplicar</button>
+    </div>`;
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('modal-bg').classList.add('show');
+}
+
+function toggleAsign(matId,compId,btn){
+  if(!asignacions[matId]) asignacions[matId]=[];
+  const idx=asignacions[matId].indexOf(compId);
+  const comp=COMPETENCIAS.find(c=>c.id===compId);
+  if(idx>=0){
+    asignacions[matId].splice(idx,1);
+    btn.classList.remove('sel');
+    btn.style.cssText='';
+  } else {
+    asignacions[matId].push(compId);
+    btn.classList.add('sel');
+    btn.style.cssText=`border-color:${comp.col};color:${comp.col};background:${comp.col}10`;
+  }
+  LS.set('lomloe_asign',asignacions);
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function setTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='clase') renderVistaClase();
+  else if(t==='asign') renderVistaAsign();
+  else if(t==='uds') renderVistaUDs();
+  else if(selAlumno) renderMain();
+}
+
+function renderVistaClase(){
+  const todasNotas=LS.get('sn3_notas',[]);
+  const cols=COMPETENCIAS.map(c=>`<th style="text-align:center;padding:6px 4px;font-size:.6rem;font-weight:900;color:${c.col};white-space:nowrap">${c.emoji}<br>${c.id}</th>`).join('');
+  const rows=alumnos.map((al,i)=>{
+    const tds=COMPETENCIAS.map(c=>{
+      const man=getVal(al,c.id);
+      const auto=calcMediaDesdeNotas(al,c.id);
+      const v=man?.v||auto||null;
+      const col=v>=3.5?'#22c55e':v>=2.5?'#fbbf24':v>=1.5?'#f97316':v?'#ef4444':null;
+      return `<td style="text-align:center;padding:5px 4px">
+        ${v?`<div style="width:28px;height:28px;border-radius:8px;background:${col}18;border:1px solid ${col}30;color:${col};font-size:.75rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:auto">${v}</div>`:'<div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.03);margin:auto"></div>'}
+      </td>`;
+    }).join('');
+    // UD máis recente con notas
+    const notasAlUD=todasNotas.filter(n=>n.alumno===al&&n.unidade?.num).sort((a,b)=>new Date(b.data)-new Date(a.data));
+    const udActual=notasAlUD[0]?.unidade||null;
+    const udCell=udActual
+      ?`<td style="padding:5px 8px;white-space:nowrap"><span style="font-size:.62rem;font-weight:900;padding:2px 6px;border-radius:5px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)" title="${udActual.tit||''}">UD${udActual.num}${udActual.tit?' · '+udActual.tit.substring(0,10):''}</span></td>`
+      :`<td style="padding:5px 8px;text-align:center;font-size:.65rem;color:var(--muted)">—</td>`;
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:6px 10px;font-size:.78rem;font-weight:800;white-space:nowrap">
+        <span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:${AVCOLS[i%AVCOLS.length]};color:white;font-size:.55rem;font-weight:900;text-align:center;line-height:22px;margin-right:5px">${ini(al)}</span>${al}
+      </td>
+      ${udCell}
+      ${tds}
+    </tr>`;
+  }).join('');
+  // Add PDF export button
+  const exportBtn='<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button onclick="exportarInformeClasePDF()" style="height:28px;padding:0 14px;border-radius:8px;border:1.5px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);color:var(--green);font-size:.68rem;font-weight:800;cursor:pointer;font-family:\'DM Sans\',sans-serif">🖨️ Exportar PDF clase</button></div>';
+  document.getElementById('main').innerHTML=exportBtn+`<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:820px">
+    <thead style="background:var(--card);position:sticky;top:0"><tr>
+      <th style="text-align:left;padding:8px 10px;font-size:.7rem;color:var(--muted)">Alumno/a</th>
+      <th style="text-align:left;padding:8px 6px;font-size:.6rem;font-weight:900;color:#818cf8;white-space:nowrap">📚 UD actual</th>
+      ${cols}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderVistaAsign(){
+  document.getElementById('main').innerHTML=`<div style="padding:0">
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;margin-bottom:14px">🔗 Materias → Competencias</div>
+    ${materias.map(m=>`<div style="background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border)">
+      <div style="font-size:.8rem;font-weight:800;margin-bottom:7px">${m.icon||''} ${m.nome}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${(asignacions[m.id]||[]).length?
+          (asignacions[m.id]||[]).map(cid=>{const c=COMPETENCIAS.find(x=>x.id===cid);return c?`<span style="font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:5px;background:${c.col}18;color:${c.col};border:1px solid ${c.col}30">${c.emoji} ${c.id}</span>`:''}).join('')
+          :'<span style="font-size:.68rem;color:var(--muted)">Sen competencias asignadas</span>'}
+      </div>
+    </div>`).join('')}
+    <button class="btn btn-gold" onclick="openAsignacion()" style="margin-top:8px">🔗 Editar asignacións</button>
+  </div>`;
+}
+
+// ── EXPORTAR ──────────────────────────────────────────────────────────────────
+function exportarCSV(){
+  const rows=[['Alumno/a',...COMPETENCIAS.map(c=>c.id+' - '+c.nome)]];
+  alumnos.forEach(al=>{
+    rows.push([al,...COMPETENCIAS.map(c=>{const v=getVal(al,c.id)?.v||calcMediaDesdeNotas(al,c.id)||'';return v;})]);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='competencias_lomloe_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+function exportarInforme(){
+  if(!selAlumno&&document.getElementById('tab-alumno').classList.contains('active')){alert('Selecciona un alumno/a primeiro.');return;}
+  const nome=selAlumno||'Clase completa';
+  const body=document.getElementById('main').innerHTML;
+  const w=window.open('','_blank','width=900,height=750');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Competencias LOMLOE ${nome}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:white;color:#1e293b;padding:1.5cm;font-size:12px}
+  .comp-card{background:white;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid #e2e8f0;page-break-inside:avoid}
+  .comp-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}.escala-btns,.al-list,.sidebar,.header,.tabs,.layout,.hdr-right{display:none!important}
+  .esc-btn{display:none}.al-avatar{display:none}.al-item{display:none}
+  @media print{body{padding:.8cm}@page{size:A4;margin:1.5cm}}.no-print{display:flex;gap:8px;margin-bottom:14px}
+  polygon{fill:rgba(251,191,36,.1);stroke:#fbbf24;stroke-width:2}</style>
+  </head><body>
+  <div class="no-print"><button onclick="window.print()" style="height:34px;padding:0 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">🖨️ Imprimir / PDF</button><button onclick="window.close()" style="height:34px;padding:0 14px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-weight:700;cursor:pointer">✕</button></div>
+  <h1 style="font-family:'DM Serif Display',Georgia,serif;font-size:16pt;margin-bottom:4px">🎓 Avaliación Competencial LOMLOE</h1>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:16px">${nome} · CEIP Pío XII · 4º B · ${new Date().toLocaleDateString('gl')}</p>
+  ${body}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),800);
+}
+
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('show');}
+function toggleModo(){const c=document.body.classList.toggle('claro');LS.set('lomloe_modo',c?'claro':'escuro');document.getElementById('btn-modo').textContent=c?'🌙 Escuro':'☀️ Claro';}
+if(LS.get('lomloe_modo','escuro')==='claro'){document.body.classList.add('claro');document.getElementById('btn-modo').textContent='🌙 Escuro';}
+
+renderAlList();
+
+// ════════════════════════════════════════════════════════════════════════════
+// PROGRAMACIÓN POR UNIDADES DIDÁCTICAS — Motor de cálculo competencial
+// Baseado no Decreto 155/2022 (Galicia) + Orde do 26/05/2023
+// ════════════════════════════════════════════════════════════════════════════
+
+// Estrutura: lomloe_uds = {matId: [{num, tit, contidos:[{id,label,comps:{CCL:peso,...}}]}]}
+let uds = LS.get('lomloe_uds', {});
+function saveUDs(){ LS.set('lomloe_uds', uds); try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch{} }
+
+// Mapeado curricular por defecto segundo Decreto 155/2022 Galicia (EP 4º)
+// Cada área ten as súas competencias específicas principais
+const AREA_COMPS_DEFAULT = {
+  'Lingua Galega e Literatura': {CCL:0.5, CP:0.25, CPSAA:0.15, CCEC:0.1},
+  'Lingua Castelá e Literatura': {CCL:0.5, CP:0.25, CPSAA:0.15, CCEC:0.1},
+  'Lingua Estranxeira: Inglés': {CCL:0.3, CP:0.55, CPSAA:0.1, CC:0.05},
+  'Lingua Estranxeira: Francés': {CCL:0.3, CP:0.55, CPSAA:0.1, CC:0.05},
+  'Matemáticas': {STEM:0.65, CCL:0.15, CPSAA:0.1, CD:0.1},
+  'Ciencias da Natureza': {STEM:0.5, CCL:0.15, CPSAA:0.15, CC:0.1, CD:0.1},
+  'Ciencias Sociais': {CC:0.4, CCL:0.2, STEM:0.15, CPSAA:0.15, CCEC:0.1},
+  'Educación Artística': {CCEC:0.5, CCL:0.2, CPSAA:0.15, CE:0.15},
+  'Educación Física': {CPSAA:0.4, CC:0.3, STEM:0.15, CCL:0.15},
+  'Relixión': {CPSAA:0.35, CC:0.35, CCL:0.2, CCEC:0.1},
+  'Valores Cívicos': {CC:0.5, CPSAA:0.3, CCL:0.15, CE:0.05},
+};
+
+// Calcular competencias dun alumno/a a partir das notas + UDs programadas
+function calcularCompetenciasDesdeUDs(al, trimOverride){
+  const notas = LS.get('sn3_notas',[]).filter(n=>n.alumno===al);
+  const escala = LS.get('sn3_escala',10);
+  const resultado = {}; // {compId: {suma, peso_total, notas}}
+  COMPETENCIAS.forEach(c=>{resultado[c.id]={suma:0,peso:0,notas:[]};});
+
+  materias.forEach(mat=>{
+    const udsMat = uds[mat.id] || [];
+    // Notas desta materia
+    const notasMat = notas.filter(n=>n.materia===mat.id&&(!trimOverride||n.trimestre===trimOverride));
+
+    if(udsMat.length){
+      // MODO DETALLADO: usar programación UD
+      notasMat.forEach(nota=>{
+        if(!nota.unidade) return;
+        const ud = udsMat.find(u=>u.num===nota.unidade.num);
+        if(!ud) return;
+        // Calcular peso total dos contidos desta UD
+        let pesTotal=0;
+        ud.contidos.forEach(c=>{Object.values(c.comps).forEach(p=>{pesTotal+=p;});});
+        if(!pesTotal) return;
+        // Distribuir a nota entre as competencias segundo o peso
+        ud.contidos.forEach(cont=>{
+          Object.entries(cont.comps).forEach(([compId,pes])=>{
+            if(!resultado[compId]) return;
+            const pctComp=pes/pesTotal;
+            resultado[compId].suma+=(nota.valor/escala)*4*pctComp*(nota.peso||1);
+            resultado[compId].peso+=pctComp*(nota.peso||1);
+            resultado[compId].notas.push({nota,cont,pct:pctComp});
+          });
+        });
+      });
+    } else {
+      // MODO SINXELO: usar asignacións de materias
+      const compsAsign = asignacions[mat.id] || [];
+      if(!compsAsign.length){
+        // Fallback: competencias por defecto da área
+        const matNome=mat.nome||mat.id;
+        const defKey=Object.keys(AREA_COMPS_DEFAULT).find(k=>matNome.includes(k.split(' ')[0]));
+        if(!defKey) return;
+        const defComps=AREA_COMPS_DEFAULT[defKey];
+        notasMat.forEach(nota=>{
+          let pesTot=Object.values(defComps).reduce((s,v)=>s+v,0);
+          Object.entries(defComps).forEach(([cid,pes])=>{
+            if(!resultado[cid]) return;
+            const pctComp=pes/pesTot;
+            resultado[cid].suma+=(nota.valor/escala)*4*pctComp*(nota.peso||1);
+            resultado[cid].peso+=pctComp*(nota.peso||1);
+          });
+        });
+      } else {
+        const pesCad=1/compsAsign.length;
+        notasMat.forEach(nota=>{
+          compsAsign.forEach(cid=>{
+            if(!resultado[cid]) return;
+            resultado[cid].suma+=(nota.valor/escala)*4*pesCad*(nota.peso||1);
+            resultado[cid].peso+=pesCad*(nota.peso||1);
+          });
+        });
+      }
+    }
+  });
+
+  // Calcular nivel resultante para cada competencia
+  const niveis={};
+  COMPETENCIAS.forEach(c=>{
+    const r=resultado[c.id];
+    if(r.peso>0) niveis[c.id]=Math.min(4,Math.max(1,+(r.suma/r.peso).toFixed(1)));
+    else niveis[c.id]=null;
+  });
+  return niveis;
+}
+
+// ── VISTA PROGRAMACIÓN UD ────────────────────────────────────────────────────
+function renderVistaUDs(){
+  const main=document.getElementById('main');
+  const matHtml=materias.map(mat=>{
+    const udsMat=uds[mat.id]||[];
+    const defKey=Object.keys(AREA_COMPS_DEFAULT).find(k=>(mat.nome||mat.id).includes(k.split(' ')[0]));
+    return `<div style="background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:1.1rem">${mat.icon||'📚'}</span>
+        <div style="flex:1">
+          <div style="font-size:.82rem;font-weight:800">${mat.nome}</div>
+          ${defKey?`<div style="font-size:.6rem;color:var(--muted);margin-top:1px">Competencias por defecto (Decreto 155/2022): ${Object.keys(AREA_COMPS_DEFAULT[defKey]).join(', ')}</div>`:''}
+        </div>
+        <button onclick="abrirFormUD('${mat.id.replace(/'/g,"\\'")}','${mat.nome.replace(/'/g,"\\'")}')" style="height:28px;padding:0 12px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.3);border-radius:8px;color:var(--gold);font-size:.7rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">+ Engadir UD</button>
+      </div>
+      ${udsMat.length?(()=>{
+        const escala=LS.get('sn3_escala',10);
+        const todasNotas=LS.get('sn3_notas',[]);
+        return udsMat.sort((a,b)=>a.num-b.num).map(ud=>{
+          const notasUD=todasNotas.filter(n=>n.materia===mat.id&&n.unidade&&n.unidade.num===ud.num);
+          const mediaUD=notasUD.length?+(notasUD.reduce((s,n)=>s+n.valor,0)/notasUD.length).toFixed(1):null;
+          const pct=mediaUD?Math.round(mediaUD/escala*100):0;
+          const mc=mediaUD?(mediaUD/escala>=.85?'#22c55e':mediaUD/escala>=.65?'#60a5fa':mediaUD/escala>=.5?'#fbbf24':'#ef4444'):'#475569';
+          return `
+        <div style="background:var(--card2);border-radius:8px;padding:10px 12px;margin-bottom:6px;border:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:.72rem;font-weight:900;padding:2px 8px;border-radius:999px;background:rgba(251,191,36,.12);color:var(--gold);border:1px solid rgba(251,191,36,.2)">UD${ud.num}</span>
+            <span style="font-size:.8rem;font-weight:800;flex:1">${ud.tit||'Sen título'}</span>
+            ${mediaUD!==null?`<div style="text-align:right;min-width:70px">
+              <span style="font-family:'DM Serif Display',Georgia,serif;font-size:.9rem;color:${mc}">${mediaUD}<span style="font-size:.55rem;opacity:.6">/${escala}</span></span>
+              <div style="font-size:.55rem;color:var(--muted)">${notasUD.length} nota${notasUD.length!==1?'s':''}</div>
+            </div>`:'<span style="font-size:.6rem;color:var(--muted)">Sen notas</span>'}
+            <button onclick="editarUD('${mat.id.replace(/'/g,"\'")}',${ud.num})" style="height:22px;padding:0 8px;background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:.6rem;cursor:pointer">✏️</button>
+            <button onclick="borrarUD('${mat.id.replace(/'/g,"\'")}',${ud.num})" style="height:22px;padding:0 8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:6px;color:#ef4444;font-size:.6rem;cursor:pointer">🗑</button>
+          </div>
+          ${mediaUD!==null?`<div style="height:3px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:8px"><div style="height:100%;width:${pct}%;background:${mc};border-radius:999px"></div></div>`:''}
+          ${ud.contidos&&ud.contidos.length?`<div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${ud.contidos.map(c=>`<div style="font-size:.65rem;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:3px 8px">
+              <span style="font-weight:800">${c.label}</span>
+              <span style="color:var(--muted);margin-left:4px">${Object.entries(c.comps).map(([k,p])=>`${k}\xD7${p}`).join(' ')}</span>
+            </div>`).join('')}
+          </div>`:`<div style="font-size:.68rem;color:var(--muted);font-style:italic">Sen contidos definidos</div>`}
+        </div>`;
+        }).join('');
+      })()
+      :'<div style="font-size:.72rem;color:var(--muted);font-style:italic;padding:6px 0">Sen UDs programadas. As notas usarán as asignacións de materias.</div>'}
+    </div>`;
+  }).join('');
+
+  main.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap">
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;flex:1">📚 Programación por Unidades Didácticas</div>
+      <button onclick="exportarProgramacion()" style="height:28px;padding:0 12px;background:rgba(129,140,248,.12);border:1.5px solid rgba(129,140,248,.3);border-radius:8px;color:#818cf8;font-size:.7rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">📥 Exportar JSON</button>
+      <button onclick="importarProgramacionExt()" style="height:28px;padding:0 12px;background:rgba(255,255,255,.05);border:1.5px solid var(--border2);border-radius:8px;color:var(--muted);font-size:.7rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">📤 Importar JSON</button>
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-bottom:16px;line-height:1.5">Define os contidos de cada UD e a súa contribución ás competencias. As notas do Caderno con UD asignada usarán esta programación para o cálculo competencial.</p>
+    ${materias.length?matHtml:'<div style="color:var(--muted);padding:2rem;text-align:center">Define materias no Caderno Docente primeiro.</div>'}
+  `;
+}
+
+function exportarInformeClasePDF(){
+  const esc=LS.get('sn3_escala',10);
+  const w=window.open('','_blank');
+  const html=alumnos.map(al=>{
+    const vals=COMPETENCIAS.map(c=>{
+      const man=getVal(al,c.id);
+      const auto=calcMediaDesdeNotas(al,c.id);
+      const v=man?.v||auto||null;
+      const src=man?.v?'manual':auto?'auto':'—';
+      const col=v>=3.5?'#059669':v>=2.5?'#2563eb':v>=1.5?'#d97706':v?'#dc2626':'#94a3b8';
+      return `<td style="text-align:center;padding:5px 8px;font-weight:900;font-size:12px;color:${col};background:${v?col+'12':''}">
+        ${v||'—'}</td>`;
+    }).join('');
+    // Media das notas
+    const ns=LS.get('sn3_notas',[]).filter(n=>n.alumno===al);
+    const med=ns.length?+(ns.reduce((s,n)=>s+n.valor,0)/ns.length).toFixed(1):null;
+    const udAct=ns.filter(n=>n.unidade?.num).sort((a,b)=>new Date(b.data)-new Date(a.data))[0]?.unidade||null;
+    return `<tr style="border-bottom:1px solid #e2e8f0;page-break-inside:avoid">
+      <td style="padding:6px 10px;font-weight:800;font-size:11px;white-space:nowrap">${al}</td>
+      ${vals}
+      <td style="padding:6px 8px;text-align:center;font-weight:900;font-size:12px;color:${med?(med/esc>=.65?'#059669':'#dc2626'):'#94a3b8'}">${med||'—'}</td>
+      <td style="padding:6px 8px;font-size:10px;color:#6366f1">${udAct?'UD'+udAct.num+(udAct.tit?' · '+udAct.tit.substring(0,16):''):'—'}</td>
+    </tr>`;
+  }).join('');
+  const compHeaders=COMPETENCIAS.map(c=>`<th style="padding:5px 6px;text-align:center;font-size:10px;color:${c.col};white-space:nowrap">${c.emoji} ${c.id}</th>`).join('');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Competencias LOMLOE · Clase</title>
+  <style>body{font-family:Georgia,serif;padding:1.5cm;font-size:11px}h1{font-size:16px;margin-bottom:4px}table{width:100%;border-collapse:collapse}th{background:#1e2a4a;color:#fff;padding:6px 8px;text-align:left;font-size:10px}@page{size:A4 landscape;margin:1.5cm}@media print{body{padding:0}}</style>
+  </head><body>
+  <h1>🎓 Avaliación de Competencias LOMLOE · Clase completa</h1>
+  <p style="font-size:10px;color:#64748b;margin-bottom:12px">${new Date().toLocaleDateString('gl-ES')} · Escala 0-4 · Auto=calculado, Manual=introducido</p>
+  <table><thead><tr>
+    <th>Alumno/a</th>${compHeaders}
+    <th style="text-align:center;font-size:10px">Media notas</th>
+    <th style="font-size:10px">UD actual</th>
+  </tr></thead><tbody>${html}</tbody></table>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+function exportarProgramacion(){
+  const data={
+    _meta:{versao:'1.0',exportado:new Date().toISOString(),app:'AULA OS · Competencias LOMLOE'},
+    lomloe_uds:uds,
+    lomloe_asign:LS.get('lomloe_asign',{})
+  };
+  const json=JSON.stringify(data,null,2);
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(json);
+  a.download='programacion_lomloe_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+
+function importarProgramacionExt(){
+  const inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='.json';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    try{
+      const text=await file.text();
+      const data=JSON.parse(text);
+      // Admitir formato exportado por esta app ou por importador_programacion
+      const novasUDs=data.lomloe_uds||data.uds||null;
+      const novasAsign=data.lomloe_asign||null;
+      if(!novasUDs||typeof novasUDs!=='object'){
+        alert('Formato non recoñecido. O ficheiro debe ter a clave "lomloe_uds".');return;
+      }
+      const nMats=Object.keys(novasUDs).length;
+      const nUDs=Object.values(novasUDs).flat().length;
+      _confirmar(
+        `Importar programación? ${nMats} materia${nMats!==1?'s':''} · ${nUDs} UD${nUDs!==1?'s':''}. Sobreescribirá a programación actual das materias incluídas.`,
+        ()=>{
+          Object.assign(uds,novasUDs);
+          saveUDs();
+          if(novasAsign){
+            const asign=LS.get('lomloe_asign',{});
+            Object.assign(asign,novasAsign);
+            LS.set('lomloe_asign',asign);
+          }
+          renderVistaUDs();
+        },'Importar'
+      );
+    }catch(err){
+      alert('Erro ao ler o ficheiro: '+err.message);
+    }
+  };
+  inp.click();
+}
+
+function abrirFormUD(matId, matNome, udExist){
+  const COMP_KEYS=COMPETENCIAS.map(c=>c.id);
+  const isEdit=!!udExist;
+  const contsIni=udExist?.contidos||[{id:'c'+Date.now(),label:'',comps:{}}];
+  const numIni=udExist?.num||'';
+  const titIni=udExist?.tit||'';
+
+  function renderConts(conts){
+    return conts.map((c,i)=>`
+      <div class="cont-row" data-ci="${i}" style="background:rgba(255,255,255,.03);border-radius:8px;padding:10px;margin-bottom:6px;border:1px solid var(--border)">
+        <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
+          <span style="font-size:.6rem;font-weight:900;color:var(--muted);min-width:16px">${i+1}</span>
+          <input class="inp cont-label" data-ci="${i}" value="${c.label}" placeholder="Contido / bloque (ex: Fraccions, Xeometría...)" style="flex:1;margin:0">
+          ${conts.length>1?`<button type="button" onclick="eliminarCont(${i})" style="height:28px;width:28px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:6px;color:#ef4444;cursor:pointer;font-size:.75rem;flex-shrink:0">✕</button>`:''}
+        </div>
+        <div style="font-size:.62rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Peso por competencia (0 = non traballa):</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">
+          ${COMP_KEYS.map(k=>{
+            const comp=COMPETENCIAS.find(x=>x.id===k);
+            return `<div style="text-align:center">
+              <div style="font-size:.55rem;font-weight:900;color:${comp.col};margin-bottom:2px">${k}</div>
+              <input type="number" class="inp comp-peso" data-ci="${i}" data-comp="${k}" value="${c.comps[k]||0}" min="0" max="10" step="0.5"
+                style="margin:0;text-align:center;padding:0 4px;height:28px;font-size:.75rem">
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  let conts=[...contsIni.map(c=>({...c,comps:{...c.comps}}))];
+
+  document.getElementById('modal-content').innerHTML=`
+    <h3>${isEdit?'✏️ Editar':'➕ Nova'} Unidade Didáctica — ${matNome}</h3>
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:8px;margin-bottom:12px">
+      <div>
+        <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px">Nº UD</label>
+        <input type="number" id="ud-num" min="1" max="20" value="${numIni}" class="inp" style="text-align:center">
+      </div>
+      <div>
+        <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px">Título</label>
+        <input id="ud-tit" value="${titIni}" placeholder="Ex: Os ecosistemas, A fracciones..." class="inp">
+      </div>
+    </div>
+    <div style="font-size:.72rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Contidos e pesos competenciais</div>
+    <div id="conts-wrap">${renderConts(conts)}</div>
+    <button type="button" onclick="engadirCont()" style="height:30px;padding:0 12px;background:rgba(251,191,36,.1);border:1.5px solid rgba(251,191,36,.25);border-radius:8px;color:var(--gold);font-size:.7rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:12px">+ Engadir contido</button>
+    <div class="modal-row">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarUD('${matId.replace(/'/g,"\\'")}',${isEdit})">💾 Gardar UD</button>
+    </div>`;
+  document.getElementById('modal-bg').classList.add('show');
+
+  // Wire events
+  window._udConts=conts;
+  window._udMatId=matId;
+  window._udRender=renderConts;
+
+  document.getElementById('conts-wrap').addEventListener('input',e=>{
+    const ci=parseInt(e.target.dataset.ci);
+    if(e.target.classList.contains('cont-label')) conts[ci].label=e.target.value;
+    if(e.target.classList.contains('comp-peso')){
+      const k=e.target.dataset.comp;
+      conts[ci].comps[k]=parseFloat(e.target.value)||0;
+    }
+  });
+}
+
+function engadirCont(){
+  const conts=window._udConts;
+  conts.push({id:'c'+Date.now(),label:'',comps:{}});
+  document.getElementById('conts-wrap').innerHTML=window._udRender(conts);
+  document.getElementById('conts-wrap').addEventListener('input',e=>{
+    const ci=parseInt(e.target.dataset.ci);
+    if(e.target.classList.contains('cont-label')) conts[ci].label=e.target.value;
+    if(e.target.classList.contains('comp-peso')){const k=e.target.dataset.comp;conts[ci].comps[k]=parseFloat(e.target.value)||0;}
+  });
+}
+function eliminarCont(ci){
+  if(!window._contBackups)window._contBackups=[];
+  const eliminado=window._udConts[ci];
+  window._udConts.splice(ci,1);
+  document.getElementById('conts-wrap').innerHTML=window._udRender(window._udConts);
+  _toastDesfacer(
+    `Contido "${(eliminado.label||'sen título').substring(0,30)}" eliminado`,
+    ()=>{
+      window._udConts.splice(ci,0,eliminado);
+      document.getElementById('conts-wrap').innerHTML=window._udRender(window._udConts);
+    }
+  );
+}
+function gardarUD(matId,isEdit){
+  const num=parseInt(document.getElementById('ud-num')?.value);
+  const tit=document.getElementById('ud-tit')?.value.trim()||'';
+  if(!num){alert('Indica o número de UD.');return;}
+  const conts=window._udConts.filter(c=>c.label.trim());
+  if(!uds[matId]) uds[matId]=[];
+  const idx=uds[matId].findIndex(u=>u.num===num);
+  const entry={num,tit,contidos:conts};
+  if(idx>=0) uds[matId][idx]=entry; else uds[matId].push(entry);
+  uds[matId].sort((a,b)=>a.num-b.num);
+  saveUDs();
+  closeModal();
+  renderVistaUDs();
+  renderAlList();
+}
+function editarUD(matId,num){
+  const mat=materias.find(m=>m.id===matId);
+  const ud=(uds[matId]||[]).find(u=>u.num===num);
+  if(ud&&mat) abrirFormUD(matId,mat.nome,ud);
+}
+function borrarUD(matId,num){
+  const eliminada=(uds[matId]||[]).find(u=>u.num===num);
+  if(!eliminada)return;
+  uds[matId]=(uds[matId]||[]).filter(u=>u.num!==num);
+  saveUDs();renderVistaUDs();
+  const mat=materias.find(m=>m.id===matId);
+  _toastDesfacer(
+    `UD${num}${eliminada.tit?' · '+eliminada.tit:''} eliminada${mat?' de '+mat.nome:''}`,
+    ()=>{
+      if(!uds[matId])uds[matId]=[];
+      uds[matId].push(eliminada);
+      uds[matId].sort((a,b)=>a.num-b.num);
+      saveUDs();renderVistaUDs();
+    }
+  );
+}
+
+// ── OVERRIDE: renderMain usa calcularCompetenciasDesdeUDs ──────────────────
+// Almacena o nivel calculado para usar nas cards
+function getNivelCalculado(nome, compId){
+  const niveis=calcularCompetenciasDesdeUDs(nome, selTrim||null);
+  return niveis[compId]||null;
+}
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:420px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

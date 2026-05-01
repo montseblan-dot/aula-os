@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obxectivos e Rúbricas · 4º B</title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#f59e0b;--purple:#a78bfa;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--teal:#2dd4bf;}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+.header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.header h1{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.btn{height:32px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;display:inline-flex;align-items:center;gap:5px}
+.btn-gold{background:var(--gold);color:#0f172a}.btn-ghost{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border2)}.btn-sm{height:27px;padding:0 10px;font-size:.68rem}.btn-teal{background:rgba(45,212,191,.2);color:var(--teal);border:1.5px solid rgba(45,212,191,.4)}
+/* TABS */
+.tab-nav{display:flex;gap:4px;padding:10px 20px;background:var(--card);border-bottom:1px solid var(--border)}
+.tab-btn{height:30px;padding:0 14px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer}
+.tab-btn.active{background:var(--gold);color:#0f172a;border-color:var(--gold)}
+.main{padding:20px;max-width:960px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px}
+.label{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:4px;margin-top:10px}
+.inp{width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem}
+.inp:focus{outline:none;border-color:var(--gold)}
+.textarea{width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;resize:vertical;min-height:52px}
+.obx-card{background:var(--card2);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px;border-left:3px solid var(--border2)}
+.obx-card.acadado{border-left-color:var(--green)}
+.obx-card.proceso{border-left-color:var(--gold)}
+.obx-card.non{border-left-color:var(--red)}
+.rubrica-card{background:var(--card2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:22px;width:460px;max-width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--border2)}
+.modal h3{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:12px;color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span style="font-size:1.5rem">🎯</span>
+  <div>
+    <h1>Obxectivos e Rúbricas</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-ghost btn-sm" onclick="imprimirObxectivos()">&#x1F5A8;&#xFE0F; Imprimir</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSVObx()">&#x1F4CA; CSV</button>
+    <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">&#x2600;&#xFE0F; Claro</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">&#x1F4E4; JSON</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none">🏠 Portal</a>
+  </div>
+</div>
+<div class="tab-nav">
+  <button class="tab-btn active" id="tab-obx" onclick="setTab('obx')">🎯 Obxectivos trimestre</button>
+  <button class="tab-btn" id="tab-rub" onclick="setTab('rub')">📋 Rúbricas personalizadas</button>
+</div>
+<div class="main" id="main"></div>
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)"><div class="modal" id="modal-content"></div></div>
+
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+const AVCOLS=['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fb923c','#34d399','#818cf8','#e879f9'];
+function ac(i){return AVCOLS[i%AVCOLS.length];}
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+
+// obxectivos = [{id,alumno,trimestre,texto,estado,creada}]
+// rubricas = [{id,nome,descricion,data,criterios:[{id,label,niveis:[{v,label}]}]}]
+let obxectivos = LS.get('or_obxectivos',[]);
+let rubricas = LS.get('or_rubricas',[]);
+let alumnos = LS.get('pc_alumnos',[]);
+let curTab = 'obx';
+let selAlumno = alumnos[0]||'';
+let selTrim = 0;
+
+const ESTADOS = [
+  {id:'acadado',label:'Acadado',col:'#22c55e',emoji:'✅'},
+  {id:'proceso',label:'En proceso',col:'#f59e0b',emoji:'🔶'},
+  {id:'non',label:'Non acadado',col:'#ef4444',emoji:'❌'},
+  {id:'pendente',label:'Pendente',col:'#64748b',emoji:'⏳'},
+];
+
+function setTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.id==='tab-'+t));
+  renderMain();
+}
+
+function renderMain(){
+  const el=document.getElementById('main');
+  if(curTab==='obx') renderObxectivos(el);
+  else renderRubricas(el);
+}
+
+// ── OBXECTIVOS ────────────────────────────────────────────────────────────────
+function renderObxectivos(el){
+  const trimOpts=[0,1,2,3].map(t=>`<option value="${t}"${selTrim===t?' selected':''}>${t===0?'Todos':t+'º Trim.'}</option>`).join('');
+  const alumOpts=alumnos.map(a=>`<option value="${a}"${a===selAlumno?' selected':''}>${a}</option>`).join('');
+
+  const filtered=obxectivos.filter(o=>(!selAlumno||o.alumno===selAlumno)&&(!selTrim||o.trimestre===selTrim));
+  const estadoCount={};ESTADOS.forEach(e=>{estadoCount[e.id]=filtered.filter(o=>o.estado===e.id).length;});
+  const total=filtered.length, acadados=estadoCount.acadado||0;
+  const pct=total>0?Math.round(acadados/total*100):0;
+
+  const alumCards=alumnos.filter(a=>!selAlumno||a===selAlumno).map(a=>{
+    const obxA=obxectivos.filter(o=>o.alumno===a&&(!selTrim||o.trimestre===selTrim));
+    const idx=alumnos.indexOf(a);const col=ac(idx);
+    if(!obxA.length&&selAlumno&&selAlumno!==a) return '';
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:28px;height:28px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:white">${ini(a)}</div>
+        <div style="font-weight:900;font-size:.88rem;flex:1">${a}</div>
+        <button onclick="novoObxectivo('${a.replace(/'/g,"\\'")}')" style="height:24px;padding:0 10px;background:rgba(245,158,11,.15);border:1.5px solid rgba(245,158,11,.4);border-radius:7px;color:var(--gold);font-size:.65rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">+ Obxectivo</button>
+      </div>
+      ${obxA.length?obxA.map(o=>{
+        const est=ESTADOS.find(e=>e.id===o.estado)||ESTADOS[3];
+        return `<div class="obx-card ${o.estado}">
+          <div style="flex:1">
+            <div style="font-size:.78rem;font-weight:800">${o.texto}</div>
+            <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap">
+              <span style="font-size:.62rem;color:var(--muted)">T${o.trimestre} · ${o.creada?.split('T')[0]||''}</span>
+              ${o.unidade?`<span style="font-size:.58rem;font-weight:900;padding:1px 6px;border-radius:4px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)">📚 UD${o.unidade.num}${o.unidade.tit?' · '+o.unidade.tit.substring(0,14):''}</span>`:''}
+            </div>
+          </div>
+          <select onchange="cambiarEstado('${o.id}',this.value)" style="height:24px;padding:0 6px;background:${est.col}22;border:1.5px solid ${est.col}55;border-radius:6px;color:${est.col};font-family:'DM Sans',sans-serif;font-size:.65rem;font-weight:800;cursor:pointer">
+            ${ESTADOS.map(e=>`<option value="${e.id}"${e.id===o.estado?' selected':''}>${e.emoji} ${e.label}</option>`).join('')}
+          </select>
+          <button onclick="borrarObxectivo('${o.id}')" style="height:24px;width:24px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;font-size:.7rem;cursor:pointer">🗑</button>
+        </div>`;
+      }).join(''):`<div style="font-size:.7rem;color:var(--muted);text-align:center;padding:6px">Sen obxectivos este trimestre</div>`}
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold)">🎯 Obxectivos de trimestre</div>
+      <select onchange="selAlumno=this.value;renderMain()" style="height:28px;padding:0 8px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer"><option value="">Todos/as</option>${alumOpts}</select>
+      <select onchange="selTrim=parseInt(this.value);renderMain()" style="height:28px;padding:0 8px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer">${trimOpts}</select>
+      <button class="btn btn-gold btn-sm" onclick="novoObxectivo('')">+ Novo obxectivo</button>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        ${ESTADOS.map(e=>`<span style="font-size:.65rem;padding:2px 8px;border-radius:6px;background:${e.col}18;color:${e.col};font-weight:800">${e.emoji} ${estadoCount[e.id]||0}</span>`).join('')}
+      </div>
+    </div>
+    ${alumCards||'<div style="text-align:center;padding:2rem;color:var(--muted)">Sen obxectivos configurados</div>'}`;
+}
+
+function novoObxectivo(alumnoPresel){
+  const alumOpts=alumnos.map(a=>`<option value="${a}"${a===alumnoPresel?' selected':''}>${a}</option>`).join('');
+  openModal(`<h3>🎯 Novo obxectivo</h3>
+    <label class="label">Alumno/a</label>
+    <select class="inp" id="no-al" style="cursor:pointer"><option value="">Seleccionar...</option>${alumOpts}</select>
+    <label class="label">Trimestre</label>
+    <select class="inp" id="no-trim" style="cursor:pointer"><option value="1">1º Trim.</option><option value="2">2º Trim.</option><option value="3">3º Trim.</option></select>
+    <label class="label">Obxectivo</label>
+    <textarea class="textarea" id="no-texto" placeholder="Ex: Mellorar a comprensión lectora en galego..." autofocus></textarea>
+    <label class="label">Unidade Didáctica (opcional)</label>
+    <select class="inp" id="no-ud" style="cursor:pointer" onchange="(()=>{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const matEl=document.getElementById('no-mat');if(matEl){const udsMat=lomloeUDs[matEl.value]||[];const sel=parseInt(this.value)||null;const titEl=document.getElementById('no-ud-tit');if(titEl&&sel){const ud=udsMat.find(u=>u.num===sel);titEl.value=ud?.tit||'';}}})()">
+      <option value="">— Sen UD —</option>
+      ${(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const allUDs=new Map();Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));return [...allUDs.entries()].sort((a,b)=>a[0]-b[0]).map(([num,tit])=>`<option value="${num}">UD${num}${tit?' · '+tit.substring(0,20):''}</option>`).join('');}catch{return '';}})()}
+    </select>
+    <label class="label">Estado inicial</label>
+    <select class="inp" id="no-est" style="cursor:pointer">${ESTADOS.map(e=>`<option value="${e.id}">${e.emoji} ${e.label}</option>`).join('')}</select>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModalDirect()" style="height:30px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="gardarObxectivo()" style="height:30px;padding:0 14px;background:var(--gold);border:none;border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+    </div>`);
+  setTimeout(()=>{
+    const t=document.getElementById('no-trim');if(t&&selTrim)t.value=selTrim;
+    document.getElementById('no-texto')?.focus();
+  },100);
+}
+
+function gardarObxectivo(){
+  const alumno=document.getElementById('no-al')?.value;
+  const trim=parseInt(document.getElementById('no-trim')?.value||'1');
+  const texto=document.getElementById('no-texto')?.value.trim();
+  const estado=document.getElementById('no-est')?.value||'pendente';
+  if(!alumno||!texto){alert('Selecciona alumno/a e escribe o obxectivo.');return;}
+  const _udNum=parseInt(document.getElementById('no-ud')?.value)||null;
+  const _udTit=_udNum?(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');for(const arr of Object.values(lomloeUDs)){const u=arr.find(x=>x.num===_udNum);if(u)return u.tit||'';}return '';}catch{return '';}})():'';
+  const unidade=_udNum?{num:_udNum,tit:_udTit}:null;
+  obxectivos.push({id:'ob_'+Date.now(),alumno,trimestre:trim,texto,estado,unidade,creada:new Date().toISOString()});
+  gardar();closeModalDirect();renderMain();
+}
+function cambiarEstado(id,est){const o=obxectivos.find(x=>x.id===id);if(o){o.estado=est;gardar();renderMain();}}
+function borrarObxectivo(id){
+  const eliminado=obxectivos.find(o=>o.id===id);
+  if(!eliminado)return;
+  obxectivos=obxectivos.filter(o=>o.id!==id);
+  gardar();renderMain();
+  _toastDesfacer(
+    `Obxectivo "${eliminado.texto.substring(0,40)}" eliminado`,
+    ()=>{obxectivos.push(eliminado);gardar();renderMain();}
+  );
+}
+
+// ── RÚBRICAS ──────────────────────────────────────────────────────────────────
+const NIVEIS_DEF=[{v:0,label:'Non acadado'},{v:1,label:'En proceso'},{v:2,label:'Acadado'},{v:3,label:'Excelente'}];
+
+function renderRubricas(el){
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold)">📋 Rúbricas personalizadas</div>
+      <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="novaRubrica()">+ Nova rúbrica</button>
+    </div>
+    ${rubricas.length?rubricas.map(r=>`
+      <div class="rubrica-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="font-weight:900;font-size:.88rem;flex:1">📋 ${r.nome}</div>
+          ${r.data?`<span style="font-size:.62rem;color:var(--muted)">${r.data}</span>`:''}
+          <button onclick="usarRubrica('${r.id}')" class="btn btn-teal btn-sm">▶ Usar</button>
+          <button onclick="editarRubrica('${r.id}')" style="height:24px;padding:0 8px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);border-radius:6px;color:var(--blue);font-size:.65rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">✏️</button>
+          <button onclick="borrarRubrica('${r.id}')" style="height:24px;padding:0 8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;font-size:.65rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">🗑</button>
+        </div>
+        ${r.descricion?`<div style="font-size:.72rem;color:var(--muted);margin-bottom:8px">${r.descricion}</div>`:''}
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.7rem">
+          <thead><tr>
+            <th style="text-align:left;padding:4px 8px;font-size:.58rem;font-weight:900;color:var(--muted);border:1px solid var(--border)">Criterio</th>
+            ${(r.niveis||NIVEIS_DEF).map(n=>`<th style="text-align:center;padding:4px;font-size:.58rem;font-weight:900;color:var(--muted);border:1px solid var(--border)">${n.label}</th>`).join('')}
+          </tr></thead>
+          <tbody>
+            ${(r.criterios||[]).map(cr=>`<tr>
+              <td style="padding:4px 8px;font-weight:800;border:1px solid var(--border)">${cr.label}</td>
+              ${(r.niveis||NIVEIS_DEF).map(n=>`<td style="padding:4px 6px;font-size:.65rem;color:var(--muted);border:1px solid var(--border);vertical-align:top">${cr.desc?.[n.v]||''}</td>`).join('')}
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        </div>
+      </div>`).join('')
+    :'<div style="text-align:center;padding:2.5rem;color:var(--muted)"><div style="font-size:2rem;margin-bottom:.5rem">📋</div><div>Non hai rúbricas. Crea a primeira.</div></div>'}`;
+}
+
+function novaRubrica(){
+  openModal(`<h3>+ Nova rúbrica</h3>
+    <label class="label">Nome</label>
+    <input class="inp" id="nr-nome" placeholder="Ex: Exposición oral T2" autofocus/>
+    <label class="label">Descrición (opcional)</label>
+    <input class="inp" id="nr-desc" placeholder="Para que se usará..."/>
+    <label class="label">Data (opcional)</label>
+    <input class="inp" type="date" id="nr-data" value="${new Date().toISOString().split('T')[0]}"/>
+    <label class="label">Criterios (un por liña)</label>
+    <textarea class="textarea" id="nr-crit" placeholder="Fluidez e entoación\nContido e ideas\nEstrutura\nCorrección lingüística\nPostura e contacto visual" style="min-height:80px"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModalDirect()" style="height:30px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="gardarRubrica()" style="height:30px;padding:0 14px;background:var(--gold);border:none;border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">💾 Crear</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('nr-nome')?.focus(),100);
+}
+
+function gardarRubrica(){
+  const nome=document.getElementById('nr-nome')?.value.trim();
+  if(!nome){alert('Engade un nome.');return;}
+  const desc=document.getElementById('nr-desc')?.value.trim()||'';
+  const data=document.getElementById('nr-data')?.value||'';
+  const critTexts=(document.getElementById('nr-crit')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  const criterios=critTexts.length?critTexts.map((t,i)=>({id:'cr_'+i,label:t,desc:{}})):
+    [{id:'cr_0',label:'Criterio 1',desc:{}},{id:'cr_1',label:'Criterio 2',desc:{}}];
+  rubricas.push({id:'rub_'+Date.now(),nome,descricion:desc,data,criterios,niveis:NIVEIS_DEF.map(n=>({...n}))});
+  gardar();closeModalDirect();renderMain();
+}
+
+function borrarRubrica(id){
+  const eliminada=rubricas.find(r=>r.id===id);
+  if(!eliminada)return;
+  rubricas=rubricas.filter(r=>r.id!==id);
+  gardar();renderMain();
+  _toastDesfacer(
+    `Rúbrica "${eliminada.nome}" eliminada`,
+    ()=>{rubricas.push(eliminada);gardar();renderMain();}
+  );
+}
+function editarRubrica(id){
+  const r=rubricas.find(x=>x.id===id);if(!r)return;
+  openModal(`<h3>✏️ Editar: ${r.nome}</h3>
+    <label class="label">Nome</label>
+    <input class="inp" id="er-nome" value="${r.nome}"/>
+    <label class="label">Criterios (un por liña)</label>
+    <textarea class="textarea" id="er-crit" style="min-height:80px">${r.criterios.map(c=>c.label).join('\n')}</textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModalDirect()" style="height:30px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="gardarEditRubrica('${id}')" style="height:30px;padding:0 14px;background:var(--gold);border:none;border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+    </div>`);
+}
+function gardarEditRubrica(id){
+  const r=rubricas.find(x=>x.id===id);if(!r)return;
+  const n=document.getElementById('er-nome')?.value.trim();if(n)r.nome=n;
+  const crit=document.getElementById('er-crit')?.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(crit.length) r.criterios=crit.map((t,i)=>({id:'cr_'+i,label:t,desc:{}}));
+  gardar();closeModalDirect();renderMain();
+}
+
+function usarRubrica(id){
+  const r=rubricas.find(x=>x.id===id);if(!r)return;
+  // Export rubrica to ao_criterios for use in Avaliación Oral
+  const criterios=r.criterios.map(c=>({id:c.id,label:c.label}));
+  _confirmar(
+    `Usar "${r.nome}" como rúbrica na Avaliación Oral? Substituirá os criterios actuais.`,
+    ()=>{
+      localStorage.setItem('ao_criterios',JSON.stringify(criterios));
+      const t=document.createElement('div');t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:10px 20px;border-radius:12px;font-weight:800;font-size:.85rem;z-index:9999';t.textContent='✅ Rúbrica cargada na Avaliación Oral';document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+    },'Usar rúbrica'
+  );
+}
+
+function gardar(){LS.set('or_obxectivos',obxectivos);LS.set('or_rubricas',rubricas);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch{}}
+function exportarJSON(){const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({or_obxectivos:obxectivos,or_rubricas:rubricas,_exportado:new Date().toISOString()},null,2));a.download='obxectivos_rubricas_'+new Date().toISOString().split('T')[0]+'.json';a.click();}
+
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('show');}
+function closeModalDirect(){document.getElementById('modal-bg')?.classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
+function toggleModo(){const a=LS.get('or_modo','escuro');const n=a==='escuro'?'claro':'escuro';aplicarModo(n);LS.set('or_modo',n);}
+function aplicarModo(m){const r=document.documentElement.style;const btn=document.getElementById('btn-modo');if(m==='claro'){r.setProperty('--bg','#f0f4f8');r.setProperty('--card','#ffffff');r.setProperty('--card2','#f5f8fb');r.setProperty('--border','rgba(15,23,42,.10)');r.setProperty('--border2','rgba(15,23,42,.18)');r.setProperty('--white','#1e293b');r.setProperty('--muted','rgba(30,41,59,.50)');if(btn)btn.textContent='🌙 Escuro';}else{r.setProperty('--bg','#0f172a');r.setProperty('--card','#1e293b');r.setProperty('--card2','#263347');r.setProperty('--border','rgba(255,255,255,.08)');r.setProperty('--border2','rgba(255,255,255,.14)');r.setProperty('--white','#f1f5f9');r.setProperty('--muted','rgba(241,245,249,.45)');if(btn)btn.textContent='☀️ Claro';}}
+
+window.addEventListener('beforeunload',gardar);setInterval(gardar,30000);
+renderMain();aplicarModo(LS.get('or_modo','escuro'));
+
+function exportarCSVObx(){
+  const rows=[['Alumno/a','Trimestre','Obxectivo','Estado','Creada']];
+  obxectivos.forEach(o=>rows.push([o.alumno||'',o.trimestre||'',o.texto||'',o.estado||'',o.creada?o.creada.split('T')[0]:'']));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='obxectivos_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+function imprimirObxectivos(){
+  const T=['1\xBA Trimestre','2\xBA Trimestre','3\xBA Trimestre'];
+  const alSorted=[...new Set(obxectivos.map(o=>o.alumno))].sort();
+  const COLS={logrado:'#22c55e',proceso:'#f59e0b',non_iniciado:'#ef4444'};
+  const LABS={logrado:'Logrado',proceso:'En proceso',non_iniciado:'Non iniciado'};
+
+  const rows=alSorted.map(al=>{
+    const obxAl=obxectivos.filter(o=>o.alumno===al);
+    return `<tr>
+      <td style="padding:6px 10px;font-weight:800">${al}</td>
+      ${T.map((_,ti)=>{
+        const os=obxAl.filter(o=>o.trimestre===String(ti+1));
+        if(!os.length) return '<td style="padding:6px 10px;color:#94a3b8;font-size:.8em">—</td>';
+        return '<td style="padding:5px 8px;vertical-align:top">'+os.map(o=>`<div style="margin-bottom:3px"><span style="font-size:.7em;padding:1px 7px;border-radius:5px;background:${COLS[o.estado]||'#94a3b8'}22;color:${COLS[o.estado]||'#94a3b8'};font-weight:700">${LABS[o.estado]||o.estado}</span> <span style="font-size:.78em">${o.texto}</span></div>`).join('')+'</td>';
+      }).join('')}
+    </tr>`;
+  }).join('');
+
+  const w=window.open('','_blank','width=1000,height=700');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Obxectivos e R\xFAbricas</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;padding:1.5cm;color:#1e293b}
+  h1{font-size:16pt;margin-bottom:4px}tr{border-bottom:1px solid #f1f5f9}th{background:#f8fafc;padding:7px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;border-bottom:2px solid #e2e8f0;text-align:left}
+  .no-print{display:block;margin-bottom:14px}@media print{.no-print{display:none!important}body{padding:.8cm}@page{size:A4 landscape;margin:1cm}}</style>
+  </head><body>
+  <div class="no-print"><button onclick="window.print()" style="height:34px;padding:0 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">&#x1F5A8;&#xFE0F; Imprimir / PDF</button></div>
+  <h1>&#x1F3AF; Obxectivos Trimestrais \xB7 4\xBA B</h1>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:16px">CEIP P\xEDo XII \xB7 Titora: M. Blanco V\xE1zquez \xB7 ${obxectivos.length} obxectivos</p>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th>Alumno/a</th><th>1\xBA Trimestre</th><th>2\xBA Trimestre</th><th>3\xBA Trimestre</th>
+    </tr></thead>
+    <tbody>${rows||'<tr><td colspan="4" style="padding:20px;text-align:center;color:#94a3b8">Sen obxectivos rexistrados</td></tr>'}</tbody>
+  </table></body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
+}
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

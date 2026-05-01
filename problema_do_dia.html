@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problema do Día – </title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<meta name="copyright" content="© 2026 Montserrat Blanco Vázquez. CC BY-NC-SA 4.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,0.08);
+ --white:#f1f5f9;--muted:rgba(241,245,249,0.5);
+ --blue:#3b82f6;--gold:#fbbf24;--green:#22c55e;--red:#ef4444;
+ --orange:#f97316;--purple:#a78bfa;--teal:#2dd4bf;--pink:#f472b6;
+ /* step colors */
+ --s1:#3b82f6;--s2:#f97316;--s3:#a78bfa;--s4:#22c55e;--s5:#fbbf24;--s6:#2dd4bf;
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--white);overflow-x:hidden}
+
+/* ── HEADER ── */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:0.75rem 1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header-icon{font-size:2rem;line-height:1}
+.header h1{font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,4vw,1.8rem);color:var(--gold)}
+.header-sub{font-size:0.75rem;color:var(--muted)}
+.header-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ── TABS ── */
+.tab-nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab{padding:11px 18px;cursor:pointer;font-family:'Fredoka One',cursive;font-size:0.85rem;color:var(--muted);border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── SECTIONS ── */
+.section{display:none;padding:1.25rem;min-height:80vh}
+.section.show{display:block}
+
+/* ── BUTTONS ── */
+.btn{height:42px;padding:0 20px;font-family:'Fredoka One',cursive;font-size:0.95rem;border:none;border-radius:12px;cursor:pointer;transition:transform .12s,opacity .15s;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{transform:scale(1.04)}
+.btn:active{transform:scale(0.97)}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-blue{background:var(--blue);color:white}
+.btn-green{background:var(--green);color:white}
+.btn-red{background:rgba(239,68,68,0.2);color:var(--red);border:2px solid var(--red)}
+.btn-ghost{background:var(--card2);color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
+.btn-sm{height:34px;padding:0 14px;font-size:0.82rem}
+
+/* ════════════════════════════════
+ MODO PROXECTOR
+════════════════════════════════ */
+.proxector-wrap{max-width:860px;margin:0 auto}
+
+/* Cabeciña da sesión */
+.session-bar{display:flex;gap:10px;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.session-date{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--gold)}
+.racha-badge{display:flex;align-items:center;gap:6px;background:var(--card2);border-radius:999px;padding:5px 14px;font-family:'Fredoka One',cursive;font-size:0.85rem;color:var(--orange)}
+.week-dots{display:flex;gap:5px}
+.wdot{width:12px;height:12px;border-radius:50%;background:var(--card2);transition:background .3s}
+.wdot.done{background:var(--gold)}
+.wdot.today{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.5)}
+
+/* Tarxeta do problema */
+.problem-card{background:var(--card);border-radius:20px;overflow:hidden;border:2px solid var(--border);margin-bottom:1rem;transition:border-color .3s}
+.problem-card.active{border-color:var(--gold);box-shadow:0 0 30px rgba(251,191,36,.15)}
+
+.problem-top{padding:1rem 1.5rem 0.75rem;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px}
+.problem-type-badge{font-size:0.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;padding:4px 12px;border-radius:999px}
+.problem-diff{display:flex;gap:4px}
+.diff-star{font-size:0.85rem;opacity:.3;transition:opacity .2s}
+.diff-star.on{opacity:1}
+
+.problem-text{font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,3.5vw,2rem);line-height:1.45;padding:0.5rem 1.5rem 1.25rem;color:var(--white)}
+
+/* PASOS */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 1rem 1rem}
+@media(max-width:600px){.steps-grid{grid-template-columns:1fr 1fr}}
+
+.step-box{border-radius:14px;border:2px solid var(--border);overflow:hidden;transition:border-color .25s,box-shadow .25s}
+.step-box.active-step{box-shadow:0 0 16px rgba(251,191,36,.25)}
+.step-header{padding:8px 12px;display:flex;align-items:center;gap:8px}
+.step-num{font-family:'Fredoka One',cursive;font-size:1.1rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-label{font-size:0.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
+.step-icon{font-size:1rem;margin-left:auto}
+.step-body{padding:8px 12px 10px;min-height:56px}
+.step-body textarea,.step-body input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;color:var(--white);font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;padding:7px 10px;resize:none;outline:none;transition:border-color .2s}
+.step-body textarea:focus,.step-body input:focus{border-color:rgba(251,191,36,.4);background:rgba(255,255,255,.06)}
+.step-body textarea{min-height:52px}
+.step-hint{font-size:0.65rem;color:var(--muted);margin-top:5px;line-height:1.4}
+
+/* Controis do problema */
+.problem-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+
+/* Temporizador */
+.timer-wrap{background:var(--card);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:1rem;border:1px solid var(--border)}
+.timer-ring-wrap{position:relative;width:64px;height:64px;flex-shrink:0}
+.timer-svg{transform:rotate(-90deg)}
+.tc-bg{fill:none;stroke:var(--card2);stroke-width:6}
+.tc-arc{fill:none;stroke:var(--green);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .5s linear,stroke .3s}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.15rem}
+.timer-info{flex:1}
+.timer-label{font-size:0.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px}
+.timer-presets{display:flex;gap:5px;flex-wrap:wrap}
+.tpreset{height:26px;padding:0 10px;font-size:0.75rem;font-family:'Fredoka One',cursive;background:var(--card2);border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--muted);transition:all .15s}
+.tpreset:hover,.tpreset.sel{background:var(--green);color:white;border-color:var(--green)}
+
+/* ════════════════════════════════
+ BANCO DE PROBLEMAS
+════════════════════════════════ */
+.banco-header{display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.filter-btn{height:30px;padding:0 12px;font-size:0.75rem;font-family:'Fredoka One',cursive;border-radius:999px;border:1.5px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;transition:all .15s}
+.filter-btn:hover,.filter-btn.active{color:white;border-color:currentColor}
+
+.banco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.banco-card{background:var(--card);border-radius:16px;border:2px solid var(--border);padding:14px 16px;cursor:pointer;transition:all .18s;position:relative}
+.banco-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.banco-card:hover .bc-edit-btn{display:flex!important}
+.bc-type{font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}
+.bc-text{font-size:0.88rem;font-weight:700;line-height:1.5;color:var(--white);margin-bottom:8px}
+.bc-footer{display:flex;gap:6px;align-items:center}
+.bc-diff{display:flex;gap:2px}
+.bc-star{font-size:0.7rem;opacity:.3}
+.bc-star.on{opacity:1}
+.bc-pasos{font-size:0.62rem;font-weight:800;color:var(--muted);margin-left:auto}
+.bc-select-btn{position:absolute;top:10px;right:10px;opacity:0;transition:opacity .15s;height:28px;padding:0 10px;font-size:0.72rem;font-family:'Fredoka One',cursive;background:var(--gold);color:#0f172a;border:none;border-radius:8px;cursor:pointer}
+.banco-card:hover .bc-select-btn{opacity:1}
+
+/* ════════════════════════════════
+ XERADOR
+════════════════════════════════ */
+.xerador-wrap{max-width:680px;margin:0 auto}
+.xer-controls{background:var(--card);border-radius:18px;padding:1.25rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.xer-group label{font-size:0.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:block;margin-bottom:6px}
+.xer-select{width:100%;height:38px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;padding:0 12px;outline:none;cursor:pointer}
+.xer-nums{display:flex;gap:6px;flex-wrap:wrap}
+.xer-num{height:34px;padding:0 14px;font-family:'Fredoka One',cursive;font-size:0.9rem;background:var(--card2);border:2px solid var(--border);border-radius:10px;cursor:pointer;color:var(--muted);transition:all .15s}
+.xer-num:hover,.xer-num.sel{background:var(--gold);color:#0f172a;border-color:var(--gold)}
+.xer-result{background:var(--card);border-radius:18px;padding:1.5rem;border:2px solid var(--border);min-height:120px;font-family:'Fredoka One',cursive;font-size:1.4rem;line-height:1.5;color:var(--white);display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1rem}
+.xer-result.empty{color:var(--muted);font-size:1rem}
+
+/* ════════════════════════════════
+ ESCRIBIR PROPIO
+════════════════════════════════ */
+.custom-wrap{max-width:680px;margin:0 auto}
+.custom-area{width:100%;min-height:140px;background:var(--card);border:2px solid var(--border);border-radius:16px;color:var(--white);font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;padding:16px;resize:vertical;outline:none;transition:border-color .2s;line-height:1.65}
+.custom-area:focus{border-color:var(--gold)}
+.custom-area::placeholder{color:var(--muted);font-weight:400}
+
+/* ════════════════════════════════
+ HISTORIAL / RACHA
+════════════════════════════════ */
+.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.hist-card{background:var(--card);border-radius:12px;padding:12px 14px;border:1px solid var(--border)}
+.hist-date{font-size:0.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
+.hist-prob{font-size:0.82rem;font-weight:700;line-height:1.4;color:var(--white)}
+.stat-row{display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.stat-box{flex:1;min-width:100px;background:var(--card);border-radius:14px;padding:14px;text-align:center;border:1px solid var(--border)}
+.stat-num{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--gold);display:block}
+.stat-lbl{font-size:0.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+
+/* ── MODO PROXECTOR FULLSCREEN ── */
+#proxector-fs{display:none;position:fixed;inset:0;background:#0a1628;z-index:999;flex-direction:column;padding:2rem;overflow-y:auto}
+#proxector-fs.show{display:flex}
+.fs-problem{font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,5vw,3.2rem);line-height:1.4;color:var(--white);margin-bottom:2rem;max-width:900px}
+.fs-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:900px;width:100%}
+.fs-step{background:rgba(255,255,255,.05);border-radius:16px;padding:16px;border:2px solid rgba(255,255,255,.08)}
+.fs-step-label{font-size:0.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+.fs-step-space{height:60px;background:rgba(255,255,255,.04);border-radius:10px}
+.fs-exit{position:fixed;top:1rem;right:1rem;z-index:1000}
+.fs-timer{position:fixed;top:1rem;left:50%;transform:translateX(-50%);font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--gold);background:rgba(15,23,42,.8);padding:6px 20px;border-radius:999px}
+
+/* ── CONFETTI ── */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9999}
+
+/* ── LICENSE ── */
+.license-bar{background:var(--card);border-top:1px solid var(--border);padding:.75rem 1.5rem;text-align:center;font-size:.6rem;color:var(--muted)}
+.license-bar a{color:var(--gold);text-decoration:none}
+
+@media(max-width:640px){
+ .steps-grid{grid-template-columns:1fr}
+ .xer-controls{grid-template-columns:1fr}
+ .fs-steps{grid-template-columns:1fr}
+}
+
+/* ══ MENÚ BACKUP JSON ══ */
+.backup-wrap{position:relative;display:inline-flex}
+.backup-menu{display:none;position:absolute;top:38px;right:0;z-index:200;
+ background:var(--card);border:1.5px solid var(--border);border-radius:14px;
+ padding:8px;min-width:210px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.backup-menu.open{display:block}
+.backup-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;
+ cursor:pointer;font-size:.82rem;font-weight:800;color:var(--white);
+ transition:background .12s;border:none;background:none;width:100%;text-align:left}
+.backup-item:hover{background:var(--card2)}
+.backup-item-icon{font-size:1rem;width:20px;text-align:center}
+.backup-sep{height:1px;background:var(--border);margin:4px 0}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<!-- FULLSCREEN PROXECTOR -->
+<div id="proxector-fs">
+ <button class="btn btn-ghost btn-sm fs-exit" onclick="exitFS()">✕ Saír</button>
+ <div class="fs-timer" id="fs-timer" style="display:none">⏱ <span id="fs-timer-num">5:00</span></div>
+ <div style="font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.15em;color:var(--gold);margin-bottom:1rem" id="fs-type-label"></div>
+ <div class="fs-problem" id="fs-problem-text">—</div>
+ <div class="fs-steps">
+ <div class="fs-step" style="border-color:rgba(59,130,246,.3)"><div class="fs-step-label" style="color:var(--s1)">📖 Leo</div><div class="fs-step-space"></div></div>
+ <div class="fs-step" style="border-color:rgba(249,115,22,.3)"><div class="fs-step-label" style="color:var(--s2)">📋 Datos</div><div class="fs-step-space"></div></div>
+ <div class="fs-step" style="border-color:rgba(167,139,250,.3)"><div class="fs-step-label" style="color:var(--s3)">❓ Pregunta</div><div class="fs-step-space"></div></div>
+ <div class="fs-step" style="border-color:rgba(34,197,94,.3)"><div class="fs-step-label" style="color:var(--s4)">🔢 Operación</div><div class="fs-step-space"></div></div>
+ <div class="fs-step" style="border-color:rgba(251,191,36,.3)"><div class="fs-step-label" style="color:var(--s5)">✏️ Calculo</div><div class="fs-step-space" style="height:80px"></div></div>
+ <div class="fs-step" style="border-color:rgba(45,212,191,.3)"><div class="fs-step-label" style="color:var(--s6)">✅ Comproba</div><div class="fs-step-space"></div></div>
+ </div>
+</div>
+
+<div class="header">
+ <div class="header-icon">🧮</div>
+ <div>
+  <h1>Problema do Día</h1>
+  <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+ </div>
+ <div class="header-right">
+ <div class="racha-badge">🔥 Racha: <span id="hdr-racha">0</span> días</div>
+ <div class="week-dots" id="hdr-week"></div>
+ <button class="btn btn-ghost btn-sm" onclick="clearHistory()" title="Borrar historial">🗑️</button>
+ 
+ <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Ir ao Portal / Configuración">🏠 Portal</a>
+ <div class="backup-wrap" id="bkp-wrap">
+ <button class="btn btn-ghost btn-sm" onclick="toggleBackupMenu()" title="Exportar / Importar datos">⚙️ Datos</button>
+ <div class="backup-menu" id="backup-menu">
+ <button class="backup-item" onclick="exportarJSON()"><span class="backup-item-icon">📤</span>Exportar datos (JSON)</button>
+ <button class="backup-item" onclick="document.getElementById('import-file-input').click()"><span class="backup-item-icon">📥</span>Importar datos (JSON)</button>
+ <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importarJSON(event)"/>
+ <div class="backup-sep"></div>
+ <button class="backup-item" onclick="exportarCSVBackup()" style="color:var(--teal)"><span class="backup-item-icon">📊</span>Exportar CSV</button>
+ <div class="backup-sep"></div>
+ <button class="backup-item" onclick="confirmBorrarDatos()" style="color:var(--red)"><span class="backup-item-icon">🗑️</span>Borrar todos os datos</button>
+ </div>
+ </div>
+</div>
+</div>
+
+<div class="tab-nav">
+ <div class="tab active" id="tab-proxector" onclick="showTab('proxector')">📺 Problema do Día</div>
+ <div class="tab" id="tab-banco" onclick="showTab('banco')">📚 Banco</div>
+ <div class="tab" id="tab-xerador" onclick="showTab('xerador')">⚙️ Xerador</div>
+ <div class="tab" id="tab-propio" onclick="showTab('propio')">✏️ Escribir</div>
+ <div class="tab" id="tab-historial" onclick="showTab('historial')">📅 Historial</div>
+</div>
+
+<!-- ══ PROXECTOR ══ -->
+<div class="section show" id="sec-proxector">
+ <div class="proxector-wrap">
+
+ <!-- Session bar -->
+ <div class="session-bar">
+ <div class="session-date" id="sess-date"></div>
+ <div class="week-dots" id="sess-week"></div>
+ <div class="racha-badge" style="margin-left:auto">🔥 <span id="sess-racha">0</span> días de racha</div>
+ </div>
+
+ <!-- Timer -->
+ <div class="timer-wrap">
+ <div class="timer-ring-wrap">
+ <svg class="timer-svg" viewBox="0 0 64 64" width="64" height="64">
+ <circle class="tc-bg" cx="32" cy="32" r="27"/>
+ <circle class="tc-arc" id="tc-arc" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="0"/>
+ </svg>
+ <div class="timer-num" id="timer-num">—</div>
+ </div>
+ <div class="timer-info">
+ <div class="timer-label">⏱ Temporizador</div>
+ <div class="timer-presets">
+ <button class="tpreset" onclick="setTimer(3)">3'</button>
+ <button class="tpreset" onclick="setTimer(5)">5'</button>
+ <button class="tpreset" onclick="setTimer(8)">8'</button>
+ <button class="tpreset" onclick="setTimer(10)">10'</button>
+ <button class="tpreset sel" onclick="stopTimer()">⏹</button>
+ </div>
+ </div>
+ <div style="display:flex;gap:6px">
+ <button class="btn btn-green btn-sm" id="timer-toggle" onclick="toggleTimer()">▶ Iniciar</button>
+ <button class="btn btn-ghost btn-sm" onclick="resetTimer()">↺</button>
+ </div>
+ </div>
+
+ <!-- Problem card -->
+ <div class="problem-card active" id="main-card">
+ <div class="problem-top">
+ <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+ <div class="problem-type-badge" id="prob-type-badge" style="background:rgba(251,191,36,.15);color:var(--gold)">Sen problema seleccionado</div>
+ <div id="prob-ud-chip" style="display:none;font-size:.62rem;font-weight:900;padding:2px 8px;border-radius:5px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)"></div>
+ </div>
+ <div class="problem-diff" id="prob-diff"></div>
+ </div>
+ <!-- TEMPORIZADOR INTEGRADO -->
+ <div id="pdd-timer-bar" style="display:none;align-items:center;gap:10px;padding:8px 0;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.08)">
+  <div id="pdd-timer-display" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.6rem;min-width:70px;color:var(--gold)">00:00</div>
+  <div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div id="pdd-timer-fill" style="height:100%;background:var(--gold);border-radius:999px;transition:width .5s linear"></div></div>
+  <button onclick="togglePddTimer()" id="pdd-timer-btn" style="height:28px;padding:0 10px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:7px;color:var(--gold);font-size:.7rem;font-weight:900;cursor:pointer;font-family:'DM Sans',sans-serif">▶ Iniciar</button>
+  <button onclick="resetPddTimer()" style="height:28px;padding:0 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:7px;color:var(--muted);font-size:.7rem;font-weight:900;cursor:pointer;font-family:'DM Sans',sans-serif">↺</button>
+  <button onclick="openPddTimerConfig()" style="height:28px;padding:0 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:7px;color:var(--muted);font-size:.7rem;font-weight:900;cursor:pointer;font-family:'DM Sans',sans-serif">⚙️</button>
+ </div>
+ <div class="problem-text" id="prob-text" style="color:var(--muted);font-size:1.1rem">
+ Selecciona un problema do banco, xera un automaticamente, ou escribe o teu propio.
+ </div>
+
+ <!-- Steps -->
+ <div class="steps-grid">
+ <!-- 1 Leo -->
+ <div class="step-box" style="border-color:rgba(59,130,246,.25)">
+ <div class="step-header" style="background:rgba(59,130,246,.12)">
+ <div class="step-num" style="background:var(--s1);color:white">1</div>
+ <div class="step-label" style="color:var(--s1)">Leo</div>
+ <div class="step-icon">📖</div>
+ </div>
+ <div class="step-body">
+ <textarea id="s1" rows="2" placeholder="Le o problema en voz alta. Subliña as palabras clave..."></textarea>
+ </div>
+ </div>
+ <!-- 2 Datos -->
+ <div class="step-box" style="border-color:rgba(249,115,22,.25)">
+ <div class="step-header" style="background:rgba(249,115,22,.12)">
+ <div class="step-num" style="background:var(--s2);color:white">2</div>
+ <div class="step-label" style="color:var(--s2)">Datos</div>
+ <div class="step-icon">📋</div>
+ </div>
+ <div class="step-body">
+ <textarea id="s2" rows="2" placeholder="Que datos nos dan? Escríbeos aquí..."></textarea>
+ </div>
+ </div>
+ <!-- 3 Pregunta -->
+ <div class="step-box" style="border-color:rgba(167,139,250,.25)">
+ <div class="step-header" style="background:rgba(167,139,250,.12)">
+ <div class="step-num" style="background:var(--s3);color:white">3</div>
+ <div class="step-label" style="color:var(--s3)">Pregunta</div>
+ <div class="step-icon">❓</div>
+ </div>
+ <div class="step-body">
+ <textarea id="s3" rows="2" placeholder="Que nos pide o problema?"></textarea>
+ </div>
+ </div>
+ <!-- 4 Operación -->
+ <div class="step-box" style="border-color:rgba(34,197,94,.25)">
+ <div class="step-header" style="background:rgba(34,197,94,.12)">
+ <div class="step-num" style="background:var(--s4);color:white">4</div>
+ <div class="step-label" style="color:var(--s4)">Operación</div>
+ <div class="step-icon">🔢</div>
+ </div>
+ <div class="step-body">
+ <textarea id="s4" rows="2" placeholder="Que operación imos facer? Suma, resta, multiplicación, división..."></textarea>
+ <div class="step-hint">Escribe a operación: ex. 24 × 5 = ?</div>
+ </div>
+ </div>
+ <!-- 5 Calculo -->
+ <div class="step-box" style="border-color:rgba(251,191,36,.25)">
+ <div class="step-header" style="background:rgba(251,191,36,.12)">
+ <div class="step-num" style="background:var(--s5);color:#0f172a">5</div>
+ <div class="step-label" style="color:var(--s5)">Calculo</div>
+ <div class="step-icon">✏️</div>
+ </div>
+ <div class="step-body">
+ <textarea id="s5" rows="3" placeholder="Fai os cálculos aquí ou no caderno. Escribe o resultado..."></textarea>
+ </div>
+ </div>
+ <!-- 6 Comproba -->
+ <div class="step-box" style="border-color:rgba(45,212,191,.25)">
+ <div class="step-header" style="background:rgba(45,212,191,.12)">
+ <div class="step-num" style="background:var(--s6);color:#0f172a">6</div>
+ <div class="step-label" style="color:var(--s6)">Comproba</div>
+ <div class="step-icon">✅</div>
+ </div>
+ <div class="step-body">
+ <textarea id="s6" rows="2" placeholder="Escribe a resposta completa: A resposta é..."></textarea>
+ <div class="step-hint">Ten sentido? Relé o problema!</div>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <!-- Controls -->
+ <div class="problem-controls">
+ <button class="btn btn-gold" onclick="launchFS()">⛶ Modo proxector</button>
+ <button class="btn btn-green" onclick="markDone()" id="btn-done">✅ Problema feito!</button>
+ <button class="btn btn-ghost" onclick="clearSteps()">↺ Limpar pasos</button>
+ <button class="btn btn-ghost" onclick="showTab('banco')">📚 Cambiar problema</button>
+ </div>
+
+ </div>
+</div>
+
+<!-- ══ BANCO ══ -->
+<div class="section" id="sec-banco">
+ <div class="banco-header">
+ <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold)">📚 Banco de problemas</div>
+ <div style="margin-left:auto;font-size:.72rem;font-weight:800;color:var(--muted)" id="banco-count"></div>
+ </div>
+ <div class="filter-row" id="filter-row"></div>
+ <div class="banco-grid" id="banco-grid"></div>
+</div>
+
+<!-- ══ XERADOR ══ -->
+<div class="section" id="sec-xerador">
+ <div class="xerador-wrap">
+ <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold);margin-bottom:1rem">⚙️ Xerador automático de problemas</div>
+ <div class="xer-controls">
+ <div class="xer-group">
+ <label>Tipo de operación</label>
+ <select class="xer-select" id="xer-op">
+ <option value="suma">Suma</option>
+ <option value="resta">Resta</option>
+ <option value="mult">Multiplicación</option>
+ <option value="div">División exacta</option>
+ <option value="mixto">Mixto (2 pasos)</option>
+ <option value="medida">Medidas</option>
+ <option value="tempo">Tempo</option>
+ <option value="dineiro">Diñeiro</option>
+ <option value="fraccions">Fraccións</option>
+ </select>
+ </div>
+ <div class="xer-group">
+ <label>Contexto temático</label>
+ <select class="xer-select" id="xer-tema">
+ <option value="colexio">Colexio</option>
+ <option value="natureza">Natureza</option>
+ <option value="galicia">Galicia</option>
+ <option value="deportes">Deportes</option>
+ <option value="cociña">Cociña e mercado</option>
+ <option value="animais">Animais</option>
+ <option value="viaxes">Viaxes</option>
+ </select>
+ </div>
+ <div class="xer-group" style="grid-column:1/-1">
+ <label>Dificultade</label>
+ <div class="xer-nums">
+ <button class="xer-num" onclick="setDiff(1)" id="xd1">⭐</button>
+ <button class="xer-num sel" onclick="setDiff(2)" id="xd2">⭐⭐</button>
+ <button class="xer-num" onclick="setDiff(3)" id="xd3">⭐⭐⭐</button>
+ </div>
+ </div>
+ </div>
+ <div class="xer-result empty" id="xer-result">Preme "Xerar" para obter un problema novo</div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap">
+ <button class="btn btn-gold" onclick="xerar()">🎲 Xerar problema</button>
+ <button class="btn btn-blue" onclick="xerarUsar()" id="xer-use-btn" style="display:none">📺 Usar este problema</button>
+ </div>
+ </div>
+</div>
+
+<!-- ══ PROPIO ══ -->
+<div class="section" id="sec-propio">
+ <div class="custom-wrap">
+ <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold);margin-bottom:1rem">✏️ Escribe o teu propio problema</div>
+ <div style="font-size:.75rem;font-weight:800;color:var(--muted);margin-bottom:.5rem">Texto do problema</div>
+ <textarea class="custom-area" id="custom-text" placeholder="Escribe aquí o problema que queres proxectar...&#10;&#10;Exemplo: A Marta ten 3 caixas con 24 laranxas cada unha. Deulle 15 laranxas á súa veciña. Cantas laranxas lle quedaron en total?"></textarea>
+ <div style="display:flex;gap:8px;margin-top:.75rem;flex-wrap:wrap;align-items:center">
+ <select class="xer-select" id="custom-tipo" style="width:auto;flex:1;min-width:160px">
+ <option value="propio">Problema propio</option>
+ <option value="1paso">1 paso</option>
+ <option value="2pasos">2 pasos</option>
+ <option value="medida">Medida</option>
+ <option value="tempo">Tempo</option>
+ <option value="dineiro">Diñeiro</option>
+ <option value="fraccions">Fraccións</option>
+ <option value="loxica">Lóxica</option>
+ </select>
+ <select class="xer-select" id="custom-diff" style="width:auto;flex:1;min-width:120px">
+ <option value="1">⭐ Básico</option>
+ <option value="2" selected>⭐⭐ Medio</option>
+ <option value="3">⭐⭐⭐ Avanzado</option>
+ </select>
+ <select class="xer-select" id="custom-ud" style="width:auto;flex:1;min-width:140px">
+   <option value="">📚 Sen UD</option>
+ </select>
+ <button class="btn btn-gold" onclick="usarPropio()">📺 Proxectar este problema</button>
+ <button class="btn btn-green" onclick="gardarPropio()">💾 Gardar no banco</button>
+ </div>
+ </div>
+</div>
+
+<!-- ══ HISTORIAL ══ -->
+<div class="section" id="sec-historial">
+ <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold);margin-bottom:1rem">📅 Historial e racha</div>
+ <div class="stat-row" id="stat-row"></div>
+ <div style="font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.75rem">Últimos problemas feitos</div>
+ <div class="hist-grid" id="hist-grid"></div>
+ <div style="margin-top:1rem">
+ <button class="btn btn-red btn-sm" onclick="clearHistory()">🗑️ Borrar historial</button>
+ </div>
+</div>
+
+<div class="license-bar">
+ © 2026 Montserrat Blanco Vázquez · ·
+ <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.gl" target="_blank">CC BY-NC-SA 4.0</a>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// BANCO DE PROBLEMAS — 7 tipos × múltiples problemas
+// ══════════════════════════════════════════════════════════════════════════════
+const TIPOS = {
+ '1paso': {label:'1 paso', emoji:'➕', cor:'#3b82f6'},
+ '2pasos': {label:'2 pasos', emoji:'🔄', cor:'#8b5cf6'},
+ 'medida': {label:'Medida', emoji:'📏', cor:'#22c55e'},
+ 'tempo': {label:'Tempo', emoji:'🕐', cor:'#f97316'},
+ 'dineiro': {label:'Diñeiro', emoji:'💶', cor:'#fbbf24'},
+ 'fraccions': {label:'Fraccións', emoji:'½', cor:'#2dd4bf'},
+ 'loxica': {label:'Lóxica', emoji:'🧠', cor:'#f472b6'},
+};
+
+const BANCO_BASE = [
+ // ── 1 PASO ──
+ {id:1,tipo:'1paso',dif:1,text:'Na biblioteca do colexio hai 348 libros de galego e 215 de castelán. Cantos libros hai en total?'},
+ {id:2,tipo:'1paso',dif:1,text:'Nunha granxa hai 864 ovos. Véndense 327 ovos. Cantos ovos quedan na granxa?'},
+ {id:3,tipo:'1paso',dif:1,text:'Cada caixa de laranxas pesa 12 kg. O camión leva 24 caixas. Cantos quilogramos leva o camión?'},
+ {id:4,tipo:'1paso',dif:2,text:'Nun estadio caben 4.850 persoas. Foron ao partido 3.927 persoas. Cantos asentos quedaron baleiros?'},
+ {id:5,tipo:'1paso',dif:2,text:'O mestre mercan 48 folios para repartir a partes iguais entre 6 mesas cooperativas. Cantos folios lle tocan a cada mesa?'},
+ {id:6,tipo:'1paso',dif:2,text:'Nunha fábrica de conservas de Galicia énchense 1.250 latas ao día. Cantas latas encheron en 7 días?'},
+ {id:7,tipo:'1paso',dif:3,text:'Un agricultor cultivou 2.436 kg de patacas. Envasounas en sacos de 18 kg. Cantos sacos encheu? Sobraron patacas?'},
+ {id:8,tipo:'1paso',dif:3,text:'Nun río de Galicia contan 3.784 salmóns. Se en cada treito do río hai o mesmo número e hai 8 treitos, cantos salmóns hai en cada treito?'},
+ // ── 2 PASOS ──
+ {id:9,tipo:'2pasos',dif:1,text:'Uxía ten 125 cromos. Mercou 34 máis e logo regaloulle 48 á súa amiga. Cantos cromos ten agora?'},
+ {id:10,tipo:'2pasos',dif:2,text:'Nun autobús viaxan 32 persoas. Na primeira parada baixan 9 e suben 14. Na segunda baixan 11 e suben 6. Cantas persoas van no autobús ao final?'},
+ {id:11,tipo:'2pasos',dif:2,text:'Un panadeiro fai 6 bandejas con 12 bolos cada unha. Vende 48 bolos pola mañá e 15 pola tarde. Cantos bolos lle quedan?'},
+ {id:12,tipo:'2pasos',dif:3,text:'Nunha tenda de deportes hai 4 estantes con 36 pares de zapatillas cada un. Venden 57 pares e reciben un novo envío de 24 pares. Cantos pares hai agora na tenda?'},
+ {id:13,tipo:'2pasos',dif:3,text:'O cine ten 3 salas. A sala A ten 120 asentos, a B ten 95 e a C ten 140. Fóronse ao cine 287 persoas. Cantos asentos quedan baleiros en total?'},
+ // ── MEDIDA ──
+ {id:14,tipo:'medida',dif:1,text:'Martina corre 3 km o luns e 4 km o mércores. Cantos metros correu en total?'},
+ {id:15,tipo:'medida',dif:1,text:'Unha bañeira chea ten 180 litros. Se xa hai 45 litros, cantos litros máis fan falta para enchela?'},
+ {id:16,tipo:'medida',dif:2,text:'Nunha receita de empanada galega necesítanse 750 g de fariña. Se imos facer 3 empanadas, cantos kg de fariña necesitamos en total?'},
+ {id:17,tipo:'medida',dif:2,text:'O Camiño de Santiago ten uns 800 km. Unha peregrina camiña 25 km ao día. Cantos días tarda en completar o Camiño?'},
+ {id:18,tipo:'medida',dif:3,text:'Un depósito de auga ten 2.400 litros. Cada día gástanse 180 litros. Cantos días dura o depósito? Canto tempo sobra se o enchemos de novo a metade?'},
+ // ── TEMPO ──
+ {id:19,tipo:'tempo',dif:1,text:'A clase de matemáticas empeza ás 10:15 h e dura 45 minutos. A que hora remata?'},
+ {id:20,tipo:'tempo',dif:1,text:'O recreo dura 30 minutos. Empieza ás 11:30 h. A que hora voltamos á clase?'},
+ {id:21,tipo:'tempo',dif:2,text:'Saímos de viaxe o venres 14 de marzo e voltamos o luns 24. Cantos días estivemos fóra?'},
+ {id:22,tipo:'tempo',dif:2,text:'A obra de teatro comeza ás 18:30 h e dura 1 hora e 45 minutos. A que hora remata? Se quedamos a merendar 30 minutos máis, a que hora chegamos a casa se tardamos 20 minutos?'},
+ {id:23,tipo:'tempo',dif:3,text:'Un tren sae de Santiago ás 8:47 h e chega a Madrid ás 14:23 h. Canto dura a viaxe en horas e minutos? Se o tren de volta sae ás 17:05 h, canto tempo tes en Madrid?'},
+ // ── DIÑEIRO ──
+ {id:24,tipo:'dineiro',dif:1,text:'Marcos mercan 3 bolígrafos a 0,75 € cada un. Paga con un billete de 5 €. Canto cambio recibe?'},
+ {id:25,tipo:'dineiro',dif:1,text:'Nun mercado, 1 kg de patacas custa 1,20 €. Canto custan 4 kg?'},
+ {id:26,tipo:'dineiro',dif:2,text:'Nunha librería hai libros a 8,50 €. Uxía ten 25 € de regalo de aniversario. Cantos libros pode mercar? Canto diñeiro sobra?'},
+ {id:27,tipo:'dineiro',dif:2,text:'Nunha tenda de produtos galegos: un frasco de mel custa 4,80 €, un queixo custa 7,35 € e un pote de marmelada custa 3,25 €. Canto custan os tres produtos xuntos?'},
+ {id:28,tipo:'dineiro',dif:3,text:'Catro amigos mercan entre todos 3 pizzas a 8,60 € cada unha e 4 refrescos a 1,75 € cada un. Se reparten o gasto a partes iguais, canto paga cada un?'},
+ // ── FRACCIÓNS ──
+ {id:29,tipo:'fraccions',dif:1,text:'Nunha pizza divídida en 8 porcións, Alba comeu 3/8. Que fracción quedou?'},
+ {id:30,tipo:'fraccions',dif:1,text:'Xoan ten 20 cromos. Dá 1/4 dos seus cromos á súa irmá. Cantos cromos dá? Cantos lle quedan?'},
+ {id:31,tipo:'fraccions',dif:2,text:'Nunha clase de 24 alumnos, 1/3 elixiu o polbo á feira, 1/2 elixiu empanada, e o resto queixo. Cantos alumnos elixiron cada cousa?'},
+ {id:32,tipo:'fraccions',dif:2,text:'Lea bebia 1/4 de litro de auga ao mañá, 1/2 litro ao mediodía e 1/4 pola tarde. Canto litros bebeu en total?'},
+ {id:33,tipo:'fraccions',dif:3,text:'Nunha horta, 2/5 está plantado de tomates, 1/5 de pementos e o resto de cebolas. Se a horta mide 500 m², que superficie ocupa cada cultivo?'},
+ // ── LÓXICA ──
+ {id:34,tipo:'loxica',dif:1,text:'Teño un número. Se lle sumo 15 obteño 42. Cal é o número?'},
+ {id:35,tipo:'loxica',dif:1,text:'En que ano naceu un neno que no ano 2026 ten 9 anos?'},
+ {id:36,tipo:'loxica',dif:2,text:'Nunha carreira participaron 8 corredores. Iago chegou en 3º lugar. Cantos corredores chegaron antes ca el? E despois?'},
+ {id:37,tipo:'loxica',dif:2,text:'Teño un número de 2 cifras. É par, múltiplo de 4, e a suma das súas cifras é 6. Que número é?'},
+ {id:38,tipo:'loxica',dif:3,text:'Tres irmáns teñen idades que son consecutivas. A suma das súas idades é 36. Cantos anos ten cada un?'},
+ {id:39,tipo:'loxica',dif:3,text:'Nun xogo de cartas, Paula ten o dobre de cartas que Bruno. Entre os dous teñen 54 cartas. Cantas cartas ten cada un?'},
+ {id:40,tipo:'loxica',dif:3,text:'Nunha tenda de xoguetes, hai motos e coches. En total son 15 vehículos e 46 rodas. Cantos coches e cantas motos hai?'},
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let currentProblem = null;
+let timerInterval = null;
+let timerTotal = 0;
+let timerLeft = 0;
+let timerRunning = false;
+let xerDiff = 2;
+let lastXerProblem = null;
+let banco = [...BANCO_BASE];
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+function load(k, def) { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+let history = load('pdd_history', []); // [{date, probText, tipo}]
+let racha = load('pdd_racha', 0);
+let userProblems = load('pdd_userprobs', []);
+
+banco = [...BANCO_BASE, ...userProblems.map((p,i)=>({...p, id:1000+i}))];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════════════════════
+function showTab(t) {
+ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+t));
+ document.querySelectorAll('.section').forEach(el=>el.classList.toggle('show',el.id==='sec-'+t));
+ if (t==='banco') renderBanco();
+ if (t==='historial') renderHistorial();
+ if (t==='propio') poblarUDSelector();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════════════════════════════════════
+function setTimer(mins) {
+ stopTimer();
+ timerTotal = mins*60;
+ timerLeft = timerTotal;
+ timerRunning = false;
+ document.getElementById('timer-toggle').textContent='▶ Iniciar';
+ document.querySelectorAll('.tpreset').forEach(b=>b.classList.remove('sel'));
+ updateTimerUI();
+}
+function toggleTimer() {
+ if (!timerTotal) return;
+ timerRunning = !timerRunning;
+ document.getElementById('timer-toggle').textContent = timerRunning ? '⏸ Pausar' : '▶ Continuar';
+ if (timerRunning) {
+ timerInterval = setInterval(()=>{
+ timerLeft--;
+ updateTimerUI();
+ if (timerLeft<=0) { clearInterval(timerInterval); timerRunning=false; timerDone(); }
+ },1000);
+ } else {
+ clearInterval(timerInterval);
+ }
+}
+function stopTimer() { clearInterval(timerInterval); timerRunning=false; document.getElementById('timer-toggle').textContent='▶ Iniciar'; }
+function resetTimer() { stopTimer(); timerLeft=timerTotal; updateTimerUI(); }
+
+function updateTimerUI() {
+ const m=Math.floor(timerLeft/60), s=timerLeft%60;
+ const txt = timerTotal ? `${m}:${s.toString().padStart(2,'0')}` : '—';
+ document.getElementById('timer-num').textContent = txt;
+ if (document.getElementById('fs-timer').style.display!=='none')
+ document.getElementById('fs-timer-num').textContent = txt;
+
+ if (timerTotal) {
+ const pct = timerLeft/timerTotal;
+ const circ = 169.6;
+ const arc = document.getElementById('tc-arc');
+ arc.style.strokeDashoffset = circ*(1-pct);
+ arc.style.stroke = pct>0.5?'#22c55e':pct>0.25?'#f97316':'#ef4444';
+ }
+}
+
+function timerDone() {
+ const arc=document.getElementById('tc-arc');
+ arc.style.stroke='#ef4444';
+ launchMini('#ef4444');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PROBLEM DISPLAY
+// ══════════════════════════════════════════════════════════════════════════════
+function setProblem(prob) {
+ currentProblem = prob;
+ const t = TIPOS[prob.tipo] || {label:prob.tipo, emoji:'🧩', cor:'#fbbf24'};
+ const badge = document.getElementById('prob-type-badge');
+ badge.textContent = t.emoji+' '+t.label;
+ badge.style.background = t.cor+'22';
+ badge.style.color = t.cor;
+ // Mostrar UD activa (a máis recente das notas do caderno)
+ try{
+   const udChip=document.getElementById('prob-ud-chip');
+   if(udChip){
+     const notas=JSON.parse(localStorage.getItem('sn3_notas')||'[]');
+     const udAct=notas.filter(n=>n.unidade?.num).sort((a,b)=>new Date(b.data)-new Date(a.data))[0]?.unidade||null;
+     if(udAct){udChip.textContent='📚 UD'+udAct.num+(udAct.tit?' · '+udAct.tit.substring(0,16):'');udChip.style.display='inline-flex';}
+     else udChip.style.display='none';
+   }
+ }catch(e){}
+ document.getElementById('prob-text').textContent = prob.text;
+ document.getElementById('prob-text').style.color = 'var(--white)';
+ document.getElementById('prob-text').style.fontSize = '';
+ // Stars
+ const diff = document.getElementById('prob-diff');
+ diff.innerHTML = [1,2,3].map(i=>`<span class="diff-star${i<=prob.dif?' on':''}">⭐</span>`).join('');
+ clearSteps();
+}
+
+function clearSteps() {
+ [1,2,3,4,5,6].forEach(i=>{ const el=document.getElementById('s'+i); if(el) el.value=''; });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BANCO
+// ══════════════════════════════════════════════════════════════════════════════
+let activeTipo = 'todos';
+let activeDif = 0;
+
+function renderBanco() {
+ const tipos = Object.keys(TIPOS);
+ const fr = document.getElementById('filter-row');
+ fr.innerHTML = `
+ <button class="filter-btn${activeTipo==='todos'?' active':''}" style="${activeTipo==='todos'?'color:white;border-color:var(--gold)':''}" onclick="filterBanco('todos')">Todos (${banco.length})</button>
+ ${tipos.map(t=>{
+ const cnt=banco.filter(p=>p.tipo===t).length;
+ const ti=TIPOS[t];
+ const sel=activeTipo===t;
+ return `<button class="filter-btn${sel?' active':''}" style="${sel?`color:white;border-color:${ti.cor};background:${ti.cor}22`:''}" onclick="filterBanco('${t}')">${ti.emoji} ${ti.label} (${cnt})</button>`;
+ }).join('')}
+ <div style="margin-left:auto;display:flex;gap:5px;align-items:center">
+ <span style="font-size:.65rem;font-weight:800;color:var(--muted)">Dificultade:</span>
+ ${[0,1,2,3].map(d=>`<button class="filter-btn${activeDif===d?' active':''}" style="${activeDif===d?'color:var(--gold);border-color:var(--gold)':''}" onclick="filterDif(${d})">${d===0?'Todas':'⭐'.repeat(d)}</button>`).join('')}
+ </div>`;
+
+ const probs = banco.filter(p=>
+ (activeTipo==='todos'||p.tipo===activeTipo) &&
+ (activeDif===0||p.dif===activeDif)
+ );
+ document.getElementById('banco-count').textContent = `${probs.length} problemas`;
+
+ document.getElementById('banco-grid').innerHTML = probs.map(p=>{
+ const ti = TIPOS[p.tipo]||{emoji:'🧩',cor:'#fbbf24',label:p.tipo};
+ return `<div class="banco-card" onclick="selectFromBanco(${p.id})">
+ <div class="bc-type" style="color:${ti.cor}">${ti.emoji} ${ti.label}</div>
+ <div class="bc-text">${p.text}</div>
+ <div class="bc-footer">
+ <div class="bc-diff">${[1,2,3].map(i=>`<span class="bc-star${i<=p.dif?' on':''}">⭐</span>`).join('')}</div>
+ <span class="bc-pasos">${p.tipo==='2pasos'?'2 pasos':'1 paso'}</span>
+ </div>
+ <button class="bc-select-btn" onclick="event.stopPropagation();selectFromBanco(${p.id})">Usar este ▶</button>
+ <button onclick="event.stopPropagation();editarDoBanco(${p.id})" title="Editar problema" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:36px;width:36px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:rgba(30,37,53,.85);color:rgba(255,255,255,.8);font-size:.9rem;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all .15s;z-index:5" class="bc-edit-btn">✏️</button>
+ </div>`;
+ }).join('') || `<div style="color:var(--muted);font-size:.9rem;padding:2rem;grid-column:1/-1;text-align:center">Non hai problemas con estes filtros</div>`;
+}
+
+function filterBanco(tipo) { activeTipo=tipo; renderBanco(); }
+function filterDif(dif) { activeDif=dif; renderBanco(); }
+
+function editarDoBanco(id){
+  const p=banco.find(x=>x.id===id);
+  if(!p) return;
+  const TIPOS_OPTS=Object.entries(TIPOS).map(([k,v])=>`<option value="${k}"${p.tipo===k?' selected':''}>${v.emoji} ${v.label}</option>`).join('');
+  // Abrir modal de edición
+  const overlay=document.createElement('div');
+  overlay.id='edit-banco-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML=`<div style="background:#1e2535;border-radius:18px;padding:24px;width:100%;max-width:560px;border:1.5px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:14px">
+    <div style="font-family:'Georgia',serif;font-size:1.1rem;color:#fbbf24;margin-bottom:2px">✏️ Editar problema</div>
+    <div>
+      <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);display:block;margin-bottom:5px">Texto do problema</label>
+      <textarea id="eb-text" rows="5" style="width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.88rem;padding:10px 12px;outline:none;resize:vertical;line-height:1.6">${p.text}</textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);display:block;margin-bottom:5px">Tipo</label>
+        <select id="eb-tipo" style="width:100%;height:36px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">${TIPOS_OPTS}</select>
+      </div>
+      <div>
+        <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);display:block;margin-bottom:5px">Dificultade</label>
+        <div style="display:flex;gap:8px;align-items:center;height:36px">
+          ${[1,2,3].map(n=>`<span id="eb-star-${n}" onclick="selEditStar(${n})" style="font-size:1.4rem;cursor:pointer;opacity:${n<=p.dif?1:.3};transition:opacity .15s">⭐</span>`).join('')}
+          <input type="hidden" id="eb-dif" value="${p.dif}">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+      <button onclick="document.getElementById('edit-banco-overlay').remove()" style="height:36px;padding:0 18px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="borrarDoBanco(${id})" style="height:36px;padding:0 18px;border-radius:10px;border:1.5px solid rgba(239,68,68,.4);background:rgba(239,68,68,.1);color:#f87171;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
+      <button onclick="gardarEdicaoBanco(${id})" style="height:36px;padding:0 18px;border-radius:10px;border:none;background:#fbbf24;color:#1e2535;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:900;cursor:pointer">💾 Gardar</button>
+    </div>
+  </div>`;
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  document.body.appendChild(overlay);
+}
+
+function selEditStar(n){
+  document.getElementById('eb-dif').value=n;
+  [1,2,3].forEach(i=>{
+    const s=document.getElementById('eb-star-'+i);
+    if(s) s.style.opacity=i<=n?'1':'.3';
+  });
+}
+
+function gardarEdicaoBanco(id){
+  const p=banco.find(x=>x.id===id);
+  if(!p) return;
+  const txt=document.getElementById('eb-text')?.value.trim();
+  if(!txt){alert('O texto non pode estar baleiro');return;}
+  p.text=txt;
+  p.tipo=document.getElementById('eb-tipo')?.value||p.tipo;
+  p.dif=parseInt(document.getElementById('eb-dif')?.value)||p.dif;
+  localStorage.setItem('op_banco',JSON.stringify(banco));
+  document.getElementById('edit-banco-overlay')?.remove();
+  renderBanco();
+}
+
+function borrarDoBanco(id){
+  const idx=banco.findIndex(x=>x.id===id);
+  if(idx<0)return;
+  const eliminado=banco[idx];
+  banco.splice(idx,1);
+  localStorage.setItem('op_banco',JSON.stringify(banco));
+  document.getElementById('edit-banco-overlay')?.remove();
+  renderBanco();
+  _toastDesfacer(
+    `Problema "${(eliminado.enunciado||'sen título').substring(0,40)}" eliminado do banco`,
+    ()=>{
+      banco.splice(idx,0,eliminado);
+      localStorage.setItem('op_banco',JSON.stringify(banco));
+      renderBanco();
+    }
+  );
+}
+
+function selectFromBanco(id) {
+ const p = banco.find(x=>x.id===id);
+ if (!p) return;
+ setProblem(p);
+ showTab('proxector');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// XERADOR
+// ══════════════════════════════════════════════════════════════════════════════
+function setDiff(d) {
+ xerDiff=d;
+ [1,2,3].forEach(i=>document.getElementById('xd'+i).classList.toggle('sel',i===d));
+}
+
+const PLANTILLAS = {
+ suma:{
+ colexio:['A clase de {N}º ten {A} nenos e {B} nenas. Cantos alumnos hai en total?','Na biblioteca hai {A} libros de galego e {B} de castelán. Cantos libros hai?'],
+ natureza:['Nun bosque contáronse {A} piñeiros e {B} carballos. Cantos árbores hai en total?','No río viron {A} troitas e {B} salmóns. Cantas peixes contaron?'],
+ galicia:['Nunha romaría foron {A} persoas pola mañá e {B} pola tarde. Cantas persoas foron no total?','Na festa do Apóstolo había {A} turistas españois e {B} estranxeiros. Cantos turistas había?'],
+ deportes:['No partido, o equipo A marcou {A} puntos e o equipo B marcou {B}. Cantos puntos marcaron os dous equipos?','Xan correu {A} metros e logo {B} metros máis. Cantos metros correu en total?'],
+ cociña:['Nunha receita necesítanse {A} g de fariña e {B} g de azucre. Cantos gramos de ingredientes hai?','A panadería fixo {A} panciños pola mañá e {B} pola tarde. Cantos panciños fixo?'],
+ animais:['Nunha granxa hai {A} galiñas e {B} coellos. Cantos animais hai en total?','No parque vimos {A} bolboretas e {B} xoaniñas. Cantos insectos viron?'],
+ viaxes:['Un tren percorreu {A} km ata Vigo e logo {B} km máis ata Porto. Canto percorreu en total?','Nunha viaxe a familia gastou {A} € no hotel e {B} € na gasolina. Canto gastaron?'],
+ },
+ resta:{
+ colexio:['Habia {X} lapis na caixa. Gastáronse {B}. Cantos lapis quedan?','O colexio ten {X} alumnos. Hoxe faltaron {B}. Cantos viñeron?'],
+ natureza:['Nunha árbore había {X} paxaros. Voaron {B}. Cantos quedaron?','O río tiña {X} peixes. Pescáronse {B}. Cantos quedan?'],
+ galicia:['Na praia de Lanzada había {X} bañistas. Marcharon {B}. Cantos quedaron?','No Castro de Baroña había {X} visitantes pola mañá. Pola tarde quedaron {Y}. Cantos marcharon?'],
+ deportes:['O equipo tiña {X} puntos. Perdeu {B} puntos por faltas. Cantos puntos ten?','Habia {X} espectadores. Marcharon {B} ao descanso. Cantos quedaron?'],
+ cociña:['Habia {X} ovos. Usáronse {B} para a torta. Cantos quedan?','Compraron {X} g de carne. Cociñaron {B} g. Cantos gramos quedan?'],
+ animais:['Había {X} ovellas no prado. {B} foron ao establo. Cantas quedan fóra?','Nunha colmea había {X} abellas. Foron {B} a buscar mel. Cantas quedaron?'],
+ viaxes:['O avión tiña {X} asentos. Ocupáronse {B}. Cantos asentos libres hai?','O autobús percorreu {X} km. Quedan {B} km para chegar. Cantos km percorreu xa?'],
+ },
+ mult:{
+ colexio:['Cada pupitre ten {A} patas. Hai {B} pupitres na clase. Cantas patas hai en total?','Cada alumno ten {A} libros. Hai {B} alumnos. Cantos libros hai en total?'],
+ natureza:['Cada árbore ten {A} ramas. No parque hai {B} árbores. Cantas ramas hai?','Cada niño ten {A} ovos. Hai {B} niños. Cantos ovos hai en total?'],
+ galicia:['Cada romeiro leva {A} camiños de Compostela. Veñen {B} grupos de romeiros. Cantos camiños en total?','Cada familia leva {A} pulpeiros á festa. Son {B} familias. Cantos pulpeiros hai?'],
+ deportes:['Cada equipo ten {A} xogadores. Xogan {B} equipos no torneo. Cantos xogadores hai?','Un corredor dá {A} pasos por minuto. Canto dá en {B} minutos?'],
+ cociña:['Cada bandeixa leva {A} galletas. Fixeron {B} bandejas. Cantas galletas?','Cada tortilla leva {A} ovos. Fan {B} tortillas. Cantos ovos necesitan?'],
+ animais:['Cada galiña pon {A} ovos por semana. Hai {B} galiñas. Cantos ovos se recollen nunha semana?','Cada pulpo ten {A} tentáculos. Na lonxa hai {B} pulpos. Cantos tentáculos en total?'],
+ viaxes:['O coche gasta {A} litros por cada 100 km. Percorre {B}00 km. Cantos litros gasta?','Cada billete custa {A} euros. Viaxan {B} persoas. Canto custan os billetes?'],
+ },
+ div:{
+ colexio:['Hai {X} cromos que repartir entre {B} nenos a partes iguais. Cantos cromos lle tocan a cada un?','Compramos {X} galletas para {B} mesas de alumnos. Cantas galletas lle tocan a cada mesa?'],
+ natureza:['Recollemos {X} castañas. Quérense meter en sacos de {B} unidades. Cantos sacos enchemos?','Contamos {X} bolboretas en {B} xardíns. Cantas hai de media en cada xardín?'],
+ galicia:['En {X} días de Camiño de Santiago percorremos {Y} km en total. Cantos km facemos ao día?','A festa durou {X} horas. Divídese en {B} quendas iguais. Canto dura cada quenda?'],
+ deportes:['O equipo marcou {X} puntos en {B} partidos. Cantos puntos marcou de media por partido?','Nun triatlón percorremos {X} km en {B} etapas. Canto mide cada etapa?'],
+ cociña:['Temos {X} g de chocolate para facer {B} bolos iguais. Cantos gramos vai en cada bolo?','Fixemos {X} croquetas para {B} persoas. Cantas croquetas lle tocan a cada persoa?'],
+ animais:['Hai {X} paxaros repartidos en {B} gaiolas iguais. Cantos hai en cada gaiola?','Recollemos {X} mel en {B} colmeas iguais. Cantos ml de mel hai en cada colmea?'],
+ viaxes:['O autobús percorreu {X} km en {B} horas. A que velocidade media foi?','Gastamos {X} euros de gasolina en {B} viaxes iguais. Canto custa cada viaxe?'],
+ },
+};
+
+function xerar() {
+ const op = document.getElementById('xer-op').value;
+ const tema = document.getElementById('xer-tema').value;
+ const dif = xerDiff;
+
+ let text = '';
+ const r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+
+ if (op==='medida') {
+ const opts=[
+ `Marta camiñou ${r(2,8)} km e logo ${r(1,5)} km máis. Cantos metros camiñou en total?`,
+ `Nunha receita necesítanse ${r(3,9)}00 g de fariña. Se imos facer ${r(2,4)} receitas, cantos kg necesitamos?`,
+ `Un depósito ten ${r(50,200)*10} litros. Gástanse ${r(10,50)*5} litros ao día. Cantos días dura?`,
+ `O campo de fútbol mide ${r(80,110)} m de longo e ${r(50,70)} m de ancho. Canto mide o perímetro?`,
+ ];
+ text = opts[r(0,opts.length-1)];
+ } else if (op==='tempo') {
+ const h=r(8,17), m=Math.floor(r(0,3)*15);
+ const dur=r(1,4)*15;
+ const fm=m+dur;
+ const fh=h+Math.floor(fm/60), fs=fm%60;
+ text=`A clase comeza ás ${h}:${m.toString().padStart(2,'0')} h e dura ${dur} minutos. A que hora remata?`;
+ } else if (op==='dineiro') {
+ const opts=[
+ `Mercan ${r(2,6)} produtos a ${(r(10,50)/10).toFixed(2)} € cada un. Canto custan en total?`,
+ `Teñen ${r(1,5)*10} euros. Gastan ${(r(5,30)/2).toFixed(2)} €. Canto lles queda?`,
+ `${r(2,5)} amigos reparten igualmente un gasto de ${r(10,40)} euros. Canto paga cada un?`,
+ ];
+ text=opts[r(0,opts.length-1)];
+ } else if (op==='fraccions') {
+ const n=r(1,3),d=[2,3,4,5,6,8][r(0,5)],tot=r(2,5)*d;
+ text=`Nunha caixa de ${tot} froitas, ${n}/${d} son mazás. Cantas mazás hai? Cantas non son mazás?`;
+ } else if (op==='mixto') {
+ const A=r(10,99)*dif, B=r(10,99), C=r(2,9);
+ text=`Había ${A} unidades. Chegaron ${B} máis. Despois repartiron todo en ${C} grupos iguais. Cantas unidades hai en cada grupo?`;
+ } else {
+ const templates = PLANTILLAS[op]?.[tema] || PLANTILLAS[op]?.colexio || [];
+ if (!templates.length) { text='Problema xerado: exemplo básico de '+op; }
+ else {
+ const tpl = templates[r(0,templates.length-1)];
+ let A,B,X,Y,N;
+ if (dif===1) { A=r(10,50); B=r(5,30); }
+ else if (dif===2) { A=r(50,500); B=r(20,200); }
+ else { A=r(500,9999); B=r(100,999); }
+ X=A+B; Y=A-B>0?A-B:A; N=r(3,6);
+ text=tpl.replace(/\{A\}/g,A).replace(/\{B\}/g,B).replace(/\{X\}/g,X).replace(/\{Y\}/g,Y).replace(/\{N\}/g,N);
+ }
+ }
+
+ lastXerProblem = {id:Date.now(),tipo:op,dif,text};
+ document.getElementById('xer-result').textContent = text;
+ document.getElementById('xer-result').classList.remove('empty');
+ document.getElementById('xer-use-btn').style.display='inline-flex';
+}
+
+function xerarUsar() {
+ if (!lastXerProblem) return;
+ setProblem(lastXerProblem);
+ showTab('proxector');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PROPIO
+// ══════════════════════════════════════════════════════════════════════════════
+function poblarUDSelector(){
+  const sel=document.getElementById('custom-ud');
+  if(!sel) return;
+  try{
+    const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');
+    const allUDs=new Map();
+    Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{
+      if(!allUDs.has(u.num)) allUDs.set(u.num,u.tit||'');
+    }));
+    const opts=[...allUDs.entries()].sort((a,b)=>a[0]-b[0])
+      .map(([num,tit])=>`<option value="${num}">UD${num}${tit?' · '+tit.substring(0,18):''}</option>`)
+      .join('');
+    sel.innerHTML='<option value="">📚 Sen UD</option>'+opts;
+  }catch(e){}
+}
+
+function usarPropio() {
+ const text=document.getElementById('custom-text').value.trim();
+ if (!text) return;
+ const tipo=document.getElementById('custom-tipo').value;
+ const dif=parseInt(document.getElementById('custom-diff').value);
+ setProblem({id:Date.now(),tipo,dif,text});
+ showTab('proxector');
+}
+
+function gardarPropio() {
+ const text=document.getElementById('custom-text').value.trim();
+ if (!text) return;
+ const tipo=document.getElementById('custom-tipo').value;
+ const dif=parseInt(document.getElementById('custom-diff').value);
+ const prob={id:1000+Date.now(),tipo,dif,text,isUser:true};
+ userProblems.push(prob);
+ banco.push(prob);
+ save('pdd_userprobs',userProblems);
+ document.getElementById('custom-text').value='';
+ // Flash confirmation
+ const btn=event.target;
+ const orig=btn.textContent;
+ btn.textContent='✅ Gardado!';
+ btn.style.background='var(--green)';
+ setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1500);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MARK DONE / HISTORIAL / RACHA
+// ══════════════════════════════════════════════════════════════════════════════
+function markDone() {
+ if (!currentProblem) return;
+ const today = new Date().toLocaleDateString('gl',{weekday:'short',day:'numeric',month:'short'});
+ const todayKey = new Date().toDateString();
+
+ // Evitar duplicados no mesmo día
+ const alreadyToday = history.some(h=>h.dateKey===todayKey);
+
+ history.unshift({date:today,dateKey:todayKey,tipo:currentProblem.tipo,dif:currentProblem.dif,id:currentProblem.id,text:currentProblem.text});
+ if (history.length>30) history.pop();
+ save('pdd_history',history);
+
+ if (!alreadyToday) {
+ // Check consecutive days
+ if (history.length>=2) {
+ const prev=new Date(history[1].dateKey);
+ const now=new Date(todayKey);
+ const diff=(now-prev)/(1000*60*60*24);
+ racha = diff<=1 ? racha+1 : 1;
+ } else {
+ racha=1;
+ }
+ save('pdd_racha',racha);
+ }
+
+ updateHeader();
+ launchConfetti();
+
+ const btn=document.getElementById('btn-done');
+ btn.textContent='🎉 Moi ben!';
+ btn.style.background='var(--gold)';
+ setTimeout(()=>{btn.textContent='✅ Problema feito!';btn.style.background='var(--green)';},2500);
+}
+
+function renderHistorial() {
+ const today=new Date().toDateString();
+ document.getElementById('stat-row').innerHTML=`
+ <div class="stat-box"><span class="stat-num">${racha}</span><span class="stat-lbl">🔥 Días de racha</span></div>
+ <div class="stat-box"><span class="stat-num">${history.length}</span><span class="stat-lbl">📅 Problemas rexistrados</span></div>
+ <div class="stat-box"><span class="stat-num">${history.filter(h=>h.dateKey===today).length>0?'✅':'—'}</span><span class="stat-lbl">Hoxe completado</span></div>
+ `;
+ document.getElementById('hist-grid').innerHTML=history.length
+ ? history.map(h=>`<div class="hist-card"><div class="hist-date">📅 ${h.date} · ${TIPOS[h.tipo]?.emoji||'🧩'} ${TIPOS[h.tipo]?.label||h.tipo}</div><div class="hist-prob">${h.text}</div></div>`).join('')
+ : `<div style="color:var(--muted);font-size:.9rem;padding:1rem">Aínda non hai problemas rexistrados</div>`;
+}
+
+function clearHistory() {
+ const backupHist=[...history]; const backupRacha=racha;
+ _confirmar('Borrar todo o historial de problemas? Pódese desfacer durante 6 segundos.',
+   ()=>{
+     history=[]; racha=0;
+     save('pdd_history',[]); save('pdd_racha',0);
+     updateHeader(); renderHistorial();
+     _toastDesfacer('Historial de problemas borrado',
+       ()=>{ history=backupHist; racha=backupRacha;
+         save('pdd_history',history); save('pdd_racha',racha);
+         updateHeader(); renderHistorial(); },6000);
+   }
+ );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FULLSCREEN PROXECTOR
+// ══════════════════════════════════════════════════════════════════════════════
+function launchFS() {
+ if (!currentProblem) return;
+ const t=TIPOS[currentProblem.tipo]||{emoji:'🧩',label:currentProblem.tipo};
+ document.getElementById('fs-type-label').textContent=t.emoji+' '+t.label+' · '+'⭐'.repeat(currentProblem.dif);
+ document.getElementById('fs-problem-text').textContent=currentProblem.text;
+
+ const fst=document.getElementById('fs-timer');
+ if (timerTotal>0) {
+ fst.style.display='flex';
+ updateTimerUI();
+ } else {
+ fst.style.display='none';
+ }
+ document.getElementById('proxector-fs').classList.add('show');
+}
+function exitFS() { document.getElementById('proxector-fs').classList.remove('show'); }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HEADER / WEEK DOTS
+// ══════════════════════════════════════════════════════════════════════════════
+function updateHeader() {
+ document.getElementById('hdr-racha').textContent=racha;
+ document.getElementById('sess-racha').textContent=racha;
+ renderWeekDots('hdr-week');
+ renderWeekDots('sess-week');
+}
+
+function renderWeekDots(id) {
+ const today=new Date();
+ const dayOfWeek=today.getDay()===0?6:today.getDay()-1; // 0=Mon
+ const monday=new Date(today); monday.setDate(today.getDate()-dayOfWeek);
+ const dots=[];
+ for(let i=0;i<5;i++){
+ const d=new Date(monday); d.setDate(monday.getDate()+i);
+ const key=d.toDateString();
+ const done=history.some(h=>h.dateKey===key);
+ const isToday=key===today.toDateString();
+ dots.push(`<div class="wdot${done?' done':''}${isToday?' today':''}" title="${['L','M','X','X','V'][i]}"></div>`);
+ }
+ const el=document.getElementById(id); if(el) el.innerHTML=dots.join('');
+}
+
+function updateSessionDate() {
+ const opts={weekday:'long',day:'numeric',month:'long',year:'numeric'};
+ document.getElementById('sess-date').textContent=new Date().toLocaleDateString('gl',opts);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════════════════════════════════════
+let confettiFrame=null;
+function launchConfetti() {
+ if(confettiFrame){cancelAnimationFrame(confettiFrame);confettiFrame=null;}
+ const c=document.getElementById('confetti'),cx=c.getContext('2d');
+ c.width=window.innerWidth;c.height=window.innerHeight;
+ const pal=['#fbbf24','#22c55e','#3b82f6','#f472b6','#a78bfa','#2dd4bf'];
+ const pieces=Array.from({length:100},()=>({x:Math.random()*c.width,y:-10,w:6+Math.random()*8,h:9+Math.random()*6,color:pal[~~(Math.random()*pal.length)],vx:(Math.random()-.5)*6,vy:3+Math.random()*4,rot:Math.random()*360,rotV:(Math.random()-.5)*10,alpha:1}));
+ function draw(){cx.clearRect(0,0,c.width,c.height);let alive=false;pieces.forEach(p=>{if(p.alpha<=0)return;alive=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;if(p.y>c.height*0.7)p.alpha-=.025;cx.save();cx.globalAlpha=Math.max(0,p.alpha);cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.fillStyle=p.color;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore();});if(alive)confettiFrame=requestAnimationFrame(draw);else{cx.clearRect(0,0,c.width,c.height);confettiFrame=null;}}
+ draw();
+}
+function launchMini(color){
+ const c=document.getElementById('confetti'),cx=c.getContext('2d');
+ if(c.width!==window.innerWidth){c.width=window.innerWidth;c.height=window.innerHeight;}
+ const pieces=Array.from({length:18},()=>({x:c.width*.5+(Math.random()-.5)*300,y:c.height*.35,w:5+Math.random()*5,h:7+Math.random()*5,color:[color,'#ffd700','#fff'][~~(Math.random()*3)],vx:(Math.random()-.5)*8,vy:-4-Math.random()*4,rot:Math.random()*360,rotV:(Math.random()-.5)*12,alpha:1,g:.28}));
+ let f=null;
+ function draw(){cx.clearRect(0,0,c.width,c.height);let alive=false;pieces.forEach(p=>{if(p.alpha<=0)return;alive=true;p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;if(p.y>c.height*.7)p.alpha-=.05;cx.save();cx.globalAlpha=Math.max(0,p.alpha);cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.fillStyle=p.color;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore();});if(alive)f=requestAnimationFrame(draw);else{cx.clearRect(0,0,c.width,c.height);f=null;}}
+ requestAnimationFrame(draw);
+}
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape') exitFS();
+ if(e.key==='F5'||e.key==='f') { e.preventDefault(); launchFS(); }
+ if(e.key==='Enter'&&e.ctrlKey) markDone();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateSessionDate();
+updateHeader();
+
+// ══════════════════════════════════════════════════════════════════════
+// BACKUP JSON — Problema do Día
+// ══════════════════════════════════════════════════════════════════════
+const _BACKUP_KEYS = ["pd_racha", "pd_historial", "pd_userProblemas"];
+const _BACKUP_APP = 'Problema do Día';
+
+function toggleBackupMenu(){
+ const m=document.getElementById('backup-menu');
+ m.classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+ const w=document.getElementById('bkp-wrap');
+ if(w&&!w.contains(e.target)) document.getElementById('backup-menu')?.classList.remove('open');
+},true);
+
+function exportarJSON(){
+ document.getElementById('backup-menu').classList.remove('open');
+ const data={};
+ _BACKUP_KEYS.forEach(k=>{
+ const v=localStorage.getItem(k);
+ if(v!=null) try{data[k]=JSON.parse(v)}catch{data[k]=v};
+ });
+ data._app=_BACKUP_APP; data._version='1.0'; data._data=new Date().toISOString();
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=`${_BACKUP_APP.replace(/\s+/g,'_')}_${new Date().toLocaleDateString('gl').replace(/\//g,'-')}.json`;
+ a.click();
+ showBackupToast('📤 Datos exportados correctamente!','#22c55e');
+}
+
+function importarJSON(event){
+ const file=event.target.files[0]; if(!file) return;
+ const reader=new FileReader();
+ reader.onload=e=>{
+ try{
+ const data=JSON.parse(e.target.result);
+ if(!data._app){showBackupToast('❌ Arquivo non válido','#ef4444');return;}
+ let count=0;
+ _BACKUP_KEYS.forEach(k=>{
+ if(data[k]!==undefined){localStorage.setItem(k,JSON.stringify(data[k]));count++;}
+ });
+ showBackupToast('✅ '+count+' elementos importados. Recargando...','#22c55e');
+ setTimeout(()=>location.reload(),1400);
+ }catch(err){showBackupToast('❌ Erro: '+err.message,'#ef4444');}
+ };
+ reader.readAsText(file); event.target.value='';
+}
+
+function exportarCSVBackup(){
+ document.getElementById('backup-menu').classList.remove('open');
+ if(typeof exportCSV==='function') exportCSV();
+ else showBackupToast('CSV non dispoñible','#94a3b8');
+}
+
+function confirmBorrarDatos(){
+ document.getElementById('backup-menu').classList.remove('open');
+ _confirmar('Borrar TODOS os datos gardados? Esta acción non se pode desfacer.',
+   ()=>{
+     _BACKUP_KEYS.forEach(k=>localStorage.removeItem(k));
+     showBackupToast('🗑️ Datos borrados. Recargando...','#f97316');
+     setTimeout(()=>location.reload(),1000);
+   },'Borrar todo'
+ );
+}
+
+function showBackupToast(msg,color){
+ let t=document.getElementById('backup-toast');
+ if(!t){t=document.createElement('div');t.id='backup-toast';
+ t.style.cssText='position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 22px;border-radius:12px;font-family:Fredoka One,cursive;font-size:.95rem;color:white;box-shadow:0 4px 24px rgba(0,0,0,.5);transition:opacity .4s;pointer-events:none';
+ document.body.appendChild(t);}
+ t.textContent=msg;t.style.background=color;t.style.opacity='1';
+ clearTimeout(t._to);t._to=setTimeout(()=>{t.style.opacity='0';},3200);
+}
+
+function gardarAlumnoHist(entry) {
+  var sel = document.getElementById('hist-alumno-sel');
+  var al = sel ? sel.value : '';
+  if (!al) return;
+  var key = 'pdd_hist_' + al.replace(/\s+/g, '_');
+  var h = load(key, []);
+  h.unshift(entry);
+  if (h.length > 60) h.pop();
+  save(key, h);
+}
+
+function renderPddStats() {
+  var statRow = document.getElementById('stat-row');
+  var histGrid = document.getElementById('hist-grid');
+  if (!statRow || !histGrid) return;
+
+  var hist = history; // pdd_history global
+  if (!hist.length) {
+    statRow.innerHTML = '';
+    histGrid.innerHTML = '<div style="color:var(--muted);font-size:.9rem;padding:1rem">A\xEDnda non hai problemas rexistrados</div>';
+    return;
+  }
+
+  // KPIs
+  var rachaMax = 0, rachaActual = 0, prevKey = null;
+  hist.slice().reverse().forEach(function(h) {
+    if (!prevKey) { rachaActual = 1; }
+    else {
+      var prev = new Date(prevKey), cur = new Date(h.dateKey);
+      var diff = Math.abs(cur - prev) / 864e5;
+      rachaActual = diff <= 1 ? rachaActual + 1 : 1;
+    }
+    if (rachaActual > rachaMax) rachaMax = rachaActual;
+    prevKey = h.dateKey;
+  });
+
+  statRow.innerHTML = [
+    ['\uD83D\uDCC5', 'Total problemas', hist.length, 'var(--gold,#fbbf24)'],
+    ['\uD83D\uDD25', 'Racha actual', (window.racha||0), '#22c55e'],
+    ['\uD83C\uDFC6', 'Racha m\xE1xima', rachaMax, '#f97316'],
+    ['\uD83E\uDDE9', 'Tipos distintos', Object.keys(window.TIPOS||{}).filter(function(t){return hist.some(function(h){return h.tipo===t;});}).length, '#a78bfa'],
+  ].map(function(k){
+    return '<div class="stat-box"><span class="stat-num" style="color:'+k[3]+'">'+k[2]+'</span><span class="stat-lbl">'+k[0]+' '+k[1]+'</span></div>';
+  }).join('');
+
+  // Distribution by tipo
+  var tipoCount = {};
+  hist.forEach(function(h) { tipoCount[h.tipo] = (tipoCount[h.tipo]||0)+1; });
+  var tipoOrder = Object.keys(tipoCount).sort(function(a,b){return tipoCount[b]-tipoCount[a];});
+  var maxTipo = tipoCount[tipoOrder[0]] || 1;
+
+  // Distribution by dificultade
+  var difCount = {1:0, 2:0, 3:0};
+  hist.forEach(function(h) { if(h.dif) difCount[h.dif]=(difCount[h.dif]||0)+1; });
+  var difCols = {1:'#22c55e', 2:'#fbbf24', 3:'#ef4444'};
+  var difLabels = {1:'\u2B50 Nivel 1', 2:'\u2B50\u2B50 Nivel 2', 3:'\u2B50\u2B50\u2B50 Nivel 3'};
+
+  // Timeline last 30 entries
+  var recent = hist.slice(0, 30).reverse();
+  var timelineHTML = recent.map(function(h) {
+    var ti = window.TIPOS && TIPOS[h.tipo];
+    var col = ti ? ti.cor : '#6366f1';
+    var dif = h.dif || 1;
+    var stars = '\u2B50'.repeat(dif);
+    return '<div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+      + '<span style="font-size:.7rem;min-width:80px;color:rgba(238,242,255,.35)">' + (h.dateKey||h.date||'') + '</span>'
+      + '<span style="font-size:.65rem;padding:1px 6px;border-radius:999px;background:'+col+'22;color:'+col+';font-weight:700">' + (ti?ti.emoji+' '+ti.label:h.tipo) + '</span>'
+      + '<span style="font-size:.6rem;color:rgba(238,242,255,.3)">' + stars + '</span>'
+      + '</div>';
+  }).join('');
+
+  histGrid.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">'
+    // Tipos
+    + '<div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,.07)">'
+    + '<div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);margin-bottom:8px">Por tipo de problema</div>'
+    + tipoOrder.map(function(t) {
+        var ti = window.TIPOS && TIPOS[t];
+        var col = ti ? ti.cor : '#6366f1';
+        var n = tipoCount[t];
+        var pct = Math.round(n/maxTipo*100);
+        return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">'
+          + '<span style="font-size:.72rem;min-width:90px;color:'+col+';font-weight:700">' + (ti?ti.emoji+' '+ti.label:t) + '</span>'
+          + '<div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:999px"></div></div>'
+          + '<span style="font-size:.72rem;color:'+col+';font-weight:800;min-width:20px;text-align:right">'+n+'</span>'
+          + '</div>';
+      }).join('')
+    + '</div>'
+    // Dificultade
+    + '<div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,.07)">'
+    + '<div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);margin-bottom:8px">Por dificultade</div>'
+    + [1,2,3].map(function(d) {
+        var n = difCount[d]||0;
+        var pct = hist.length ? Math.round(n/hist.length*100) : 0;
+        return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">'
+          + '<span style="font-size:.72rem;min-width:90px;color:'+difCols[d]+';font-weight:700">'+difLabels[d]+'</span>'
+          + '<div style="flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+difCols[d]+';border-radius:999px"></div></div>'
+          + '<span style="font-size:.72rem;color:'+difCols[d]+';font-weight:800;min-width:28px;text-align:right">'+n+'</span>'
+          + '</div>';
+      }).join('')
+    + '</div></div>'
+    // Timeline
+    + '<div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,.07)">'
+    + '<div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);margin-bottom:8px">Historial recente (30 \xFAltimos)</div>'
+    + timelineHTML
+    + '</div>';
+}
+
+function setPddVista(v) {
+  _pddVista = v;
+  document.getElementById('pv-lista')?.classList.toggle('active', v==='lista');
+  document.getElementById('pv-stats')?.classList.toggle('active', v==='stats');
+  var filtros = document.getElementById('pdd-hist-filtros');
+  if (filtros) filtros.style.display = v==='lista' ? 'flex' : 'none';
+  if (v==='stats') renderPddStats();
+  else renderHistorial();
+}
+
+
+// ── TEMPORIZADOR INTEGRADO NO PROBLEMA DO DÍA ────────────────────────────────
+let pddTimerSecs = parseInt(localStorage.getItem('pdd_timer_secs')||'120');
+let pddTimerAuto = localStorage.getItem('pdd_timer_auto')==='1';
+let pddTimerLeft = pddTimerSecs;
+let pddTimerIv = null;
+let pddTimerRunning = false;
+
+function renderPddTimerDisplay(){
+  const m=Math.floor(Math.abs(pddTimerLeft)/60).toString().padStart(2,'0');
+  const s=(Math.abs(pddTimerLeft)%60).toString().padStart(2,'0');
+  const el=document.getElementById('pdd-timer-display');
+  const fill=document.getElementById('pdd-timer-fill');
+  if(el) el.textContent=(pddTimerLeft<0?'-':'')+m+':'+s;
+  if(el) el.style.color=pddTimerLeft<=10?'var(--red)':pddTimerLeft<=30?'var(--orange)':'var(--gold)';
+  if(fill){
+    const pct=Math.max(0,Math.min(100,pddTimerLeft/pddTimerSecs*100));
+    fill.style.width=pct+'%';
+    fill.style.background=pddTimerLeft<=10?'var(--red)':pddTimerLeft<=30?'var(--orange)':'var(--gold)';
+  }
+  const btn=document.getElementById('pdd-timer-btn');
+  if(btn) btn.textContent=pddTimerRunning?'\u23F8 Pausar':'\u25B6 Iniciar';
+  // Show timer bar when a problem is loaded
+  const bar=document.getElementById('pdd-timer-bar');
+  if(bar) bar.style.display=currentProblem?'flex':'none';
+}
+
+function iniciarPddTimer(){
+  if(pddTimerIv) clearInterval(pddTimerIv);
+  pddTimerRunning=true;
+  pddTimerIv=setInterval(()=>{
+    pddTimerLeft--;
+    renderPddTimerDisplay();
+    if(pddTimerLeft===0){
+      // Finished! flash and beep
+      const el=document.getElementById('pdd-timer-display');
+      if(el){el.style.animation='timerBlink .5s ease 3';setTimeout(()=>{if(el)el.style.animation='';},1500);}
+      try{const ctx=new (window.AudioContext||window.webkitAudioContext)();
+        [880,1100,880].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;g.gain.setValueAtTime(.4,ctx.currentTime+i*.2);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.2+.18);o.start(ctx.currentTime+i*.2);o.stop(ctx.currentTime+i*.2+.2);});}catch{}
+    }
+  },1000);
+}
+
+function togglePddTimer(){
+  if(pddTimerRunning){
+    clearInterval(pddTimerIv);pddTimerIv=null;pddTimerRunning=false;
+  } else {
+    iniciarPddTimer();
+  }
+  renderPddTimerDisplay();
+}
+
+function resetPddTimer(){
+  clearInterval(pddTimerIv);pddTimerIv=null;pddTimerRunning=false;
+  pddTimerLeft=pddTimerSecs;
+  renderPddTimerDisplay();
+}
+
+function openPddTimerConfig(){
+  const mins=Math.floor(pddTimerSecs/60), secs2=pddTimerSecs%60;
+  // Use existing openModal if available, else use confirm approach
+  const r=prompt('Tempo en minutos (ex: 2 = 2:00, 1.5 = 1:30):',+(pddTimerSecs/60).toFixed(2));
+  if(r===null) return;
+  const t=Math.round(parseFloat(r)*60);
+  if(!isNaN(t)&&t>0){
+    pddTimerSecs=t;pddTimerLeft=t;
+    localStorage.setItem('pdd_timer_secs',String(t));
+    pddTimerRunning=false;clearInterval(pddTimerIv);pddTimerIv=null;
+    renderPddTimerDisplay();
+  }
+}
+
+// Inicializar display
+renderPddTimerDisplay();
+// Poblar selector UD na pestana Escribir
+setTimeout(poblarUDSelector, 100);
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:400px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

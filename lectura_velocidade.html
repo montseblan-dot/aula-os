@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lectura Velocidade · AULA OS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;700;900&family=DM+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b1120;--card:#131c2e;--card2:#192035;--card3:#1f2844;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --white:#eef2ff;--muted:rgba(238,242,255,.42);--muted2:rgba(238,242,255,.22);
+  --gold:#fbbf24;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--indigo:#818cf8;
+  --teal:#2dd4bf;--orange:#f97316;
+  --gl:#34d399;--es:#60a5fa;
+}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--card);border-bottom:1px solid var(--border);padding:12px 22px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:200}
+.hdr-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.35rem;flex:1}
+.hdr-title em{color:var(--gold);font-style:normal}
+.btn{height:30px;padding:0 13px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.1);color:var(--gold)}
+.btn-green{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08);color:var(--green)}
+.btn-red{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red)}
+.btn-blue{border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.08);color:var(--blue)}
+.btn-ghost{border-color:var(--border);color:var(--muted)}
+
+/* TABS */
+.tabs{background:var(--card);border-bottom:1px solid var(--border);display:flex;padding:0 22px}
+.tab{padding:11px 18px;font-size:.75rem;font-weight:800;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.section{display:none}.section.show{display:block}
+
+/* LAYOUT */
+.wrap{padding:18px 22px;max-width:1400px}
+
+/* CARDS */
+.card{background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:11px}
+.card-hdr{font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;color:var(--gold);margin-bottom:13px;display:flex;align-items:center;gap:8px}
+
+/* CAMPOS */
+.row{display:grid;gap:9px;margin-bottom:9px}
+.row.c2{grid-template-columns:1fr 1fr}
+.row.c3{grid-template-columns:1fr 1fr 1fr}
+.row.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+.lbl{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);display:block;margin-bottom:4px}
+.inp,.sel{width:100%;height:32px;background:var(--card);border:1.5px solid var(--border2);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;padding:0 10px;outline:none;transition:border-color .15s}
+.inp:focus,.sel:focus{border-color:var(--gold)}
+.sel{cursor:pointer}
+.ta{width:100%;background:var(--card);border:1.5px solid var(--border2);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;padding:8px 10px;outline:none;resize:vertical;line-height:1.6;transition:border-color .15s}
+.ta:focus{border-color:var(--gold)}
+
+/* TEMPORIZADOR */
+.timer-display{font-family:'DM Mono',monospace;font-size:4rem;font-weight:700;text-align:center;color:var(--gold);letter-spacing:.05em;line-height:1;padding:20px 0}
+.timer-display.running{color:var(--green);animation:pulse 1s ease-in-out infinite}
+.timer-display.ending{color:var(--red);animation:pulse .5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.timer-btns{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.timer-bar{height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin-bottom:16px}
+.timer-bar-fill{height:100%;background:var(--green);border-radius:999px;transition:width .1s linear,background .3s}
+
+/* TEXTO LECTURA */
+.texto-container{background:var(--card);border:2px solid var(--border2);border-radius:12px;padding:20px 24px;margin-bottom:14px;position:relative}
+.texto-lectura{font-family:'Lora',Georgia,serif;font-size:1.05rem;line-height:1.9;color:var(--white);white-space:pre-wrap}
+.texto-lectura .word{display:inline;cursor:pointer;border-radius:3px;padding:0 1px;transition:background .1s}
+.texto-lectura .word:hover{background:rgba(251,191,36,.12)}
+.texto-lectura .word.errata{background:rgba(239,68,68,.2);color:#fca5a5;text-decoration:underline wavy #ef4444}
+.texto-lectura .word.final{background:rgba(34,197,94,.15);border-right:2px solid var(--green)}
+.word-count-badge{position:absolute;top:10px;right:12px;font-size:.62rem;font-weight:900;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* NIVEL BADGES */
+.nivel-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;font-size:.72rem;font-weight:900}
+.nivel-moi-alto{background:rgba(129,140,248,.15);color:var(--indigo);border:1px solid rgba(129,140,248,.3)}
+.nivel-alto{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.nivel-adecuado{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.25)}
+.nivel-baixo{background:rgba(251,191,36,.1);color:var(--gold);border:1px solid rgba(251,191,36,.25)}
+.nivel-moi-baixo{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.22)}
+
+/* PREGUNTAS COMPRENSIÓN */
+.preg-item{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:7px}
+.preg-txt{font-size:.82rem;font-weight:700;color:var(--white);margin-bottom:8px;line-height:1.4}
+.resp-btns{display:flex;gap:6px;flex-wrap:wrap}
+.resp-btn{height:26px;padding:0 11px;border-radius:6px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer;color:var(--muted);transition:all .15s}
+.resp-btn.correct{border-color:rgba(34,197,94,.3);color:var(--green)}
+.resp-btn.correct.sel{background:rgba(34,197,94,.15)}
+.resp-btn.wrong{border-color:rgba(239,68,68,.3);color:var(--red)}
+.resp-btn.wrong.sel{background:rgba(239,68,68,.1)}
+
+/* PROSODIA */
+.pros-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.pros-label{font-size:.76rem;font-weight:700;flex:1}
+.pros-stars{display:flex;gap:3px}
+.pros-star{font-size:1.1rem;cursor:pointer;opacity:.3;transition:opacity .15s}
+.pros-star.on{opacity:1}
+
+/* HISTORIAL */
+.hist-item{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:12px 16px;margin-bottom:7px;position:relative}
+.hist-meta{font-size:.62rem;color:var(--muted);margin-bottom:5px;display:flex;gap:10px;flex-wrap:wrap}
+.hist-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px}
+.hist-stat{font-size:.68rem;font-weight:900}
+
+/* PALABRAS NUMERADAS */
+.pal-num{display:inline;cursor:pointer;border-radius:3px;padding:0 1px;transition:background .1s;position:relative}
+.pal-num:hover{background:rgba(251,191,36,.15)}
+.pal-num.marcada-final{background:rgba(34,197,94,.2);border-right:3px solid var(--green);font-weight:900}
+.pal-num.errata{background:rgba(239,68,68,.18);text-decoration:underline wavy #ef4444;color:#fca5a5}
+.pal-tooltip{position:fixed;background:rgba(15,20,35,.95);border:1px solid var(--gold);color:var(--gold);font-family:'DM Mono',monospace;font-size:.65rem;font-weight:900;padding:3px 8px;border-radius:5px;pointer-events:none;z-index:9999;display:none}
+
+/* RÚBRICA */
+.rub-btn{display:flex;align-items:flex-start;gap:8px;padding:6px 10px;border-radius:7px;border:1.5px solid var(--border);background:transparent;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:'DM Sans',sans-serif}
+.rub-btn:hover{border-color:var(--border2);background:rgba(255,255,255,.03)}
+.rub-sel{border-color:var(--gold)!important;background:rgba(251,191,36,.08)!important}
+.rub-num{font-size:.65rem;font-weight:900;min-width:16px;height:16px;border-radius:50%;background:var(--border2);color:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rub-sel .rub-num{background:var(--gold);color:#1e2a4a}
+.rub-txt{font-size:.68rem;font-weight:600;color:var(--muted);line-height:1.4}
+.rub-sel .rub-txt{color:var(--white)}
+
+/* BAREMOS TABLE */
+.baremo-tbl{width:100%;border-collapse:collapse;font-size:.75rem}
+.baremo-tbl th{padding:7px 10px;text-align:left;font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.baremo-tbl td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card2);border-radius:15px;padding:22px;width:100%;max-width:560px;border:1px solid var(--border2);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:14px}
+.modal-row{display:flex;gap:7px;justify-content:flex-end;margin-top:13px}
+
+/* SAVE FLASH */
+.save-flash{font-size:.62rem;font-weight:900;color:var(--green);opacity:0;transition:opacity .4s;letter-spacing:.06em}
+.save-flash.on{opacity:1}
+
+/* PROGRESO BAR */
+.prog-bar{height:4px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:999px;transition:width .3s}
+
+@media print{.hdr button,.tabs,.btn,.modal-bg{display:none!important}body{background:#fff;color:#1e293b}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <span style="font-size:1.5rem">📖</span>
+  <div style="flex:1">
+    <div class="hdr-title">Lectura · <em>Velocidade e Comprensión</em></div>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:1px"></div>
+  </div>
+  <span class="save-flash" id="save-flash">✓ GARDADO</span>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn" onclick="showTab('baremos')">📊 Baremos</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none">🏠 Portal</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-avaliacion" onclick="showTab('avaliacion')">🎙️ Avaliación</div>
+  <div class="tab" id="tab-historial" onclick="showTab('historial')">📋 Historial</div>
+  <div class="tab" id="tab-textos" onclick="showTab('textos')">📚 Banco de textos</div>
+  <div class="tab" id="tab-baremos" onclick="showTab('baremos')">📊 Baremos</div>
+</div>
+
+<!-- ══ AVALIACIÓN ══ -->
+<div class="section show" id="sec-avaliacion">
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:340px 1fr;gap:14px">
+
+      <!-- PANEL ESQUERDO: CONTROL -->
+      <div>
+        <!-- Alumno e configuración -->
+        <div class="card">
+          <div class="card-hdr"><span>👤 Alumno/a e sesión</span></div>
+          <div class="row" style="margin-bottom:9px">
+            <div>
+              <span class="lbl">Alumno/a</span>
+              <select class="sel" id="sel-alumno" onchange="onAlumnoChange()">
+                <option value="">— Selecciona —</option>
+              </select>
+            </div>
+          </div>
+          <div class="row c2">
+            <div><span class="lbl">Curso</span>
+              <select class="sel" id="sel-curso" onchange="onCursoChange()">
+                <option value="3">3º Primaria</option>
+                <option value="4" selected>4º Primaria</option>
+              </select></div>
+
+          </div>
+          <div class="row c2">
+            <div><span class="lbl">Lingua</span>
+              <select class="sel" id="sel-lingua" onchange="renderTextosSelect()">
+                <option value="gl">Galego</option>
+                <option value="es">Castelán</option>
+              </select></div>
+            <div><span class="lbl">Data</span>
+              <input class="inp" type="date" id="data-sesion" value="">
+            </div>
+          </div>
+        </div>
+
+        <!-- Temporizador -->
+        <div class="card">
+          <div class="card-hdr"><span>⏱️ Temporizador</span></div>
+          <div class="timer-display" id="timer-display">1:00</div>
+          <div class="timer-bar"><div class="timer-bar-fill" id="timer-bar" style="width:100%"></div></div>
+          <div class="timer-btns">
+            <button class="btn btn-green" id="btn-start" onclick="startTimer()">▶ Iniciar</button>
+            <button class="btn btn-red" id="btn-stop" onclick="stopTimer()" disabled>⏹ Deter</button>
+            <button class="btn btn-ghost" onclick="resetTimer()">↺ Reset</button>
+          </div>
+          <div id="timer-msg" style="text-align:center;font-size:.72rem;font-weight:800;color:var(--muted);min-height:20px"></div>
+        </div>
+
+        <!-- Resultados velocidade -->
+        <div class="card" id="card-resultados" style="display:none">
+          <div class="card-hdr"><span>📊 Resultado</span></div>
+          <div class="row c2">
+            <div><span class="lbl">📖 Palabras lidas en 1 minuto</span>
+              <input class="inp" type="number" id="palabras-lidas" placeholder="Ex: 87" min="0" oninput="calcularPPM()" style="font-size:1.1rem;font-weight:900;height:40px;text-align:center"></div>
+            <div><span class="lbl">❌ Erros de lectura</span>
+              <input class="inp" type="number" id="num-erros" placeholder="0" min="0" value="0" oninput="calcularPPM()" style="font-size:1.1rem;font-weight:900;height:40px;text-align:center"></div>
+          </div>
+          <div id="ppm-result" style="text-align:center;padding:12px 0"></div>
+          <div id="nivel-result" style="text-align:center;margin-bottom:6px"></div>
+          <div id="baremo-info" style="font-size:.68rem;color:var(--muted);text-align:center"></div>
+        </div>
+
+        <!-- Prosodia -->
+        <div class="card" id="card-prosodia" style="display:none">
+          <div class="card-hdr"><span>🎵 Prosodia e entoación</span></div>
+          <div id="prosodia-items">
+            <div class="pros-item">
+              <span class="pros-label">Fluidez (sen paradas)</span>
+              <div class="pros-stars" id="pros-fluidez" data-val="0">
+                <span class="pros-star" onclick="setPros('fluidez',1)">⭐</span><span class="pros-star" onclick="setPros('fluidez',2)">⭐</span><span class="pros-star" onclick="setPros('fluidez',3)">⭐</span><span class="pros-star" onclick="setPros('fluidez',4)">⭐</span><span class="pros-star" onclick="setPros('fluidez',5)">⭐</span>
+              </div>
+            </div>
+            <div class="pros-item">
+              <span class="pros-label">Entoación e pausas</span>
+              <div class="pros-stars" id="pros-entoacion" data-val="0">
+                <span class="pros-star" onclick="setPros('entoacion',1)">⭐</span><span class="pros-star" onclick="setPros('entoacion',2)">⭐</span><span class="pros-star" onclick="setPros('entoacion',3)">⭐</span><span class="pros-star" onclick="setPros('entoacion',4)">⭐</span><span class="pros-star" onclick="setPros('entoacion',5)">⭐</span>
+              </div>
+            </div>
+            <div class="pros-item">
+              <span class="pros-label">Ritmo e velocidade percibida</span>
+              <div class="pros-stars" id="pros-ritmo" data-val="0">
+                <span class="pros-star" onclick="setPros('ritmo',1)">⭐</span><span class="pros-star" onclick="setPros('ritmo',2)">⭐</span><span class="pros-star" onclick="setPros('ritmo',3)">⭐</span><span class="pros-star" onclick="setPros('ritmo',4)">⭐</span><span class="pros-star" onclick="setPros('ritmo',5)">⭐</span>
+              </div>
+            </div>
+            <div class="pros-item" style="border:none">
+              <span class="pros-label">Volume e claridade</span>
+              <div class="pros-stars" id="pros-volume" data-val="0">
+                <span class="pros-star" onclick="setPros('volume',1)">⭐</span><span class="pros-star" onclick="setPros('volume',2)">⭐</span><span class="pros-star" onclick="setPros('volume',3)">⭐</span><span class="pros-star" onclick="setPros('volume',4)">⭐</span><span class="pros-star" onclick="setPros('volume',5)">⭐</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rúbrica -->
+        <div class="card" id="card-rubrica" style="display:none">
+          <div class="card-hdr"><span>📋 Rúbrica de lectura</span>
+            <span id="rubrica-total" style="margin-left:auto;font-size:.75rem;font-weight:900;color:var(--gold)"></span>
+          </div>
+          <div id="rubrica-items"></div>
+        </div>
+
+        <!-- Gardar -->
+        <div id="card-gardar" style="display:none">
+          <div class="row c2" style="margin-bottom:9px">
+            <div><span class="lbl">Lingua de avaliación</span>
+              <select class="sel" id="export-lingua">
+                <option value="gl">Galego (GL)</option>
+                <option value="es">Castelán (ES)</option>
+              </select></div>
+            <div><span class="lbl">Unidade Didáctica (opcional)</span>
+              <select class="sel" id="export-ud">
+                <option value="">— Sen UD —</option>
+              </select></div>
+          </div>
+          <div class="row">
+            <div><span class="lbl">Observacións do/a mestre/a</span>
+              <textarea class="ta" rows="2" id="obs-sesion" placeholder="Lecturas silábicas, dificultades específicas, melloras observadas..."></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="gardarSesion()" style="flex:1">💾 Gardar</button>
+            <button class="btn btn-blue" onclick="exportarAoCaderno()" style="flex:1">📒 Exportar ao Caderno</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DEREITO: TEXTO + COMPRENSIÓN -->
+      <div>
+        <!-- Selector de texto -->
+        <div class="card">
+          <div class="card-hdr"><span>📄 Texto de lectura</span></div>
+          <div class="row c2">
+            <div><span class="lbl">Seleccionar texto</span>
+              <select class="sel" id="sel-texto" onchange="cargarTexto()">
+                <option value="">— Escolle un texto —</option>
+              </select></div>
+            <div style="display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-blue" onclick="abrirModalTextoPropio()" style="height:32px">+ Propio</button>
+              <button class="btn btn-ghost" onclick="textoProxeccion()" style="height:32px">📺 Proxectar</button>
+              <button class="btn btn-ghost" onclick="imprimirTexto()" style="height:32px">🖨️ Imprimir</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modo marcado -->
+        <div id="modo-marcado-bar" style="display:none;gap:6px;margin-bottom:8px;align-items:center">
+          <span style="font-size:.62rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Modo clic:</span>
+          <button class="btn modo-btn sel" onclick="setModoMarcado('final',this)" style="height:26px;font-size:.65rem;border-color:rgba(34,197,94,.3);color:var(--green)">✅ Marcar última palabra</button>
+          <button class="btn modo-btn" onclick="setModoMarcado('errata',this)" style="height:26px;font-size:.65rem;border-color:rgba(239,68,68,.3);color:var(--red)">❌ Marcar erros</button>
+        </div>
+        <!-- Texto -->
+        <div class="texto-container" id="texto-container" style="min-height:200px">
+          <div class="word-count-badge" id="word-count-badge"></div>
+          <div class="texto-lectura" id="texto-display" style="color:var(--muted);font-style:italic">
+            Selecciona un texto para comezar a avaliación.
+          </div>
+          <div id="texto-instrucions" style="margin-top:12px;font-size:.72rem;color:var(--muted);display:none">
+            💡 <strong>Durante a lectura:</strong> O alumno/a le o texto en papel. Ao rematar o minuto, anota o número de palabras lidas e os erros cometidos nos campos de resultado.
+          </div>
+        </div>
+
+        <!-- Comprensión -->
+        <div class="card" id="card-comprension" style="display:none">
+          <div class="card-hdr">
+            <span>🧠 Comprensión lectora</span>
+            <span id="comprension-score" style="margin-left:auto;font-size:.75rem;font-weight:900"></span>
+          </div>
+          <div id="preguntas-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HISTORIAL ══ -->
+<div class="section" id="sec-historial">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold)">📋 Historial de lecturas</div>
+      <select class="sel" id="hist-fil-alumno" onchange="renderHistorial()" style="width:auto;height:28px">
+        <option value="">Todos os alumnos/as</option>
+      </select>
+      <select class="sel" id="hist-fil-curso" onchange="renderHistorial()" style="width:auto;height:28px">
+        <option value="">Todos os cursos</option>
+        <option value="3">3º Primaria</option>
+        <option value="4">4º Primaria</option>
+      </select>
+      <button class="btn btn-gold" onclick="exportarPDFHistorial()" style="margin-left:auto">🖨️ PDF</button>
+    </div>
+    <div id="historial-list"></div>
+  </div>
+</div>
+
+<!-- ══ BANCO DE TEXTOS ══ -->
+<div class="section" id="sec-textos">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold)">📚 Banco de textos</div>
+      <button class="btn btn-gold" onclick="abrirModalTextoPropio()" style="margin-left:auto">+ Engadir texto propio</button>
+    </div>
+    <div id="banco-textos-list"></div>
+  </div>
+</div>
+
+<!-- ══ BAREMOS ══ -->
+<div class="section" id="sec-baremos">
+  <div class="wrap">
+    <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold);margin-bottom:14px">📊 Baremos de referencia · Palabras por minuto</div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:14px">Baseado nos baremos PROLEC-R, PACE e investigacións sobre lectura en lingua galega e española en Ed. Primaria (2º ciclo).</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="card">
+        <div class="card-hdr" style="color:var(--gl)"><span>📗 3º de Primaria</span></div>
+        <table class="baremo-tbl">
+          <thead><tr><th>Momento</th><th>Moi baixo</th><th>Baixo</th><th>Adecuado</th><th>Alto</th><th>Moi alto</th></tr></thead>
+          <tbody id="baremo-3-body"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-hdr" style="color:var(--gold)"><span>📙 4º de Primaria</span></div>
+        <table class="baremo-tbl">
+          <thead><tr><th>Momento</th><th>Moi baixo</th><th>Baixo</th><th>Adecuado</th><th>Alto</th><th>Moi alto</th></tr></thead>
+          <tbody id="baremo-4-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-hdr"><span>ℹ️ Criterios de avaliación adicionales</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:.78rem;line-height:1.6">
+        <div>
+          <div style="font-weight:900;color:var(--gold);margin-bottom:6px">Comprensión lectora (%)</div>
+          <div style="color:var(--muted)">• 90-100%: Excelente comprensión</div>
+          <div style="color:var(--muted)">• 70-89%: Boa comprensión</div>
+          <div style="color:var(--muted)">• 50-69%: Comprensión suficiente</div>
+          <div style="color:var(--muted)">• 30-49%: Comprensión baixa</div>
+          <div style="color:var(--muted)">• &lt;30%: Comprensión moi baixa</div>
+        </div>
+        <div>
+          <div style="font-weight:900;color:var(--gold);margin-bottom:6px">Taxa de erros</div>
+          <div style="color:var(--muted)">• 0-1%: Lectura independente</div>
+          <div style="color:var(--muted)">• 2-5%: Lectura instrucional (con axuda)</div>
+          <div style="color:var(--muted)">• &gt;5%: Texto de frustración (moi difícil)</div>
+          <div style="font-size:.65rem;margin-top:6px;color:var(--muted2)">Exemplo: En 80 palabras, 2 erros = 2.5% (instrucional)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP PALABRA -->
+<div class="pal-tooltip" id="pal-tooltip"></div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><div id="modal-content"></div></div>
+</div>
+
+<!-- MODAL PROXECCION -->
+<div id="proxeccion-overlay" style="display:none;position:fixed;inset:0;background:#0a0e1a;z-index:9999;padding:60px;cursor:pointer" onclick="this.style.display='none'">
+  <div style="position:absolute;top:20px;right:20px;font-size:.75rem;color:rgba(255,255,255,.3)">Clic para pechar · ESC</div>
+  <div style="font-family:'Lora',Georgia,serif;font-size:clamp(1.2rem,2.5vw,2rem);line-height:2;color:#eef2ff;max-width:900px;margin:0 auto" id="prox-texto"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// DATOS
+// ══════════════════════════════════════════════════════════════════════════════
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+
+// BAREMOS PPM (palabras por minuto) por curso e momento
+// Fonte: adaptación de PROLEC-R, PACE e estudos de lectura en español/galego
+const BAREMOS={
+  3:{
+    ini:{moi_baixo:[0,44],baixo:[45,59],adecuado:[60,79],alto:[80,99],moi_alto:[100,999]},
+    med:{moi_baixo:[0,54],baixo:[55,69],adecuado:[70,89],alto:[90,109],moi_alto:[110,999]},
+    fin:{moi_baixo:[0,64],baixo:[65,79],adecuado:[80,99],alto:[100,119],moi_alto:[120,999]},
+  },
+  4:{
+    ini:{moi_baixo:[0,64],baixo:[65,79],adecuado:[80,99],alto:[100,119],moi_alto:[120,999]},
+    med:{moi_baixo:[0,74],baixo:[75,89],adecuado:[90,109],alto:[110,129],moi_alto:[130,999]},
+    fin:{moi_baixo:[0,84],baixo:[85,99],adecuado:[100,119],alto:[120,139],moi_alto:[140,999]},
+  }
+};
+
+const NIVEL_LABELS={
+  moi_baixo:{txt:'Moi baixo',cls:'nivel-moi-baixo',ico:'🔴'},
+  baixo:{txt:'Baixo',cls:'nivel-baixo',ico:'🟡'},
+  adecuado:{txt:'Adecuado',cls:'nivel-adecuado',ico:'🔵'},
+  alto:{txt:'Alto',cls:'nivel-alto',ico:'🟢'},
+  moi_alto:{txt:'Moi alto',cls:'nivel-moi-alto',ico:'🟣'},
+};
+
+// BANCO DE TEXTOS PREDEFINIDOS
+const TEXTOS_PREDEFINIDOS=[
+  {
+    id:'t1',lingua:'gl',curso:3,nivel:'ini',tipo:'Narrativo',
+    titulo:'O gato e o rato',
+    total_palabras:120,
+    texto:`Había unha vez un gato moi listo que vivía nunha casa de pedra. O gato chamábase Micio e tiña o pelo negro e os ollos amarelos coma o ouro. Todos os días saía ao xardín a tomar o sol e a cazar bolboretas.
+
+Un día apareceu un rato pequeno que buscaba comida. O rato chamábase Nico e tiña moita fame. Micio viu ao rato e correu detrás del, pero Nico era moi rápido e escondíase entre as pedras.
+
+Os dous animais empezaron a xogar todos os días. Ao final fixéronse amigos e compartían o almorzo xuntos.`,
+    preguntas:[
+      {txt:'Como se chamaba o gato?',opcions:['Micio','Nico','Pito','Luna'],correcta:0},
+      {txt:'De que cor tiña os ollos o gato?',opcins:['Verdes','Azuis','Amarelos','Negros'],correcta:2},
+      {txt:'Que facía o gato todos os días no xardín?',opcins:['Durmía','Cazaba bolboretas','Comía peixe','Ladraba'],correcta:1},
+      {txt:'Por que buscaba comida o rato?',opcins:['Por aburrimento','Tiña moita fame','Quería xogar','Era moi glotón'],correcta:1},
+      {txt:'Como rematou a historia?',opcins:['O gato comeu ao rato','Fixéronse amigos','O rato marchou','Loitaron'],correcta:1},
+    ]
+  },
+  {
+    id:'t2',lingua:'gl',curso:3,nivel:'med',tipo:'Expositivo',
+    titulo:'As abellas',
+    total_palabras:130,
+    texto:`As abellas son insectos que viven en grupos chamados colonias. Cada colonia ten unha raíña, moitas obreiras e algúns zánganos. A raíña pon os ovos e as obreiras fan todo o traballo.
+
+As abellas aliméntanse de pole e néctar das flores. Ao recoller o néctar, levan o pole dunha flor a outra e así axudan a que as plantas se reproduzan. A este proceso chámaselle polinización.
+
+O mel que producen as abellas é un alimento moi nutritivo para os humanos. Para facer un quilo de mel, as abellas deben visitar máis de catro millóns de flores. Por iso o mel é tan valioso e especial.`,
+    preguntas:[
+      {txt:'Como se chama o grupo onde viven as abellas?',opcins:['Manada','Colonia','Bandada','Rabaño'],correcta:1},
+      {txt:'De que se alimentan as abellas?',opcins:['De froitas','De pole e néctar','De follas','De auga'],correcta:1},
+      {txt:'Que fai a raíña na colonia?',opcins:['Recolle o mel','Fai cera','Pon os ovos','Defende a colmea'],correcta:2},
+      {txt:'Como se chama o proceso polo que as abellas axudan ás plantas?',opcins:['Fertilización','Fotosíntese','Polinización','Reprodución'],correcta:2},
+      {txt:'Cantas flores visitan as abellas para facer un quilo de mel?',opcins:['Un millón','Catro millóns','Dez millóns','Cen mil'],correcta:1},
+    ]
+  },
+  {
+    id:'t3',lingua:'gl',curso:4,nivel:'ini',tipo:'Narrativo',
+    titulo:'A viaxe de Anxo',
+    total_palabras:145,
+    texto:`Anxo tiña dez anos e nunca saíra da súa aldea. Un día, a súa profesora anunciou que irían de excursión á cidade de Santiago de Compostela. O neno non puido durmir en toda a noite de emoción.
+
+Ao chegar, quedou asombrado ao ver a catedral. Era enorme e as súas torres chegaban ao ceo. Fixeron unha visita guiada e aprenderon que a catedral se construíu hai máis de nove séculos.
+
+Pola tarde pasearon polas rúas do casco histórico e probaron a empanada galega. Anxo comprou un pequeno botafumeiro de lembranza para a súa nai. De volta á aldea, Anxo xa sabía que quería ser arqueólogo cando fose maior.`,
+    preguntas:[
+      {txt:'Cantos anos tiña Anxo?',opcins:['Oito','Nove','Dez','Once'],correcta:2},
+      {txt:'Onde foron de excursión?',opcins:['A Vigo','Á Coruña','A Santiago','A Pontevedra'],correcta:2},
+      {txt:'Que lle comprou Anxo á súa nai de lembranza?',opcins:['Unha cuncha','Un pano','Un botafumeiro','Unhas pedras'],correcta:2},
+      {txt:'Hai cantos séculos se construíu a catedral?',opcins:['Cinco','Sete','Nove','Once'],correcta:2},
+      {txt:'Que quere ser Anxo cando sexa maior?',opcins:['Médico','Arqueólogo','Profesora','Piloto'],correcta:1},
+    ]
+  },
+  {
+    id:'t4',lingua:'gl',curso:4,nivel:'med',tipo:'Expositivo',
+    titulo:'O sistema solar',
+    total_palabras:155,
+    texto:`O sistema solar está formado polo Sol e todos os corpos celestes que xiran ao seu redor. Hai oito planetas principais: Mercurio, Venus, a Terra, Marte, Xúpiter, Saturno, Urano e Neptuno.
+
+A Terra é o único planeta coñecido onde existe vida. Está na chamada zona habitable, que é a distancia perfecta do Sol para que haxa auga líquida. Sen auga, a vida tal como a coñecemos sería imposible.
+
+Xúpiter é o planeta máis grande do sistema solar e ten polo menos noventa e dous lúas coñecidas. A súa gran mancha vermella é en realidade unha enorme tormenta que leva activa máis de trescentos anos. Os científicos seguen estudando os misterios do noso sistema solar.`,
+    preguntas:[
+      {txt:'Cantos planetas principais ten o sistema solar?',opcins:['Seis','Sete','Oito','Nove'],correcta:2},
+      {txt:'Cal é o único planeta coñecido con vida?',opcins:['Marte','Venus','A Terra','Xúpiter'],correcta:2},
+      {txt:'Que é a "zona habitable"?',opcins:['Onde fai máis calor','A distancia perfecta do Sol para ter auga líquida','O centro do universo','Onde non hai meteoros'],correcta:1},
+      {txt:'Que é a gran mancha vermella de Xúpiter?',opcins:['Un volcán','Un océano','Unha tormenta','Un cráter'],correcta:2},
+      {txt:'Canto tempo leva activa a tormenta de Xúpiter?',opcins:['Cen anos','Douscentos anos','Trescentos anos','Catrocentos anos'],correcta:2},
+    ]
+  },
+  {
+    id:'t5',lingua:'gl',curso:4,nivel:'fin',tipo:'Expositivo',
+    titulo:'A auga no planeta',
+    total_palabras:165,
+    texto:`A auga é un recurso fundamental para a vida en todo o planeta. Cobre aproximadamente o setenta por cento da superficie terrestre, aínda que a maior parte é auga salgada dos océanos e non é apta para o consumo humano.
+
+Só o tres por cento da auga do planeta é doce, e a gran maioría encóntrase en glaciares e calotas polares en forma de xeo. Isto significa que menos do un por cento da auga total do planeta é accesible directamente para as persoas, os animais e as plantas.
+
+O ciclo da auga é o proceso polo que a auga circula continuamente entre a atmosfera, a terra e os océanos. A evaporación, a condensación e a precipitación son as súas fases principais. Grazas a este ciclo, a auga doce se renova de xeito natural, aínda que a contaminación e o cambio climático están a ameazar este equilibrio.`,
+    preguntas:[
+      {txt:'Que porcentaxe da superficie terrestre cobre a auga?',opcins:['50%','60%','70%','80%'],correcta:2},
+      {txt:'Que porcentaxe da auga do planeta é doce?',opcins:['1%','3%','10%','30%'],correcta:1},
+      {txt:'Onde se atopa a maior parte da auga doce?',opcins:['Nos ríos','Nos lagos','En glaciares e polos','No subsolo'],correcta:2},
+      {txt:'Cal é o proceso polo que a auga circula entre a atmosfera e a terra?',opcins:['A evaporación','O ciclo da auga','A condensación','A precipitación'],correcta:1},
+      {txt:'Que ameaza o equilibrio do ciclo da auga?',opcins:['As mareas','A contaminación e o cambio climático','A evaporación','Os ríos'],correcta:1},
+    ]
+  },
+  // Textos en castelán
+  {
+    id:'t6',lingua:'es',curso:3,nivel:'ini',tipo:'Narrativo',
+    titulo:'El perro y su sombra',
+    total_palabras:118,
+    texto:`Un perro cruzaba un puente con un trozo de carne en la boca. Al mirar hacia el agua, vio su propio reflejo y creyó que era otro perro con un trozo de carne más grande.
+
+Codicioso, abrió la boca para quitarle la carne al otro perro y, al hacerlo, se le cayó la carne al río. Se quedó sin nada, mirando cómo la carne se hundía en el agua.
+
+Esta historia nos enseña que a veces, por querer más de lo que tenemos, podemos perder lo que ya poseemos. Es importante valorar lo que tenemos y no ser codiciosos.`,
+    preguntas:[
+      {txt:'¿Qué llevaba el perro en la boca?',opcins:['Un hueso','Un trozo de carne','Un pez','Un pan'],correcta:1},
+      {txt:'¿Dónde cruzaba el puente el perro?',opcins:['Por un bosque','Por una ciudad','Por un puente','Por una playa'],correcta:2},
+      {txt:'¿Qué creyó ver el perro en el agua?',opcins:['Su dueño','Otro perro con más carne','Un pez grande','Su propia sombra'],correcta:1},
+      {txt:'¿Qué le pasó al perro?',opcins:['Encontró más carne','Se le cayó la carne al río','La compartió','La escondió'],correcta:1},
+      {txt:'¿Qué enseñanza tiene la historia?',opcins:['Hay que ser rápido','Hay que ser valiente','No hay que ser codicioso','Hay que nadar bien'],correcta:2},
+    ]
+  },
+  {
+    id:'t7',lingua:'es',curso:4,nivel:'ini',tipo:'Expositivo',
+    titulo:'Los volcanes',
+    total_palabras:148,
+    texto:`Los volcanes son aberturas en la corteza terrestre por las que salen rocas fundidas llamadas lava, gases y cenizas desde el interior de la Tierra. Pueden encontrarse en tierra firme o en el fondo del mar.
+
+Cuando un volcán entra en erupción, la lava puede alcanzar temperaturas de más de mil grados centígrados. Al enfriarse, la lava forma nuevas rocas que crean montañas o amplían el territorio de las islas. Así se formaron las islas Canarias y las islas Hawái.
+
+Aunque los volcanes pueden ser peligrosos, también tienen aspectos positivos. Los suelos volcánicos son muy fértiles y permiten cultivar alimentos de gran calidad. Además, el calor del interior de la Tierra se aprovecha para producir energía geotérmica.`,
+    preguntas:[
+      {txt:'¿Qué son los volcanes?',opcins:['Montañas de hielo','Aberturas en la corteza terrestre','Grietas en el fondo del mar','Cráteres de meteoritos'],correcta:1},
+      {txt:'¿Cómo se llama la roca fundida que sale de los volcanes?',opcins:['Magma','Lava','Ceniza','Mineral'],correcta:1},
+      {txt:'¿A qué temperatura puede llegar la lava?',opcins:['500°C','Más de 1000°C','200°C','3000°C'],correcta:1},
+      {txt:'¿Cómo se formaron las islas Canarias?',opcins:['Por terremotos','Por la acción del mar','Por erupciones volcánicas','Por el viento'],correcta:2},
+      {txt:'¿Qué beneficio tienen los suelos volcánicos?',opcins:['Son muy resistentes','Son muy fértiles','Son muy duros','Son impermeables'],correcta:1},
+    ]
+  },
+
+  // ── GALEGO: textos t8-t15 ─────────────────────────────────────────────────
+  {
+    id:'t8',lingua:'gl',curso:3,nivel:'med',tipo:'Narrativo',
+    titulo:'O merlo e a raposa',
+    total_palabras:122,
+    texto:`Nunha tarde de outono, un merlo pousou nunha póla cun anaco de queixo no peteiro. Unha raposa, que pasaba por alí, viuno e quixo o queixo para ela.
+
+—Que plumas tan brillantes tes! —dixo a raposa—. Seguro que a túa voz é tan fermosa coma a túa pluma. Cántame algo, por favor.
+
+O merlo, moi orgulloso, abriu o peteiro para cantar. O queixo caeu ao chan e a raposa colleuno de inmediato.
+
+—Grazas polo queixo —dixo a raposa mentres marchaba—. Xa sabía que a vaidade sería a túa perdición.
+
+O merlo quedou coa voz pero sen queixo, aprendendo que non hai que fiar das lisonxas.`,
+    preguntas:[
+      {txt:'Que levaba o merlo no peteiro?',opcins:['Un verme','Unha baía','Un anaco de queixo','Unha noz'],correcta:2},
+      {txt:'Que lle dixo a raposa ao merlo?',opcins:['Que era moi listo','Que tiña plumas brillantes','Que cantaba moi mal','Que era moi grande'],correcta:1},
+      {txt:'Que lle pediu a raposa ao merlo?',opcins:['Que voase','Que lle contase un conto','Que cantase','Que lle dese o queixo directamente'],correcta:2},
+      {txt:'Que pasou cando o merlo abriu o peteiro?',opcins:['Cantou moi ben','Caeu o queixo ao chan','A raposa asustouse','Voou a outro árbol'],correcta:1},
+      {txt:'Que aprendeu o merlo?',opcins:['A cantar mellor','A gardar o queixo','A non fiar das lisonxas','A correr máis rápido'],correcta:2},
+    ]
+  },
+  {
+    id:'t9',lingua:'gl',curso:3,nivel:'fin',tipo:'Expositivo',
+    titulo:'Os dinosauros',
+    total_palabras:128,
+    texto:`Os dinosauros foron animais que viviron na Terra hai moitísimos anos, entre douscentos trinta e sesenta e cinco millóns de anos atrás. Había dinosauros de moitos tamaños: desde os moi pequenos, coma os compies, ata os xigantescos como o Brachiosaurus.
+
+Algúns dinosauros eran carnívoros, como o temible Tiranosaurio Rex, que tiña dentes moi grandes e afiados. Outros eran herbívoros e alimentábanse só de plantas e follas, como o Triceratops.
+
+Os científicos estudan os restos dos dinosauros, chamados fósiles, para aprender como eran estes animais. Grazas aos fósiles sabemos que as aves actuais son descendentes directas dos dinosauros.`,
+    preguntas:[
+      {txt:'Hai cantos anos vivían os dinosauros?',opcins:['Dez millóns','Entre 65 e 230 millóns','Un millón','Cincocentos millóns'],correcta:1},
+      {txt:'Cal era un dinosauro carnívoro?',opcins:['Triceratops','Brachiosaurus','Tiranosaurio Rex','Compie'],correcta:2},
+      {txt:'De que se alimentaban os dinosauros herbívoros?',opcins:['De outros dinosauros','De peixes','De plantas e follas','De insectos'],correcta:2},
+      {txt:'Como se chaman os restos dos dinosauros que estudan os científicos?',opcins:['Minerais','Fósiles','Esqueletos','Pegadas'],correcta:1},
+      {txt:'Que animais actuais son descendentes dos dinosauros?',opcins:['Os réptiles','Os mamíferos','As aves','Os peixes'],correcta:2},
+    ]
+  },
+  {
+    id:'t10',lingua:'gl',curso:4,nivel:'ini',tipo:'Instructivo',
+    titulo:'Como plantar unha semente',
+    total_palabras:138,
+    texto:`Plantar unha semente é moi sinxelo se seguimos os pasos correctos. Primeiro necesitamos un tiesto con terra húmida e fértil. Tamén precisaremos a semente que queremos plantar, auga e un lugar con luz.
+
+O primeiro paso é facer un pequeno burato na terra cun dedo, duns dous centímetros de profundidade. Despois introducimos a semente no burato e tapámola con terra suavemente, sen apretar demasiado.
+
+Regamos con coidado para que a terra quede húmida pero sen encharcar. É importante colocar o tiesto nun lugar onde reciba luz solar directa varias horas ao día.
+
+Nun prazo de entre cinco e quince días, dependendo da especie, veremos aparecer os primeiros brotes verdes. Desde ese momento hai que regar regularmente e ter paciencia.`,
+    preguntas:[
+      {txt:'Que necesitamos para plantar unha semente?',opcins:['Só terra e auga','Tiesto, terra, semente, auga e luz','Só unha maceta grande','Abono e fertilizante'],correcta:1},
+      {txt:'Cantos centímetros de profundidade debe ter o burato?',opcins:['Un centímetro','Dous centímetros','Cinco centímetros','Dez centímetros'],correcta:1},
+      {txt:'Como debe quedar a terra despois de regar?',opcins:['Moi seca','Encharcada','Húmida pero sen encharcar','Con moita auga'],correcta:2},
+      {txt:'Cantos días tarda en aparecer o primeiro brote?',opcins:['Un ou dous días','Entre cinco e quince días','Un mes','Máis de dous meses'],correcta:1},
+      {txt:'Que hai que facer desde que aparecen os primeiros brotes?',opcins:['Non regar máis','Cambiar o tiesto','Regar regularmente e ter paciencia','Poñelo á sombra'],correcta:2},
+    ]
+  },
+  {
+    id:'t11',lingua:'gl',curso:4,nivel:'med',tipo:'Narrativo',
+    titulo:'A illa do tesouro',
+    total_palabras:152,
+    texto:`Marcos tiña doce anos e vivía nunha casa preto do mar. Un día, mentres xogaba na praia, atopou unha botella de cristal dentro da cal había un pergamino amarelento.
+
+Coa axuda da súa amiga Carme, descifrou o mapa que había debuxado nel. Indicaba que nun illote próximo, baixo un piñeiro coas raíces ao descuberto, había un cofre escondido.
+
+Á mañá seguinte alugaron un bote de remos e chegaron ao illote despois de media hora de travesía. Seguindo o mapa, cavaron entre as raíces do piñeiro máis vello e atoparon o cofre.
+
+Dentro non había ouro nin xoias, senón centos de cartas antigas escritas por un mariñeiro chamado Xoán que contaba as súas aventuras polo mundo. Marcos e Carme pasaron o verán enteiro lendo as súas historias.`,
+    preguntas:[
+      {txt:'Onde vivía Marcos?',opcins:['Nunha cidade grande','Nunha casa preto do mar','Nunha granxa','Nun barco'],correcta:1},
+      {txt:'Que atopou Marcos na praia?',opcins:['Un cofre de ouro','Unhas moedas antigas','Unha botella con un mapa','Unha chave enferruxada'],correcta:2},
+      {txt:'Quen axudou a Marcos a descifrar o mapa?',opcins:['O seu irmán','Un mariñeiro','A súa amiga Carme','O seu pai'],correcta:2},
+      {txt:'Canto tardaron en chegar ao illote?',opcins:['Dez minutos','Media hora','Dúas horas','Todo o día'],correcta:1},
+      {txt:'Que había dentro do cofre?',opcins:['Ouro e xoias','Moedas antigas','Cartas dun mariñeiro','Mapas de piratas'],correcta:2},
+    ]
+  },
+  {
+    id:'t12',lingua:'gl',curso:4,nivel:'fin',tipo:'Narrativo',
+    titulo:'O inventor do chocolate',
+    total_palabras:158,
+    texto:`O chocolate, un dos alimentos máis queridos do mundo, ten unha longa historia que comeza en América Central. Os maias e os aztecas xa o consumían hai máis de tres mil anos, pero non doce como hoxe o coñecemos: preparaban unha bebida amarga e especiada con sementes de cacao.
+
+Cando os conquistadores españois chegaron a América no século XVI, levaron o cacao a Europa. Alí engadíronlle azucre e especias como a canela, facéndoo moito máis agradable ao padal europeo.
+
+Durante moito tempo o chocolate foi só unha bebida exclusiva para a realeza e a nobreza, moi cara e difícil de conseguir. Non foi ata o século XIX, cando o químico holandés Coenraad Van Houten inventou o proceso para facer o cacao en po, que o chocolate sólido e barato chegou ao gran público.`,
+    preguntas:[
+      {txt:'Quen consumía cacao hai máis de tres mil anos?',opcins:['Os españois','Os romanos','Os maias e os aztecas','Os ingleses'],correcta:2},
+      {txt:'Como era o chocolate que preparaban os aztecas?',opcins:['Moi doce','Amargo e especiado','Con leite','Sólido'],correcta:1},
+      {txt:'Que engadiron os europeos ao cacao?',opcins:['Sal e pementa','Azucre e canela','Leite e mel','Vainilla e limón'],correcta:1},
+      {txt:'Quen podía tomar chocolate en Europa nun principio?',opcins:['Todo o mundo','Os nenos','A realeza e a nobreza','Os mariñeiros'],correcta:2},
+      {txt:'Que inventou Van Houten no século XIX?',opcins:['O chocolate con leite','O cacao en po','O chocolate branco','A tableta de chocolate'],correcta:1},
+    ]
+  },
+  {
+    id:'t13',lingua:'gl',curso:3,nivel:'ini',tipo:'Narrativo',
+    titulo:'A tartaruga e a lebre',
+    total_palabras:115,
+    texto:`Había unha vez unha lebre moi presuntuosa que se burlaba sempre da tartaruga por ir moi devagar. Un día, a tartaruga cansouse das burlas e desafiouna a unha carreira ata o carballo grande do bosque.
+
+A lebre aceptou rindo. Cando comezou a carreira, a lebre correu tan rápido que logo perdeu de vista á tartaruga. Estaba tan segura de gañar que decidiu botarse a durmir baixo unha árbore.
+
+A tartaruga seguiu camiñando sen parar, paso a paso, sen descansar nin un momento. Cando a lebre espertou, a tartaruga xa estaba chegando á meta. Por moito que correu, xa non puido alcanzala.
+
+Desde ese día a lebre aprendeu que a constancia vale máis ca a velocidade.`,
+    preguntas:[
+      {txt:'Por que se burlaba a lebre da tartaruga?',opcins:['Por ser pequena','Por ir moi devagar','Por ter a cuncha fea','Por non saber nadar'],correcta:1},
+      {txt:'A que desafiouna a tartaruga?',opcins:['A nadar','A saltar','A unha carreira','A trepar árbores'],correcta:2},
+      {txt:'Que fixo a lebre durante a carreira?',opcins:['Correu sen parar','Deu a volta','Botouse a durmir','Trampou'],correcta:2},
+      {txt:'Que fixo a tartaruga durante toda a carreira?',opcins:['Correu moi rápido','Camiñou sen parar','Durmiu tamén','Pediu axuda'],correcta:1},
+      {txt:'Que aprendeu a lebre?',opcins:['A correr máis rápido','A durmir menos','Que a constancia vale máis ca a velocidade','A respetar ás tartarugas'],correcta:2},
+    ]
+  },
+  {
+    id:'t14',lingua:'gl',curso:3,nivel:'med',tipo:'Expositivo',
+    titulo:'O ciclo da auga',
+    total_palabras:125,
+    texto:`A auga da Terra está en continuo movemento. Este movemento chámase ciclo da auga e ten tres fases principais: a evaporación, a condensación e a precipitación.
+
+A evaporación ocorre cando o sol quenta a auga dos mares, ríos e lagos, converténdoa en vapor. Ese vapor sobe cara ao ceo e ao arrefriarse forma as nubes. A isto chámaselle condensación.
+
+Cando as nubes acumulan moita auga, esa auga cae de novo á Terra en forma de choiva, neve ou sarabia. Isto é a precipitación. A auga que cae vai aos ríos, lagos e ao mar, e o ciclo comeza de novo.
+
+Grazas ao ciclo da auga temos auga doce dispoñible nos ríos e lagos para beber e para as plantas.`,
+    preguntas:[
+      {txt:'Como se chama o movemento continuo da auga?',opcins:['O río da auga','O ciclo da auga','O camiño da auga','O fluxo da auga'],correcta:1},
+      {txt:'Que ocorre durante a evaporación?',opcins:['A auga cae do ceo','O sol converte a auga en vapor','As nubes forman choiva','A auga se xea'],correcta:1},
+      {txt:'Como se chama a fase na que se forman as nubes?',opcins:['Evaporación','Precipitación','Condensación','Filtración'],correcta:2},
+      {txt:'En que formas pode caer a auga durante a precipitación?',opcins:['Só en choiva','En choiva, neve ou sarabia','En neve e xeo','Só en neve'],correcta:1},
+      {txt:'Para que é importante o ciclo da auga?',opcins:['Para que haxa tormentas','Para ter auga doce nos ríos','Para que o mar creza','Para formar montañas'],correcta:1},
+    ]
+  },
+  {
+    id:'t15',lingua:'gl',curso:4,nivel:'med',tipo:'Expositivo',
+    titulo:'Galicia, terra de culturas',
+    total_palabras:150,
+    texto:`Galicia é unha comunidade autónoma situada no noroeste da Península Ibérica. Ten costa no océano Atlántico e comparte fronteira con Portugal ao sur e con Asturias e Castela e León ao leste. A súa paisaxe está marcada polas rías, os montes e os bosques de carballos e castiñeiros.
+
+A lingua galega, xunto co castelán, é lingua oficial de Galicia. Ten máis de oitocentos anos de historia literaria e foi a lingua na que escribiron grandes poetas medievais de toda a Península Ibérica.
+
+Galicia é famosa polo Camiño de Santiago, que é unha ruta de peregrinación que chega á catedral de Santiago de Compostela. Peregrinos de máis de cento oitenta países visitan Galicia cada ano para facer este camiño, convertendo a comunidade nun destino cultural de primeira orde a nivel mundial.`,
+    preguntas:[
+      {txt:'Onde está situada Galicia?',opcins:['No sueste de España','No noroeste da Península Ibérica','No centro de España','No norte de Portugal'],correcta:1},
+      {txt:'Con que país comparte fronteira Galicia ao sur?',opcins:['Francia','Italia','Portugal','Marrocos'],correcta:2},
+      {txt:'Cantos anos de historia literaria ten o galego?',opcins:['Catrocentos','Seiscentos','Máis de oitocentos','Máis de mil'],correcta:2},
+      {txt:'A que lugar chega o Camiño de Santiago?',opcins:['Á Coruña','Á catedral de Santiago de Compostela','A Vigo','A Lugo'],correcta:1},
+      {txt:'De cantos países veñen os peregrinos do Camiño de Santiago?',opcins:['Máis de 50','Máis de 100','Máis de 180','Máis de 200'],correcta:2},
+    ]
+  },
+  // ── CASTELÁN: textos t8es-t15es ───────────────────────────────────────────
+  {
+    id:'t8es',lingua:'es',curso:3,nivel:'ini',tipo:'Narrativo',
+    titulo:'El patito feo',
+    total_palabras:120,
+    texto:`En una granja vivía una mamá pata con sus patitos. Todos eran amarillos y bonitos, pero uno era diferente: era grande, gris y torpe. Los otros animales se reían de él y lo llamaban el patito feo.
+
+El patito se sentía muy triste y decidió marcharse de la granja. Durante el invierno pasó mucho frío y se quedó solo. Pero cuando llegó la primavera, se acercó a un estanque y vio su reflejo en el agua.
+
+Ya no era un patito feo. Era un hermoso cisne blanco con el cuello largo y elegante. Los otros cisnes lo acogieron con alegría. Por fin el patito feo había encontrado su lugar en el mundo.`,
+    preguntas:[
+      {txt:'¿Cómo era el patito diferente?',opcins:['Pequeño y negro','Grande, gris y torpe','Muy rápido','Muy tímido'],correcta:1},
+      {txt:'¿Qué hizo el patito al sentirse triste?',opcins:['Se escondió','Se fue a nadar','Se marchó de la granja','Lloró mucho'],correcta:2},
+      {txt:'¿Cuándo vio el patito su reflejo?',opcins:['En invierno','En otoño','En verano','En primavera'],correcta:3},
+      {txt:'¿En qué se había convertido el patito?',opcins:['En un pato grande','En un hermoso cisne','En un flamenco','En un pájaro cantor'],correcta:1},
+      {txt:'¿Qué encontró el patito al final?',opcins:['Una nueva granja','Más comida','Su lugar en el mundo','A su mamá pata'],correcta:2},
+    ]
+  },
+  {
+    id:'t9es',lingua:'es',curso:3,nivel:'med',tipo:'Expositivo',
+    titulo:'Los planetas del sistema solar',
+    total_palabras:126,
+    texto:`Nuestro sistema solar está formado por el Sol y ocho planetas que giran a su alrededor. Los cuatro planetas más cercanos al Sol son rocosos: Mercurio, Venus, la Tierra y Marte. Los cuatro más lejanos son gigantes gaseosos: Júpiter, Saturno, Urano y Neptuno.
+
+Saturno es famoso por sus anillos, que están formados por trozos de hielo y roca. Aunque parecen sólidos, en realidad son millones de partículas que orbitan alrededor del planeta.
+
+La Tierra es el único planeta donde existe vida. Tiene agua líquida en su superficie, una atmósfera con oxígeno y una temperatura adecuada para los seres vivos. Sin estas condiciones tan especiales, la vida como la conocemos sería imposible.`,
+    preguntas:[
+      {txt:'¿Cuántos planetas tiene nuestro sistema solar?',opcins:['Seis','Siete','Ocho','Nueve'],correcta:2},
+      {txt:'¿Cuáles son los planetas rocosos?',opcins:['Júpiter, Saturno, Urano, Neptuno','Mercurio, Venus, Tierra, Marte','Solo la Tierra y Marte','Mercurio y Venus'],correcta:1},
+      {txt:'¿De qué están formados los anillos de Saturno?',opcins:['De gas','De polvo','De trozos de hielo y roca','De agua líquida'],correcta:2},
+      {txt:'¿Por qué es especial la Tierra?',opcins:['Es la más grande','Es la más caliente','Es la única con vida','Tiene los anillos más bonitos'],correcta:2},
+      {txt:'¿Qué necesita la Tierra para tener vida?',opcins:['Solo agua','Agua, oxígeno y temperatura adecuada','Solo temperatura adecuada','Solo oxígeno'],correcta:1},
+    ]
+  },
+  {
+    id:'t10es',lingua:'es',curso:4,nivel:'ini',tipo:'Narrativo',
+    titulo:'La niña que quería ser astronauta',
+    total_palabras:145,
+    texto:`Luna tenía once años y su sueño era viajar al espacio. Cada noche miraba las estrellas desde su ventana y se preguntaba cómo sería flotar en gravedad cero. Sus padres le habían regalado un telescopio y con él descubría nuevas constelaciones.
+
+Un día, su profesora de ciencias anunció que habría un concurso para ganar una visita al Centro Europeo de Astronautas en Colonia, Alemania. Luna se preparó durante semanas, estudiando todo sobre cohetes, planetas y viajes espaciales.
+
+El día del concurso respondió todas las preguntas correctamente y ganó el primer premio. En Colonia pudo conocer a una astronauta de verdad que le explicó cómo era vivir en la Estación Espacial Internacional. Luna regresó a casa más convencida que nunca de que algún día llegaría al espacio.`,
+    preguntas:[
+      {txt:'¿Cuál era el sueño de Luna?',opcins:['Ser profesora de ciencias','Viajar al espacio','Tener un telescopio','Conocer astronautas'],correcta:1},
+      {txt:'¿Qué le regalaron sus padres?',opcins:['Un libro de astronomía','Una nave espacial de juguete','Un telescopio','Un traje de astronauta'],correcta:2},
+      {txt:'¿Dónde estaba el Centro Europeo de Astronautas?',opcins:['En Madrid','En París','En Londres','En Colonia, Alemania'],correcta:3},
+      {txt:'¿Cómo se preparó Luna para el concurso?',opcins:['Estudiando cohetes, planetas y viajes espaciales','Haciendo deporte','Aprendiendo idiomas','Construyendo maquetas'],correcta:0},
+      {txt:'¿Con quién pudo hablar en Colonia?',opcins:['Con el director del centro','Con una astronauta de verdad','Con otros niños','Con un científico'],correcta:1},
+    ]
+  },
+  {
+    id:'t11es',lingua:'es',curso:4,nivel:'med',tipo:'Expositivo',
+    titulo:'La selva amazónica',
+    total_palabras:150,
+    texto:`La selva amazónica es el bosque tropical más grande del mundo y se extiende por nueve países de América del Sur. Brasil alberga la mayor parte, aproximadamente el sesenta por ciento. Es tan grande que podría cubrir casi todo el continente europeo.
+
+La Amazonia es el hogar de más de tres millones de especies animales y vegetales, muchas de ellas todavía sin descubrir por la ciencia. Entre sus animales más famosos se encuentran el jaguar, el delfín rosado, la anaconda y cientos de especies de loros y tucanes.
+
+El río Amazonas, que atraviesa esta selva, es el río más caudaloso del mundo. Transporta en su caudal el veinte por ciento de toda el agua dulce que fluye hacia los océanos. La selva amazónica es fundamental para regular el clima del planeta, por eso su destrucción preocupa a científicos de todo el mundo.`,
+    preguntas:[
+      {txt:'¿Por cuántos países se extiende la selva amazónica?',opcins:['Cinco','Siete','Nueve','Once'],correcta:2},
+      {txt:'¿Qué porcentaje de la Amazonia está en Brasil?',opcins:['El cuarenta por ciento','El cincuenta por ciento','El sesenta por ciento','El ochenta por ciento'],correcta:2},
+      {txt:'¿Cuántas especies viven en la Amazonia?',opcins:['Más de un millón','Más de tres millones','Más de cinco millones','Más de diez millones'],correcta:1},
+      {txt:'¿Qué porcentaje del agua dulce mundial transporta el Amazonas?',opcins:['El cinco por ciento','El diez por ciento','El quince por ciento','El veinte por ciento'],correcta:3},
+      {txt:'¿Por qué es importante la selva amazónica para el planeta?',opcins:['Por su belleza','Porque regula el clima','Porque tiene mucho oro','Por sus ríos'],correcta:1},
+    ]
+  },
+  {
+    id:'t12es',lingua:'es',curso:4,nivel:'fin',tipo:'Expositivo',
+    titulo:'La historia de internet',
+    total_palabras:155,
+    texto:`Internet es una red mundial de computadoras conectadas entre sí que permite compartir información de forma instantánea. Aunque hoy nos parece imprescindible, su historia comenzó hace apenas sesenta años en el contexto de la Guerra Fría.
+
+En 1969, el ejército de los Estados Unidos creó una red llamada ARPANET para conectar ordenadores de distintas universidades y centros de investigación. La idea era que si un nodo de la red fallaba, la información pudiera circular por otros caminos alternativos.
+
+Con el tiempo, esta red fue creciendo y abriéndose al público. En 1991, el científico británico Tim Berners-Lee inventó la World Wide Web, que permitió crear páginas web y navegar por internet de forma sencilla. Este invento cambió para siempre la forma en que las personas se comunican, trabajan y se informan.`,
+    preguntas:[
+      {txt:'¿Cuándo comenzó la historia de internet?',opcins:['Hace unos veinte años','Hace aproximadamente sesenta años','Hace doscientos años','En el siglo XIX'],correcta:1},
+      {txt:'¿Cómo se llamaba la primera red de computadoras?',opcins:['Internet','WorldNet','ARPANET','WebNet'],correcta:2},
+      {txt:'¿Para qué fue creada ARPANET?',opcins:['Para uso doméstico','Para conectar universidades y centros de investigación','Para el comercio','Para el entretenimiento'],correcta:1},
+      {txt:'¿Quién inventó la World Wide Web?',opcins:['Bill Gates','Steve Jobs','Tim Berners-Lee','Mark Zuckerberg'],correcta:2},
+      {txt:'¿En qué año se inventó la World Wide Web?',opcins:['En 1969','En 1985','En 1991','En 2000'],correcta:2},
+    ]
+  },
+  {
+    id:'t13es',lingua:'es',curso:3,nivel:'fin',tipo:'Narrativo',
+    titulo:'El pequeño príncipe y el zorro',
+    total_palabras:118,
+    texto:`En un planeta lejano vivía el Principito, que un día encontró a un zorro en un campo de trigo. El zorro le pidió que lo domesticara.
+
+—¿Qué significa domesticar? —preguntó el Principito.
+
+—Significa crear lazos —respondió el zorro—. Si me domesticas, seré único para ti en el mundo y tú serás único para mí.
+
+El Principito se tomó su tiempo y poco a poco se ganó la confianza del zorro. Cuando llegó el momento de partir, el zorro se entristeció.
+
+—Ha valido la pena —dijo el zorro—. El tiempo que dedicas a tu rosa es lo que la hace importante. Solo se ve bien con el corazón; lo esencial es invisible a los ojos.`,
+    preguntas:[
+      {txt:'¿Qué le pidió el zorro al Principito?',opcins:['Comida','Que lo domesticara','Que se fuera','Que jugara con él'],correcta:1},
+      {txt:'¿Qué significa domesticar según el zorro?',opcins:['Entrenar a un animal','Crear lazos','Cuidar a alguien','Dar de comer'],correcta:1},
+      {txt:'¿Cómo se ganó el Principito la confianza del zorro?',opcins:['Con comida','Con juegos','Tomándose su tiempo','Con canciones'],correcta:2},
+      {txt:'¿Cómo se sintió el zorro cuando llegó el momento de partir?',opcins:['Contento','Indiferente','Entristecido','Asustado'],correcta:2},
+      {txt:'¿Qué dijo el zorro sobre lo esencial?',opcins:['Es lo que se ve','Es invisible a los ojos','Es lo más bonito','Es difícil de encontrar'],correcta:1},
+    ]
+  },
+  {
+    id:'t14es',lingua:'es',curso:4,nivel:'ini',tipo:'Expositivo',
+    titulo:'Los océanos del mundo',
+    total_palabras:148,
+    texto:`Los océanos cubren aproximadamente el setenta y uno por ciento de la superficie de la Tierra y contienen el noventa y siete por ciento de toda el agua del planeta. Existen cinco océanos principales: el Pacífico, el Atlántico, el Índico, el Ártico y el Antártico.
+
+El océano Pacífico es el más grande y profundo de todos. Ocupa más superficie que todos los continentes juntos y en él se encuentra la fosa de las Marianas, el punto más profundo conocido de la Tierra, con casi once kilómetros de profundidad.
+
+Los océanos son fundamentales para la vida en la Tierra. Producen más de la mitad del oxígeno que respiramos gracias al fitoplancton, regulan la temperatura del planeta y son el hogar de millones de especies, desde las más pequeñas bacterias hasta las grandes ballenas azules.`,
+    preguntas:[
+      {txt:'¿Qué porcentaje de la superficie terrestre cubren los océanos?',opcins:['El cincuenta por ciento','El sesenta por ciento','El setenta y uno por ciento','El ochenta por ciento'],correcta:2},
+      {txt:'¿Cuántos océanos principales existen?',opcins:['Tres','Cuatro','Cinco','Seis'],correcta:2},
+      {txt:'¿Cuál es el océano más grande y profundo?',opcins:['El Atlántico','El Índico','El Ártico','El Pacífico'],correcta:3},
+      {txt:'¿Cuánto mide de profundidad la fosa de las Marianas?',opcins:['Cinco kilómetros','Ocho kilómetros','Once kilómetros','Quince kilómetros'],correcta:2},
+      {txt:'¿Qué produce el fitoplancton que es vital para la Tierra?',opcins:['Agua dulce','Más de la mitad del oxígeno','Alimento para los peces','Energía solar'],correcta:1},
+    ]
+  },
+  {
+    id:'t15es',lingua:'es',curso:4,nivel:'fin',tipo:'Narrativo',
+    titulo:'El misterio de la biblioteca',
+    total_palabras:155,
+    texto:`Andrea era una niña de diez años aficionada a los misterios. Un sábado por la mañana fue a la biblioteca del barrio a devolver unos libros y encontró algo extraño: dentro de uno de los libros que iba a devolver había una nota escrita a mano que decía: "El tesoro está donde los libros duermen".
+
+Andrea pensó que era una pista de un juego o quizás el comienzo de una aventura real. Decidió investigar. Preguntó a la bibliotecaria si alguien había dejado algún mensaje, pero ella no sabía nada.
+
+Entonces Andrea miró con atención por toda la biblioteca. En el sótano, donde guardaban los libros antiguos que ya nadie pedía prestados, encontró una vieja caja de madera. Dentro había una colección de primeras ediciones de libros muy valiosos que habían desaparecido años atrás. Andrea había resuelto el misterio más antiguo de la biblioteca.`,
+    preguntas:[
+      {txt:'¿Qué encontró Andrea dentro del libro?',opcins:['Una foto antigua','Una nota escrita a mano','Una moneda','Un mapa'],correcta:1},
+      {txt:'¿Qué decía la nota?',opcins:['"El tesoro está escondido"','"Busca en el sótano"','"El tesoro está donde los libros duermen"','"Sigue las pistas"'],correcta:2},
+      {txt:'¿A quién preguntó Andrea si había dejado un mensaje?',opcins:['A su madre','Al director','A la bibliotecaria','A una amiga'],correcta:2},
+      {txt:'¿Dónde encontró la caja de madera?',opcins:['En la estantería principal','En el despacho','En el tejado','En el sótano'],correcta:3},
+      {txt:'¿Qué había dentro de la caja?',opcins:['Monedas antiguas','Joyas','Primeras ediciones de libros valiosos','Cartas antiguas'],correcta:2},
+    ]
+  },
+  // GL extra
+  {
+    id:'t16gl',lingua:'gl',curso:3,nivel:'fin',tipo:'Narrativo',
+    titulo:'O mago do bosque',
+    total_palabras:118,
+    texto:`No medio dun bosque escuro vivía un vello mago chamado Aldán. Dicíase que podía falar coas árbores e que coñecía o nome de todas as estrelas. Os nenos da aldea tiñanlle medo, pero unha nena chamada Uxía decidiu visitalo.
+
+Uxía chamou á porta da súa cabana de pedra. O mago abriu con cara seria, pero cando viu á nena sorriu.
+
+—Que queres saber? —preguntou.
+
+—Por que brillan as estrelas? —dixo ela.
+
+O mago colleuna da man e levounna ao centro do bosque. Alí, baixo o ceo estrelado, explicoulle que cada estrela era o lume dun sol moi afastado. Uxía escoitou abraiada e dende ese día volveu ao bosque cada venres para aprender máis cousas.`,
+    preguntas:[
+      {txt:'Como se chamaba o mago?',opcins:['Merlín','Aldán','Xoán','Roque'],correcta:1},
+      {txt:'Como tiñan os nenos ao mago?',opcins:['Respecto','Admiración','Medo','Curiosidade'],correcta:2},
+      {txt:'Que preguntou Uxía ao mago?',opcins:['Por que chove','Por que brillan as estrelas','Por que hai vento','Onde viven os dragóns'],correcta:1},
+      {txt:'Que lle explicou o mago sobre as estrelas?',opcins:['Que eran buracos no ceo','Que eran o lume dun sol afastado','Que eran luces máxicas','Que eran planetas'],correcta:1},
+      {txt:'Que fixo Uxía dende ese día?',opcins:['Contoullo a todos','Volveu ao bosque cada venres','Deixou de ter medo á noite','Fíxose maga'],correcta:1},
+    ]
+  },
+  {
+    id:'t17gl',lingua:'gl',curso:4,nivel:'fin',tipo:'Expositivo',
+    titulo:'A Reconquista de Santiago',
+    total_palabras:148,
+    texto:`Santiago de Compostela é hoxe unha das cidades máis visitadas do mundo, pero ten unha historia milenaria chea de acontecementos. Fundada ao redor do sepulcro do Apóstolo Santiago, converteuse moi cedo nun dos principais centros de peregrinación da Idade Media.
+
+No século X, o caudillo musulmán Al-Mansur arrasou a cidade e destruíu a catedral, aínda que respectou o sepulcro. Este feito marcou profundamente a memoria colectiva de Galicia e impulsou a reconquista cristiá da cidade.
+
+Máis tarde, o Bispo Gelmírez converteu Santiago nun importante centro de poder político e relixioso. Mandou construír a catedral románica que, con reformas posteriores, chegou ata os nosos días. Hoxe a cidade vella de Santiago é Patrimonio da Humanidade pola UNESCO dende 1985.`,
+    preguntas:[
+      {txt:'Ao redor de que se fundou Santiago de Compostela?',opcins:['Dun castelo medieval','Do sepulcro do Apóstolo Santiago','Dun mosteiro','Dun mercado'],correcta:1},
+      {txt:'Que fixo Al-Mansur no século X?',opcins:['Construíu a catedral','Fundou a cidade','Arrasou a cidade e destruíu a catedral','Defendeu a cidade'],correcta:2},
+      {txt:'Que respectou Al-Mansur ao destruír a cidade?',opcins:['O castelo','As igrexas','O sepulcro','O palacio'],correcta:2},
+      {txt:'Que mandou construír o Bispo Gelmírez?',opcins:['Un castelo','A catedral románica','Un mosteiro','Unhas murallas'],correcta:1},
+      {txt:'Dende que ano é Santiago Patrimonio da Humanidade?',opcins:['1975','1980','1985','1990'],correcta:2},
+    ]
+  },
+  // ES extra
+  {
+    id:'t16es',lingua:'es',curso:3,nivel:'ini',tipo:'Expositivo',
+    titulo:'Las mariposas',
+    total_palabras:116,
+    texto:`Las mariposas son insectos con cuatro alas cubiertas de pequeñas escamas de colores. Existen más de veinte mil especies diferentes en todo el mundo y las encontramos en todos los continentes excepto en la Antártida.
+
+Las mariposas pasan por cuatro etapas en su vida: primero son un huevo, después una oruga, luego se convierten en crisálida y finalmente emergen como mariposa adulta. A este proceso se le llama metamorfosis completa.
+
+Las mariposas se alimentan principalmente del néctar de las flores. Al hacerlo, transportan el polen de unas flores a otras, ayudando así a la polinización. Algunas especies migran miles de kilómetros en busca de climas más cálidos durante el invierno.`,
+    preguntas:[
+      {txt:'¿De cuántas especies de mariposas hay en el mundo?',opcins:['Más de cinco mil','Más de diez mil','Más de veinte mil','Más de cincuenta mil'],correcta:2},
+      {txt:'¿En cuántas etapas se divide la vida de una mariposa?',opcins:['Dos','Tres','Cuatro','Cinco'],correcta:2},
+      {txt:'¿Cómo se llama la tercera etapa de la vida de una mariposa?',opcins:['Huevo','Oruga','Crisálida','Larva'],correcta:2},
+      {txt:'¿Cómo se llama el proceso de transformación de la mariposa?',opcins:['Evolución','Metamorfosis completa','Crecimiento','Transformación'],correcta:1},
+      {txt:'¿Cómo ayudan las mariposas a las plantas?',opcins:['Comiendo insectos','Transportando agua','Polinizando las flores','Protegiendo las raíces'],correcta:2},
+    ]
+  },
+  {
+    id:'t17es',lingua:'es',curso:3,nivel:'med',tipo:'Narrativo',
+    titulo:'El árbol de los sueños',
+    total_palabras:120,
+    texto:`En el jardín de la escuela había un árbol muy especial. Los niños decían que si escribías tu sueño en un papel y lo colgabas de sus ramas, el árbol lo ayudaba a hacerse realidad.
+
+Una niña llamada Sofía escribió: "Quiero aprender a tocar el piano". Colgó su papel en la rama más alta. Esa misma semana, su vecina, una pianista jubilada, le ofreció darle clases gratuitas.
+
+Un niño llamado Pablo escribió: "Quiero que mi abuelo se cure". El médico le cambió el tratamiento a su abuelo y comenzó a mejorar poco a poco.
+
+¿Era magia del árbol? Quizás era que cuando escribes tus sueños, empiezas a creer en ellos con más fuerza, y esa fuerza lo cambia todo.`,
+    preguntas:[
+      {txt:'¿Dónde estaba el árbol especial?',opcins:['En un bosque','En el jardín de la escuela','En el parque del pueblo','En casa de Sofía'],correcta:1},
+      {txt:'¿Qué escribió Sofía en su papel?',opcins:['"Quiero volar"','"Quiero ser famosa"','"Quiero aprender a tocar el piano"','"Quiero un perro"'],correcta:2},
+      {txt:'¿Quién le ofreció clases a Sofía?',opcins:['Su profesora de música','Su madre','Una pianista jubilada vecina','Su prima'],correcta:2},
+      {txt:'¿Qué escribió Pablo?',opcins:['"Quiero ganar el concurso"','"Quiero que mi abuelo se cure"','"Quiero ser futbolista"','"Quiero un hermano"'],correcta:1},
+      {txt:'Según el final, ¿por qué se hacen realidad los sueños?',opcins:['Por la magia del árbol','Porque creeremos en ellos con más fuerza','Por la suerte','Por trabajar mucho'],correcta:1},
+    ]
+  },
+  {
+    id:'t18es',lingua:'es',curso:4,nivel:'med',tipo:'Expositivo',
+    titulo:'Los glaciares y el cambio climático',
+    total_palabras:152,
+    texto:`Los glaciares son enormes masas de hielo que se forman en zonas montañosas o polares donde la nieve se acumula durante siglos sin llegar a derretirse. Cubren aproximadamente el diez por ciento de la superficie terrestre y almacenan el setenta por ciento del agua dulce del mundo.
+
+En las últimas décadas, el aumento de la temperatura global está provocando que los glaciares se derritan a un ritmo alarmante. Científicos de todo el mundo han documentado cómo glaciares que existían desde hace miles de años están desapareciendo en pocas décadas.
+
+La desaparición de los glaciares tiene consecuencias muy graves. Por un lado, el nivel del mar sube, lo que amenaza a las ciudades costeras. Por otro lado, muchas poblaciones que dependían del agua de deshielo para beber y regar sus cultivos se quedan sin ese recurso vital. Actuar contra el cambio climático es urgente para preservar estos gigantes de hielo.`,
+    preguntas:[
+      {txt:'¿Qué porcentaje del agua dulce almacenan los glaciares?',opcins:['El treinta por ciento','El cincuenta por ciento','El setenta por ciento','El noventa por ciento'],correcta:2},
+      {txt:'¿Qué está provocando que los glaciares se derritan?',opcins:['La lluvia ácida','El aumento de la temperatura global','La deforestación','Los terremotos'],correcta:1},
+      {txt:'¿Qué le pasa al nivel del mar cuando se derriten los glaciares?',opcins:['Baja','Se mantiene igual','Sube','Varía según la estación'],correcta:2},
+      {txt:'¿Qué porcentaje de la superficie terrestre cubren los glaciares?',opcins:['El cinco por ciento','El diez por ciento','El veinte por ciento','El treinta por ciento'],correcta:1},
+      {txt:'¿Para qué usaban el agua de deshielo muchas poblaciones?',opcins:['Solo para beber','Para beber y regar cultivos','Solo para regar','Para producir energía'],correcta:1},
+    ]
+  },
+  {
+    id:'t19es',lingua:'es',curso:3,nivel:'fin',tipo:'Expositivo',
+    titulo:'El agua potable',
+    total_palabras:122,
+    texto:`El agua potable es el agua que podemos beber sin peligro para nuestra salud. Debe ser transparente, sin sabor ni olor extraño y libre de bacterias y sustancias contaminantes.
+
+En muchos países, el agua que sale por el grifo ha pasado por un proceso de potabilización en plantas especiales. Primero se filtra para eliminar partículas sólidas. Luego se añade cloro u otros productos para eliminar los gérmenes. Finalmente se comprueba su calidad antes de distribuirla.
+
+Sin embargo, más de dos mil millones de personas en el mundo no tienen acceso a agua potable. En muchas regiones de África y Asia, los niños tienen que caminar kilómetros para conseguir agua, que muchas veces no está limpia. Cuidar el agua es responsabilidad de todos.`,
+    preguntas:[
+      {txt:'¿Qué debe ser el agua potable?',opcins:['Con mucho sabor','Transparente, sin sabor ni olor extraño y sin gérmenes','Verde y fresca','Muy fría'],correcta:1},
+      {txt:'¿Para qué sirve añadir cloro al agua?',opcins:['Para que sepa mejor','Para darle color','Para eliminar los gérmenes','Para enfriarla'],correcta:2},
+      {txt:'¿Cuántas personas no tienen acceso a agua potable?',opcins:['Más de quinientos millones','Más de mil millones','Más de dos mil millones','Más de tres mil millones'],correcta:2},
+      {txt:'¿Qué tienen que hacer muchos niños en África y Asia?',opcins:['Comprar agua embotellada','Caminar kilómetros para conseguir agua','Recoger agua de lluvia','Purificar el agua ellos mismos'],correcta:1},
+      {txt:'¿Cuántas fases tiene el proceso de potabilización descrito?',opcins:['Una','Dos','Tres','Cuatro'],correcta:2},
+    ]
+  },
+  {
+    id:'t20es',lingua:'es',curso:4,nivel:'fin',tipo:'Narrativo',
+    titulo:'El último dragón',
+    total_palabras:153,
+    texto:`En el reino de Aurelia existía la leyenda de un dragón llamado Brax que vivía en las montañas del norte. Los aldeanos le tenían miedo y cada año le llevaban ofrendas de oro y ganado para que no atacara sus pueblos.
+
+Un día, una joven llamada Elia decidió buscar al dragón, no para luchar contra él, sino para hablar con él. Subió durante tres días por los senderos nevados hasta llegar a su cueva.
+
+Brax era enorme y sus escamas brillaban como el carbón. Pero cuando vio a la joven, no lanzó fuego. Ella le habló con calma y descubrió que el dragón estaba solo y triste: los humanos siempre huían de él sin darle la oportunidad de conocerlos.
+
+Elia y Brax se hicieron amigos. Ella le enseñó a comunicarse con los aldeanos y pronto el dragón se convirtió en el protector del reino, no en su amenaza.`,
+    preguntas:[
+      {txt:'¿Cómo se llamaba el dragón de la leyenda?',opcins:['Rax','Brax','Drak','Frix'],correcta:1},
+      {txt:'¿Por qué le llevaban ofrendas los aldeanos?',opcins:['Para celebrar una fiesta','Para que no atacara sus pueblos','Por respeto','Para agradecerle su ayuda'],correcta:1},
+      {txt:'¿Por qué subió Elia a la montaña?',opcins:['Para matar al dragón','Para robar su oro','Para hablar con él','Para explorar la cueva'],correcta:2},
+      {txt:'¿Por qué estaba triste el dragón?',opcins:['Por tener frío','Porque tenía hambre','Porque los humanos siempre huían sin conocerlo','Porque había perdido su tesoro'],correcta:2},
+      {txt:'¿En qué se convirtió Brax al final?',opcins:['En el enemigo del reino','En el protector del reino','En una estatua de piedra','En el amigo solo de Elia'],correcta:1},
+    ]
+  },
+];
+
+let sesionActual={
+  alumno:'',curso:4,momento:'med',lingua:'gl',data:'',
+  texto:null,palabras:0,erros:0,ppm:0,nivel:'',
+  comprension:{},prosScore:{},obs:''
+};
+let timerInterval=null;
+let timerSecs=60;
+let timerRunning=false;
+let historico=[];
+let textosPersonalizados=[];
+let alumnos=[];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════════
+function init(){
+  const a1=LS.get('pc_alumnos',null);
+  const a2=LS.get('sn3_alumnos',null);
+  const ns=LS.get('sn3_notas',[]);
+  alumnos=a1?.length>3?a1:a2?.length?a2:[...new Set(ns.map(n=>n.alumno).filter(Boolean))].sort();
+  if(!alumnos.length) alumnos=['Alumno/a 1','Alumno/a 2'];
+
+  historico=LS.get('lectura_historico',[]);
+  textosPersonalizados=LS.get('lectura_textos_propios',[]);
+
+  const selAl=document.getElementById('sel-alumno');
+  selAl.innerHTML='<option value="">— Selecciona —</option>'+alumnos.map(a=>`<option value="${a}">${a}</option>`).join('');
+
+  // Historial filtros
+  const hFil=document.getElementById('hist-fil-alumno');
+  hFil.innerHTML='<option value="">Todos os alumnos/as</option>'+alumnos.map(a=>`<option value="${a}">${a}</option>`).join('');
+
+  document.getElementById('data-sesion').value=new Date().toISOString().split('T')[0];
+  renderTextosSelect();
+  renderBaremos();
+  renderBancoTextos();
+  renderHistorial();
+}
+
+function flash(){const f=document.getElementById('save-flash');f.classList.add('on');setTimeout(()=>f.classList.remove('on'),1800);}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TEMPORIZADOR
+// ══════════════════════════════════════════════════════════════════════════════
+function startTimer(){
+  if(!document.getElementById('sel-alumno').value){alert('Selecciona un alumno/a primeiro.');return;}
+  const textoEl=document.getElementById('texto-display');
+  if(!sesionActual.texto){alert('Selecciona un texto primeiro.');return;}
+  if(timerRunning) return;
+  timerRunning=true;
+  timerSecs=60;
+  document.getElementById('btn-start').disabled=true;
+  document.getElementById('btn-stop').disabled=false;
+  document.getElementById('timer-msg').textContent='';
+  document.getElementById('texto-instrucions').style.display='block';
+  document.getElementById('card-resultados').style.display='block';
+  document.getElementById('card-prosodia').style.display='none';
+  document.getElementById('card-gardar').style.display='none';
+  updateTimerDisplay();
+  timerInterval=setInterval(tickTimer,1000);
+}
+
+function tickTimer(){
+  timerSecs--;
+  updateTimerDisplay();
+  if(timerSecs>0&&timerSecs<=5) reproducirBipUltimos();
+  if(timerSecs<=0){stopTimer(true);}
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timerSecs/60),s=timerSecs%60;
+  const disp=document.getElementById('timer-display');
+  const bar=document.getElementById('timer-bar');
+  disp.textContent=m+':'+(s<10?'0':'')+s;
+  bar.style.width=(timerSecs/60*100)+'%';
+  if(timerSecs<=10){disp.className='timer-display ending';bar.style.background='var(--red)';}
+  else if(timerRunning){disp.className='timer-display running';bar.style.background='var(--green)';}
+}
+
+// ── SOM TEMPORIZADOR (Web Audio API) ─────────────────────────────────────────
+function reproducirSomFin(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    // Tres bips descendentes
+    [[0,.12,880],[.18,.12,660],[.36,.3,440]].forEach(([start,dur,freq])=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0,ctx.currentTime+start);
+      gain.gain.linearRampToValueAtTime(.4,ctx.currentTime+start+.02);
+      gain.gain.linearRampToValueAtTime(0,ctx.currentTime+start+dur);
+      osc.start(ctx.currentTime+start);
+      osc.stop(ctx.currentTime+start+dur+.05);
+    });
+    // Bip longo final
+    const osc2=ctx.createOscillator();
+    const gain2=ctx.createGain();
+    osc2.connect(gain2);gain2.connect(ctx.destination);
+    osc2.type='sine';osc2.frequency.value=523;
+    gain2.gain.setValueAtTime(0,ctx.currentTime+.7);
+    gain2.gain.linearRampToValueAtTime(.5,ctx.currentTime+.72);
+    gain2.gain.linearRampToValueAtTime(0,ctx.currentTime+1.4);
+    osc2.start(ctx.currentTime+.7);
+    osc2.stop(ctx.currentTime+1.5);
+  }catch(e){}
+}
+
+function reproducirBipUltimos(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';osc.frequency.value=1046;
+    gain.gain.setValueAtTime(0,ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(.25,ctx.currentTime+.02);
+    gain.gain.linearRampToValueAtTime(0,ctx.currentTime+.1);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.15);
+  }catch(e){}
+}
+
+function stopTimer(auto=false){
+  if(!timerRunning&&!auto) return;
+  clearInterval(timerInterval);
+  timerRunning=false;
+  const elapsed=60-timerSecs;
+  if(auto) reproducirSomFin();
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-stop').disabled=true;
+  document.getElementById('timer-display').className='timer-display';
+  document.getElementById('timer-display').textContent=auto?'¡Tempo!':'Detido';
+  document.getElementById('timer-bar').style.width='0%';
+  document.getElementById('timer-msg').textContent=auto?'✅ Minuto completado':'⏹ Detido aos '+(elapsed)+' segundos';
+  // Mostrar cards de resultado
+  document.getElementById('card-resultados').style.display='block';
+  document.getElementById('card-prosodia').style.display='block';
+  document.getElementById('card-rubrica').style.display='block';
+  document.getElementById('card-gardar').style.display='block';
+  renderRubrica();
+  poblarUDSelect();
+  // Mostrar comprensión se o texto ten preguntas
+  if(sesionActual.texto?.preguntas?.length){
+    document.getElementById('card-comprension').style.display='block';
+    renderPreguntas(sesionActual.texto.preguntas);
+  }
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerRunning=false;
+  timerSecs=60;
+  document.getElementById('timer-display').className='timer-display';
+  document.getElementById('timer-display').textContent='1:00';
+  document.getElementById('timer-bar').style.width='100%';
+  document.getElementById('timer-bar').style.background='var(--green)';
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-stop').disabled=true;
+  document.getElementById('timer-msg').textContent='';
+  document.getElementById('texto-instrucions').style.display='none';
+  document.getElementById('card-resultados').style.display='none';
+  document.getElementById('card-prosodia').style.display='none';
+  document.getElementById('card-comprension').style.display='none';
+  document.getElementById('card-gardar').style.display='none';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TEXTOS
+// ══════════════════════════════════════════════════════════════════════════════
+function getTodosTextos(){
+  return [...TEXTOS_PREDEFINIDOS,...textosPersonalizados];
+}
+
+function renderTextosSelect(){
+  const lingua=document.getElementById('sel-lingua').value;
+  const curso=parseInt(document.getElementById('sel-curso').value)||4;
+  const sel=document.getElementById('sel-texto');
+  const textos=getTodosTextos().filter(t=>t.lingua===lingua);
+  const cursoTextos=textos.filter(t=>t.curso===curso);
+  const outrosCursos=textos.filter(t=>t.curso!==curso);
+  let opts='<option value="">— Escolle un texto —</option>';
+  if(cursoTextos.length){
+    opts+=`<optgroup label="${curso}º Primaria">`;
+    cursoTextos.forEach(t=>{opts+=`<option value="${t.id}">[${t.tipo}] ${t.titulo}</option>`;});
+    opts+='</optgroup>';
+  }
+  if(outrosCursos.length){
+    const outros=outrosCursos.reduce((g,t)=>{(g[t.curso]=g[t.curso]||[]).push(t);return g;},{});
+    Object.entries(outros).forEach(([c,ts])=>{
+      opts+=`<optgroup label="${c}º Primaria">`;
+      ts.forEach(t=>{opts+=`<option value="${t.id}">[${t.tipo}] ${t.titulo}</option>`;});
+      opts+='</optgroup>';
+    });
+  }
+  sel.innerHTML=opts;
+}
+
+function cargarTexto(){
+  const id=document.getElementById('sel-texto').value;
+  if(!id){sesionActual.texto=null;document.getElementById('texto-display').innerHTML='<span style="color:var(--muted);font-style:italic">Selecciona un texto para comezar.</span>';document.getElementById('word-count-badge').textContent='';return;}
+  const t=getTodosTextos().find(x=>x.id===id);
+  if(!t) return;
+  sesionActual.texto=t;
+  sesionActual.comprension={};
+  // Renderizar texto con palabras clicables
+  // Renderizar texto con palabras numeradas e clicables
+  const _palabras=t.texto.trim().split(/\s+/);
+  const _html=_palabras.map((p,i)=>
+    `<span class="pal-num" data-idx="${i+1}" onclick="marcarPalabraFinal(this)" title="Palabra ${i+1}">${p}</span>`
+  ).join(' ');
+  document.getElementById('texto-display').innerHTML=_html;
+  document.getElementById('word-count-badge').textContent=t.total_palabras+' palabras totais';
+  document.getElementById('card-comprension').style.display='none';
+  document.getElementById('card-resultados').style.display='block';
+  document.getElementById('modo-marcado-bar').style.display='flex';
+  resetTimer();
+}
+
+
+
+// ── MARCADO DE PALABRAS ──────────────────────────────────────────────────────
+let _modoMarcado='final'; // 'final' | 'errata'
+
+function marcarPalabraFinal(el){
+  const idx=parseInt(el.dataset.idx);
+  if(_modoMarcado==='errata'){
+    el.classList.toggle('errata');
+    // Actualizar contador de erros
+    const nErros=document.querySelectorAll('.pal-num.errata').length;
+    const inp=document.getElementById('num-erros');
+    if(inp){inp.value=nErros;calcularPPM();}
+    return;
+  }
+  // Modo final: marcar ata onde chegou o alumno/a
+  document.querySelectorAll('.pal-num.marcada-final').forEach(e=>e.classList.remove('marcada-final'));
+  el.classList.add('marcada-final');
+  const inp=document.getElementById('palabras-lidas');
+  if(inp){inp.value=idx;calcularPPM();}
+  mostrarToastPalabra(idx);
+}
+
+function mostrarToastPalabra(n){
+  const msg=document.getElementById('timer-msg');
+  if(msg) msg.innerHTML=`Marcada palabra nº <strong style="color:var(--gold)">${n}</strong> → ${n} palabras lidas`;
+}
+
+// Tooltip flotante ao pasar o rato polas palabras
+document.addEventListener('mousemove',e=>{
+  const el=e.target;
+  const tip=document.getElementById('pal-tooltip');
+  if(!tip) return;
+  if(el.classList.contains('pal-num')){
+    tip.textContent='Nº '+el.dataset.idx;
+    tip.style.display='block';
+    tip.style.left=(e.clientX+10)+'px';
+    tip.style.top=(e.clientY-28)+'px';
+  } else {tip.style.display='none';}
+});
+
+function setModoMarcado(modo,btn){
+  _modoMarcado=modo;
+  document.querySelectorAll('.modo-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function imprimirTexto(){
+  if(!sesionActual.texto){alert('Selecciona un texto primeiro.');return;}
+  const t=sesionActual.texto;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>${t.titulo}</title>
+  <style>body{font-family:Georgia,serif;padding:2cm;font-size:14px;color:#1e293b;line-height:1.9}
+  h1{font-size:16px;margin-bottom:4px;color:#1e2a4a}
+  .meta{font-size:10px;color:#64748b;margin-bottom:20px}
+  .palabras{display:flex;flex-wrap:wrap;gap:2px}
+  .pal{display:inline-block;border-bottom:1px solid #e2e8f0;min-width:20px;padding:0 2px}
+  @page{size:A4;margin:2cm}</style></head><body>
+  <h1>${t.titulo}</h1>
+  <div class="meta">${t.tipo} · ${t.lingua==='gl'?'Galego':'Castelán'} · ${t.curso}º Primaria · ${t.total_palabras} palabras</div>
+  <p style="font-size:14px;line-height:2;white-space:pre-wrap">${t.texto}</p>
+  <hr style="margin:24px 0;border-color:#e2e8f0">
+  <table style="width:100%;font-size:11px">
+    <tr><td>Alumno/a: ___________________________</td><td>Data: _______________</td><td>Curso: ______</td></tr>
+    <tr style="margin-top:10px"><td style="padding-top:10px">Palabras lidas: ________</td><td style="padding-top:10px">Erros: ________</td><td style="padding-top:10px">PPM: ________</td></tr>
+  </table>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),300);
+}
+
+function textoProxeccion(){
+  if(!sesionActual.texto){alert('Selecciona un texto primeiro.');return;}
+  const el=document.getElementById('prox-texto');
+  el.textContent=sesionActual.texto.texto;
+  document.getElementById('proxeccion-overlay').style.display='block';
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('proxeccion-overlay').style.display='none';});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CÁLCULO PPM E NIVEL
+// ══════════════════════════════════════════════════════════════════════════════
+function calcularPPM(){
+  const palabras=parseInt(document.getElementById('palabras-lidas').value)||0;
+  const erros=parseInt(document.getElementById('num-erros').value)||0;
+  const ppmBruto=palabras;
+  const ppmCorr=Math.max(0,palabras-erros);
+  const taxaErros=palabras>0?Math.round(erros/palabras*100*10)/10:0;
+
+  sesionActual.palabras=palabras;
+  sesionActual.erros=erros;
+  sesionActual.ppm=ppmCorr;
+
+  const curso=parseInt(document.getElementById('sel-curso').value)||4;
+  const momento='med';
+  const nivel=getNivel(ppmCorr,curso,momento);
+  sesionActual.nivel=nivel;
+  const meta=nivel?NIVEL_LABELS[nivel]:null;
+
+  document.getElementById('ppm-result').innerHTML=palabras
+    ?`<div style="font-family:'DM Mono',monospace;font-size:2.2rem;font-weight:700;color:var(--gold)">${ppmCorr} <span style="font-size:1rem;color:var(--muted)">PPM corrixidos</span></div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:4px">${ppmBruto} brutos · ${erros} erros · Taxa: ${taxaErros}%</div>`
+    :'';
+
+  document.getElementById('nivel-result').innerHTML=meta
+    ?`<span class="nivel-badge ${meta.cls}">${meta.ico} ${meta.txt}</span>`:'';
+
+  // Info baremo
+  if(meta){
+    const bar=BAREMOS[curso]?.[momento];
+    const rango=bar?.[nivel];
+    document.getElementById('baremo-info').textContent=rango
+      ?`Rango esperado para ${curso}º Primaria: ${rango[0]}–${rango[1]===999?rango[0]+'+':rango[1]} PPM`:'';
+  }
+}
+
+function getNivel(ppm,curso,momento){
+  const bar=BAREMOS[curso]?.[momento];
+  if(!bar) return null;
+  for(const [k,rango] of Object.entries(bar)){if(ppm>=rango[0]&&ppm<=rango[1]) return k;}
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COMPRENSIÓN
+// ══════════════════════════════════════════════════════════════════════════════
+function renderPreguntas(preguntas){
+  const list=document.getElementById('preguntas-list');
+  list.innerHTML=preguntas.map((p,pi)=>{
+    const opcns=p.opcions||p.opcins||[];
+    const btns=opcns.map((op,oi)=>{
+      const isCorr=oi===p.correcta;
+      return `<button class="resp-btn" onclick="marcarResposta(${pi},${oi},${isCorr},this)">${op}</button>`;
+    }).join('');
+    return `<div class="preg-item" id="preg-${pi}">
+      <div class="preg-txt">${pi+1}. ${p.txt}</div>
+      <div class="resp-btns">${btns}</div>
+    </div>`;
+  }).join('');
+  actualizarScoreComprension();
+}
+
+function marcarResposta(pi,oi,correct,btn){
+  sesionActual.comprension[pi]=correct;
+  const btns=btn.closest('.resp-btns').querySelectorAll('.resp-btn');
+  // Revelar correcta e incorrecta ao responder
+  btns.forEach((b,bi)=>{
+    b.classList.remove('sel','correct','wrong');
+    b.disabled=true;
+  });
+  // Marcar a escollida e a correcta
+  btn.classList.add(correct?'correct':'wrong','sel');
+  // Mostrar cal era a correcta se fallou
+  if(!correct){
+    const pregs=sesionActual.texto?.preguntas||[];
+    const corrIdx=pregs[pi]?.correcta;
+    if(corrIdx!==undefined) btns[corrIdx]?.classList.add('correct');
+  }
+  actualizarScoreComprension();
+}
+
+function actualizarScoreComprension(){
+  const pregs=sesionActual.texto?.preguntas||sesionActual.texto?.preguntas||[];
+  const total=pregs.length;
+  const correctas=Object.values(sesionActual.comprension).filter(Boolean).length;
+  const resps=Object.keys(sesionActual.comprension).length;
+  if(!total) return;
+  const pct=total?Math.round(correctas/total*100):0;
+  const el=document.getElementById('comprension-score');
+  if(el) el.innerHTML=resps?`<span style="color:${pct>=70?'var(--green)':pct>=50?'var(--gold)':'var(--red)'}">${correctas}/${total} correctas (${pct}%)</span>`:'';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PROSODIA
+// ══════════════════════════════════════════════════════════════════════════════
+function setPros(tipo,val){
+  sesionActual.prosScore[tipo]=val;
+  const el=document.getElementById('pros-'+tipo);
+  if(!el) return;
+  el.querySelectorAll('.pros-star').forEach((s,i)=>{s.classList.toggle('on',i<val);});
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RÚBRICA
+// ══════════════════════════════════════════════════════════════════════════════
+const RUBRICA_CRITERIOS=[
+  {
+    id:'descodificacion',label:'Descodificación e precisión',
+    niveis:[
+      {val:1,txt:'Moitas omisións, substitucións e inversions. Necesita silabear case todas as palabras.'},
+      {val:2,txt:'Erros frecuentes. Silabea palabras largas ou descoñecidas.'},
+      {val:3,txt:'Poucos erros. Le a maioría das palabras correctamente de forma global.'},
+      {val:4,txt:'Lectura moi precisa e fluída. Sen erros ou erros moi puntuais.'},
+    ]
+  },
+  {
+    id:'velocidade',label:'Velocidade e fluidez',
+    niveis:[
+      {val:1,txt:'Lectura moi lenta, entrecortada. Non atinxe o mínimo esperado para o curso.'},
+      {val:2,txt:'Lectura lenta. Por baixo do rango adecuado para o curso e momento.'},
+      {val:3,txt:'Velocidade dentro do rango adecuado ou alto para o curso e momento.'},
+      {val:4,txt:'Lectura rápida e fluída. Supera o rango alto para o curso e momento.'},
+    ]
+  },
+  {
+    id:'entoacion',label:'Entoación, pausas e ritmo',
+    niveis:[
+      {val:1,txt:'Non respecta os signos de puntuación. Le con voz monocorde e sen ritmo.'},
+      {val:2,txt:'Respecta algunhas pausas. Entoación pouco variada.'},
+      {val:3,txt:'Respecta a maioría dos signos. Entoación adecuada e ritmo regular.'},
+      {val:4,txt:'Lectura expresiva. Respecta todos os signos con entoación e ritmo excelentes.'},
+    ]
+  },
+  {
+    id:'comprension',label:'Comprensión lectora',
+    niveis:[
+      {val:1,txt:'Non comprende o texto. Non pode responder as preguntas básicas (menos do 30%).'},
+      {val:2,txt:'Comprensión parcial. Responde algunhas preguntas (30-59%).'},
+      {val:3,txt:'Boa comprensión. Responde a maioría das preguntas (60-89%).'},
+      {val:4,txt:'Comprensión excelente. Responde correctamente todas ou case todas as preguntas (90-100%).'},
+    ]
+  },
+  {
+    id:'autonomia',label:'Autonomía e actitude lectora',
+    niveis:[
+      {val:1,txt:'Necesita moita axuda. Amosa resistencia ou inseguridade notable cara á lectura.'},
+      {val:2,txt:'Necesita algunha axuda. Certa inseguridade pero colabora.'},
+      {val:3,txt:'Le de forma autónoma. Actitude positiva e participativa.'},
+      {val:4,txt:'Totalmente autónomo/a. Gran confianza e motivación lectora.'},
+    ]
+  },
+];
+
+let _rubricaVals={};
+
+function renderRubrica(){
+  const el=document.getElementById('rubrica-items');
+  if(!el) return;
+  el.innerHTML=RUBRICA_CRITERIOS.map(c=>{
+    const sel=_rubricaVals[c.id]||0;
+    const nivelBtns=c.niveis.map(n=>`
+      <button onclick="setRubrica('${c.id}',${n.val},this)"
+        class="rub-btn${sel===n.val?' rub-sel':''}"
+        title="${n.txt}">
+        <span class="rub-num">${n.val}</span>
+        <span class="rub-txt">${n.txt}</span>
+      </button>`).join('');
+    return `<div style="margin-bottom:12px">
+      <div style="font-size:.7rem;font-weight:900;color:var(--white);margin-bottom:5px">${c.label}</div>
+      <div style="display:flex;flex-direction:column;gap:3px">${nivelBtns}</div>
+    </div>`;
+  }).join('');
+  actualizarTotalRubrica();
+}
+
+function setRubrica(id,val,btn){
+  _rubricaVals[id]=val;
+  btn.closest('div').querySelectorAll('.rub-btn').forEach(b=>b.classList.remove('rub-sel'));
+  btn.classList.add('rub-sel');
+  actualizarTotalRubrica();
+}
+
+function actualizarTotalRubrica(){
+  const vals=Object.values(_rubricaVals);
+  if(!vals.length) return;
+  const suma=vals.reduce((s,v)=>s+v,0);
+  const max=RUBRICA_CRITERIOS.length*4;
+  const pct=Math.round(suma/max*100);
+  const col=pct>=75?'var(--green)':pct>=50?'var(--gold)':'var(--red)';
+  const el=document.getElementById('rubrica-total');
+  if(el) el.innerHTML=`<span style="color:${col}">${suma}/${max} (${pct}%)</span>`;
+}
+
+function poblarUDSelect(){
+  const sel=document.getElementById('export-ud');
+  if(!sel) return;
+  try{
+    const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');
+    const allUDs=new Map();
+    Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));
+    const opts=[...allUDs.entries()].sort((a,b)=>a[0]-b[0])
+      .map(([num,tit])=>`<option value="${num}">UD${num}${tit?' · '+tit.substring(0,22):''}</option>`).join('');
+    sel.innerHTML='<option value="">— Sen UD —</option>'+opts;
+  }catch{}
+  // Sincronizar lingua co selector principal
+  const lingMain=document.getElementById('sel-lingua');
+  const lingExp=document.getElementById('export-lingua');
+  if(lingMain&&lingExp) lingExp.value=lingMain.value;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// GARDAR SESIÓN
+// ══════════════════════════════════════════════════════════════════════════════
+function gardarSesion(){
+  const alumno=document.getElementById('sel-alumno').value;
+  if(!alumno){alert('Selecciona un alumno/a.');return;}
+  if(!sesionActual.palabras){alert('Introduce o número de palabras lidas.');return;}
+
+  const pregs=sesionActual.texto?.preguntas||sesionActual.texto?.preguntas||[];
+  const total=pregs.length;
+  const correctas=Object.values(sesionActual.comprension).filter(Boolean).length;
+  const pctCompr=total?Math.round(correctas/total*100):null;
+
+  // Gardar rúbrica
+  sesionActual.rubrica=_rubricaVals;
+
+  const reg={
+    id:'lr_'+Date.now(),
+    alumno,
+    curso:parseInt(document.getElementById('sel-curso').value)||4,
+    momento:'med',
+    lingua:document.getElementById('sel-lingua').value,
+    data:document.getElementById('data-sesion').value||new Date().toISOString().split('T')[0],
+    texto_titulo:sesionActual.texto?.titulo||'—',
+    texto_tipo:sesionActual.texto?.tipo||'—',
+    palabras:sesionActual.palabras,
+    erros:sesionActual.erros,
+    ppm:sesionActual.ppm,
+    nivel:sesionActual.nivel,
+    comprension_pct:pctCompr,
+    comprension_total:total,
+    comprension_correctas:correctas,
+    prosodia:sesionActual.prosScore,
+    obs:document.getElementById('obs-sesion').value.trim(),
+    rubrica:_rubricaVals,
+  };
+
+  historico.unshift(reg);
+  if(historico.length>500) historico=historico.slice(0,500);
+  LS.set('lectura_historico',historico);
+  flash();
+  renderHistorial();
+  alert('✅ Sesión gardada correctamente!');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORTAR AO CADERNO
+// ══════════════════════════════════════════════════════════════════════════════
+function exportarAoCaderno(){
+  const alumno=document.getElementById('sel-alumno').value;
+  if(!alumno){alert('Selecciona un alumno/a.');return;}
+  if(!sesionActual.palabras){alert('Realiza primeiro a avaliación.');return;}
+
+  const escala=LS.get('sn3_escala',10);
+  const notas=LS.get('sn3_notas',[]);
+  const materias=LS.get('sn3_materias',[]);
+  const exportLingua=document.getElementById('export-lingua')?.value||sesionActual.lingua||'gl';
+  const matLingua=exportLingua==='gl'
+    ?materias.find(m=>m.id==='gl')
+    :materias.find(m=>m.id==='es');
+
+  if(!matLingua){alert('Non se atopou a materia de lingua nas materias do Caderno. Engade GL ou ES primeiro.');return;}
+
+  // Calcular nota: PPM relativo ao baremo (nivel adecuado = 7/10)
+  const curso=parseInt(document.getElementById('sel-curso').value)||4;
+  const momento=document.getElementById('sel-momento').value;
+  const bar=BAREMOS[curso]?.[momento];
+  let nota=5; // por defecto
+  if(bar){
+    if(sesionActual.nivel==='moi_alto') nota=10;
+    else if(sesionActual.nivel==='alto') nota=8.5;
+    else if(sesionActual.nivel==='adecuado') nota=7;
+    else if(sesionActual.nivel==='baixo') nota=5;
+    else if(sesionActual.nivel==='moi_baixo') nota=3;
+    // Axuste por comprensión
+    const pregs=sesionActual.texto?.preguntas?.length||0;
+    if(pregs>0){
+      const correctas=Object.values(sesionActual.comprension).filter(Boolean).length;
+      const pct=correctas/pregs;
+      nota=Math.round((nota*0.6+pct*escala*0.4)*10)/10;
+    }
+    nota=Math.min(escala,Math.max(0,nota));
+  }
+
+  const prosMedia=Object.values(sesionActual.prosScore).length
+    ?Object.values(sesionActual.prosScore).reduce((s,v)=>s+v,0)/Object.values(sesionActual.prosScore).length
+    :null;
+
+  const pregs=sesionActual.texto?.preguntas?.length||0;
+  const correctas=Object.values(sesionActual.comprension).filter(Boolean).length;
+  const coment=`Lectura ${sesionActual.texto?.titulo||''} · ${sesionActual.ppm} PPM · ${sesionActual.erros} erros`
+    +(pregs?` · Comprensión: ${correctas}/${pregs}`:'' )
+    +(prosMedia?` · Prosodia: ${prosMedia.toFixed(1)}/5`:'');
+
+  const maxId=notas.reduce((m,n)=>Math.max(m,n.id||0),0);
+  notas.push({
+    id:maxId+1,
+    alumno,
+    materia:matLingua.id,
+    tipo:'lectura',
+    subtipo:'velocidade',
+    valor:nota,
+    peso:0,
+    grupoId:null,
+    label:'Lectura veloz',
+    data:document.getElementById('data-sesion').value||new Date().toISOString().split('T')[0],
+    comentario:coment,
+    materiaNome:matLingua.nome,
+    trimestre:null,
+    unidade:(()=>{
+      const udNum=parseInt(document.getElementById('export-ud')?.value)||null;
+      if(!udNum) return null;
+      try{const uds=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');for(const arr of Object.values(uds)){const u=arr.find(x=>x.num===udNum);if(u)return{num:udNum,tit:u.tit||''};}return{num:udNum,tit:''};}catch{return null;}
+    })()
+  });
+  LS.set('sn3_notas',notas);
+
+  gardarSesion();
+  alert(`✅ Exportado ao Caderno Docente!\nAlumno/a: ${alumno}\nMateria: ${matLingua.nome}\nNota: ${nota}/${escala}\n\nA nota calcúlase tendo en conta PPM e comprensión.`);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HISTORIAL
+// ══════════════════════════════════════════════════════════════════════════════
+function renderHistorial(){
+  const filAl=document.getElementById('hist-fil-alumno')?.value||'';
+  const filCurso=document.getElementById('hist-fil-curso')?.value||'';
+  let hist=historico.filter(r=>(!filAl||r.alumno===filAl)&&(!filCurso||String(r.curso)===filCurso));
+  const el=document.getElementById('historial-list');
+  if(!hist.length){el.innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted)">Sen rexistros de lectura aínda.</div>';return;}
+
+  el.innerHTML=hist.map(r=>{
+    const meta=r.nivel?NIVEL_LABELS[r.nivel]:null;
+    const lingCls=r.lingua==='gl'?'color:var(--gl)':'color:var(--es)';
+    return `<div class="hist-item">
+      <div class="hist-meta">
+        <span style="font-weight:900;color:var(--white)">${r.alumno}</span>
+        <span>${r.data}</span>
+        <span style="${lingCls}">${r.lingua==='gl'?'🟢 Galego':'🔵 Castelán'}</span>
+        <span>${r.curso}º Primaria · </span>
+        <span style="color:var(--muted)">${r.texto_titulo} (${r.texto_tipo})</span>
+      </div>
+      <div class="hist-stats">
+        <span class="hist-stat" style="color:var(--gold)">📖 ${r.ppm} PPM</span>
+        <span class="hist-stat" style="color:var(--muted)">${r.palabras} pal. · ${r.erros} erros</span>
+        ${meta?`<span class="nivel-badge ${meta.cls}" style="font-size:.6rem;height:20px">${meta.ico} ${meta.txt}</span>`:''}
+        ${r.comprension_pct!==null&&r.comprension_pct!==undefined?`<span class="hist-stat" style="color:${r.comprension_pct>=70?'var(--green)':r.comprension_pct>=50?'var(--gold)':'var(--red)'}">🧠 ${r.comprension_pct}% comprensión</span>`:''}
+        ${Object.keys(r.prosodia||{}).length?`<span class="hist-stat" style="color:var(--blue)">🎵 Prosodia rexistrada</span>`:''}
+      </div>
+      ${r.obs?`<div style="margin-top:5px;font-size:.72rem;color:var(--muted);font-style:italic">${r.obs}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function exportarPDFHistorial(){
+  const filAl=document.getElementById('hist-fil-alumno')?.value||'';
+  const hist=historico.filter(r=>!filAl||r.alumno===filAl);
+  if(!hist.length){alert('Non hai rexistros para exportar.');return;}
+  const rows=hist.map(r=>{
+    const meta=r.nivel?NIVEL_LABELS[r.nivel]:null;
+    return `<tr style="border-bottom:1px solid #e2e8f0">
+      <td style="padding:5px 8px;font-weight:700">${r.alumno}</td>
+      <td style="padding:5px 8px">${r.data}</td>
+      <td style="padding:5px 8px">${r.curso}º · </td>
+      <td style="padding:5px 8px">${r.lingua==='gl'?'Galego':'Castelán'}</td>
+      <td style="padding:5px 8px">${r.texto_titulo}</td>
+      <td style="padding:5px 8px;font-weight:900;color:${r.ppm>=100?'#059669':r.ppm>=70?'#2563eb':'#dc2626'}">${r.ppm}</td>
+      <td style="padding:5px 8px">${r.erros}</td>
+      <td style="padding:5px 8px">${meta?meta.txt:'—'}</td>
+      <td style="padding:5px 8px">${r.comprension_pct!=null?r.comprension_pct+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Historial Lectura</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;padding:1.5cm;font-size:10px}h1{font-size:15px;margin-bottom:8px}table{width:100%;border-collapse:collapse}th{background:#1e2a4a;color:#fff;padding:6px 8px;font-size:9px;text-align:left}@page{size:A4 landscape;margin:1.5cm}</style>
+  </head><body>
+  <h1>📖 Historial de Lectura · CEIP Pío XII · 4º B</h1>
+  <p style="font-size:9px;color:#64748b;margin-bottom:10px">${new Date().toLocaleDateString('gl-ES')}${filAl?' · '+filAl:''}</p>
+  <table><thead><tr><th>Alumno/a</th><th>Data</th><th>Curso</th><th>Lingua</th><th>Texto</th><th>PPM</th><th>Erros</th><th>Nivel</th><th>Comprensión</th></tr></thead>
+  <tbody>${rows}</tbody></table>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BANCO DE TEXTOS
+// ══════════════════════════════════════════════════════════════════════════════
+function renderBancoTextos(){
+  const el=document.getElementById('banco-textos-list');
+  const todos=getTodosTextos();
+  const lingGroups={gl:[],es:[]};
+  todos.forEach(t=>(lingGroups[t.lingua]=lingGroups[t.lingua]||[]).push(t));
+
+  el.innerHTML=Object.entries(lingGroups).filter(([,ts])=>ts.length).map(([ling,ts])=>`
+    <div style="margin-bottom:16px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;color:${ling==='gl'?'var(--gl)':'var(--es)'};margin-bottom:8px;letter-spacing:.1em">${ling==='gl'?'🟢 Galego':'🔵 Castelán'}</div>
+      ${ts.map(t=>`<div class="card" style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:.62rem;font-weight:900;padding:1px 7px;border-radius:4px;background:rgba(251,191,36,.1);color:var(--gold)">${t.tipo}</span>
+          <span style="font-size:.62rem;color:var(--muted)">${t.curso}º Primaria</span>
+          <span style="font-weight:800;flex:1">${t.titulo}</span>
+          <span style="font-size:.62rem;font-family:'DM Mono',monospace;color:var(--muted)">${t.total_palabras} palabras</span>
+          ${t.id.startsWith('tp_')?`<button class="btn btn-red" style="height:22px;font-size:.6rem" onclick="borrarTextoPropio('${t.id}')">✕</button>`:''}
+        </div>
+        <div style="margin-top:8px;font-family:'Lora',Georgia,serif;font-size:.78rem;color:var(--muted);line-height:1.6;max-height:80px;overflow:hidden;text-overflow:ellipsis">${t.texto.substring(0,200)}...</div>
+      </div>`).join('')}
+    </div>`).join('');
+}
+
+function abrirModalTextoPropio(){
+  openModal(`<h3>📝 Engadir texto propio</h3>
+    <div class="row c2" style="margin-bottom:9px">
+      <div><span class="lbl">Título</span><input class="inp" id="tp-titulo" placeholder="Ex: A primavera"/></div>
+      <div><span class="lbl">Tipo</span>
+        <select class="sel" id="tp-tipo"><option>Narrativo</option><option>Expositivo</option><option>Instructivo</option><option>Poético</option></select></div>
+    </div>
+    <div class="row c3" style="margin-bottom:9px">
+      <div><span class="lbl">Lingua</span>
+        <select class="sel" id="tp-lingua"><option value="gl">Galego</option><option value="es">Castelán</option></select></div>
+      <div><span class="lbl">Curso</span>
+        <select class="sel" id="tp-curso"><option value="3">3º</option><option value="4" selected>4º</option></select></div>
+      <div><span class="lbl">Nº palabras (aprox.)</span><input class="inp" type="number" id="tp-palabras" placeholder="120" min="50"/></div>
+    </div>
+    <div style="margin-bottom:9px"><span class="lbl">Texto (pega ou escribe)</span>
+      <textarea class="ta" rows="6" id="tp-texto" placeholder="Pega aquí o texto de lectura..."></textarea></div>
+    <div style="margin-bottom:9px"><span class="lbl">Preguntas de comprensión (opcional, formato: Pregunta|Op1|Op2|Op3|Op4|N° resposta correcta (0-3))</span>
+      <textarea class="ta" rows="3" id="tp-preguntas" placeholder="Quen é o protagonista?|Pedro|Ana|Luis|Carmen|0&#10;Onde ocorre a historia?|No mar|Na cidade|No campo|Na montaña|2"></textarea></div>
+    <div class="modal-row">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarTextoPropio()">💾 Gardar</button>
+    </div>`);
+}
+
+function gardarTextoPropio(){
+  const titulo=document.getElementById('tp-titulo')?.value.trim();
+  const texto=document.getElementById('tp-texto')?.value.trim();
+  if(!titulo||!texto){alert('O título e o texto son obrigatorios.');return;}
+  const palabrasInput=parseInt(document.getElementById('tp-palabras')?.value)||texto.split(/\s+/).length;
+  const pregsTxt=document.getElementById('tp-preguntas')?.value.trim();
+  let preguntas=[];
+  if(pregsTxt){
+    preguntas=pregsTxt.split('\n').filter(Boolean).map(l=>{
+      const p=l.split('|');
+      if(p.length<6) return null;
+      return {txt:p[0],opcions:[p[1],p[2],p[3],p[4]],correcta:parseInt(p[5])||0};
+    }).filter(Boolean);
+  }
+  const novo={
+    id:'tp_'+Date.now(),
+    lingua:document.getElementById('tp-lingua')?.value||'gl',
+    curso:parseInt(document.getElementById('tp-curso')?.value)||4,
+    nivel:'med',tipo:document.getElementById('tp-tipo')?.value||'Narrativo',
+    titulo,texto,total_palabras:palabrasInput,preguntas,
+    propio:true
+  };
+  textosPersonalizados.push(novo);
+  LS.set('lectura_textos_propios',textosPersonalizados);
+  closeModal();
+  renderTextosSelect();
+  renderBancoTextos();
+  flash();
+}
+
+function borrarTextoPropio(id){
+  const eliminado=textosPersonalizados.find(t=>t.id===id);
+  if(!eliminado)return;
+  textosPersonalizados=textosPersonalizados.filter(t=>t.id!==id);
+  LS.set('lectura_textos_propios',textosPersonalizados);
+  renderTextosSelect();renderBancoTextos();
+  _toastDesfacer(
+    `Texto "${eliminado.titulo||'sen título'}" eliminado`,
+    ()=>{
+      textosPersonalizados.push(eliminado);
+      LS.set('lectura_textos_propios',textosPersonalizados);
+      renderTextosSelect();renderBancoTextos();
+    }
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BAREMOS
+// ══════════════════════════════════════════════════════════════════════════════
+function renderBaremos(){
+  const MOMENTO_LABELS={ini:'Inicio',med:'Medio',fin:'Fin'};
+  [3,4].forEach(curso=>{
+    const tbody=document.getElementById('baremo-'+curso+'-body');
+    if(!tbody) return;
+    tbody.innerHTML=Object.entries(BAREMOS[curso]).map(([mom,niveis])=>`
+      <tr>
+        <td style="font-weight:800">${MOMENTO_LABELS[mom]}</td>
+        <td><span class="nivel-badge nivel-moi-baixo" style="font-size:.6rem;height:20px">&lt;${niveis.baixo[0]}</span></td>
+        <td><span class="nivel-badge nivel-baixo" style="font-size:.6rem;height:20px">${niveis.baixo[0]}–${niveis.adecuado[0]-1}</span></td>
+        <td><span class="nivel-badge nivel-adecuado" style="font-size:.6rem;height:20px">${niveis.adecuado[0]}–${niveis.alto[0]-1}</span></td>
+        <td><span class="nivel-badge nivel-alto" style="font-size:.6rem;height:20px">${niveis.alto[0]}–${niveis.moi_alto[0]-1}</span></td>
+        <td><span class="nivel-badge nivel-moi-alto" style="font-size:.6rem;height:20px">≥${niveis.moi_alto[0]}</span></td>
+      </tr>`).join('');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════════════════════
+function onAlumnoChange(){sesionActual.alumno=document.getElementById('sel-alumno').value;}
+function onCursoChange(){sesionActual.curso=parseInt(document.getElementById('sel-curso').value)||4;renderTextosSelect();}
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+t));
+  document.querySelectorAll('.section').forEach(el=>el.classList.toggle('show',el.id==='sec-'+t));
+  if(t==='historial') renderHistorial();
+  if(t==='textos') renderBancoTextos();
+  if(t==='baremos') renderBaremos();
+}
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(){document.getElementById('modal-bg').classList.remove('show');}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ARRANQUE
+// ══════════════════════════════════════════════════════════════════════════════
+init();
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

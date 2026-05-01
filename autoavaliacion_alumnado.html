@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoavaliación do Alumnado · 4º B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700;9..40,800;9..40,900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#fbbf24;--green:#22c55e;--red:#ef4444;--purple:#a78bfa;--teal:#2dd4bf;--blue:#60a5fa;--shadow:0 4px 24px rgba(0,0,0,.35)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--white);font-size:14px}
+.header{background:var(--card);border-bottom:2px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1rem,3vw,1.5rem);color:var(--gold)}
+.btn{height:36px;padding:0 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;border:none;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--white);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
+.btn-sm{height:30px;padding:0 10px;font-size:.72rem}
+.tab-nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none}
+.tab{padding:10px 16px;cursor:pointer;font-size:.82rem;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.section{display:none;padding:1.25rem;max-width:1100px;margin:0 auto}.section.show{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;margin-bottom:.75rem}
+.inp{width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 12px;outline:none}
+.inp:focus{border-color:var(--gold)}
+.label{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px;display:block}
+/* ESCALA VISUAL */
+.scale-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.scale-row:last-child{border-bottom:none}
+.scale-name{font-size:.82rem;font-weight:800;flex:1}
+.scale-btns{display:flex;gap:6px}
+.scale-btn{width:44px;height:44px;border-radius:12px;border:2px solid transparent;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:all .15s;background:rgba(255,255,255,.04)}
+.scale-btn:hover{transform:scale(1.1)}
+.scale-btn.sel{border-color:var(--gold);background:rgba(251,191,36,.15);transform:scale(1.12)}
+/* COMPARATIVA */
+.comp-row{display:grid;grid-template-columns:160px 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem}
+.comp-bar{height:8px;border-radius:999px;min-width:4px}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:10000;padding:9px 22px;border-radius:12px;font-size:.85rem;font-weight:800;color:white;pointer-events:none;opacity:0;transition:opacity .3s}
+
+#aa-modal-bg.show{display:flex!important}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.4rem">🪞</span>
+  <div>
+    <h1>Autoavaliación do Alumnado</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn btn-ghost btn-sm" onclick="showTab('rexistrar')">✏️ Rexistrar</button>
+    <button class="btn btn-ghost btn-sm" onclick="showTab('comparativa')">🔄 Comparativa</button>
+    <button class="btn btn-ghost btn-sm" onclick="abrirImprimirFormulario()">&#x1F5A8;&#xFE0F; Imprimir formulario</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">📊 CSV</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <button class="btn btn-ghost btn-sm" onclick="toggleModo()">☀️ Claro</button>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <div class="tab active" id="tab-rexistrar" onclick="showTab('rexistrar')">✏️ Rexistrar</div>
+  <div class="tab" id="tab-historial" onclick="showTab('historial')">📋 Historial</div>
+  <div class="tab" id="tab-comparativa" onclick="showTab('comparativa')">🔄 Comparativa</div>
+</div>
+
+<!-- REXISTRAR -->
+<div class="section show" id="sec-rexistrar">
+  <div style="display:grid;grid-template-columns:260px 1fr;gap:1rem;height:calc(100vh - 120px)">
+    <!-- Selector alumno -->
+    <div>
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.5rem 0">Selecciona alumno/a</div>
+      <input id="al-search" placeholder="🔍 Buscar…" oninput="renderAlList()" style="width:100%;height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 10px;outline:none;margin-bottom:6px">
+      <div id="al-list" style="background:var(--card);border-radius:12px;border:1px solid var(--border);overflow-y:auto;max-height:calc(100vh - 200px)"></div>
+    </div>
+    <!-- Formulario autoavaliación -->
+    <div id="autoaval-form" style="overflow-y:auto">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60%;gap:12px;color:var(--muted)">
+        <div style="font-size:3rem">🪞</div>
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem">Selecciona un alumno/a</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div class="section" id="sec-historial">
+  <div style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);font-size:1rem;margin-bottom:1rem">📋 Historial de autoavaliación</div>
+  <div style="display:flex;gap:8px;margin-bottom:1rem">
+    <select id="hist-alumno" onchange="renderHistorial()" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">
+      <option value="">Todos os alumnos/as</option>
+    </select>
+    <select id="hist-trim" onchange="renderHistorial()" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">
+      <option value="">Todos os trimestres</option>
+      <option value="1">1º Trimestre</option>
+      <option value="2">2º Trimestre</option>
+      <option value="3">3º Trimestre</option>
+    </select>
+  </div>
+  <div id="historial-content"></div>
+</div>
+
+<!-- COMPARATIVA -->
+<div class="section" id="sec-comparativa">
+  <div style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);font-size:1rem;margin-bottom:.5rem">🔄 Comparativa: autopercepción vs. valoración da mestra</div>
+  <div style="font-size:.72rem;color:var(--muted);margin-bottom:1rem;font-weight:700">Compara a autoavaliación do/a alumno/a (🟣) coa valoración de titoría gardada no Caderno Docente (🟡). Os datos de titoría cárganse automaticamente de <code>sn3_inf_vals</code>.</div>
+  <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+    <select id="comp-alumno" onchange="renderComparativa()" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">
+      <option value="">Selecciona alumno/a</option>
+    </select>
+    <select id="comp-trim" onchange="renderComparativa()" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer">
+      <option value="1">1º Trimestre</option>
+      <option value="2">2º Trimestre</option>
+      <option value="3">3º Trimestre</option>
+    </select>
+  </div>
+  <div id="comp-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const AVCOLS=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#f97316','#14b8a6','#ef4444','#84cc16','#a855f7','#06b6d4','#f43f5e','#22c55e','#eab308','#6366f1','#64748b','#0ea5e9','#d946ef','#fb923c','#4ade80','#818cf8','#34d399','#fbbf24','#f87171'];
+
+let alumnos=LS.get('pc_alumnos',[]);
+// autoavals: [{id, alumno, trimestre, data, vals:{itemId: 0-4}, comentario}]
+let autoavals=LS.get('aa_vals',[]);
+let selAlumno=null;
+let editandoId=null;
+
+// Items INF_ITEMS do caderno (sen familia)
+const ITEMS=[
+  {id:'actitude',    label:'Actitude en clase'},
+  {id:'convivencia', label:'Convivencia cos compañeiros/as'},
+  {id:'esforzo',     label:'Esforzo e motivación'},
+  {id:'autonomia',   label:'Autonomía e organización'},
+  {id:'puntual',     label:'Puntualidade e asistencia'},
+  {id:'particip',    label:'Participación nas actividades'},
+  {id:'material',    label:'Material e coidado do contorno'},
+];
+
+// Escala visual con caras
+const ESCALA=[
+  {v:0,emoji:'😞',label:'Hai que mellorar moito',col:'#ef4444'},
+  {v:1,emoji:'😐',label:'Hai que mellorar',col:'#f59e0b'},
+  {v:2,emoji:'🙂',label:'Vai ben',col:'#60a5fa'},
+  {v:3,emoji:'😊',label:'Vai moi ben',col:'#22c55e'},
+  {v:4,emoji:'🤩',label:'Excelente!',col:'#a78bfa'},
+];
+
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();}
+function ac(i){return AVCOLS[i%AVCOLS.length];}
+function gardar(){LS.set('aa_vals',autoavals);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){}}
+function toast(msg,col='#22c55e'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=col;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2200);}
+
+function showTab(t){
+  document.querySelectorAll('.tab,.section').forEach(el=>el.classList.remove('active','show'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('sec-'+t).classList.add('show');
+  if(t==='historial'){populateSelectors();renderHistorial();}
+  if(t==='comparativa'){populateSelectors();renderComparativa();}
+}
+
+function populateSelectors(){
+  [document.getElementById('hist-alumno'),document.getElementById('comp-alumno')].forEach(sel=>{
+    if(!sel)return;
+    const cur=sel.value;
+    sel.innerHTML='<option value="">'+( sel.id==='hist-alumno'?'Todos os alumnos/as':'Selecciona alumno/a')+'</option>'+alumnos.map(a=>`<option value="${a}"${a===cur?' selected':''}>${a}</option>`).join('');
+  });
+}
+
+// ── RENDER LISTA ALUMNOS ───────────────────────────────────────────────────────
+function renderAlList(){
+  const q=document.getElementById('al-search')?.value.toLowerCase()||'';
+  const list=alumnos.filter(a=>!q||a.toLowerCase().includes(q));
+  document.getElementById('al-list').innerHTML=list.map(a=>{
+    const i=alumnos.indexOf(a);
+    const n=autoavals.filter(x=>x.alumno===a).length;
+    return `<div onclick="seleccionar('${a.replace(/'/g,"\\'")}','${i}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s${selAlumno===a?';background:rgba(251,191,36,.08);border-left:3px solid var(--gold)':''}" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='${selAlumno===a?'rgba(251,191,36,.08)':'transparent'}'">
+      <div style="width:28px;height:28px;border-radius:50%;background:${ac(i)};display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:900;color:white;flex-shrink:0">${ini(a)}</div>
+      <div style="flex:1;font-weight:800;font-size:.8rem">${a}</div>
+      ${n>0?`<div style="font-size:.6rem;font-weight:900;padding:1px 6px;border-radius:999px;background:rgba(167,139,250,.15);color:var(--purple)">${n}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function seleccionar(nome,idx){
+  selAlumno=nome;
+  renderAlList();
+  renderForm();
+}
+
+// ── FORMULARIO AUTOAVALIACIÓN ─────────────────────────────────────────────────
+let formVals={};
+function renderForm(){
+  const form=document.getElementById('autoaval-form');
+  if(!selAlumno){form.innerHTML='';return;}
+  const idx=alumnos.indexOf(selAlumno);
+  const col=ac(idx);
+  const today=new Date().toISOString().split('T')[0];
+  // buscar autoaval existente deste trimestre
+  const trimActual=getTrimActual();
+  const existente=autoavals.find(a=>a.alumno===selAlumno&&a.trimestre===trimActual);
+  formVals=existente?{...existente.vals}:{};
+
+  form.innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+      <div style="width:42px;height:42px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:900;color:white">${ini(selAlumno)}</div>
+      <div>
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem">${selAlumno}</div>
+        <div style="font-size:.68rem;color:var(--muted);font-weight:700">Trimestre ${trimActual} · ${today}</div>
+      </div>
+      ${existente?`<div style="margin-left:auto;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(34,197,94,.12);color:var(--green)">✓ Xa avaliado</div>`:''}
+    </div>
+    ${(()=>{
+      try{
+        const _notas=LS.get('sn3_notas',[]).filter(n=>n.alumno===selAlumno&&n.unidade?.num);
+        if(!_notas.length) return '';
+        const _ud=_notas.sort((a,b)=>new Date(b.data)-new Date(a.data))[0].unidade;
+        return '<div style="margin-bottom:.75rem;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);border-radius:8px">'
+          +'<span style="font-size:.6rem;font-weight:900;color:#818cf8">📚 Estás traballando en:</span>'
+          +'<span style="font-size:.68rem;font-weight:900;color:var(--white)">UD'+_ud.num+(_ud.tit?' · '+_ud.tit.substring(0,20):'')+'</span>'
+          +'</div>';
+      }catch(e){return '';}
+    })()}
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.75rem;font-weight:700">Como te valoras ti mesmo/a nestes aspectos? Preme na cara que mellor te representa.</div>
+    <div class="card" style="margin-bottom:.75rem">
+      ${ITEMS.map(it=>{
+        const v=formVals[it.id]??null;
+        return `<div class="scale-row">
+          <div class="scale-name">${it.label}</div>
+          <div class="scale-btns">
+            ${ESCALA.map(e=>`<button class="scale-btn${v===e.v?' sel':''}" title="${e.label}" onclick="setFormVal('${it.id}',${e.v})" style="${v===e.v?'border-color:'+e.col+';background:'+e.col+'22':''}">${e.emoji}</button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="card" style="margin-bottom:.75rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <label class="label">📚 Asignatura (opcional)</label>
+          <select id="aa-mat" style="width:100%;padding:7px 10px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer">
+            <option value="">Xeral (sen asignatura)</option>
+            ${(()=>{try{const mats=JSON.parse(localStorage.getItem('sn3_materias')||'[]');return mats.filter(m=>m.id!=='outras').map(m=>`<option value="${m.id}"${existente?.asignatura===m.id?' selected':''}>${m.icon||''} ${m.nome}</option>`).join('');}catch{return '';}})()}
+          </select>
+        </div>
+        <div>
+          <label class="label">📅 Data</label>
+          <input id="aa-data" type="date" value="${existente?.data||new Date().toISOString().split('T')[0]}" style="width:100%;padding:7px 10px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem"/>
+        </div>
+      </div>
+      <label class="label">Comentario libre (opcional)</label>
+      <textarea id="aa-coment" rows="2" style="width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:8px 12px;outline:none;resize:vertical">${existente?.comentario||''}</textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center">
+      <span id="aa-autosave-info" style="font-size:.65rem;color:var(--muted);margin-right:auto"></span>
+      <button class="btn btn-ghost btn-sm" onclick="autogardarRapido()" title="Gardar sen pechar">💾 Autogardar</button>
+      <button class="btn btn-ghost" onclick="limparForm()">🗑 Limpar</button>
+      <button class="btn btn-gold" onclick="gardarAutoaval()">✅ Gardar definitivo</button>
+    </div>
+  `;
+}
+
+function setFormVal(itemId,val){
+  formVals[itemId]=formVals[itemId]===val?null:val;  // toggle
+  // Update buttons visually without full re-render
+  const rows=document.querySelectorAll('.scale-row');
+  ITEMS.forEach((it,ri)=>{
+    if(it.id!==itemId)return;
+    const btns=rows[ri]?.querySelectorAll('.scale-btn');
+    const v=formVals[itemId]??null;
+    btns?.forEach((btn,bi)=>{
+      const e=ESCALA[bi];
+      btn.classList.toggle('sel',v===e.v);
+      btn.style.borderColor=v===e.v?e.col:'transparent';
+      btn.style.background=v===e.v?e.col+'22':'rgba(255,255,255,.04)';
+    });
+  });
+}
+
+function getTrimActual(){
+  const hoxe=new Date().toISOString().split('T')[0];
+  const trimDatas=LS.get('sn3_trim_datas',{});
+  for(const tk of['t1','t2','t3']){
+    const r=trimDatas[tk];
+    if(r?.ini&&r?.fin&&hoxe>=r.ini&&hoxe<=r.fin)return parseInt(tk.replace('t',''));
+  }
+  return 1;
+}
+
+function _gardarAutoavalConfirmado(){
+
+  const trimActual=getTrimActual();
+  const dataVal=document.getElementById('aa-data')?.value||new Date().toISOString().split('T')[0];
+  const coment=document.getElementById('aa-coment')?.value.trim()||'';
+  const asignatura=document.getElementById('aa-mat')?.value||'';
+  const idx=autoavals.findIndex(a=>a.alumno===selAlumno&&a.trimestre===trimActual&&(!a.asignatura||a.asignatura===asignatura));
+  const obj={id:editandoId||'aa_'+Date.now(),alumno:selAlumno,trimestre:trimActual,data:dataVal,vals:{...formVals},comentario:coment,asignatura};
+  if(editandoId){
+    const ei=autoavals.findIndex(a=>a.id===editandoId);
+    if(ei>=0)autoavals[ei]=obj;
+    editandoId=null;
+  } else {
+    if(idx>=0)autoavals[idx]=obj;else autoavals.push(obj);
+  }
+  gardar();
+  renderForm();
+  toast('✅ Autoavaliación gardada','#22c55e');
+
+}
+
+function gardarAutoaval(){
+  if(!selAlumno)return;
+  const n=Object.values(formVals).filter(v=>v!==null).length;
+  if(n<ITEMS.length/2){
+    _confirmar(
+      `Só respondeste ${n} de ${ITEMS.length} ítems. Queres gardalo así igualmente?`,
+      ()=>_gardarAutoavalConfirmado()
+    );
+    return;
+  }
+  const trimActual=getTrimActual();
+  const dataVal=document.getElementById('aa-data')?.value||new Date().toISOString().split('T')[0];
+  const coment=document.getElementById('aa-coment')?.value.trim()||'';
+  const asignatura=document.getElementById('aa-mat')?.value||'';
+  const idx=autoavals.findIndex(a=>a.alumno===selAlumno&&a.trimestre===trimActual&&(!a.asignatura||a.asignatura===asignatura));
+  const obj={id:editandoId||'aa_'+Date.now(),alumno:selAlumno,trimestre:trimActual,data:dataVal,vals:{...formVals},comentario:coment,asignatura};
+  if(editandoId){
+    const ei=autoavals.findIndex(a=>a.id===editandoId);
+    if(ei>=0)autoavals[ei]=obj;
+    editandoId=null;
+  } else {
+    if(idx>=0)autoavals[idx]=obj;else autoavals.push(obj);
+  }
+  gardar();
+  renderForm();
+  toast('✅ Autoavaliación gardada','#22c55e');
+}
+
+function autogardarRapido(){
+  if(!selAlumno)return;
+  const n=Object.values(formVals).filter(v=>v!==null).length;
+  if(!n)return;
+  const trimActual=getTrimActual();
+  const dataVal=document.getElementById('aa-data')?.value||new Date().toISOString().split('T')[0];
+  const coment=document.getElementById('aa-coment')?.value.trim()||'';
+  const asignatura=document.getElementById('aa-mat')?.value||'';
+  const obj={id:editandoId||'aa_'+Date.now(),alumno:selAlumno,trimestre:trimActual,data:dataVal,vals:{...formVals},comentario:coment,asignatura};
+  const ei=autoavals.findIndex(a=>a.id===obj.id);
+  if(ei>=0)autoavals[ei]=obj;
+  else autoavals.push(obj);
+  gardar();
+  const info=document.getElementById('aa-autosave-info');
+  if(info)info.textContent='💾 Gardado ás '+new Date().toLocaleTimeString('gl',{hour:'2-digit',minute:'2-digit'});
+  toast('💾 Autoagardado','#60a5fa');
+}
+
+function limparForm(){
+  formVals={};
+  renderForm();
+}
+
+// ── HISTORIAL ─────────────────────────────────────────────────────────────────
+function renderHistorial(){
+  const al=document.getElementById('hist-alumno')?.value||'';
+  const trim=document.getElementById('hist-trim')?.value||'';
+  const list=autoavals.filter(a=>(!al||a.alumno===al)&&(!trim||a.trimestre===parseInt(trim))).sort((a,b)=>b.data.localeCompare(a.data));
+  const el=document.getElementById('historial-content');
+  if(!list.length){el.innerHTML='<div class="card" style="text-align:center;padding:2rem;color:var(--muted)">Non hai autoavaliación rexistradas.</div>';return;}
+  el.innerHTML=list.map(a=>{
+    const idx=alumnos.indexOf(a.alumno);
+    const vals=Object.entries(a.vals).filter(([,v])=>v!==null);
+    const avg=vals.length?+(vals.reduce((s,[,v])=>s+v,0)/vals.length).toFixed(1):null;
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:.6rem;flex-wrap:wrap">
+        <div style="width:30px;height:30px;border-radius:50%;background:${ac(idx)};display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:white">${ini(a.alumno)}</div>
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:.85rem">${a.alumno}</div>
+          <div style="font-size:.65rem;color:var(--muted)">Trim. ${a.trimestre} · ${a.data}${a.asignatura?` · <span style="color:var(--blue)">${(()=>{try{const m=JSON.parse(localStorage.getItem('sn3_materias')||'[]').find(m=>m.id===a.asignatura);return m?(m.icon||'')+'\u00a0'+m.nome:a.asignatura;}catch{return a.asignatura;}})()}</span>`:''}</div>
+        </div>
+        ${avg!==null?`<div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.5rem">${ESCALA[Math.round(avg)].emoji}</div>`:''}
+        <button onclick="editarAutoaval('${a.id}')" style="height:26px;padding:0 9px;background:rgba(96,165,250,.15);border:1.5px solid rgba(96,165,250,.4);border-radius:7px;color:var(--blue,#60a5fa);font-size:.65rem;font-weight:900;cursor:pointer">✏️ Editar</button>
+        <button class="btn btn-ghost btn-sm" onclick="borrarAutoaval('${a.id}')">🗑</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${ITEMS.map(it=>{
+          const v=a.vals[it.id]??null;
+          const e=v!==null?ESCALA[v]:null;
+          return `<div style="font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:8px;background:${e?e.col+'18':'rgba(255,255,255,.05)'};color:${e?e.col:'var(--muted)'}">
+            ${it.label.split(' ')[0]} ${e?e.emoji:'—'}
+          </div>`;
+        }).join('')}
+      </div>
+      ${a.comentario?`<div style="font-size:.72rem;color:var(--muted);margin-top:.5rem;font-style:italic">"${a.comentario}"</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function borrarAutoaval(id){
+  const eliminada=autoavals.find(a=>a.id===id);
+  if(!eliminada)return;
+  autoavals=autoavals.filter(a=>a.id!==id);
+  gardar();renderHistorial();
+  _toastDesfacer(
+    'Autoavaliación eliminada',
+    ()=>{
+      autoavals.push(eliminada);
+      autoavals.sort((a,b)=>b.data.localeCompare(a.data));
+      gardar();renderHistorial();
+    }
+  );
+}
+
+function editarAutoaval(id){
+  const a=autoavals.find(x=>x.id===id);
+  if(!a)return;
+  // Load record into form
+  selAlumno=a.alumno;
+  editandoId=id;
+  formVals={...a.vals};
+  showTab('rexistrar');
+  // Select the alumno in the list
+  setTimeout(()=>{
+    renderAlList();
+    // Mark as selected
+    document.querySelectorAll('.al-item').forEach(el=>{
+      if(el.dataset.al===a.alumno) el.classList.add('active');
+      else el.classList.remove('active');
+    });
+    renderForm();
+    // Set asignatura and data after form renders
+    setTimeout(()=>{
+      const matSel=document.getElementById('aa-mat');
+      if(matSel&&a.asignatura) matSel.value=a.asignatura;
+      const dataSel=document.getElementById('aa-data');
+      if(dataSel&&a.data) dataSel.value=a.data;
+      const info=document.getElementById('aa-autosave-info');
+      if(info) info.textContent='✏️ Editando rexistro do '+a.data;
+    },50);
+  },50);
+  toast('✏️ Cargado para editar','#60a5fa');
+}
+
+// ── COMPARATIVA ───────────────────────────────────────────────────────────────
+function renderComparativa(){
+  const al=document.getElementById('comp-alumno')?.value||'';
+  const trim=parseInt(document.getElementById('comp-trim')?.value||'1');
+  const el=document.getElementById('comp-content');
+  if(!al){el.innerHTML='<div class="card" style="text-align:center;padding:2rem;color:var(--muted)">Selecciona un alumno/a</div>';return;}
+
+  const autoaval=autoavals.find(a=>a.alumno===al&&a.trimestre===trim);
+  const infVals=LS.get('sn3_inf_vals',{});
+  const mestra=infVals[al]||{};
+
+  // INF_ESCALA do caderno (0-4) → normalizar a 0-4 = mesma escala que autoaval
+  const rows=ITEMS.map(it=>{
+    const auto=autoaval?.vals[it.id]??null;
+    const mest=mestra[it.id]??null;
+    return{it,auto,mest};
+  });
+
+  const hasAuto=rows.some(r=>r.auto!==null);
+  const hasMest=rows.some(r=>r.mest!==null);
+
+  el.innerHTML=`
+    <div class="card">
+      <div style="display:grid;grid-template-columns:160px 1fr 1fr;gap:8px;padding:6px 0;margin-bottom:4px">
+        <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted)">Ítem</div>
+        <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--purple)">🟣 Alumno/a</div>
+        <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--gold)">🟡 Mestra</div>
+      </div>
+      ${rows.map(({it,auto,mest})=>{
+        const autoE=auto!==null?ESCALA[auto]:null;
+        const mestE=mest!==null?ESCALA[Math.min(4,mest)]:null;
+        const diff=auto!==null&&mest!==null?auto-mest:null;
+        return `<div class="comp-row">
+          <div style="font-weight:800;font-size:.78rem">${it.label}</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${autoE?`<div class="comp-bar" style="background:${autoE.col};width:${(auto/4*100).toFixed(0)}%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div><span style="color:${autoE.col};font-size:.9rem">${autoE.emoji}</span>`:'<span style="color:var(--muted)">—</span>'}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${mestE?`<div class="comp-bar" style="background:${mestE.col};width:${(mest/4*100).toFixed(0)}%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div><span style="color:${mestE.col};font-size:.9rem">${mestE.emoji}</span>`:'<span style="color:var(--muted)">—</span>'}
+            ${diff!==null?`<span style="font-size:.65rem;font-weight:900;color:${diff>1?'var(--orange)':diff<-1?'var(--teal)':'var(--muted)'}">${diff>0?'+':''}${diff}</span>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${!hasAuto?'<div style="font-size:.75rem;color:var(--muted);text-align:center;padding:.5rem">Non hai autoavaliación deste alumno/a para o trim. '+trim+'</div>':''}
+    ${!hasMest?'<div style="font-size:.75rem;color:var(--muted);text-align:center;padding:.5rem">Non hai valoración da mestra gardada no Caderno Docente para este trimestre</div>':''}
+    <div style="font-size:.65rem;color:var(--muted);margin-top:.5rem">Diferenza: valores positivos = alumno/a se valora máis alto que a mestra · negativos = máis baixo</div>
+  `;
+}
+
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
+
+// ══════════════════════════════════════════════════════════════════════════════
+// IMPRIMIR FORMULARIO DE AUTOAVALIACIÓN
+// ══════════════════════════════════════════════════════════════════════════════
+function abrirImprimirFormulario(){
+  const alumnosLS = LS.get('pc_alumnos',null)||LS.get('sn3_alumnos',null)||alumnos||[];
+  const alumnoOpts = alumnosLS.map(a=>`<option value="${a}">${a}</option>`).join('');
+
+  openModal(`<h3 style="margin-bottom:10px">&#x1F5A8;&#xFE0F; Imprimir ficha en branco</h3>
+    <p style="font-size:.72rem;color:var(--muted);margin-bottom:12px;line-height:1.5">Ficha lista para imprimir e repartir. O alumnado cubre con bol\xEDgrafo.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div>
+        <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:3px">Per\xEDodo</label>
+        <select id="pdf-trim" class="inp" style="cursor:pointer">
+          <option value="">Curso 2025-2026</option>
+          <option value="1">1\xBA Trimestre</option>
+          <option value="2">2\xBA Trimestre</option>
+          <option value="3">3\xBA Trimestre</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:3px">Alumnado</label>
+        <select id="pdf-alumno" class="inp" style="cursor:pointer">
+          <option value="__todos__">Toda a clase (${alumnosLS.length} fichas)</option>
+          ${alumnoOpts}
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:3px">\xC1rea / Materia (opcional)</label>
+      <input id="pdf-area" class="inp" placeholder="Ex: Educaci\xF3n Primaria / Todas as \xE1reas" />
+    </div>
+
+    <div style="margin-bottom:12px">
+      <label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:3px">Texto adicional (opcional)</label>
+      <input id="pdf-nota" class="inp" placeholder="Ex: Entregar antes do venres..." />
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button onclick="xerarPDFAutoaval('a4')" style="height:42px;background:rgba(99,102,241,.15);border:1.5px solid rgba(99,102,241,.4);border-radius:10px;color:#818cf8;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        &#x1F4C4; <span><strong>1 ficha por folla A4</strong> &mdash; 1 folla por alumno/a</span>
+      </button>
+      <button onclick="xerarPDFAutoaval('a5')" style="height:42px;background:rgba(34,197,94,.1);border:1.5px solid rgba(34,197,94,.3);border-radius:10px;color:#22c55e;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        &#x1F4D1; <span><strong>2 fichas por folla A4</strong> &mdash; aforra papel (formato A5)</span>
+      </button>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button onclick="closeModalDirect()" style="height:28px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer">Cancelar</button>
+    </div>`);
+}
+
+
+function xerarPDFAutoaval(modo){
+  const trim   = document.getElementById('pdf-trim')?.value || '';
+  const selAl  = document.getElementById('pdf-alumno')?.value || '__todos__';
+  const area   = document.getElementById('pdf-area')?.value.trim() || '';
+  const nota   = document.getElementById('pdf-nota')?.value.trim() || '';
+  const nomePreench = true; // nome pre-impreso sempre activo
+  const periodo = trim==='1'?'1\xBA Trimestre 2025-2026':trim==='2'?'2\xBA Trimestre 2025-2026':trim==='3'?'3\xBA Trimestre 2025-2026':'Curso 2025-2026';
+
+  const alumnosLS = LS.get('pc_alumnos',null)||LS.get('sn3_alumnos',null)||alumnos||[];
+  const listaPrint = selAl === '__todos__' ? alumnosLS : [selAl];
+
+  const estilos_comuns = `
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',system-ui,sans-serif;background:#fff;color:#1e293b}
+    @media print{body{background:white}.no-print{display:none!important}}
+  `;
+
+  function bloque(tamanho, nomeAlumno, area){
+    const isA5 = tamanho === 'a5';
+    const fs   = isA5 ? '9px'  : '12.5px';
+    const fsS  = isA5 ? '7px'  : '9px';
+    const fsT  = isA5 ? '11px' : '15px';
+    const emojiSz = isA5 ? '20px' : '28px';
+    const rowPad  = isA5 ? '7px 10px' : '12px 16px';
+    const circleS = isA5 ? '22px' : '30px';
+
+    // Cada fila: criterio á esquerda, emojis con círculo á dereita
+    const filas = ITEMS.map(item=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:${rowPad};border-bottom:1px solid #e8ecf0">
+        <span style="font-size:${fs};font-weight:700;color:#1e293b;flex:1;padding-right:12px">${item.label}</span>
+        <div style="display:flex;gap:${isA5?'6px':'10px'};align-items:center;flex-shrink:0">
+          ${ESCALA.map(e=>`
+            <div style="display:flex;flex-direction:column;align-items:center;gap:${isA5?'2px':'3px'}">
+              <span style="font-size:${emojiSz};line-height:1;display:block">${e.emoji}</span>
+              <div style="width:${circleS};height:${circleS};border-radius:50%;border:1.5px solid #94a3b8;background:white"></div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+
+    const nomeLine = nomePreench && nomeAlumno
+      ? `<span style="font-size:${isA5?'11px':'14px'};font-weight:900;color:#1e293b;border-bottom:2px solid #6366f1;padding-bottom:1px">${nomeAlumno}</span>`
+      : `<div style="flex:1;border-bottom:1.5px solid #94a3b8;height:${isA5?'16px':'22px'}"></div>`;
+
+    return `
+    <div style="background:white;font-family:'Helvetica Neue',Arial,system-ui,sans-serif;border-radius:${isA5?'8px':'12px'};overflow:hidden;border:1px solid #dde3eb;${isA5?'height:138mm':''}">
+      <!-- Cabezallo -->
+      <div style="background:linear-gradient(135deg,#6366f1 0%,#818cf8 100%);padding:${isA5?'8px 12px':'12px 20px'};display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:${isA5?'7px':'8.5px'};font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.7);margin-bottom:2px">CEIP Pío XII &middot; ${periodo}</div>
+          <div style="font-size:${fsT};font-weight:700;color:white;letter-spacing:-.01em">&#x1FA9E; Autoavaliación</div>
+          ${area?`<div style="font-size:${isA5?'7px':'8.5px'};color:rgba(255,255,255,.85);margin-top:2px;font-style:italic">${area}</div>`:''}
+        </div>
+        <div style="text-align:right;font-size:${isA5?'7px':'8.5px'};color:rgba(255,255,255,.75);line-height:1.5">4º de Ed. Primaria &middot; 4º B<br>Titora: M. Blanco Vázquez</div>
+      </div>
+      <!-- Datos alumno/a -->
+      <div style="padding:${isA5?'7px 12px':'10px 20px'};background:#f9fafb;border-bottom:1px solid #e8ecf0">
+        <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:${isA5?'6px':'8px'}">
+          <div style="flex:1">
+            <div style="font-size:${fsS};font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:${isA5?'3px':'4px'}">Nome e apelidos</div>
+            ${nomeLine}
+          </div>
+          <div>
+            <div style="font-size:${fsS};font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:${isA5?'3px':'4px'}">Data</div>
+            <div style="width:${isA5?'55px':'75px'};border-bottom:1.5px solid #94a3b8;height:${isA5?'16px':'22px'}"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:${isA5?'8px':'12px'}">
+          <div style="flex:1">
+            <div style="font-size:${fsS};font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:${isA5?'3px':'4px'}">Área</div>
+            <div style="border-bottom:1.5px solid #94a3b8;height:${isA5?'16px':'22px'}"></div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:${fsS};font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:${isA5?'3px':'4px'}">Materia</div>
+            <div style="border-bottom:1.5px solid #94a3b8;height:${isA5?'16px':'22px'}"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Instrución -->
+      <div style="padding:${isA5?'5px 12px':'7px 20px'};font-size:${isA5?'7.5px':'10px'};color:#64748b;font-style:italic;background:#f9fafb;border-bottom:1px solid #e8ecf0">
+        Marca o c\xEDrculo que mellor representa como cres que vas en cada aspecto:
+      </div>
+      <!-- Cabeceira emojis -->
+      <div style="display:flex;align-items:center;justify-content:flex-end;padding:${isA5?'4px 10px 2px':'6px 16px 2px'};background:#f9fafb;border-bottom:1px solid #e8ecf0">
+        <div style="display:flex;gap:${isA5?'6px':'10px'}">
+          ${ESCALA.map(e=>`<div style="width:${circleS};text-align:center;font-size:${isA5?'7px':'8.5px'};color:#64748b;font-weight:600">${e.label.split(' ').slice(0,2).join(' ')}</div>`).join('')}
+        </div>
+      </div>
+      <!-- Filas criterios -->
+      <div>
+        ${filas}
+      </div>
+      <!-- Reflexi\xF3n libre -->
+      <div style="padding:${isA5?'6px 12px 8px':'10px 20px 12px'};background:#f9fafb;border-top:1px solid #e8ecf0">
+        <div style="font-size:${fsS};font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:${isA5?'5px':'7px'}">O que m\xE1is me gustou / O que quero mellorar</div>
+        <div style="border-bottom:1px solid #cbd5e1;height:${isA5?'18px':'26px'};margin-bottom:${isA5?'5px':'7px'}"></div>
+        <div style="border-bottom:1px solid #cbd5e1;height:${isA5?'18px':'26px'}"></div>
+      </div>
+      ${nota?`<div style="padding:${isA5?'4px 12px':'6px 20px'};font-size:${fsS};color:#6366f1;font-weight:700;font-style:italic;border-top:1px solid #e8ecf0">&#x1F4CC; ${nota}</div>`:''}
+    </div>`;
+  }
+
+  let html;
+
+  if(modo === 'a4'){
+    const fichas = listaPrint.map((nome, i) =>
+      `<div style="page-break-after:${i < listaPrint.length-1 ? 'always' : 'auto'};padding:1.2cm">`
+      + bloque('a4', nome, area)
+      + `</div>`
+    ).join('');
+
+    html = `<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+    <title>Autoavaliaci\xF3n A4 \xB7 ${periodo}</title>
+    <style>${estilos_comuns}
+      body{margin:0;padding:0}
+      @page{margin:0;size:A4}
+    </style></head>
+    <body onload="setTimeout(()=>window.print(),600)">
+    <div class="no-print" style="padding:10px 16px;background:#f1f5f9;display:flex;gap:8px;align-items:center;position:sticky;top:0;z-index:10">
+      <button onclick="window.print()" style="height:34px;padding:0 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:sans-serif">&#x1F5A8;&#xFE0F; Imprimir / Gardar PDF</button>
+      <span style="font-size:.78rem;color:#64748b;font-family:sans-serif">${listaPrint.length} ficha${listaPrint.length!==1?'s':''} \xB7 ${periodo}</span>
+    </div>
+    ${fichas}
+    
+
+</body></html>`;
+
+  } else {
+    const pairs = [];
+    for(let i=0; i < listaPrint.length; i+=2){
+      pairs.push([listaPrint[i], listaPrint[i+1]||null]);
+    }
+
+    const follas = pairs.map((pair, pi) =>
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5cm;height:27.5cm;padding:0.5cm;page-break-after:${pi < pairs.length-1 ? 'always' : 'auto'}">`
+      + `<div style="overflow:hidden">${bloque('a5', pair[0], area)}</div>`
+      + `<div style="overflow:hidden">${pair[1] ? bloque('a5', pair[1], area) : ''}</div>`
+      + `</div>`
+    ).join('');
+
+    html = `<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+    <title>Autoavaliaci\xF3n A5\xD72 \xB7 ${periodo}</title>
+    <style>${estilos_comuns}
+      body{margin:0;padding:0}
+      @page{margin:0;size:A4 portrait}
+    </style></head>
+    <body onload="setTimeout(()=>window.print(),600)">
+    <div class="no-print" style="padding:10px 16px;background:#f1f5f9;display:flex;gap:8px;align-items:center;position:sticky;top:0;z-index:10">
+      <button onclick="window.print()" style="height:34px;padding:0 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:sans-serif">&#x1F5A8;&#xFE0F; Imprimir / Gardar PDF</button>
+      <span style="font-size:.78rem;color:#64748b;font-family:sans-serif">${listaPrint.length} ficha${listaPrint.length!==1?'s':''} \xB7 ${Math.ceil(listaPrint.length/2)} folla${Math.ceil(listaPrint.length/2)!==1?'s':''} \xB7 ${periodo}</span>
+    </div>
+    ${follas}
+    </body></html>`;
+  }
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const blobUrl = URL.createObjectURL(blob);
+  const w = window.open(blobUrl, '_blank');
+  if(!w){
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'autoaval_fichas_' + modo + '_' + new Date().toISOString().split('T')[0] + '.html';
+    a.click();
+  }
+  closeModalDirect();
+}
+
+
+function exportarCSV(){
+  const rows=[['Alumno/a','Trimestre','Data',...ITEMS.map(it=>it.label),'Comentario'].join(',')];
+  autoavals.forEach(a=>{
+    rows.push([`"${a.alumno}"`,a.trimestre,a.data,...ITEMS.map(it=>{const v=a.vals[it.id]??null;return v!==null?ESCALA[v].label:'—';}),`"${a.comentario||''}"`].join(','));
+  });
+  const el=document.createElement('a');
+  el.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));
+  el.download='autoavaliacion_'+new Date().toISOString().split('T')[0]+'.csv';el.click();
+}
+
+function toggleModo(){const a=localStorage.getItem('aa_modo')||'escuro';const n=a==='escuro'?'claro':'escuro';aplicarModo(n);localStorage.setItem('aa_modo',n);}
+function aplicarModo(m){const r=document.documentElement.style,btn=document.querySelector('[onclick="toggleModo()"]');if(m==='claro'){r.setProperty('--bg','#f0f4f8');r.setProperty('--card','#ffffff');r.setProperty('--card2','#f5f8fb');r.setProperty('--border','rgba(15,23,42,.10)');r.setProperty('--border2','rgba(15,23,42,.18)');r.setProperty('--white','#1e293b');r.setProperty('--muted','rgba(30,41,59,.50)');if(btn)btn.textContent='🌙 Escuro';}else{r.setProperty('--bg','#0f172a');r.setProperty('--card','#1e293b');r.setProperty('--card2','#263347');r.setProperty('--border','rgba(255,255,255,.08)');r.setProperty('--border2','rgba(255,255,255,.14)');r.setProperty('--white','#f1f5f9');r.setProperty('--muted','rgba(241,245,249,.45)');if(btn)btn.textContent='☀️ Claro';}}
+
+window.addEventListener('beforeunload',gardar);
+setInterval(gardar,30000);
+window.addEventListener('storage',e=>{if(e.key==='pc_alumnos'){alumnos=LS.get('pc_alumnos',[]);renderAlList();}});
+aplicarModo(localStorage.getItem('aa_modo')||'escuro');
+renderAlList();
+
+
+function exportarJSON(){
+  const keys=['aa_vals'];
+  const data={_exportado:new Date().toISOString()};
+  keys.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)data[k]=JSON.parse(v);}catch{}});
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='autoavaliacion_backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+function importarJSON(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        let count=0;
+        const keys=['aa_vals'];
+        keys.forEach(k=>{
+          if(data[k]!==undefined){localStorage.setItem(k,JSON.stringify(data[k]));count++;}
+        });
+        if(count){
+          aa_vals=LS.get('aa_vals',[]);renderAlList();showTab('rexistrar');if(typeof toast==='function')toast('✅ Datos importados','#22c55e');
+        } else alert('Non se atoparon datos compatibles.');
+      }catch(ex){alert('Erro: '+ex.message);}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+function openModal(h){
+  document.getElementById('aa-modal-content').innerHTML=h;
+  document.getElementById('aa-modal-bg').classList.add('show');
+}
+function closeModal(e){
+  // Allow closing: no event (direct call), click on bg, or button with closeModal()
+  if(e&&e.target&&e.target!==document.getElementById('aa-modal-bg')&&!e.target.hasAttribute('data-close-modal'))return;
+  document.getElementById('aa-modal-bg').classList.remove('show');
+}
+function closeModalDirect(){
+  document.getElementById('aa-modal-bg')?.classList.remove('show');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') document.getElementById('aa-modal-bg')?.classList.remove('show');
+});
+
+</script>
+<!-- MODAL DE IMPRESIÓN -->
+<div id="aa-modal-bg" onclick="closeModal(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div id="aa-modal-content" style="background:var(--card,#1e293b);border-radius:18px;padding:24px;width:440px;max-width:100%;border:1px solid var(--border2,rgba(255,255,255,.14));max-height:90vh;overflow-y:auto"></div>
+</div>
+
+</body>
+</html>

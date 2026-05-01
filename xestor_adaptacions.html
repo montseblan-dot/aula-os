@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adaptacións Curriculares · AULA OS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1520;--card:#151f30;--card2:#1a2840;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);--white:#edf2ff;--muted:rgba(237,242,255,.4);--gold:#fbbf24;--green:#34d399;--blue:#60a5fa;--red:#f87171;--indigo:#818cf8;--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;min-height:100vh}
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:6px}
+.btn{height:28px;padding:0 12px;border-radius:7px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:.68rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn:hover{color:var(--white)}
+.btn-gold{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:var(--gold)}
+.btn-green{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);color:var(--green)}
+.btn-red{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);color:var(--red)}
+.layout{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 52px)}
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:14px;overflow-y:auto}
+.main{padding:18px;overflow-y:auto}
+.sb-title{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px}
+.al-item{padding:9px 11px;background:var(--card2);border-radius:9px;border:1px solid var(--border);cursor:pointer;margin-bottom:5px;transition:all .15s}
+.al-item:hover{border-color:var(--border2)}
+.al-item.sel{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.05)}
+.inp{width:100%;height:34px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:0 10px;outline:none;margin-bottom:10px}
+.inp:focus{border-color:rgba(251,191,36,.5)}
+.sel{width:100%;height:34px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer;margin-bottom:10px}
+.ta{width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;padding:8px 10px;outline:none;resize:vertical;min-height:70px;line-height:1.55;margin-bottom:10px}
+.section-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:12px}
+.section-title{font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.field-label{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.obx-item{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:6px;display:flex;gap:10px;align-items:flex-start}
+.obx-check{width:16px;height:16px;accent-color:var(--green);flex-shrink:0;margin-top:2px;cursor:pointer}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:22px;width:460px;max-width:95vw;border:1px solid var(--border2);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:14px}
+.modal-row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span style="font-size:1.2rem">📋</span>
+  <div>
+    <h1>Xestor de Adaptacións Curriculares</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-gold" onclick="novaAdaptacion()">+ Nova adaptación</button>
+    <button class="btn btn-gold" onclick="exportarInformePDF()" id="btn-pdf-al" style="display:none">🖨️ Informe PDF</button>
+    <button class="btn" onclick="exportarJSON()">📥 Exportar</button>
+    <a href="PORTAL_DOCENTE.html" class="btn" style="text-decoration:none;display:inline-flex;align-items:center" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html"><button class="btn">🏠 Portal</button></a>
+  </div>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sb-title">Adaptacións</div>
+    <div id="al-list"></div>
+    <div style="margin-top:12px"><button class="btn btn-gold" style="width:100%;justify-content:center" onclick="novaAdaptacion()">+ Nova</button></div>
+  </div>
+  <div class="main" id="main">
+    <div class="empty"><div style="font-size:3rem;opacity:.4;margin-bottom:1rem">📋</div><div style="font-size:.9rem;font-weight:800;color:var(--white);margin-bottom:.5rem">Xestor de Adaptacións</div><div style="font-size:.75rem">Selecciona ou crea unha adaptación</div></div>
+  </div>
+</div>
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal-content"></div></div>
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+const AVCOLS=['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#14b8a6','#f97316','#84cc16'];
+let adaptacions=LS.get('xa_adaptacions',[]);
+const alumnos=LS.get('pc_alumnos',LS.get('sn3_alumnos',[]));
+const materias=LS.get('sn3_materias',[]).filter(m=>m.id!=='outras');
+const lomloeUDs=LS.get('lomloe_uds',{});
+const notas=LS.get('sn3_notas',[]);
+const escala=LS.get('sn3_escala',10);
+let selId=null;
+const TIPOS={aci:{label:'ACI',col:'#ef4444'},acs:{label:'ACS',col:'#f97316'},reforzo:{label:'Reforzo',col:'#fbbf24'},outro:{label:'Outro',col:'#818cf8'}};
+function ini(n){return n.split(' ').filter(x=>x&&!/^\d+$/.test(x)).map(x=>x[0]).join('').substring(0,2).toUpperCase();}
+function ac(n){return AVCOLS[alumnos.indexOf(n)%AVCOLS.length];}
+
+function renderSidebar(){
+  const el=document.getElementById('al-list');
+  if(!adaptacions.length){el.innerHTML='<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:2rem 0">Sen adaptacións</div>';return;}
+  el.innerHTML=adaptacions.map(a=>{
+    const t=TIPOS[a.tipo]||TIPOS.outro;
+    return `<div class="al-item${a.id===selId?' sel':''}" onclick="selAdaptacion('${a.id}')">
+      <div style="font-size:.78rem;font-weight:800">${a.alumno||'—'}</div>
+      <span style="font-size:.6rem;font-weight:900;padding:1px 6px;border-radius:999px;background:${t.col}18;color:${t.col}">${t.label}</span>
+      ${a.motivo?`<div style="font-size:.6rem;color:var(--muted);margin-top:2px">${a.motivo.substring(0,30)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function selAdaptacion(id){selId=id;renderSidebar();renderForm();const b=document.getElementById('btn-pdf-al');if(b)b.style.display=id?'inline-flex':'none';}
+
+function novaAdaptacion(){
+  const alOpts=alumnos.map(a=>`<option value="${a}">${a}</option>`).join('');
+  openModal(`<h3>+ Nova adaptación</h3>
+    <label class="field-label">Alumno/a</label>
+    <select class="sel" id="na-al"><option value="">— Seleccionar —</option>${alOpts}</select>
+    <label class="field-label">Tipo</label>
+    <select class="sel" id="na-tipo">
+      <option value="aci">ACI — Adaptación Curricular Individualizada</option>
+      <option value="acs">ACS — Adaptación Curricular Significativa</option>
+      <option value="reforzo">Reforzo educativo</option>
+      <option value="outro">Outro</option>
+    </select>
+    <label class="field-label">Motivo / Diagnóstico</label>
+    <input class="inp" id="na-motivo" placeholder="Ex: Dificultades lectoescritoras..."/>
+    <div class="modal-row">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="crearAdaptacion()">Crear</button>
+    </div>`);
+}
+
+function crearAdaptacion(){
+  const alumno=document.getElementById('na-al')?.value;
+  if(!alumno){alert('Selecciona un alumno/a');return;}
+  const hoxe=new Date().toISOString().split('T')[0];
+  const newA={id:'xa_'+Date.now(),alumno,tipo:document.getElementById('na-tipo')?.value||'aci',
+    motivo:document.getElementById('na-motivo')?.value.trim()||'',alta:hoxe,modif:hoxe,
+    obxectivos:[],recursos:'',avaliacion:'',seguimento:[],obs:''};
+  adaptacions.unshift(newA);LS.set('xa_adaptacions',adaptacions);
+  selId=newA.id;closeModal();renderSidebar();renderForm();
+}
+
+function renderForm(){
+  const a=adaptacions.find(x=>x.id===selId);
+  if(!a){document.getElementById('main').innerHTML='<div class="empty"><div style="font-size:3rem;opacity:.4">📋</div></div>';return;}
+  const t=TIPOS[a.tipo]||TIPOS.outro;
+  const col=ac(a.alumno);
+  const notasAl=notas.filter(n=>n.alumno===a.alumno);
+  const media=notasAl.length?+(notasAl.reduce((s,n)=>s+n.valor,0)/notasAl.length).toFixed(1):null;
+  const matOpts=materias.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('');
+
+  document.getElementById('main').innerHTML=`
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px">
+    <div style="width:44px;height:44px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:#fff;flex-shrink:0">${ini(a.alumno)}</div>
+    <div style="flex:1">
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem">${a.alumno}</div>
+      <span style="font-size:.62rem;font-weight:900;padding:2px 8px;border-radius:999px;background:${t.col}18;color:${t.col}">${t.label}</span>
+      ${a.motivo?`<span style="font-size:.7rem;color:var(--muted);margin-left:8px">${a.motivo}</span>`:''}
+    </div>
+    ${media!==null?`<div style="text-align:right"><div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:${media/escala>=.5?'var(--green)':'var(--red)'}">${media}</div><div style="font-size:.55rem;color:var(--muted);font-weight:800">MEDIA /${escala}</div></div>`:''}
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-green" onclick="gardarAdaptacion()">💾 Gardar</button>
+      <button class="btn btn-red" onclick="borrarAdaptacion()">🗑</button>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">📋 Datos xerais</div>
+    <div class="grid-3">
+      <div><label class="field-label">Tipo</label>
+        <select class="sel" id="f-tipo">${Object.entries(TIPOS).map(([k,v])=>`<option value="${k}"${a.tipo===k?' selected':''}>${v.label}</option>`).join('')}</select>
+      </div>
+      <div><label class="field-label">Data alta</label><input class="inp" value="${a.alta||''}" readonly style="color:var(--muted)"/></div>
+      <div><label class="field-label">Última modificación</label><input class="inp" value="${a.modif||''}" readonly style="color:var(--muted)"/></div>
+    </div>
+    <div><label class="field-label">Motivo / Diagnóstico</label><input class="inp" id="f-motivo" value="${a.motivo||''}"/></div>
+    <div><label class="field-label">Recursos e apoios</label><textarea class="ta" id="f-recursos">${a.recursos||''}</textarea></div>
+    <div><label class="field-label">Criterios de avaliación adaptados</label><textarea class="ta" id="f-avaliacion">${a.avaliacion||''}</textarea></div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><span>🎯 Obxectivos adaptados</span><button class="btn btn-gold" style="height:24px;font-size:.62rem" onclick="novoObxectivo()">+ Engadir</button><button class="btn" style="height:24px;font-size:.62rem;margin-left:4px" onclick="abrirBancoObxectivos()">🗄️ Banco</button></div>
+    <div id="obx-list">
+      ${(a.obxectivos||[]).length?(a.obxectivos||[]).map((o,i)=>`
+        <div class="obx-item">
+          <input type="checkbox" class="obx-check" ${o.logrado?'checked':''} onchange="toggleObx(${i},this.checked)"/>
+          <div style="flex:1">
+            <div style="font-size:.78rem;font-weight:700;line-height:1.4">${o.texto}</div>
+            ${o.udNum?`<div style="font-size:.6rem;color:var(--indigo);font-weight:900;margin-top:2px">📚 UD${o.udNum}${o.udTit?' · '+o.udTit.substring(0,18):''}</div>`:''}
+            ${o.materia?`<div style="font-size:.58rem;color:var(--muted)">${materias.find(m=>m.id===o.materia)?.nome||o.materia}</div>`:''}
+          </div>
+          <button onclick="borrarObx(${i})" style="height:22px;width:22px;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--red);font-size:.65rem;cursor:pointer;flex-shrink:0">✕</button>
+        </div>`).join(''):'<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:1rem">Sen obxectivos</div>'}
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><span>📈 Seguimento</span><button class="btn btn-gold" style="height:24px;font-size:.62rem" onclick="novoSeguimento()">+ Rexistrar</button></div>
+    ${(a.seguimento||[]).length?(a.seguimento||[]).map(s=>`
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+        <span style="font-size:.62rem;color:var(--muted);font-weight:800;min-width:80px">${s.data}</span>
+        <div style="flex:1;font-size:.75rem;line-height:1.4">${s.texto}</div>
+        <span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:999px;background:${{ben:'rgba(52,211,153,.12)',regular:'rgba(251,191,36,.12)',dificultades:'rgba(248,113,113,.1)'}[s.estado]};color:${{ben:'var(--green)',regular:'var(--gold)',dificultades:'var(--red)'}[s.estado]||'var(--muted)'}">${{ben:'✅ Ben',regular:'🟡 Regular',dificultades:'🔴 Dificultades'}[s.estado]||'—'}</span>
+      </div>`).join(''):'<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:1rem">Sen seguimento</div>'}
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">📝 Observacións</div>
+    <textarea class="ta" id="f-obs" rows="4">${a.obs||''}</textarea>
+    <div style="display:flex;justify-content:flex-end"><button class="btn btn-green" onclick="gardarAdaptacion()">💾 Gardar todo</button></div>
+  </div>`;
+}
+
+function gardarAdaptacion(){
+  const a=adaptacions.find(x=>x.id===selId);if(!a) return;
+  a.tipo=document.getElementById('f-tipo')?.value||a.tipo;
+  a.motivo=document.getElementById('f-motivo')?.value.trim()||'';
+  a.recursos=document.getElementById('f-recursos')?.value.trim()||'';
+  a.avaliacion=document.getElementById('f-avaliacion')?.value.trim()||'';
+  a.obs=document.getElementById('f-obs')?.value.trim()||'';
+  a.modif=new Date().toISOString().split('T')[0];
+  LS.set('xa_adaptacions',adaptacions);
+  showToast('💾 Gardado','#34d399');renderSidebar();
+}
+
+function borrarAdaptacion(){
+  const eliminada=adaptacions.find(x=>x.id===selId);
+  if(!eliminada)return;
+  adaptacions=adaptacions.filter(x=>x.id!==selId);
+  LS.set('xa_adaptacions',adaptacions);
+  const idEliminado=selId;
+  selId=null;renderSidebar();renderForm();
+  _toastDesfacer(
+    `Adaptación de ${eliminada.alumno||'alumno/a'} eliminada`,
+    ()=>{
+      adaptacions.unshift(eliminada);
+      LS.set('xa_adaptacions',adaptacions);
+      selId=idEliminado;
+      renderSidebar();renderForm();
+    }
+  );
+}
+
+const BANCO_OBXECTIVOS={
+  aci:[
+    {txt:'Ler textos sinxelos adaptados ao nivel con apoio visual e identificar a idea principal',mat:'',udNum:null},
+    {txt:'Escribir frases sinxelas con estrutura básica S+V+C con apoio de modelo',mat:'',udNum:null},
+    {txt:'Resolver operacións básicas de suma e resta con material manipulativo',mat:'mates',udNum:null},
+    {txt:'Identificar e nomear os elementos principais do tema traballado na clase',mat:'',udNum:null},
+    {txt:'Participar nas actividades de grupo con apoio do/a mestre/a ou compañeiro/a tutor/a',mat:'',udNum:null},
+    {txt:'Copiar textos curtos con letra clara e respectando os espazos',mat:'',udNum:null},
+    {txt:'Comprender instrucións sinxelas de dous pasos',mat:'',udNum:null},
+    {txt:'Relacionar conceptos do tema con imaxes ou pictogramas',mat:'',udNum:null},
+  ],
+  acs:[
+    {txt:'Ampliar os contidos da UD con investigación autónoma e presentación á clase',mat:'',udNum:null},
+    {txt:'Resolver problemas de maior complexidade con estratexias propias',mat:'mates',udNum:null},
+    {txt:'Crear materiais de apoio ou resumos para os compañeiros/as',mat:'',udNum:null},
+    {txt:'Analizar e argumentar críticamente sobre os temas traballados',mat:'',udNum:null},
+    {txt:'Deseñar e executar un proxecto de investigación relacionado coa UD',mat:'',udNum:null},
+    {txt:'Mentorizar a un compañeiro/a con dificultades nos contidos da unidade',mat:'',udNum:null},
+  ],
+  reforzo:[
+    {txt:'Repasar e consolidar os contidos básicos da UD con actividades adaptadas',mat:'',udNum:null},
+    {txt:'Practicar a lectura en voz alta con fluidez e entoación adecuadas',mat:'',udNum:null},
+    {txt:'Resolver fichas de reforzo sobre os contidos non superados',mat:'',udNum:null},
+    {txt:'Mellorar a velocidade e comprensión lectora con textos graduados',mat:'',udNum:null},
+    {txt:'Practicar o cálculo mental con exercicios diarios de 5 minutos',mat:'mates',udNum:null},
+    {txt:'Completar o caderno de clase con organización e limpeza',mat:'',udNum:null},
+  ]
+};
+
+function abrirBancoObxectivos(){
+  const a=adaptacions.find(x=>x.id===selId);if(!a) return;
+  const tipo=document.getElementById('f-tipo')?.value||a.tipo||'aci';
+  const banco=BANCO_OBXECTIVOS[tipo]||BANCO_OBXECTIVOS.aci;
+  const items=banco.map((o,i)=>`
+    <label style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--card2);border-radius:8px;border:1px solid var(--border);margin-bottom:5px;cursor:pointer">
+      <input type="checkbox" value="${i}" style="width:14px;height:14px;accent-color:var(--green);flex-shrink:0;margin-top:2px"/>
+      <span style="font-size:.75rem;font-weight:700;line-height:1.4">${o.txt}</span>
+    </label>`).join('');
+  openModal(`<h3>🗄️ Banco de obxectivos predefinidos</h3>
+    <div style="font-size:.65rem;color:var(--muted);margin-bottom:10px">Tipo: <strong style="color:var(--gold)">${(TIPOS[tipo]||TIPOS.outro).label}</strong> · Selecciona os que queres engadir</div>
+    <div style="max-height:360px;overflow-y:auto">${items}</div>
+    <div class="modal-row">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="importarDoBancoObx()">✓ Engadir seleccionados</button>
+    </div>`);
+}
+
+function importarDoBancoObx(){
+  const a=adaptacions.find(x=>x.id===selId);if(!a) return;
+  const tipo=document.getElementById('f-tipo')?.value||a.tipo||'aci';
+  const banco=BANCO_OBXECTIVOS[tipo]||BANCO_OBXECTIVOS.aci;
+  const checks=[...document.querySelectorAll('#modal-content input[type=checkbox]:checked')];
+  if(!checks.length){alert('Selecciona polo menos un obxectivo');return;}
+  if(!a.obxectivos) a.obxectivos=[];
+  checks.forEach(cb=>{
+    const o=banco[parseInt(cb.value)];
+    if(o) a.obxectivos.push({...o,logrado:false,creado:new Date().toISOString().split('T')[0]});
+  });
+  LS.set('xa_adaptacions',adaptacions);
+  closeModal();renderForm();
+  showToast('✓ '+checks.length+' obxectivos engadidos','#34d399');
+}
+
+function novoObxectivo(){
+  const matOpts=materias.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('');
+  openModal(`<h3>🎯 Novo obxectivo</h3>
+    <label class="field-label">Obxectivo</label>
+    <textarea class="ta" id="no-txt" rows="3" placeholder="Describe o obxectivo adaptado..."></textarea>
+    <div class="grid-2">
+      <div><label class="field-label">Materia</label>
+        <select class="sel" id="no-mat" onchange="actualizarUDsObx(this.value)"><option value="">Sen materia</option>${matOpts}</select>
+      </div>
+      <div><label class="field-label">UD</label>
+        <select class="sel" id="no-ud"><option value="">Sen UD</option></select>
+      </div>
+    </div>
+    <div class="modal-row">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarObxectivo()">Engadir</button>
+    </div>`);
+}
+
+function actualizarUDsObx(matId){
+  const sel=document.getElementById('no-ud');if(!sel) return;
+  const udsMat=lomloeUDs[matId]||[];
+  sel.innerHTML='<option value="">Sen UD</option>'+udsMat.sort((a,b)=>a.num-b.num).map(u=>`<option value="${u.num}">UD${u.num}${u.tit?' · '+u.tit.substring(0,22):''}</option>`).join('');
+}
+
+function gardarObxectivo(){
+  const a=adaptacions.find(x=>x.id===selId);if(!a) return;
+  const texto=document.getElementById('no-txt')?.value.trim();
+  if(!texto){alert('Escribe o obxectivo');return;}
+  const matId=document.getElementById('no-mat')?.value||'';
+  const udNum=parseInt(document.getElementById('no-ud')?.value)||null;
+  const udTit=udNum?(lomloeUDs[matId]||[]).find(u=>u.num===udNum)?.tit||'':'';
+  if(!a.obxectivos) a.obxectivos=[];
+  a.obxectivos.push({texto,materia:matId,udNum,udTit,logrado:false,creado:new Date().toISOString().split('T')[0]});
+  LS.set('xa_adaptacions',adaptacions);closeModal();renderForm();
+}
+
+function toggleObx(i,val){const a=adaptacions.find(x=>x.id===selId);if(a?.obxectivos[i]){a.obxectivos[i].logrado=val;LS.set('xa_adaptacions',adaptacions);}}
+function borrarObx(i){
+  const a=adaptacions.find(x=>x.id===selId);
+  if(!a)return;
+  const eliminado=a.obxectivos[i];
+  if(!eliminado)return;
+  a.obxectivos.splice(i,1);
+  LS.set('xa_adaptacions',adaptacions);renderForm();
+  _toastDesfacer(
+    `Obxectivo eliminado`,
+    ()=>{
+      const a2=adaptacions.find(x=>x.id===selId);
+      if(a2){a2.obxectivos.splice(i,0,eliminado);LS.set('xa_adaptacions',adaptacions);renderForm();}
+    }
+  );
+}
+
+function novoSeguimento(){
+  const hoxe=new Date().toISOString().split('T')[0];
+  openModal(`<h3>📈 Rexistrar seguimento</h3>
+    <label class="field-label">Data</label><input class="inp" id="ns-data" type="date" value="${hoxe}"/>
+    <label class="field-label">Observación</label>
+    <textarea class="ta" id="ns-txt" rows="3" placeholder="Avances, dificultades detectadas..."></textarea>
+    <label class="field-label">Estado</label>
+    <select class="sel" id="ns-est"><option value="ben">✅ Ben</option><option value="regular">🟡 Regular</option><option value="dificultades">🔴 Con dificultades</option></select>
+    <div class="modal-row">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarSeguimento()">Gardar</button>
+    </div>`);
+}
+
+function gardarSeguimento(){
+  const a=adaptacions.find(x=>x.id===selId);if(!a) return;
+  const texto=document.getElementById('ns-txt')?.value.trim();
+  if(!texto){alert('Escribe a observación');return;}
+  if(!a.seguimento) a.seguimento=[];
+  a.seguimento.unshift({data:document.getElementById('ns-data')?.value||'',texto,estado:document.getElementById('ns-est')?.value||'ben'});
+  LS.set('xa_adaptacions',adaptacions);closeModal();renderForm();
+}
+
+function exportarInformePDF(){
+  const a=adaptacions.find(x=>x.id===selId);if(!a) return;
+  const t=TIPOS[a.tipo]||TIPOS.outro;
+  const col=ac(a.alumno);
+  const notasAl=notas.filter(n=>n.alumno===a.alumno);
+  const media=notasAl.length?+(notasAl.reduce((s,n)=>s+n.valor,0)/notasAl.length).toFixed(1):null;
+  const logrados=(a.obxectivos||[]).filter(o=>o.logrado).length;
+  const total=(a.obxectivos||[]).length;
+
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Adaptación · ${a.alumno}</title>
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Georgia',serif;padding:2cm;font-size:11px;color:#1e293b;line-height:1.6}
+  h1{font-size:18px;color:#1e2a4a;margin-bottom:4px}
+  h2{font-size:13px;color:#1e2a4a;margin:14px 0 6px;padding-bottom:3px;border-bottom:1px solid #e2e8f0}
+  .meta{font-size:10px;color:#64748b;margin-bottom:14px;display:flex;gap:14px;flex-wrap:wrap}
+  .field{margin-bottom:10px;padding:8px 12px;background:#f8fafc;border-radius:6px;border-left:3px solid #e2e8f0}
+  .field-lbl{font-size:9px;font-weight:900;text-transform:uppercase;color:#94a3b8;margin-bottom:3px}
+  .obx-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f1f5f9}
+  .obx-check{font-size:12px;min-width:16px}
+  .obx-ud{font-size:9px;color:#4f46e5;font-weight:700}
+  .seg-row{padding:5px 0;border-bottom:1px solid #f1f5f9;display:flex;gap:10px}
+  .seg-data{color:#94a3b8;font-size:9px;min-width:75px}
+  .kpi{display:inline-block;text-align:center;padding:6px 12px;border:1px solid #e2e8f0;border-radius:6px;margin-right:8px}
+  .kpi-val{font-size:18px;font-weight:900;font-family:sans-serif}
+  .kpi-lbl{font-size:9px;color:#94a3b8;text-transform:uppercase}
+  @page{size:A4;margin:2cm}@media print{body{padding:0}}
+  </style></head><body>
+  <h1>📋 Adaptación Curricular · ${a.alumno}</h1>
+  <div class="meta">
+    <span><strong style="color:${t.col}">${t.label}</strong></span>
+    ${a.motivo?`<span>${a.motivo}</span>`:''}
+    <span>Alta: ${a.alta||'—'}</span>
+    <span>Modificado: ${a.modif||'—'}</span>
+  </div>
+  <div style="margin-bottom:14px">
+    ${media!==null?`<div class="kpi"><div class="kpi-val" style="color:${media/escala>=.5?'#059669':'#dc2626'}">${media}</div><div class="kpi-lbl">Media /${escala}</div></div>`:''}
+    ${total?`<div class="kpi"><div class="kpi-val" style="color:#4f46e5">${logrados}/${total}</div><div class="kpi-lbl">Obx. logrados</div></div>`:''}
+  </div>
+  ${a.recursos?`<h2>📦 Recursos e apoios</h2><div class="field"><div>${a.recursos}</div></div>`:''}
+  ${a.avaliacion?`<h2>✅ Avaliación adaptada</h2><div class="field"><div>${a.avaliacion}</div></div>`:''}
+  ${total?`<h2>🎯 Obxectivos adaptados</h2>
+    ${(a.obxectivos||[]).map(o=>`<div class="obx-item">
+      <span class="obx-check">${o.logrado?'✅':'⬜'}</span>
+      <div><div>${o.texto}</div>${o.udNum?`<div class="obx-ud">📚 UD${o.udNum}${o.udTit?' · '+o.udTit:''} ${o.materia?'· '+(materias.find(m=>m.id===o.materia)?.nome||o.materia):''}</div>`:''}
+      </div></div>`).join('')}`:''}
+  ${(a.seguimento||[]).length?`<h2>📈 Seguimento</h2>
+    ${(a.seguimento||[]).map(s=>`<div class="seg-row"><span class="seg-data">${s.data}</span><div style="flex:1">${s.texto}</div><span style="font-size:9px;color:${{ben:'#059669',regular:'#d97706',dificultades:'#dc2626'}[s.estado]||'#64748b'}">${{ben:'✅ Ben',regular:'🟡 Regular',dificultades:'🔴 Dific.'}[s.estado]||'—'}</span></div>`).join('')}`:''}
+  ${a.obs?`<h2>📝 Observacións</h2><div class="field"><div>${a.obs}</div></div>`:''}
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
+}
+
+function exportarJSON(){
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({adaptacions},null,2));
+  a.download='adaptacions_'+new Date().toISOString().split('T')[0]+'.json';a.click();
+}
+
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(){document.getElementById('modal-bg').classList.remove('show');}
+function showToast(msg,col){const t=document.createElement('div');t.style.cssText=`position:fixed;bottom:20px;right:20px;background:${col};color:#fff;font-size:.75rem;font-weight:800;padding:8px 16px;border-radius:10px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s`;t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);}
+
+renderSidebar();renderForm();
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

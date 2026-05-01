@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caderno de Tarefas · 4º B</title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);
+  --gold:#f59e0b;--purple:#a78bfa;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;
+  --teal:#2dd4bf;--orange:#f97316;--shadow:0 2px 12px rgba(0,0,0,.3);
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+.header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:1.2rem;color:var(--gold)}
+.header-right{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{height:32px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;display:inline-flex;align-items:center;gap:5px;transition:transform .12s}
+.btn:hover{transform:scale(1.04)}.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--white)}
+.btn-sm{height:27px;padding:0 10px;font-size:.68rem}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1.5px solid rgba(239,68,68,.4)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 57px)}
+@media(max-width:640px){.layout{grid-template-columns:1fr;grid-template-rows:auto 1fr}}
+
+/* SIDEBAR */
+.sidebar{background:var(--card2);border-right:1px solid var(--border);overflow-y:auto;padding:14px 10px}
+.sidebar-title{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:0 6px;margin-bottom:6px}
+.cat-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px;cursor:pointer;font-size:.8rem;font-weight:800;transition:all .15s;position:relative}
+.cat-item:hover{background:rgba(255,255,255,.06)}
+.cat-item.active{background:rgba(245,158,11,.15);color:var(--gold)}
+.cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cat-count{margin-left:auto;font-size:.62rem;background:rgba(255,255,255,.1);padding:1px 6px;border-radius:999px;font-weight:900}
+.cat-count.urgente{background:rgba(239,68,68,.2);color:var(--red)}
+.divider{height:1px;background:var(--border);margin:10px 0}
+
+/* MAIN */
+.main{overflow-y:auto;padding:20px}
+.main-header{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search-inp{flex:1;min-width:160px;height:34px;padding:0 12px;background:var(--card2);border:1px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem}
+.search-inp:focus{outline:none;border-color:var(--gold)}
+.filtro-btn{height:27px;padding:0 10px;border-radius:7px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:.68rem;font-weight:800;cursor:pointer;transition:all .15s}
+.filtro-btn.active{background:var(--gold);color:#0f172a;border-color:var(--gold)}
+
+/* TASK CARD */
+.task-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;transition:all .15s;border-left:3px solid transparent}
+.task-card:hover{border-color:var(--border2)}
+.task-card.feita{opacity:.5}
+.task-card.feita .task-titulo{text-decoration:line-through;color:var(--muted)}
+.task-card.vencida{border-left-color:var(--red)}
+.task-card.hoxe{border-left-color:var(--gold)}
+.task-card.proxima{border-left-color:var(--blue)}
+.check-btn{width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0;margin-top:2px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.check-btn.feita{background:var(--green);border-color:var(--green)}
+.check-btn:hover:not(.feita){border-color:var(--green)}
+.task-body{flex:1}
+.task-titulo{font-size:.85rem;font-weight:800;margin-bottom:3px;line-height:1.3}
+.task-desc{font-size:.73rem;color:var(--muted);margin-bottom:5px;line-height:1.4}
+.task-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:999px;white-space:nowrap}
+.task-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.task-card:hover .task-actions{opacity:1}
+.act-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.act-btn:hover{color:var(--white);border-color:var(--border2)}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem;color:var(--muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:.5rem}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:22px;width:420px;max-width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--border2)}
+.modal h3{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:14px;color:var(--gold)}
+.label{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:4px;margin-top:10px}
+.inp{width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem}
+.inp:focus{outline:none;border-color:var(--gold)}
+.textarea{width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;resize:vertical;min-height:60px}
+.modal-row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.stats-bar{display:flex;gap:12px;background:var(--card2);border-radius:12px;padding:10px 14px;margin-bottom:16px;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-n{font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:700}
+.stat-l{font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.5rem">📋</span>
+  <div>
+    <h1>Caderno de Tarefas</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-gold" onclick="abrirNovaTarefa()">+ Nova tarefa</button>
+    <button class="btn btn-ghost btn-sm" onclick="imprimirTarefas()">&#x1F5A8;&#xFE0F; Imprimir</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">&#x1F4CA; CSV</button>
+    <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">&#x2600;&#xFE0F; Claro</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">&#x1F4E4; JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="importarJSON()">&#x1F4E5; Importar</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none">🏠 Portal</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Categorías</div>
+    <div id="cats-list"></div>
+    <div class="divider"></div>
+    <div class="sidebar-title">Estado</div>
+    <div id="estados-list"></div>
+    <div class="divider"></div>
+    <div class="sidebar-title">Prioridade</div>
+    <div id="prior-list"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-header">
+      <input class="search-inp" id="search" placeholder="🔍 Buscar tarefa..." oninput="renderTarefas()"/>
+      <button class="filtro-btn" id="fb-todas" onclick="setFiltro('todas')" >Todas</button>
+      <button class="filtro-btn" id="fb-pendentes" onclick="setFiltro('pendentes')">Pendentes</button>
+      <button class="filtro-btn" id="fb-feitas" onclick="setFiltro('feitas')">Feitas</button>
+      <div id="ud-filter-chips" style="display:contents"></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-bar" id="stats-bar"></div>
+
+    <!-- LISTA -->
+    <div id="tarefas-lista"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+
+// ── CATEGORÍAS ────────────────────────────────────────────────────────────────
+const CATS = [
+  {id:'todas',      label:'Todas',           icon:'📋', col:'var(--muted)'},
+  {id:'admin',      label:'Administración',  icon:'🏫', col:'#60a5fa'},
+  {id:'familias',   label:'Familias',        icon:'👨‍👩‍👧', col:'#a78bfa'},
+  {id:'clase',      label:'Preparación clase',icon:'📚', col:'#f59e0b'},
+  {id:'avaliacion', label:'Avaliación',      icon:'📝', col:'#22c55e'},
+  {id:'urxente',    label:'Urxente',         icon:'🔴', col:'#ef4444'},
+  {id:'persoal',    label:'Persoal',         icon:'👤', col:'#2dd4bf'},
+];
+
+const PRIORS = [
+  {id:'alta',   label:'Alta',   col:'#ef4444', emoji:'🔴'},
+  {id:'media',  label:'Media',  col:'#f59e0b', emoji:'🟡'},
+  {id:'baixa',  label:'Baixa',  col:'#22c55e', emoji:'🟢'},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let tarefas = LS.get('ct_tarefas', []);
+let selCat = 'todas';
+let filtroEstado = 'pendentes';
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+const hoxeStr = () => new Date().toISOString().split('T')[0];
+const mananaStr = () => { const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0]; };
+
+function getCat(id){ return CATS.find(c=>c.id===id) || CATS[0]; }
+function getPrior(id){ return PRIORS.find(p=>p.id===id) || PRIORS[1]; }
+
+function estadoTarefa(t){
+  if(t.feita) return 'feita';
+  if(!t.data) return 'sen-data';
+  const hoxe = hoxeStr();
+  if(t.data < hoxe) return 'vencida';
+  if(t.data === hoxe) return 'hoxe';
+  return 'proxima';
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function init(){
+  renderSidebar();
+  renderStats();
+  renderTarefas();
+  aplicarModo(LS.get('ct_modo','escuro'));
+  // Check for expired tasks notification
+  const vencidas = tarefas.filter(t=>!t.feita&&t.data&&t.data<hoxeStr()).length;
+  if(vencidas>0) console.log(`${vencidas} tarefas vencidas`);
+}
+
+// ── SIDEBAR ──────────────────────────────────────────────────────────────────
+function renderSidebar(){
+  const hoxe = hoxeStr();
+  
+  // Categories
+  const catsList = document.getElementById('cats-list');
+  catsList.innerHTML = CATS.map(cat=>{
+    const count = cat.id==='todas'
+      ? tarefas.filter(t=>!t.feita).length
+      : tarefas.filter(t=>!t.feita && t.cat===cat.id).length;
+    const isUrgent = cat.id==='urxente';
+    return `<div class="cat-item${selCat===cat.id?' active':''}" onclick="selCat='${cat.id}';renderSidebar();renderTarefas()">
+      <div class="cat-dot" style="background:${cat.col}"></div>
+      <span>${cat.icon} ${cat.label}</span>
+      ${count>0?`<span class="cat-count${isUrgent?' urgente':''}">${count}</span>`:''}
+    </div>`;
+  }).join('');
+
+  // Estados
+  const estadosList = document.getElementById('estados-list');
+  const vencidas = tarefas.filter(t=>!t.feita&&t.data&&t.data<hoxe).length;
+  const deHoxe   = tarefas.filter(t=>!t.feita&&t.data===hoxe).length;
+  const feitas   = tarefas.filter(t=>t.feita).length;
+  estadosList.innerHTML = `
+    ${vencidas>0?`<div class="cat-item" onclick="setFiltroData('vencidas')"><span style="color:var(--red)">⚠️ Vencidas</span><span class="cat-count urgente">${vencidas}</span></div>`:''}
+    ${deHoxe>0?`<div class="cat-item" onclick="setFiltroData('hoxe')"><span style="color:var(--gold)">📅 Para hoxe</span><span class="cat-count">${deHoxe}</span></div>`:''}
+    <div class="cat-item" onclick="setFiltroData('todas')"><span>📋 Todas pendentes</span></div>
+    <div class="cat-item" onclick="setFiltroData('feitas')"><span style="color:var(--green)">✅ Completadas</span><span class="cat-count">${feitas}</span></div>`;
+
+  // Prioridades
+  const priorList = document.getElementById('prior-list');
+  priorList.innerHTML = PRIORS.map(p=>{
+    const count = tarefas.filter(t=>!t.feita&&t.prior===p.id).length;
+    return `<div class="cat-item" onclick="setFiltroPrior('${p.id}')">
+      <span>${p.emoji} ${p.label}</span>
+      ${count>0?`<span class="cat-count">${count}</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+let filtroData = null;
+let filtroPrior = null;
+let filtroUD = null;
+
+function setFiltroUD(ud){ filtroUD=ud===filtroUD?null:ud; renderTarefas(); }
+function setFiltro(f){ filtroEstado=f; filtroData=null; filtroPrior=null; document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active')); document.getElementById('fb-'+f)?.classList.add('active'); renderTarefas(); }
+function setFiltroData(f){ filtroData=f; filtroEstado='todas'; filtroPrior=null; renderTarefas(); }
+function setFiltroPrior(p){ filtroPrior=p; filtroEstado='pendentes'; filtroData=null; renderTarefas(); }
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats(){
+  const total = tarefas.length;
+  const feitas = tarefas.filter(t=>t.feita).length;
+  const pendentes = total-feitas;
+  const vencidas = tarefas.filter(t=>!t.feita&&t.data&&t.data<hoxeStr()).length;
+  const pct = total>0?Math.round(feitas/total*100):0;
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-item"><div class="stat-n" style="color:var(--white)">${total}</div><div class="stat-l">Total</div></div>
+    <div class="stat-item"><div class="stat-n" style="color:var(--gold)">${pendentes}</div><div class="stat-l">Pendentes</div></div>
+    <div class="stat-item"><div class="stat-n" style="color:var(--green)">${feitas}</div><div class="stat-l">Feitas</div></div>
+    ${vencidas>0?`<div class="stat-item"><div class="stat-n" style="color:var(--red)">${vencidas}</div><div class="stat-l">Vencidas</div></div>`:''}
+    <div class="stat-item" style="margin-left:auto">
+      <div style="width:48px;height:48px;position:relative;flex-shrink:0">
+        <svg viewBox="0 0 36 36" style="width:48px;height:48px;transform:rotate(-90deg)">
+          <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="3"/>
+          <circle cx="18" cy="18" r="15" fill="none" stroke="${pct>=80?'#22c55e':pct>=50?'#f59e0b':'#60a5fa'}" stroke-width="3" stroke-dasharray="${pct*0.942} 94.2" stroke-linecap="round"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:900">${pct}%</div>
+      </div>
+      <div class="stat-l" style="margin-top:2px">Progreso</div>
+    </div>`;
+}
+
+// ── RENDER TAREFAS ────────────────────────────────────────────────────────────
+function renderTarefas(){
+  const lista = document.getElementById('tarefas-lista');
+  const busca = document.getElementById('search')?.value.toLowerCase()||'';
+  const hoxe = hoxeStr();
+
+  // Renderizar chips de filtro por UD
+  const udChipsEl=document.getElementById('ud-filter-chips');
+  if(udChipsEl){
+    const udsEnTarefas=[...new Set(tarefas.filter(t=>t.udNum).map(t=>t.udNum))].sort((a,b)=>a-b);
+    udChipsEl.innerHTML=udsEnTarefas.map(num=>{
+      const t=tarefas.find(x=>x.udNum===num);
+      const tit=t?.udTit?t.udTit.substring(0,10):'';
+      const active=filtroUD===num;
+      return `<button onclick="setFiltroUD(${num})" style="height:27px;padding:0 9px;border-radius:7px;border:1.5px solid ${active?'#818cf8':'var(--border2)'};background:${active?'rgba(129,140,248,.15)':'transparent'};color:${active?'#818cf8':'var(--muted)'};font-size:.65rem;font-weight:800;cursor:pointer">📚 UD${num}${tit?' '+tit:''}</button>`;
+    }).join('');
+  }
+
+  let ts = [...tarefas];
+
+  // Filtro categoría
+  if(selCat && selCat!=='todas') ts = ts.filter(t=>t.cat===selCat);
+
+  // Filtro estado
+  if(filtroData==='vencidas') ts = ts.filter(t=>!t.feita&&t.data&&t.data<hoxe);
+  else if(filtroData==='hoxe') ts = ts.filter(t=>!t.feita&&t.data===hoxe);
+  else if(filtroData==='feitas' || filtroEstado==='feitas') ts = ts.filter(t=>t.feita);
+  else if(filtroEstado==='pendentes') ts = ts.filter(t=>!t.feita);
+
+  // Filtro prioridade
+  if(filtroPrior) ts = ts.filter(t=>t.prior===filtroPrior);
+
+  // Filtro UD
+  if(filtroUD) ts = ts.filter(t=>t.udNum===filtroUD);
+
+  // Busca
+  if(busca) ts = ts.filter(t=>(t.titulo+' '+(t.desc||'')).toLowerCase().includes(busca));
+
+  // Ordenar: vencidas primeiro, logo por data, logo por prioridade
+  const priorOrd = {alta:0,media:1,baixa:2};
+  ts.sort((a,b)=>{
+    if(a.feita !== b.feita) return a.feita?1:-1;
+    const ea=estadoTarefa(a), eb=estadoTarefa(b);
+    const ord={vencida:0,hoxe:1,proxima:2,'sen-data':3,feita:4};
+    if(ord[ea]!==ord[eb]) return ord[ea]-ord[eb];
+    if(a.data&&b.data) return a.data.localeCompare(b.data);
+    return (priorOrd[a.prior]||1)-(priorOrd[b.prior]||1);
+  });
+
+  if(!ts.length){
+    lista.innerHTML=`<div class="empty"><div class="empty-icon">✅</div><div>Non hai tarefas${busca?' que coincidan':''}</div></div>`;
+    return;
+  }
+
+  lista.innerHTML = ts.map(t=>{
+    const cat = getCat(t.cat||'admin');
+    const prior = getPrior(t.prior||'media');
+    const estado = estadoTarefa(t);
+    const borderCls = estado==='vencida'?'vencida':estado==='hoxe'?'hoxe':estado==='proxima'?'proxima':'';
+    const dataLabel = !t.data?''
+      : estado==='vencida'?`<span class="tag" style="background:rgba(239,68,68,.15);color:var(--red)">⚠️ ${t.data}</span>`
+      : estado==='hoxe'?`<span class="tag" style="background:rgba(245,158,11,.15);color:var(--gold)">📅 Hoxe</span>`
+      : `<span class="tag" style="background:rgba(96,165,250,.1);color:var(--blue)">📅 ${t.data}</span>`;
+
+    return `<div class="task-card${t.feita?' feita':''} ${borderCls}">
+      <button class="check-btn${t.feita?' feita':''}" onclick="toggleFeita('${t.id}')" title="${t.feita?'Marcar como pendente':'Marcar como feita'}">
+        ${t.feita?'<span style="color:white;font-size:.7rem">✓</span>':''}
+      </button>
+      <div class="task-body">
+        <div class="task-titulo">${t.titulo}</div>
+        ${t.desc?`<div class="task-desc">${t.desc}</div>`:''}
+        <div class="task-meta">
+          <span class="tag" style="background:${cat.col}22;color:${cat.col}">${cat.icon} ${cat.label}</span>
+          <span class="tag" style="background:${prior.col}18;color:${prior.col}">${prior.emoji} ${prior.label}</span>
+          ${dataLabel}
+          ${t.udNum?`<span class="tag" style="background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)">📚 UD${t.udNum}${t.udTit?' · '+t.udTit.substring(0,12):''}</span>`:''}
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="act-btn" onclick="editarTarefa('${t.id}')" title="Editar">✏️</button>
+        <button class="act-btn" onclick="borrarTarefa('${t.id}')" title="Borrar" style="color:var(--red)">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ACCIONS ───────────────────────────────────────────────────────────────────
+function toggleFeita(id){
+  const t = tarefas.find(x=>x.id===id);
+  if(t){ t.feita=!t.feita; t.feitaTs=t.feita?new Date().toISOString():null; }
+  gardar(); renderSidebar(); renderStats(); renderTarefas();
+}
+
+function borrarTarefa(id, pecharModal=false){
+  const eliminada = tarefas.find(t=>t.id===id);
+  if(!eliminada) return;
+  tarefas = tarefas.filter(t=>t.id!==id);
+  gardar(); renderSidebar(); renderStats(); renderTarefas();
+  if(pecharModal) closeModal();
+  _toastDesfacer(
+    `Tarefa "${eliminada.titulo.substring(0,40)}" eliminada`,
+    ()=>{
+      tarefas.push(eliminada);
+      tarefas.sort((a,b)=>{
+        if(!a.data&&!b.data) return 0;
+        if(!a.data) return 1;
+        if(!b.data) return -1;
+        return a.data.localeCompare(b.data);
+      });
+      gardar(); renderSidebar(); renderStats(); renderTarefas();
+    }
+  );
+}
+
+// ── MODAL NOVA/EDITAR TAREFA ──────────────────────────────────────────────────
+function abrirNovaTarefa(){
+  const catOpts = CATS.filter(c=>c.id!=='todas').map(c=>`<option value="${c.id}">${c.icon} ${c.label}</option>`).join('');
+  const priorOpts = PRIORS.map(p=>`<option value="${p.id}">${p.emoji} ${p.label}</option>`).join('');
+  openModal(`<h3>+ Nova tarefa</h3>
+    <label class="label">Título *</label>
+    <input class="inp" id="m-tit" placeholder="Ex: Preparar exame de Matemáticas" autofocus/>
+    <label class="label">Descrición</label>
+    <textarea class="textarea" id="m-desc" placeholder="Notas adicionais..."></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+      <div><label class="label">Categoría</label><select class="inp" id="m-cat">${catOpts}</select></div>
+      <div><label class="label">Prioridade</label><select class="inp" id="m-prior">${priorOpts}</select></div>
+    </div>
+    <label class="label">Data límite</label>
+    <input class="inp" id="m-data" type="date" value="${hoxeStr()}"/>
+    <label class="label">Unidade Didáctica (opcional)</label>
+    <select class="inp" id="m-ud" style="cursor:pointer">
+      <option value="">— Sen UD —</option>
+      ${(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const allUDs=new Map();Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));return [...allUDs.entries()].sort((a,b)=>a[0]-b[0]).map(([num,tit])=>`<option value="${num}">UD${num}${tit?' · '+tit.substring(0,20):''}</option>`).join('');}catch{return '';}})()}
+    </select>
+    <div class="modal-row">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarTarefa()">💾 Gardar</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('m-tit')?.focus(),100);
+}
+
+function editarTarefa(id){
+  const t = tarefas.find(x=>x.id===id);
+  if(!t) return;
+  const catOpts = CATS.filter(c=>c.id!=='todas').map(c=>`<option value="${c.id}"${c.id===t.cat?' selected':''}>${c.icon} ${c.label}</option>`).join('');
+  const priorOpts = PRIORS.map(p=>`<option value="${p.id}"${p.id===t.prior?' selected':''}>${p.emoji} ${p.label}</option>`).join('');
+  openModal(`<h3>✏️ Editar tarefa</h3>
+    <label class="label">Título *</label>
+    <input class="inp" id="m-tit" value="${t.titulo.replace(/"/g,'&quot;')}" autofocus/>
+    <label class="label">Descrición</label>
+    <textarea class="textarea" id="m-desc">${t.desc||''}</textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+      <div><label class="label">Categoría</label><select class="inp" id="m-cat">${catOpts}</select></div>
+      <div><label class="label">Prioridade</label><select class="inp" id="m-prior">${priorOpts}</select></div>
+    </div>
+    <label class="label">Data límite</label>
+    <input class="inp" id="m-data" type="date" value="${t.data||''}"/>
+    <label class="label">Unidade Didáctica (opcional)</label>
+    <select class="inp" id="m-ud" style="cursor:pointer">
+      <option value="">— Sen UD —</option>
+      ${(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const allUDs=new Map();Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));return [...allUDs.entries()].sort((a,b)=>a[0]-b[0]).map(([num,tit])=>`<option value="${num}"${t.udNum===num?' selected':''}>UD${num}${tit?' · '+tit.substring(0,20):''}</option>`).join('');}catch{return '';}})()}
+    </select>
+    <div class="modal-row">
+      <button class="btn btn-red btn-sm" onclick="borrarTarefa('${id}',true)">🗑 Borrar</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarTarefa('${id}')">💾 Gardar</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('m-tit')?.focus(),100);
+}
+
+function gardarTarefa(id){
+  const titulo = document.getElementById('m-tit')?.value.trim();
+  if(!titulo){ alert('O título é obrigatorio.'); return; }
+  const _udNum=parseInt(document.getElementById('m-ud')?.value)||null;
+  const _udTit=_udNum?(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');for(const arr of Object.values(lomloeUDs)){const u=arr.find(x=>x.num===_udNum);if(u)return u.tit||'';}return '';}catch{return '';}})():'';
+  const tarefa = {
+    id: id || 'ct_'+Date.now(),
+    titulo,
+    desc:  document.getElementById('m-desc')?.value.trim()||'',
+    cat:   document.getElementById('m-cat')?.value||'admin',
+    prior: document.getElementById('m-prior')?.value||'media',
+    data:  document.getElementById('m-data')?.value||'',
+    udNum: _udNum,
+    udTit: _udTit,
+    feita: false,
+    creada: id ? tarefas.find(t=>t.id===id)?.creada : new Date().toISOString(),
+  };
+  if(id){
+    const idx = tarefas.findIndex(t=>t.id===id);
+    if(idx>=0){ tarefa.feita=tarefas[idx].feita; tarefas[idx]=tarefa; }
+  } else {
+    tarefas.unshift(tarefa);
+  }
+  gardar(); closeModal(); renderSidebar(); renderStats(); renderTarefas();
+}
+
+// ── GARDAR / EXPORTAR ─────────────────────────────────────────────────────────
+function gardar(){
+  LS.set('ct_tarefas',tarefas);
+  try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch{}
+}
+
+function exportarJSON(){
+  const data={ct_tarefas:tarefas,_exportado:new Date().toISOString()};
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='caderno_tarefas_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+
+function importarJSON(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        if(data.ct_tarefas&&Array.isArray(data.ct_tarefas)){
+          const existIds=new Set(tarefas.map(t=>t.id));
+          const novas=data.ct_tarefas.filter(t=>!existIds.has(t.id));
+          tarefas=[...tarefas,...novas];
+          gardar();init();
+        } else alert('Non se atoparon tarefas no ficheiro.');
+      }catch(ex){alert('Erro: '+ex.message);}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modal-bg').classList.remove('show');});
+
+// ── MODO ──────────────────────────────────────────────────────────────────────
+function toggleModo(){const a=LS.get('ct_modo','escuro');const n=a==='escuro'?'claro':'escuro';aplicarModo(n);LS.set('ct_modo',n);}
+function aplicarModo(m){
+  const r=document.documentElement.style;const btn=document.getElementById('btn-modo');
+  if(m==='claro'){r.setProperty('--bg','#f0f4f8');r.setProperty('--card','#ffffff');r.setProperty('--card2','#f5f8fb');r.setProperty('--border','rgba(15,23,42,.10)');r.setProperty('--border2','rgba(15,23,42,.18)');r.setProperty('--white','#1e293b');r.setProperty('--muted','rgba(30,41,59,.50)');if(btn)btn.textContent='🌙 Escuro';}
+  else{r.setProperty('--bg','#0f172a');r.setProperty('--card','#1e293b');r.setProperty('--card2','#263347');r.setProperty('--border','rgba(255,255,255,.08)');r.setProperty('--border2','rgba(255,255,255,.14)');r.setProperty('--white','#f1f5f9');r.setProperty('--muted','rgba(241,245,249,.45)');if(btn)btn.textContent='☀️ Claro';}
+}
+
+// ── AUTOGUARDADO ──────────────────────────────────────────────────────────────
+window.addEventListener('beforeunload',gardar);
+setInterval(gardar,30000);
+
+// ── START ─────────────────────────────────────────────────────────────────────
+setFiltro('pendentes');
+init();
+
+function exportarCSV(){
+  const ts = tarefas.slice().sort((a,b)=>a.data&&b.data?(a.data>b.data?1:-1):a.data?-1:1);
+  const rows=[['Título','Categoría','Prioridade','Estado','Data límite','Notas','Creada']];
+  ts.forEach(t=>{
+    const cat=getCat(t.cat)?.label||t.cat||'';
+    const pri=getPrior(t.prior)?.label||t.prior||'';
+    const est=t.feita?'Feita':(t.data&&t.data<new Date().toISOString().split('T')[0]?'Vencida':'Pendente');
+    rows.push([t.titulo,cat,pri,est,t.data||'',t.notas||'',t.creada?t.creada.split('T')[0]:'']);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='tarefas_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+function imprimirTarefas(){
+  const ts = tarefas.slice().sort((a,b)=>{
+    const prOrd={urxente:0,alta:1,media:2,baixa:3};
+    return (prOrd[a.prior]||2)-(prOrd[b.prior]||2);
+  });
+  const hoxe=new Date().toISOString().split('T')[0];
+  const filas=ts.map(t=>{
+    const cat=getCat(t.cat)||{label:'',cor:'#64748b'};
+    const pri=getPrior(t.prior)||{label:'',emoji:'',cor:'#64748b'};
+    const vencida=!t.feita&&t.data&&t.data<hoxe;
+    const est=t.feita?'\u2705 Feita':vencida?'\u26A0\uFE0F Vencida':'\u23F3 Pendente';
+    return `<tr style="${t.feita?'opacity:.55':vencida?'background:#fff5f5':''}">
+      <td style="padding:7px 10px;font-weight:${t.feita?'400':'700'};text-decoration:${t.feita?'line-through':'none'}">${t.titulo}</td>
+      <td style="padding:7px 10px;font-size:.82em"><span style="background:${cat.cor}22;color:${cat.cor};padding:1px 8px;border-radius:5px;font-weight:700">${cat.label}</span></td>
+      <td style="padding:7px 10px;font-size:.82em;color:${pri.cor}">${pri.emoji} ${pri.label}</td>
+      <td style="padding:7px 10px;font-size:.82em">${est}</td>
+      <td style="padding:7px 10px;font-size:.82em;color:#64748b">${t.data||'—'}</td>
+    </tr>`;
+  }).join('');
+  const pendentes=ts.filter(t=>!t.feita).length;
+  const feitas=ts.filter(t=>t.feita).length;
+  const w=window.open('','_blank','width=900,height=700');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Caderno de Tarefas</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;padding:1.5cm;color:#1e293b}
+  h1{font-size:18pt;margin-bottom:4px}p.sub{font-size:9pt;color:#64748b;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:7px 10px;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#475569;border-bottom:2px solid #e2e8f0;text-align:left}
+  tr{border-bottom:1px solid #f1f5f9}.no-print{display:block;margin-bottom:16px}
+  @media print{.no-print{display:none!important}body{padding:.8cm}}</style>
+  </head><body>
+  <div class="no-print"><button onclick="window.print()" style="height:34px;padding:0 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">&#x1F5A8;&#xFE0F; Imprimir / PDF</button></div>
+  <h1>&#x1F4CB; Caderno de Tarefas · 4\xBA B</h1>
+  <p class="sub">CEIP P\xEDo XII · Titora: M. Blanco V\xE1zquez · ${new Date().toLocaleDateString('gl')} · ${pendentes} pendentes · ${feitas} feitas</p>
+  <table><thead><tr><th>Tarefa</th><th>Categor\xEDa</th><th>Prioridade</th><th>Estado</th><th>Data l\xEDmite</th></tr></thead>
+  <tbody>${filas}</tbody></table></body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
+}
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

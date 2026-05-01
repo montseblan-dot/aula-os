@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diario de Aula · 4º B</title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);
+  --gold:#f59e0b;--purple:#a78bfa;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--teal:#2dd4bf;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+.header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.header h1{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{height:32px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;display:inline-flex;align-items:center;gap:5px;transition:transform .12s}
+.btn:hover{transform:scale(1.04)}.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--white)}
+.btn-sm{height:27px;padding:0 10px;font-size:.68rem}
+/* TABS */
+.tabs{display:flex;gap:4px;padding:10px 20px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{height:30px;padding:0 14px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.tab.active{background:var(--gold);color:#0f172a;border-color:var(--gold)}
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 101px)}
+@media(max-width:640px){.layout{grid-template-columns:1fr}}
+.sidebar{background:var(--card2);border-right:1px solid var(--border);padding:14px;overflow-y:auto}
+.main{padding:20px;overflow-y:auto}
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cal-nav button{height:28px;width:28px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-size:.9rem}
+.cal-nav button:hover{color:var(--white)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day-header{font-size:.55rem;font-weight:900;text-transform:uppercase;color:var(--muted);text-align:center;padding:3px 0}
+.cal-day{height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;cursor:pointer;position:relative;transition:all .12s}
+.cal-day:hover{background:rgba(255,255,255,.06)}
+.cal-day.today{border:2px solid var(--gold);color:var(--gold)}
+.cal-day.sel{background:var(--gold);color:#0f172a}
+.cal-day.has-entry::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--blue)}
+.cal-day.other-month{opacity:.3}
+/* ENTRY FORM */
+.entry-card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px}
+.field-label{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:4px;margin-top:10px}
+.inp{width:100%;padding:7px 10px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem}
+.inp:focus{outline:none;border-color:var(--gold)}
+.textarea{width:100%;padding:7px 10px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;resize:vertical;min-height:52px}
+.textarea:focus{outline:none;border-color:var(--gold)}
+/* HORARIO CHIPS */
+.horario-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.hora-chip{padding:3px 10px;border-radius:7px;font-size:.68rem;font-weight:800;cursor:pointer;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif}
+.hora-chip.sel{background:var(--blue);color:white;border-color:var(--blue)}
+/* HISTORY CARDS */
+.hist-entry{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--blue)}
+.hist-date{font-size:.68rem;font-weight:900;color:var(--blue);margin-bottom:6px}
+.hist-hora{font-size:.62rem;padding:1px 7px;border-radius:5px;background:rgba(96,165,250,.15);color:var(--blue);font-weight:800;display:inline-block;margin-bottom:5px}
+.hist-field{font-size:.72rem;color:var(--muted);margin-bottom:2px}
+.hist-field strong{color:var(--white);font-weight:800}
+/* WEEK/MONTH VIEW */
+.week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.week-col{background:var(--card);border-radius:10px;padding:10px;border:1px solid var(--border)}
+.week-col-title{font-size:.65rem;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:8px;text-align:center}
+.week-mini{font-size:.65rem;padding:4px 6px;background:var(--card2);border-radius:6px;margin-bottom:4px;border-left:2px solid var(--blue)}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:22px;width:420px;max-width:100%;border:1px solid var(--border2)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span style="font-size:1.5rem">📓</span>
+  <h1>Diario de Aula<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted);margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted);text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a></h1>
+  <div class="hdr-right">
+    <button class="btn btn-gold" onclick="mostrarFormHoxe()">+ Entrada hoxe</button>
+    <button class="btn btn-ghost btn-sm" onclick="imprimirDiario()">&#x1F5A8;&#xFE0F; Imprimir</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSVDiario()">&#x1F4CA; CSV</button>
+    <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">&#x2600;&#xFE0F; Claro</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">&#x1F4E4; JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="window.location.href='PORTAL_DOCENTE.html'">&#x1F3E0; Portal</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" id="tab-hoxe" onclick="setTab('hoxe')">📝 Hoxe</button>
+  <button class="tab" id="tab-semana" onclick="setTab('semana')">📅 Semana</button>
+  <button class="tab" id="tab-mes" onclick="setTab('mes')">🗓 Mes</button>
+  <button class="tab" id="tab-historial" onclick="setTab('historial')">📚 Historial</button>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR: Calendario -->
+  <div class="sidebar">
+    <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">Calendario</div>
+    <div class="cal-nav">
+      <button onclick="navMes(-1)">‹</button>
+      <div id="cal-titulo" style="flex:1;text-align:center;font-size:.8rem;font-weight:800"></div>
+      <button onclick="navMes(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Horario</div>
+      <div id="horario-sidebar"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main-content"></div>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+
+// ── DATOS ─────────────────────────────────────────────────────────────────────
+// entries = [{id, data, hora, actividade, incidencia, notaMañan, creada}]
+let entries = LS.get('da_entries', []);
+// horario = {lun:[{hora,materia},...], mar:[], ...}
+let horario = LS.get('pc_horario', {});
+
+const DIAS_CURTOS = ['Dom','Lun','Mar','Mér','Xov','Ven','Sáb'];
+const DIAS_SEMANA = ['domingo','luns','martes','mércores','xoves','venres','sábado'];
+const MESES = ['Xaneiro','Febreiro','Marzo','Abril','Maio','Xuño','Xullo','Agosto','Setembro','Outubro','Novembro','Decembro'];
+
+let selDate = new Date().toISOString().split('T')[0];
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let curTab = 'hoxe';
+
+// ── CALENDARIO ────────────────────────────────────────────────────────────────
+function renderCal(){
+  const tit = document.getElementById('cal-titulo');
+  if(tit) tit.textContent = MESES[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('cal-grid');
+  if(!grid) return;
+
+  const entryDates = new Set(entries.map(e=>e.data));
+  const today = new Date().toISOString().split('T')[0];
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+  let html = DIAS_CURTOS.map(d=>`<div class="cal-day-header">${d[0]}</div>`).join('');
+
+  for(let i=0;i<firstDay;i++){
+    const d=daysInPrev-firstDay+i+1;
+    html+=`<div class="cal-day other-month">${d}</div>`;
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const dk=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isToday=dk===today, isSel=dk===selDate, hasEntry=entryDates.has(dk);
+    html+=`<div class="cal-day${isToday?' today':''}${isSel?' sel':''}${hasEntry?' has-entry':''}" onclick="selDay('${dk}')">${d}</div>`;
+  }
+  grid.innerHTML=html;
+}
+
+function selDay(dk){
+  selDate=dk;
+  renderCal();
+  if(curTab==='hoxe') renderMain();
+}
+
+function navMes(d){
+  calMonth+=d;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  renderCal();
+}
+
+function renderHorarioSidebar(){
+  const el=document.getElementById('horario-sidebar'); if(!el) return;
+  const dow=new Date(selDate+'T12:00:00').getDay();
+  const dowKey=['domingo','luns','martes','mercores','xoves','venres','sabado'][dow];
+  const slots=(horario[dowKey]||horario[Object.keys(horario)[dow-1]]||[]);
+  if(!slots.length){
+    el.innerHTML='<div style="font-size:.68rem;color:var(--muted)">Sen horario configurado</div>';
+    return;
+  }
+  el.innerHTML=slots.map(s=>`<div style="font-size:.68rem;padding:3px 7px;background:var(--card);border-radius:6px;margin-bottom:3px;border-left:2px solid var(--blue)">${s.hora||''} <span style="font-weight:800">${s.materia||s.nome||''}</span></div>`).join('');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function setTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+t));
+  renderMain();
+}
+
+function renderMain(){
+  const el=document.getElementById('main-content');
+  if(curTab==='hoxe') renderHoxe(el);
+  else if(curTab==='semana') renderSemana(el);
+  else if(curTab==='mes') renderMesView(el);
+  else renderHistorial(el);
+}
+
+// ── HOXE ──────────────────────────────────────────────────────────────────────
+function renderHoxe(el){
+  const dayEntries=entries.filter(e=>e.data===selDate).sort((a,b)=>a.hora.localeCompare(b.hora));
+  const dow=new Date(selDate+'T12:00:00').getDay();
+  const dowKey=['domingo','luns','martes','mercores','xoves','venres','sabado'][dow];
+  const slots=horario[dowKey]||horario[Object.keys(horario)[dow-1]]||[];
+  const dateLabel=new Date(selDate+'T12:00:00').toLocaleDateString('gl',{weekday:'long',day:'numeric',month:'long'});
+
+  let html=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold);text-transform:capitalize">${dateLabel}</div>
+    <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="abrirFormEntrada('${selDate}','')">+ Engadir entrada</button>
+  </div>`;
+
+  if(!dayEntries.length){
+    html+=`<div style="text-align:center;padding:2.5rem;color:var(--muted)"><div style="font-size:2rem;margin-bottom:.5rem">📓</div><div>Non hai entradas para este día</div></div>`;
+  } else {
+    html+=dayEntries.map(e=>entradaCard(e)).join('');
+  }
+
+  // Horario do día
+  if(slots.length){
+    html+=`<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Horario do día</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${slots.map(s=>`<div style="padding:4px 10px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);border-radius:7px;font-size:.68rem;font-weight:800;color:var(--blue)">${s.hora||''} ${s.materia||s.nome||''}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+  el.innerHTML=html;
+}
+
+function entradaCard(e){
+  return `<div class="hist-entry" style="border-left-color:var(--blue)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+      ${e.hora?`<span class="hist-hora">${e.hora}</span>`:''}
+      ${e.materia?`<span style="font-size:.62rem;padding:1px 7px;border-radius:5px;background:rgba(167,139,250,.15);color:#a78bfa;font-weight:800">${e.materia}</span>`:''}
+      ${e.udNum?`<span style="font-size:.62rem;padding:1px 7px;border-radius:5px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2);font-weight:900">📚 UD${e.udNum}${e.udTit?' · '+e.udTit.substring(0,16):''}</span>`:''}
+      <div style="margin-left:auto;display:flex;gap:4px">
+        <button onclick="editarEntrada('${e.id}')" style="height:22px;padding:0 8px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);border-radius:6px;color:var(--blue);font-size:.62rem;font-weight:800;cursor:pointer">✏️</button>
+        <button onclick="borrarEntrada('${e.id}')" style="height:22px;padding:0 8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;font-size:.62rem;font-weight:800;cursor:pointer">🗑</button>
+      </div>
+    </div>
+    ${e.actividade?`<div class="hist-field">📚 <strong>${e.actividade}</strong></div>`:''}
+    ${e.incidencia?`<div class="hist-field" style="margin-top:3px">⚠️ <strong style="color:#f59e0b">${e.incidencia}</strong></div>`:''}
+    ${e.notaManan?`<div class="hist-field" style="margin-top:3px">📌 <strong style="color:#a78bfa">Mañá: ${e.notaManan}</strong></div>`:''}
+  </div>`;
+}
+
+// ── SEMANA ────────────────────────────────────────────────────────────────────
+function renderSemana(el){
+  const d=new Date(selDate+'T12:00:00');
+  const dow=d.getDay();
+  const mon=new Date(d); mon.setDate(d.getDate()-(dow===0?6:dow-1));
+  const days=[];
+  for(let i=0;i<5;i++){const dd=new Date(mon);dd.setDate(mon.getDate()+i);days.push(dd.toISOString().split('T')[0]);}
+
+  const cols=days.map(dk=>{
+    const dayE=entries.filter(e=>e.data===dk).sort((a,b)=>a.hora.localeCompare(b.hora));
+    const dd=new Date(dk+'T12:00:00');
+    const isToday=dk===new Date().toISOString().split('T')[0];
+    return `<div class="week-col${isToday?' ' :''}">
+      <div class="week-col-title" style="color:${isToday?'var(--gold)':'var(--muted)'}">${DIAS_CURTOS[dd.getDay()]} ${dd.getDate()}</div>
+      ${dayE.length?dayE.map(e=>`<div class="week-mini" onclick="selDay('${dk}');setTab('hoxe')" style="cursor:pointer">
+        ${e.hora?`<span style="font-size:.55rem;opacity:.7">${e.hora} </span>`:''}
+        <span style="font-size:.65rem;font-weight:800">${(e.actividade||e.materia||'Entrada').substring(0,30)}</span>
+        ${e.incidencia?`<div style="font-size:.58rem;color:#f59e0b;margin-top:1px">⚠️ ${e.incidencia.substring(0,25)}</div>`:''}
+      </div>`).join(''):`<div style="font-size:.62rem;color:var(--muted);text-align:center;padding:6px">—</div>`}
+      <button onclick="abrirFormEntrada('${dk}','')" style="width:100%;height:22px;background:rgba(255,255,255,.04);border:1px dashed var(--border2);border-radius:6px;color:var(--muted);font-size:.65rem;cursor:pointer;margin-top:4px">+ Entrada</button>
+    </div>`;
+  }).join('');
+
+  const semStr=mon.toLocaleDateString('gl',{day:'numeric',month:'long'})+' — '+days[4] && new Date(days[4]+'T12:00:00').toLocaleDateString('gl',{day:'numeric',month:'long'});
+  el.innerHTML=`<div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--gold);margin-bottom:14px">Semana do ${mon.toLocaleDateString('gl',{day:'numeric',month:'long'})}</div>
+    <div class="week-grid">${cols}</div>`;
+}
+
+// ── MES VIEW ──────────────────────────────────────────────────────────────────
+function renderMesView(el){
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  let html=`<div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--gold);margin-bottom:14px">${MESES[calMonth]} ${calYear}</div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const dk=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const dayE=entries.filter(e=>e.data===dk);
+    if(!dayE.length) continue;
+    const dd=new Date(dk+'T12:00:00');
+    html+=`<div style="margin-bottom:10px">
+      <div style="font-size:.7rem;font-weight:900;color:var(--blue);margin-bottom:4px;text-transform:capitalize">${dd.toLocaleDateString('gl',{weekday:'long',day:'numeric',month:'long'})}</div>
+      ${dayE.map(e=>entradaCard(e)).join('')}
+    </div>`;
+  }
+  if(!html.includes('hist-entry')) html+=`<div style="text-align:center;padding:2rem;color:var(--muted)">Sen entradas este mes</div>`;
+  el.innerHTML=html;
+}
+
+// ── HISTORIAL ────────────────────────────────────────────────────────────────
+function renderHistorial(el){
+  const sorted=[...entries].sort((a,b)=>b.data.localeCompare(a.data)||b.hora.localeCompare(a.hora));
+  if(!sorted.length){
+    el.innerHTML='<div style="text-align:center;padding:2.5rem;color:var(--muted)">Non hai entradas no diario</div>';
+    return;
+  }
+  let lastDate='';
+  el.innerHTML='<div style="font-family:\'DM Serif Display\',serif;font-size:1rem;color:var(--gold);margin-bottom:14px">Historial completo</div>'+
+    sorted.map(e=>{
+      let dHead='';
+      if(e.data!==lastDate){
+        lastDate=e.data;
+        const dd=new Date(e.data+'T12:00:00');
+        dHead=`<div style="font-size:.7rem;font-weight:900;color:var(--muted);margin:12px 0 4px;text-transform:capitalize">${dd.toLocaleDateString('gl',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>`;
+      }
+      return dHead+entradaCard(e);
+    }).join('');
+}
+
+// ── FORM ENTRADA ──────────────────────────────────────────────────────────────
+function mostrarFormHoxe(){
+  selDate=new Date().toISOString().split('T')[0];
+  renderCal();
+  setTab('hoxe');
+  setTimeout(()=>abrirFormEntrada(selDate,''),200);
+}
+
+function abrirFormEntrada(dk,hora,editId){
+  const e=editId?entries.find(x=>x.id===editId):null;
+  const dow=new Date(dk+'T12:00:00').getDay();
+  const dowKey=['domingo','luns','martes','mercores','xoves','venres','sabado'][dow];
+  const slots=horario[dowKey]||horario[Object.keys(horario)[dow-1]]||[];
+  const horaChips=slots.map(s=>`<button class="hora-chip${(e?.hora||hora)===s.hora?' sel':''}" onclick="selHoraChip(this,'${(s.hora||'').replace(/'/g,"\\'")}','${(s.materia||s.nome||'').replace(/'/g,"\\'")}')">
+    ${s.hora||''} ${s.materia||s.nome||''}</button>`).join('');
+
+  openModal(`<h3 style="margin-bottom:4px">${editId?'✏️ Editar':'📝 Nova entrada'}</h3>
+    <p style="font-size:.7rem;color:var(--muted);margin-bottom:10px">${dk}</p>
+    ${horaChips?`<div style="font-size:.62rem;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Sesión</div><div class="horario-chips" id="hora-chips">${horaChips}</div>`:''}
+    <input type="hidden" id="form-hora" value="${e?.hora||hora||''}"/>
+    <input type="hidden" id="form-materia" value="${e?.materia||''}"/>
+    <label class="field-label">📚 Actividade feita</label>
+    <textarea class="textarea" id="form-activ" rows="2" placeholder="Que fixemos hoxe...">${e?.actividade||''}</textarea>
+    <label class="field-label">⚠️ Incidencia (se é o caso)</label>
+    <textarea class="textarea" id="form-incid" rows="2" placeholder="Condutas, imprevistos, observacións...">${e?.incidencia||''}</textarea>
+    <label class="field-label">📚 Unidade Didáctica (opcional)</label>
+    <select id="form-ud" style="width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:0 10px;cursor:pointer;outline:none;margin-bottom:8px">
+      <option value="">— Sen UD —</option>
+      ${(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const allUDs=new Map();Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));return[...allUDs.entries()].sort((a,b)=>a[0]-b[0]).map(([num,tit])=>`<option value="${num}"${(e?.udNum||0)===num?' selected':''}>UD${num}${tit?' · '+tit.substring(0,22):''}</option>`).join('');}catch{return '';}})()}
+    </select>
+    <label class="field-label">📌 Nota para mañá</label>
+    <input class="inp" id="form-nota" placeholder="Recordar, preparar, traer..." value="${e?.notaManan||''}"/>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModalDirect()" style="height:30px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="gardarEntrada('${dk}','${editId||''}')" style="height:30px;padding:0 16px;background:var(--gold);border:none;border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('form-activ')?.focus(),100);
+}
+
+function selHoraChip(btn,hora,materia){
+  document.querySelectorAll('.hora-chip').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('form-hora').value=hora;
+  document.getElementById('form-materia').value=materia;
+}
+
+function gardarEntrada(dk,editId){
+  const activ=document.getElementById('form-activ')?.value.trim()||'';
+  const incid=document.getElementById('form-incid')?.value.trim()||'';
+  const nota=document.getElementById('form-nota')?.value.trim()||'';
+  const hora=document.getElementById('form-hora')?.value||'';
+  const materia=document.getElementById('form-materia')?.value||'';
+  if(!activ&&!incid&&!nota){alert('Enche polo menos un campo.');return;}
+  const _udNum=parseInt(document.getElementById('form-ud')?.value)||null;
+  const _udTit=_udNum?(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');for(const arr of Object.values(lomloeUDs)){const u=arr.find(x=>x.num===_udNum);if(u)return u.tit||'';}return '';}catch{return '';}})():'';
+  const obj={id:editId||'da_'+Date.now(),data:dk,hora,materia,actividade:activ,incidencia:incid,notaManan:nota,udNum:_udNum||null,udTit:_udTit||'',creada:new Date().toISOString()};
+  if(editId){const i=entries.findIndex(e=>e.id===editId);if(i>=0)entries[i]=obj;}
+  else entries.push(obj);
+  gardar();
+  closeModalDirect();
+  renderCal();
+  renderMain();
+}
+
+function editarEntrada(id){const e=entries.find(x=>x.id===id);if(e)abrirFormEntrada(e.data,e.hora,id);}
+function borrarEntrada(id){_confirmar('Borrar esta entrada do diario? Esta acción non se pode desfacer.',()=>{entries=entries.filter(e=>e.id!==id);gardar();renderCal();renderMain();});}
+
+// ── GARDAR ────────────────────────────────────────────────────────────────────
+function gardar(){LS.set('da_entries',entries);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch{}}
+function exportarJSON(){const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({da_entries:entries,_exportado:new Date().toISOString()},null,2));a.download='diario_aula_'+new Date().toISOString().split('T')[0]+'.json';a.click();}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('show');}
+function closeModalDirect(){document.getElementById('modal-bg')?.classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
+
+// ── MODO ──────────────────────────────────────────────────────────────────────
+function toggleModo(){const a=LS.get('da_modo','escuro');const n=a==='escuro'?'claro':'escuro';aplicarModo(n);LS.set('da_modo',n);}
+function aplicarModo(m){
+  const r=document.documentElement.style;const btn=document.getElementById('btn-modo');
+  if(m==='claro'){r.setProperty('--bg','#f0f4f8');r.setProperty('--card','#ffffff');r.setProperty('--card2','#f5f8fb');r.setProperty('--border','rgba(15,23,42,.10)');r.setProperty('--border2','rgba(15,23,42,.18)');r.setProperty('--white','#1e293b');r.setProperty('--muted','rgba(30,41,59,.50)');if(btn)btn.textContent='🌙 Escuro';}
+  else{r.setProperty('--bg','#0f172a');r.setProperty('--card','#1e293b');r.setProperty('--card2','#263347');r.setProperty('--border','rgba(255,255,255,.08)');r.setProperty('--border2','rgba(255,255,255,.14)');r.setProperty('--white','#f1f5f9');r.setProperty('--muted','rgba(241,245,249,.45)');if(btn)btn.textContent='☀️ Claro';}
+}
+
+window.addEventListener('beforeunload',gardar);
+setInterval(gardar,30000);
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderCal();
+renderHorarioSidebar();
+setTab('hoxe');
+aplicarModo(LS.get('da_modo','escuro'));
+
+function exportarCSVDiario(){
+  const sorted=[...entries].sort((a,b)=>a.data>b.data?-1:1);
+  const rows=[['Data','Hora','Materia','Actividade','Incidencia','Nota mañá']];
+  sorted.forEach(e=>rows.push([e.data||'',e.hora||'',e.materia||'',e.actividade||'',e.incidencia||'',e.notaManan||'']));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='diario_aula_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+function imprimirDiario(){
+  const sorted=[...entries].sort((a,b)=>a.data>b.data?-1:1);
+  const GL_MESES=['xaneiro','febreiro','marzo','abril','maio','xu\xF1o','xullo','agosto','setembro','outubro','novembro','decembro'];
+  // Group by month
+  const byMonth={};
+  sorted.forEach(e=>{
+    if(!e.data) return;
+    const d=new Date(e.data+'T12:00:00');
+    const k=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');
+    if(!byMonth[k]) byMonth[k]=[];
+    byMonth[k].push(e);
+  });
+  const sections=Object.keys(byMonth).sort().reverse().map(k=>{
+    const [y,m]=k.split('-');
+    const titulo=GL_MESES[parseInt(m)-1]+' '+y;
+    const rows=byMonth[k].map(e=>`
+      <tr>
+        <td style="padding:6px 10px;font-size:.82em;white-space:nowrap">${e.data}</td>
+        <td style="padding:6px 10px;font-size:.82em;color:#6366f1">${e.hora||'—'}</td>
+        <td style="padding:6px 10px;font-size:.82em"><span style="background:rgba(167,139,250,.15);color:#7c3aed;padding:1px 7px;border-radius:5px;font-weight:700">${e.materia||'—'}</span></td>
+        <td style="padding:6px 10px;font-weight:700">${e.actividade||'—'}</td>
+        <td style="padding:6px 10px;font-size:.82em;color:#f59e0b">${e.incidencia||''}</td>
+        <td style="padding:6px 10px;font-size:.82em;color:#a78bfa">${e.notaManan||''}</td>
+      </tr>`).join('');
+    return `<h2 style="font-size:12pt;margin:20px 0 8px;color:#003366;text-transform:capitalize;border-bottom:2px solid #e2e8f0;padding-bottom:4px">${titulo}</h2>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#f8fafc">
+        <th style="padding:6px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;text-align:left;border-bottom:2px solid #e2e8f0">Data</th>
+        <th style="padding:6px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;text-align:left;border-bottom:2px solid #e2e8f0">Hora</th>
+        <th style="padding:6px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;text-align:left;border-bottom:2px solid #e2e8f0">Materia</th>
+        <th style="padding:6px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;text-align:left;border-bottom:2px solid #e2e8f0">Actividade</th>
+        <th style="padding:6px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;text-align:left;border-bottom:2px solid #e2e8f0">Incidencia</th>
+        <th style="padding:6px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;text-align:left;border-bottom:2px solid #e2e8f0">Nota ma\xF1\xE1</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }).join('');
+
+  const w=window.open('','_blank','width=1000,height=750');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Diario de Aula</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;padding:1.5cm;color:#1e293b}
+  h1{font-size:18pt;margin-bottom:4px}tr{border-bottom:1px solid #f1f5f9}
+  .no-print{display:block;margin-bottom:16px}@media print{.no-print{display:none!important}body{padding:.8cm}@page{size:A4;margin:1.5cm}}</style>
+  </head><body>
+  <div class="no-print"><button onclick="window.print()" style="height:34px;padding:0 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">&#x1F5A8;&#xFE0F; Imprimir / PDF</button></div>
+  <h1>&#x1F4D3; Diario de Aula \xB7 4\xBA B</h1>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:20px">CEIP P\xEDo XII \xB7 Titora: M. Blanco V\xE1zquez \xB7 ${sorted.length} entradas</p>
+  ${sections||'<p style="color:#94a3b8">Sen entradas rexistradas</p>'}
+  <script>_aplicarCabeceira();</script>
+</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
+}
+
+// ── CONFIG DOCENTE (lectura) ──────────────────────────────────────────────────
+function _getConf(){try{const v=localStorage.getItem('sn3_config');return v?JSON.parse(v):{}}catch{return {};}}
+function _aplicarCabeceira(){
+  const c=_getConf();
+  const parts=[];
+  if(c.docente) parts.push(c.docente);
+  if(c.grupo) parts.push(c.grupo);
+  if(c.curso) parts.push(c.curso);
+  const t=document.getElementById('_hdr-info');
+  if(t){t.textContent=parts.join(' · ');t.style.display=parts.length?'block':'none';}
+  const g=c.grupo||'';
+  document.querySelectorAll('._grupo-dyn').forEach(el=>el.textContent=g?(' · '+g):'');
+  document.querySelectorAll('title._title-dyn').forEach(el=>{
+    el.textContent=el.dataset.base+(g?' · '+g:'');
+  });
+}
+
+// ── MODAL CONFIRMAR BORRAR ────────────────────────────────────────────────────
+function _confirmar(msg, onSi){
+  const ov=document.createElement('div');
+  ov.id='_conf-del-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-del-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+</script>
+</body>
+</html>

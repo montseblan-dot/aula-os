@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coevaluación · 4º B</title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#f59e0b;--purple:#a78bfa;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--teal:#2dd4bf;}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+.header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.header h1{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{height:32px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;display:inline-flex;align-items:center;gap:5px}
+.btn-gold{background:var(--gold);color:#0f172a}.btn-ghost{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border2)}.btn-sm{height:27px;padding:0 10px;font-size:.68rem}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 57px)}
+.sidebar{background:var(--card2);border-right:1px solid var(--border);padding:14px;overflow-y:auto}
+.main{padding:20px;overflow-y:auto}
+.sid-title{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.proj-item{padding:7px 10px;border-radius:8px;cursor:pointer;margin-bottom:4px;border:1.5px solid var(--border);font-size:.78rem;font-weight:800}
+.proj-item:hover{border-color:var(--border2)}.proj-item.active{border-color:var(--gold);background:rgba(245,158,11,.08);color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px}
+.label{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:4px;margin-top:10px}
+.inp{width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem}
+.inp:focus{outline:none;border-color:var(--gold)}
+.star-row{display:flex;gap:4px;align-items:center}
+.star{font-size:1.2rem;cursor:pointer;filter:grayscale(1);transition:filter .1s}
+.star.active{filter:grayscale(0)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:22px;width:440px;max-width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--border2)}
+.modal h3{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:12px;color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span style="font-size:1.5rem">👥</span>
+  <div>
+    <h1>Coevaluación entre iguais</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-gold" onclick="novoProxecto()">+ Proxecto</button>
+    <button class="btn btn-ghost btn-sm" onclick="imprimirCoev()">&#x1F5A8;&#xFE0F; Imprimir</button>
+    <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">&#x2600;&#xFE0F; Claro</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">&#x1F4E4; JSON</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none">🏠 Portal</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
+  </div>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sid-title">Proxectos</div>
+    <div id="proj-list"></div>
+  </div>
+  <div class="main" id="main"></div>
+</div>
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)"><div class="modal" id="modal-content"></div></div>
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+
+const AVCOLS=['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fb923c','#34d399','#818cf8','#e879f9','#38bdf8','#4ade80','#facc15','#f87171','#60a5fa','#a3e635','#c084fc','#67e8f9','#fda4af','#86efac','#93c5fd','#d8b4fe','#6ee7b7','#fde68a','#fca5a5'];
+function ac(i){return AVCOLS[i%AVCOLS.length];}
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+
+// Estructura: proxectos = [{id,nome,data,criterios:[{id,label}],grupos:[{id,nome,membros:[]}],avals:{avaliador:{avaliado:{critId:val}}}]
+let proxectos = LS.get('coev_proxectos',[]);
+let alumnos = LS.get('pc_alumnos',[]);
+let selId = LS.get('coev_sel',null);
+
+const CRITERIOS_DEF = [
+  {id:'participacion',label:'Participación e implicación'},
+  {id:'traballo',label:'Calidade do traballo realizado'},
+  {id:'cooperacion',label:'Cooperación e axuda ao grupo'},
+  {id:'responsabilidade',label:'Responsabilidade e cumprimento'},
+  {id:'comunicacion',label:'Comunicación e actitude'},
+];
+
+function getProx(){return proxectos.find(p=>p.id===selId)||proxectos[0]||null;}
+
+function renderProjList(){
+  const el=document.getElementById('proj-list');
+  if(!proxectos.length){el.innerHTML='<div style="font-size:.72rem;color:var(--muted)">Sen proxectos. Crea o primeiro.</div>';return;}
+  el.innerHTML=proxectos.map(p=>`<div class="proj-item${p.id===selId?' active':''}" onclick="selProx('${p.id}')">${p.nome}${p.unidade?` <span style="font-size:.55rem;font-weight:900;color:#818cf8">UD${p.unidade.num}</span>`:''}<div style="font-size:.6rem;opacity:.6;margin-top:1px">${p.data||''}</div></div>`).join('');
+}
+
+function selProx(id){selId=id;LS.set('coev_sel',id);renderProjList();renderMain();}
+
+function renderMain(){
+  const el=document.getElementById('main');
+  const p=getProx();
+  if(!p){el.innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted)"><div style="font-size:2rem">👥</div><div style="margin-top:.5rem">Crea un proxecto para comezar</div></div>';return;}
+  
+  // Stats
+  const totalAvals=Object.keys(p.avals||{}).length;
+  const totalMembros=p.grupos.reduce((s,g)=>s+g.membros.length,0);
+  
+  // Results per alumno
+  const resultados=calcularResultados(p);
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold)">${p.nome}</div>
+          ${p.unidade?`<span style="font-size:.62rem;font-weight:900;padding:1px 7px;border-radius:5px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)">📚 UD${p.unidade.num}${p.unidade.tit?' · '+p.unidade.tit.substring(0,16):''}</span>`:''}
+          ${p.materia?(()=>{try{const m=JSON.parse(localStorage.getItem('sn3_materias')||'[]').find(x=>x.id===p.materia);return m?`<span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:5px;background:${m.color}18;color:${m.color}">${m.icon||''} ${m.nome.substring(0,8)}</span>`:''}catch{return ''}})():''}
+        </div>
+        <div style="font-size:.68rem;color:var(--muted)">${p.data||''} · ${totalAvals}/${totalMembros} avaliaron</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="editarProxecto('${p.id}')">⚙️ Editar</button>
+        <button class="btn btn-ghost btn-sm" onclick="abrirFormAval('${p.id}')">✏️ Rexistrar avaliación</button>
+        <button class="btn btn-ghost btn-sm" onclick="enviarAoCaderno('${p.id}')">📒 Enviar ao Caderno</button>
+      </div>
+    </div>
+    <!-- Grupos -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px">
+      ${p.grupos.map(g=>`<div class="card" style="border-color:rgba(96,165,250,.3)">
+        <div style="font-weight:900;font-size:.82rem;margin-bottom:8px">👥 ${g.nome}</div>
+        ${g.membros.map(m=>{
+          const idx=alumnos.indexOf(m);const col=ac(idx<0?0:idx);
+          const res=resultados[m];const avg=res?+(Object.values(res).reduce((s,v)=>s+v,0)/Object.values(res).length).toFixed(1):null;
+          const avVal=((p.avals||{})[m])?Object.keys((p.avals||{})[m]).length:0;
+          return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+            <div style="width:22px;height:22px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:white;flex-shrink:0">${ini(m)}</div>
+            <span style="font-size:.72rem;font-weight:800;flex:1">${m}</span>
+            ${avg!==null?`<span style="font-size:.72rem;font-weight:900;color:${avg>=3.5?'#22c55e':avg>=2.5?'#60a5fa':avg>=1.5?'#f59e0b':'#ef4444'}">${avg}/4</span>`:'<span style="font-size:.62rem;color:var(--muted)">—</span>'}
+          </div>`;
+        }).join('')}
+      </div>`).join('')}
+    </div>
+    <!-- Táboa comparativa -->
+    ${resultados&&Object.keys(resultados).length?`
+    <div class="card">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:10px">📊 Resultados comparativos</div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.75rem">
+        <thead><tr style="border-bottom:1.5px solid var(--border)">
+          <th style="text-align:left;padding:5px 8px;font-size:.6rem;font-weight:900;color:var(--muted)">Alumno/a</th>
+          ${p.criterios.map(cr=>`<th style="text-align:center;font-size:.6rem;font-weight:900;color:var(--muted);padding:5px 4px;max-width:80px">${cr.label}</th>`).join('')}
+          <th style="text-align:center;font-size:.6rem;font-weight:900;color:var(--gold)">Media</th>
+        </tr></thead>
+        <tbody>
+          ${p.grupos.flatMap(g=>g.membros).map((m,i)=>{
+            const res=resultados[m]||{};
+            const avg=Object.values(res).length?+(Object.values(res).reduce((s,v)=>s+v,0)/Object.values(res).length).toFixed(2):null;
+            const idx=alumnos.indexOf(m);const col=ac(idx<0?0:idx);
+            return `<tr style="${i%2===0?'':'background:rgba(255,255,255,.02)'};border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-weight:800"><div style="display:flex;align-items:center;gap:6px"><div style="width:18px;height:18px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:900;color:white">${ini(m)}</div>${m}</div></td>
+              ${p.criterios.map(cr=>{const v=res[cr.id];return `<td style="text-align:center;padding:5px 4px;font-weight:800;color:${v>=3.5?'#22c55e':v>=2.5?'#60a5fa':v>=1.5?'#f59e0b':v!==undefined?'#ef4444':'var(--muted)'}">${v!==undefined?v.toFixed(1):'—'}</td>`;}).join('')}
+              <td style="text-align:center;font-weight:900;font-family:'DM Serif Display',serif;font-size:.9rem;color:${avg>=3.5?'#22c55e':avg>=2.5?'#60a5fa':avg>=1.5?'#f59e0b':avg!==null?'#ef4444':'var(--muted)'}">${avg!==null?avg:'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>`:''}`;
+}
+
+function calcularResultados(p){
+  const res={};
+  const avals=p.avals||{};
+  // avals = {avaliador: {avaliado: {critId: val(1-4)}}}
+  // Para cada avaliado, calcular media dos avaliadores
+  const allMembros=p.grupos.flatMap(g=>g.membros);
+  allMembros.forEach(avaliado=>{
+    const critSums={};const critCounts={};
+    Object.entries(avals).forEach(([avaliador,targets])=>{
+      if(avaliador===avaliado) return; // non se autoavalía
+      const vals=targets[avaliado];
+      if(!vals) return;
+      p.criterios.forEach(cr=>{
+        if(vals[cr.id]!==undefined){
+          critSums[cr.id]=(critSums[cr.id]||0)+vals[cr.id];
+          critCounts[cr.id]=(critCounts[cr.id]||0)+1;
+        }
+      });
+    });
+    const r={};
+    p.criterios.forEach(cr=>{if(critCounts[cr.id])r[cr.id]=+(critSums[cr.id]/critCounts[cr.id]).toFixed(2);});
+    if(Object.keys(r).length) res[avaliado]=r;
+  });
+  return res;
+}
+
+function novoProxecto(){
+  // Cargar materias e UDs para o selector
+  const _mats=JSON.parse(localStorage.getItem('sn3_materias')||'[]').filter(m=>m.id!=='outras');
+  const _lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');
+  const _matOpts=_mats.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('');
+  openModal(`<h3>+ Novo proxecto</h3>
+    <label class="label">Nome do proxecto</label>
+    <input class="inp" id="np-nome" placeholder="Ex: Proxecto Ciencias T2" autofocus/>
+    <label class="label">Data</label>
+    <input class="inp" type="date" id="np-data" value="${new Date().toISOString().split('T')[0]}"/>
+    ${_matOpts?`<label class="label">Materia (opcional)</label>
+    <select class="inp" id="np-mat" onchange="actualizarUDsNovoProx(this.value)">
+      <option value="">— Sen materia —</option>
+      ${_matOpts}
+    </select>
+    <label class="label">Unidade Didáctica (opcional)</label>
+    <select class="inp" id="np-ud"><option value="">— Sen UD —</option></select>`:''}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button onclick="closeModalDirect()" style="height:30px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="crearProxecto()" style="height:30px;padding:0 14px;background:var(--gold);border:none;border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">Crear</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('np-nome')?.focus(),100);
+}
+
+function actualizarUDsNovoProx(matId){
+  const udSel=document.getElementById('np-ud');
+  if(!udSel) return;
+  try{
+    const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');
+    const udsMat=lomloeUDs[matId]||[];
+    udSel.innerHTML='<option value="">— Sen UD —</option>'+
+      udsMat.map(u=>`<option value="${u.num}" data-tit="${(u.tit||'').replace(/"/g,'&quot;')}">UD${u.num}${u.tit?' · '+u.tit.substring(0,20):''}</option>`).join('');
+  }catch(e){udSel.innerHTML='<option value="">— Sen UD —</option>';}
+}
+
+function crearProxecto(){
+  const nome=document.getElementById('np-nome')?.value.trim();
+  if(!nome){alert('Engade un nome.');return;}
+  const data=document.getElementById('np-data')?.value||'';
+  // Auto-create groups from cooperativo if available
+  let grupos=[];
+  try{
+    const coop=JSON.parse(localStorage.getItem('equipos_coop_v4')||'{}');
+    const eqs=Object.values(coop)[0]?.equipos||[];
+    if(eqs.length) grupos=eqs.map(e=>({id:'g_'+e.id,nome:e.nome||'Equipo',membros:e.membros||[]}));
+  }catch{}
+  if(!grupos.length) grupos=[{id:'g_'+Date.now(),nome:'Grupo 1',membros:[...alumnos]}];
+  const _matSel=document.getElementById('np-mat')?.value||'';
+  const _udSel=document.getElementById('np-ud');
+  const _udNum=_udSel?parseInt(_udSel.value)||null:null;
+  const _udTit=_udNum?(_udSel.options[_udSel.selectedIndex]?.dataset?.tit||''):'';
+  const unidade=_udNum?{num:_udNum,tit:_udTit}:null;
+  const p={id:'coev_'+Date.now(),nome,data,materia:_matSel||null,unidade,criterios:CRITERIOS_DEF.map(c=>({...c})),grupos,avals:{}};
+  proxectos.unshift(p);
+  selId=p.id;
+  gardar();closeModalDirect();renderProjList();renderMain();
+}
+
+function editarProxecto(id){
+  const p=proxectos.find(x=>x.id===id);if(!p)return;
+  // Simple editor - just edit name and groups
+  const gruposHtml=p.grupos.map((g,gi)=>`
+    <div style="background:var(--card2);border-radius:8px;padding:8px 10px;margin-bottom:6px">
+      <input value="${g.nome}" onchange="p&&(proxectos.find(x=>x.id==='${id}')?.grupos[${gi}]&&(proxectos.find(x=>x.id==='${id}').grupos[${gi}].nome=this.value))" style="width:100%;background:transparent;border:none;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;outline:none;margin-bottom:4px"/>
+      <div style="font-size:.65rem;color:var(--muted)">${g.membros.join(', ')||'Sen membros'}</div>
+    </div>`).join('');
+  openModal(`<h3>⚙️ Editar: ${p.nome}</h3>
+    <label class="label">Nome</label>
+    <input class="inp" id="ep-nome" value="${p.nome}"/>
+    <label class="label">Grupos (doble clic para editar membros)</label>
+    <div style="max-height:180px;overflow-y:auto">${gruposHtml}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="borrarProxecto('${id}')" style="height:28px;padding:0 10px;background:rgba(239,68,68,.1);border:1.5px solid rgba(239,68,68,.3);border-radius:7px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
+      <button onclick="closeModalDirect()" style="height:28px;padding:0 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="gardarEditProx('${id}')" style="height:28px;padding:0 12px;background:var(--gold);border:none;border-radius:7px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+    </div>`);
+}
+
+function gardarEditProx(id){const p=proxectos.find(x=>x.id===id);if(!p)return;const n=document.getElementById('ep-nome')?.value.trim();if(n)p.nome=n;gardar();closeModalDirect();renderProjList();renderMain();}
+function borrarProxecto(id){
+  const eliminado=proxectos.find(p=>p.id===id);
+  if(!eliminado)return;
+  proxectos=proxectos.filter(p=>p.id!==id);
+  selId=proxectos[0]?.id||null;
+  gardar();closeModalDirect();renderProjList();renderMain();
+  _toastDesfacer(
+    `Proxecto "${eliminado.nome}" eliminado`,
+    ()=>{
+      proxectos.push(eliminado);
+      selId=eliminado.id;
+      gardar();renderProjList();renderMain();
+    }
+  );
+}
+
+function abrirFormAval(proxId){
+  const p=proxectos.find(x=>x.id===proxId);if(!p)return;
+  const allMembros=p.grupos.flatMap(g=>g.membros);
+  const avaliadorOpts=allMembros.map(m=>`<option value="${m}">${m}</option>`).join('');
+  openModal(`<h3>✏️ Rexistrar avaliación</h3>
+    <label class="label">Avaliador/a</label>
+    <select class="inp" id="av-from" style="cursor:pointer"><option value="">Seleccionar...</option>${avaliadorOpts}</select>
+    <label class="label">Avalía a (compañeiro/a do mesmo grupo)</label>
+    <select class="inp" id="av-to" style="cursor:pointer"><option value="">Seleccionar...</option></select>
+    <div id="av-criterios" style="margin-top:10px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModalDirect()" style="height:30px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="gardarAval('${proxId}')" style="height:30px;padding:0 14px;background:var(--gold);border:none;border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+    </div>`);
+  document.getElementById('av-from').onchange=function(){
+    const from=this.value;
+    const grupo=p.grupos.find(g=>g.membros.includes(from));
+    const targets=(grupo?.membros||[]).filter(m=>m!==from);
+    document.getElementById('av-to').innerHTML='<option value="">Seleccionar...</option>'+targets.map(m=>`<option>${m}</option>`).join('');
+  };
+  document.getElementById('av-to').onchange=function(){
+    const to=this.value;
+    if(!to){document.getElementById('av-criterios').innerHTML='';return;}
+    const existing=((p.avals||{})[document.getElementById('av-from').value]||{})[to]||{};
+    document.getElementById('av-criterios').innerHTML=p.criterios.map(cr=>`
+      <div style="margin-bottom:8px">
+        <div style="font-size:.72rem;font-weight:800;margin-bottom:3px">${cr.label}</div>
+        <div style="display:flex;gap:4px">${[1,2,3,4].map(v=>`<button onclick="setStarVal('${cr.id}',${v})" id="star-${cr.id}-${v}" style="height:28px;padding:0 10px;border-radius:7px;border:1.5px solid var(--border2);background:${existing[cr.id]===v?'rgba(245,158,11,.3)':'transparent'};color:${existing[cr.id]===v?'var(--gold)':'var(--muted)'};font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">${['❌','🔶','✅','⭐'][v-1]} ${['Non acadado','En proceso','Acadado','Excelente'][v-1]}</button>`).join('')}</div>
+      </div>`).join('');
+  };
+}
+
+const starVals={};
+function setStarVal(critId,val){
+  starVals[critId]=val;
+  [1,2,3,4].forEach(v=>{
+    const btn=document.getElementById(`star-${critId}-${v}`);
+    if(btn){btn.style.background=v===val?'rgba(245,158,11,.3)':'transparent';btn.style.color=v===val?'var(--gold)':'var(--muted)';}
+  });
+}
+
+function gardarAval(proxId){
+  const p=proxectos.find(x=>x.id===proxId);if(!p)return;
+  const from=document.getElementById('av-from')?.value;
+  const to=document.getElementById('av-to')?.value;
+  if(!from||!to){alert('Selecciona avaliador/a e avaliado/a.');return;}
+  if(!p.avals)p.avals={};
+  if(!p.avals[from])p.avals[from]={};
+  p.avals[from][to]={...starVals};
+  Object.keys(starVals).forEach(k=>delete starVals[k]);
+  gardar();closeModalDirect();renderMain();
+}
+
+function enviarAoCaderno(proxId){
+  const p=proxectos.find(x=>x.id===proxId);if(!p)return;
+  let mats=[];try{mats=JSON.parse(localStorage.getItem('sn3_materias')||'[]').filter(m=>m.id!=='outras');}catch{}
+  let grupos=[];try{grupos=JSON.parse(localStorage.getItem('sn3_grupos')||'[]');}catch{}
+  const matOpts=mats.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('');
+  const grpOpts=grupos.map(g=>`<option value="${g.id}">${g.nome}</option>`).join('');
+  openModal(`<h3>📒 Enviar ao Caderno</h3>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:12px">Engade as medias de coevaluación ao Caderno Docente</p>
+    <label class="label">Materia</label>
+    <select class="inp" id="ec-mat" style="cursor:pointer">${matOpts}</select>
+    <label class="label">Apartado</label>
+    <select class="inp" id="ec-grp" style="cursor:pointer">${grpOpts}</select>
+    <label class="label">Trimestre</label>
+    <select class="inp" id="ec-trim" style="cursor:pointer">
+      <option value="0">Auto</option><option value="1">1º Trim.</option><option value="2">2º Trim.</option><option value="3">3º Trim.</option>
+    </select>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModalDirect()" style="height:30px;padding:0 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="confirmarEnviarCaderno('${proxId}')" style="height:30px;padding:0 14px;background:var(--gold);border:none;border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">📒 Enviar</button>
+    </div>`);
+}
+
+function confirmarEnviarCaderno(proxId){
+  const p=proxectos.find(x=>x.id===proxId);if(!p)return;
+  const matId=document.getElementById('ec-mat')?.value;
+  const grupId=document.getElementById('ec-grp')?.value;
+  const trim=parseInt(document.getElementById('ec-trim')?.value||'0');
+  if(!matId){alert('Selecciona unha materia.');return;}
+  const resultados=calcularResultados(p);
+  let notas=[];try{notas=JSON.parse(localStorage.getItem('sn3_notas')||'[]');}catch{}
+  let nextId=Math.max(0,...notas.map(n=>n.id||0))+1;
+  const today=new Date().toISOString().split('T')[0];
+  let n=0;
+  Object.entries(resultados).forEach(([alumno,res])=>{
+    const avg=+(Object.values(res).reduce((s,v)=>s+v,0)/Object.values(res).length/4*10).toFixed(1);
+    const _ud=p.unidade||null;
+    notas.push({id:nextId++,alumno,materia:matId,tipo:'rubrica',valor:avg,peso:0,grupoId:grupId||'',label:`Coevaluación: ${p.nome}`,data:today,comentario:'Coevaluación entre iguais',materiaNome:'',trimestre:trim||null,...(_ud?{unidade:_ud}:{})});
+    n++;
+  });
+  localStorage.setItem('sn3_notas',JSON.stringify(notas));
+  closeModalDirect();
+  const t=document.createElement('div');t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:10px 20px;border-radius:12px;font-weight:800;font-size:.85rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';t.textContent=`✅ ${n} notas enviadas ao Caderno Docente`;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+
+function gardar(){LS.set('coev_proxectos',proxectos);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch{}}
+function exportarJSON(){const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({coev_proxectos:proxectos,_exportado:new Date().toISOString()},null,2));a.download='coevalu_'+new Date().toISOString().split('T')[0]+'.json';a.click();}
+
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('show');}
+function closeModalDirect(){document.getElementById('modal-bg')?.classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
+
+function toggleModo(){const a=LS.get('coev_modo','escuro');const n=a==='escuro'?'claro':'escuro';aplicarModo(n);LS.set('coev_modo',n);}
+function aplicarModo(m){const r=document.documentElement.style;const btn=document.getElementById('btn-modo');if(m==='claro'){r.setProperty('--bg','#f0f4f8');r.setProperty('--card','#ffffff');r.setProperty('--card2','#f5f8fb');r.setProperty('--border','rgba(15,23,42,.10)');r.setProperty('--border2','rgba(15,23,42,.18)');r.setProperty('--white','#1e293b');r.setProperty('--muted','rgba(30,41,59,.50)');if(btn)btn.textContent='🌙 Escuro';}else{r.setProperty('--bg','#0f172a');r.setProperty('--card','#1e293b');r.setProperty('--card2','#263347');r.setProperty('--border','rgba(255,255,255,.08)');r.setProperty('--border2','rgba(255,255,255,.14)');r.setProperty('--white','#f1f5f9');r.setProperty('--muted','rgba(241,245,249,.45)');if(btn)btn.textContent='☀️ Claro';}}
+
+window.addEventListener('beforeunload',gardar);
+setInterval(gardar,30000);
+renderProjList();renderMain();aplicarModo(LS.get('coev_modo','escuro'));
+
+function imprimirCoev(){
+  const p=getProx();
+  if(!p){alert('Selecciona un proxecto primeiro');return;}
+  const res=calcularResultados(p);
+  const filas=p.membros.map(al=>{
+    const avs=p.avaliacins?p.avaliacins.filter(a=>a.avaliador===al)||[]:[];
+    const media=res.find(r=>r.alumno===al);
+    return `<tr>
+      <td style="padding:7px 10px;font-weight:700">${al}</td>
+      ${p.criterios.map(cr=>{
+        const v=avs.reduce((s,av)=>{const f=av.vals&&av.vals[cr.id];return f!=null?s+f:s;},0);
+        const n=avs.filter(av=>av.vals&&av.vals[cr.id]!=null).length;
+        return `<td style="padding:7px 10px;text-align:center;font-size:.9em">${n?Math.round(v/n*10)/10:'—'}</td>`;
+      }).join('')}
+      <td style="padding:7px 10px;text-align:center;font-weight:800;color:#6366f1">${media?Math.round(media.media*10)/10:'—'}</td>
+    </tr>`;
+  }).join('');
+  const w=window.open('','_blank','width=950,height=700');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Coevaluaci\xF3n</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;padding:1.5cm;color:#1e293b}
+  h1{font-size:16pt;margin-bottom:4px}th{background:#f8fafc;padding:7px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#475569;border-bottom:2px solid #e2e8f0;text-align:center}th:first-child{text-align:left}
+  tr{border-bottom:1px solid #f1f5f9}.no-print{margin-bottom:14px}@media print{.no-print{display:none!important}body{padding:.8cm}@page{size:A4 landscape;margin:1cm}}</style>
+  </head><body>
+  <div class="no-print"><button onclick="window.print()" style="height:34px;padding:0 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">&#x1F5A8;&#xFE0F; Imprimir / PDF</button></div>
+  <h1>&#x1F91D; Coevaluaci\xF3n \xB7 ${p.nome}</h1>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:16px">CEIP P\xEDo XII \xB7 4\xBA B \xB7 Titora: M. Blanco V\xE1zquez \xB7 ${new Date().toLocaleDateString('gl')}</p>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="text-align:left">Alumno/a</th>
+      ${p.criterios.map(cr=>`<th>${cr.label}</th>`).join('')}
+      <th>MEDIA</th>
+    </tr></thead>
+    <tbody>${filas}</tbody>
+  </table></body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
+}
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

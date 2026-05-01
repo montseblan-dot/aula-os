@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xestor BBDD – Portal Docente</title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<meta name="copyright" content="© 2026 Montserrat Blanco Vázquez. CC BY-NC-SA 4.0"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080e1a;--surface:#0f1829;--card:#141f33;--card2:#1a2640;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.15);
+  --white:#eef2ff;--muted:rgba(238,242,255,.45);
+  --gold:#fbbf24;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;
+  --teal:#2dd4bf;--purple:#a78bfa;--orange:#fb923c;--accent:#6366f1;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--white);overflow-x:hidden}
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-mesh::before{content:'';position:absolute;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.1) 0%,transparent 70%);top:-200px;left:-200px;animation:drift1 18s ease-in-out infinite}
+.bg-mesh::after{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.07) 0%,transparent 70%);bottom:-100px;right:-100px;animation:drift2 22s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,-30px)}}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:1.5rem 1.25rem}
+.hdr{display:flex;align-items:center;gap:14px;margin-bottom:2rem;flex-wrap:wrap}
+.hdr-icon{font-size:2.2rem;filter:drop-shadow(0 0 12px rgba(99,102,241,.6))}
+.hdr-title{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1.3rem,3vw,1.9rem);background:linear-gradient(135deg,var(--white) 0%,var(--blue) 60%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-sub{font-size:.72rem;font-weight:700;color:var(--muted);margin-top:2px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-bar{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.status-dot.ok{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.5)}
+.status-dot.warn{background:var(--gold);box-shadow:0 0 8px rgba(251,191,36,.5)}
+.status-dot.err{background:var(--red);box-shadow:0 0 8px rgba(239,68,68,.5)}
+.status-text{font-size:.8rem;font-weight:700;color:var(--white)}
+.status-sub{font-size:.7rem;color:var(--muted);font-weight:600}
+.status-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.alert{border-radius:12px;padding:.75rem 1rem;margin-bottom:1.2rem;font-size:.78rem;font-weight:700;display:none;align-items:center;gap:8px}
+.alert.show{display:flex}
+.alert.info{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:var(--blue)}
+.alert.warn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--gold)}
+.alert.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.alert.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.section-title{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);margin-bottom:.9rem;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.25rem}
+.card-title{font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.9rem;display:flex;align-items:center;gap:6px}
+.btn{height:36px;padding:0 16px;border-radius:10px;font-size:.75rem;font-weight:800;cursor:pointer;border:1.5px solid transparent;transition:all .18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:var(--white);border-color:var(--accent)}
+.btn-primary:hover:not(:disabled){background:#4f52d6;box-shadow:0 4px 16px rgba(99,102,241,.35)}
+.btn-green{background:rgba(34,197,94,.15);color:var(--green);border-color:rgba(34,197,94,.35)}
+.btn-green:hover:not(:disabled){background:rgba(34,197,94,.25)}
+.btn-gold{background:rgba(251,191,36,.15);color:var(--gold);border-color:rgba(251,191,36,.35)}
+.btn-gold:hover:not(:disabled){background:rgba(251,191,36,.25)}
+.btn-red{background:rgba(239,68,68,.12);color:var(--red);border-color:rgba(239,68,68,.3)}
+.btn-red:hover:not(:disabled){background:rgba(239,68,68,.22)}
+.btn-muted{background:var(--card2);color:var(--muted);border-color:var(--border2)}
+.btn-muted:hover:not(:disabled){color:var(--white);border-color:rgba(255,255,255,.25)}
+.btn-lg{height:44px;padding:0 22px;font-size:.82rem;border-radius:13px}
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:1.5rem}
+.mod-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;display:flex;align-items:center;gap:10px;transition:border-color .2s}
+.mod-card.activo{border-color:rgba(34,197,94,.4)}
+.mod-card.parcial{border-color:rgba(251,191,36,.35)}
+.mod-card.vacio{border-color:var(--border)}
+.mod-icon{font-size:1.5rem;flex-shrink:0}
+.mod-nome{font-size:.75rem;font-weight:800;color:var(--white)}
+.mod-info{font-size:.65rem;color:var(--muted);font-weight:600;margin-top:1px}
+.mod-badge{margin-left:auto;font-size:.6rem;font-weight:900;padding:2px 7px;border-radius:999px}
+.mod-badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.mod-badge.warn{background:rgba(251,191,36,.12);color:var(--gold)}
+.mod-badge.empty{background:rgba(255,255,255,.06);color:var(--muted)}
+.interval-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.interval-btn{height:30px;padding:0 12px;border-radius:8px;font-size:.7rem;font-weight:800;cursor:pointer;border:1.5px solid var(--border2);background:var(--card2);color:var(--muted);transition:all .18s}
+.interval-btn.active{border-color:var(--accent);background:rgba(99,102,241,.15);color:var(--white)}
+.log-box{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;padding:.75rem;font-family:monospace;font-size:.68rem;color:var(--muted);max-height:160px;overflow-y:auto;line-height:1.6}
+.log-entry{display:flex;gap:8px}
+.log-entry .ts{color:var(--teal);flex-shrink:0}
+.log-entry .msg.ok{color:var(--green)}
+.log-entry .msg.err{color:var(--red)}
+.log-entry .msg.warn{color:var(--gold)}
+.prog-bar{height:6px;background:var(--card2);border-radius:999px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:999px;transition:width .4s ease}
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.stat-chip{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-size:.7rem;font-weight:800}
+.stat-chip span{color:var(--muted)}
+.stat-chip strong{color:var(--white)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:1.5rem;max-width:480px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--white);margin-bottom:.5rem}
+.modal-sub{font-size:.73rem;color:var(--muted);font-weight:600;margin-bottom:1.2rem;line-height:1.5}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.2rem;flex-wrap:wrap}
+.info-box{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:12px;padding:.75rem 1rem;font-size:.72rem;color:rgba(238,242,255,.7);font-weight:600;line-height:1.6;margin-bottom:1.2rem}
+.info-box strong{color:var(--blue)}
+code{background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:.9em}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="hdr-icon">🗄️</div>
+    <div>
+      <div class="hdr-title">Xestor de Base de Datos</div>
+      <div class="hdr-sub" id="_hdr-info">Portal Docente · autoguardado offline</div>
+    </div>
+    <div class="hdr-right">
+      <a href="PORTAL_DOCENTE.html" class="btn btn-muted" style="text-decoration:none" title="Ir ao Portal">🏠 Portal</a>
+      <button class="btn btn-muted" onclick="abrirAyuda()">❓ Axuda</button>
+    </div>
+  </div>
+
+  <div class="alert" id="alert-global"></div>
+
+  <div class="status-bar">
+    <div class="status-dot warn" id="status-dot"></div>
+    <div>
+      <div class="status-text" id="status-text">Sen ficheiro seleccionado</div>
+      <div class="status-sub" id="status-sub">Selecciona ou crea un ficheiro .json para comezar</div>
+    </div>
+    <div class="status-right">
+      <span id="auto-badge" style="display:none;font-size:.65rem;font-weight:900;padding:3px 9px;border-radius:999px;background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3)">⏱ Autoguardado activo</span>
+      <span id="storage-badge" style="display:none;font-size:.65rem;font-weight:900;padding:3px 9px;border-radius:999px;background:rgba(45,212,191,.12);color:var(--teal);border:1px solid rgba(45,212,191,.3)">🔗 Gardado por cambios</span>
+      <span id="last-save-txt" style="font-size:.68rem;color:var(--muted);font-weight:700"></span>
+    </div>
+  </div>
+
+  <div class="section-title">📁 Ficheiro de datos</div>
+
+  <div class="info-box">
+    <strong>Como funciona:</strong> Este xestor le e escribe nun ficheiro <code>.json</code> no teu PC. Os teus datos non se perden ao limpar o navegador porque están no disco. Usa <strong>Chrome ou Edge</strong> para a mellor experiencia (acceso directo a ficheiros). En Firefox usa o modo manual con "Gardar copia datada".
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.5rem">
+    <button class="btn btn-primary btn-lg" onclick="seleccionarFicheiro()">📂 Abrir ficheiro existente</button>
+    <button class="btn btn-green btn-lg" onclick="crearFicheiro()">✨ Crear novo ficheiro</button>
+    <button class="btn btn-muted" onclick="importarFallback()">📥 Importar JSON (Firefox)</button>
+  </div>
+
+  <div class="section-title">📦 Módulos detectados en localStorage</div>
+  <div class="mod-grid" id="mod-grid">
+    <div style="font-size:.75rem;color:var(--muted);padding:.5rem">Cargando…</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">💾 Gardar agora</div>
+      <p style="font-size:.73rem;color:var(--muted);font-weight:600;margin-bottom:.9rem;line-height:1.5">Exporta todos os datos do localStorage ao ficheiro .json no teu disco duro.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btn-gardar" onclick="gardarAFicheiro()" disabled>💾 Gardar ficheiro</button>
+        <button class="btn btn-green" onclick="descargarJSON()" title="Funciona en calquera navegador">⬇️ Descargar JSON</button>
+        <button class="btn btn-muted" onclick="gardarCopia()">📋 Copia datada</button>
+      </div>
+      <div class="prog-bar" style="margin-top:10px"><div class="prog-fill" id="prog-gardar" style="width:0%"></div></div>
+      <p id="fsapi-aviso" style="font-size:.65rem;color:var(--muted);margin-top:6px;display:none">⚠️ O botón «Gardar ficheiro» require Chrome/Edge con ficheiro aberto. Usa <strong>⬇️ Descargar JSON</strong> para gardar en calquera navegador.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔄 Restaurar datos</div>
+      <p style="font-size:.73rem;color:var(--muted);font-weight:600;margin-bottom:.9rem;line-height:1.5">Carga os datos do ficheiro ao localStorage. Úsao tras limpar a caché ou cambiar de navegador.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-gold" id="btn-restaurar" onclick="confirmarRestaurar()" disabled>🔄 Restaurar</button>
+        <button class="btn btn-gold" onclick="importarJSON()" title="Funciona en calquera navegador">📂 Importar JSON</button>
+        <button class="btn btn-muted" id="btn-previsualizar" onclick="previsualizar()" disabled>👁 Previsualizar</button>
+      </div>
+      <div class="prog-bar" style="margin-top:10px"><div class="prog-fill" id="prog-restaurar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem">
+    <div class="card-title">⏱ Autoguardado automático</div>
+    <div class="interval-row" style="margin-bottom:.75rem">
+      <span style="font-size:.73rem;color:var(--muted);font-weight:700">Intervalo:</span>
+      <button class="interval-btn" data-min="0" onclick="setAutoguardado(0)">Desactivado</button>
+      <button class="interval-btn" data-min="5" onclick="setAutoguardado(5)">5 min</button>
+      <button class="interval-btn active" data-min="10" onclick="setAutoguardado(10)">10 min</button>
+      <button class="interval-btn" data-min="15" onclick="setAutoguardado(15)">15 min</button>
+      <button class="interval-btn" data-min="30" onclick="setAutoguardado(30)">30 min</button>
+    </div>
+    <p style="font-size:.7rem;color:var(--muted);font-weight:600;line-height:1.5">⏱ O auto-backup está <strong style="color:var(--green)">activo por defecto cada 2 minutos</strong>. Sen ficheiro aberto, garda unha copia no localStorage. Con ficheiro aberto en Chrome/Edge, garda directamente no ficheiro.</p>
+    <div id="auto-countdown" style="font-size:.72rem;color:var(--teal);font-weight:700;margin-top:.5rem"></div>
+  </div>
+
+  <div class="section-title">📊 Resumo de datos actuais</div>
+  <div class="stat-row" id="stat-row">
+    <div class="stat-chip"><span>Cargando…</span></div>
+  </div>
+
+  <div class="section-title">📋 Rexistro de operacións</div>
+  <div class="log-box" id="log-box"></div>
+  <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+    <button class="btn btn-muted" style="height:28px;font-size:.65rem" onclick="limparLog()">🗑 Limpar</button>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem;border-color:rgba(239,68,68,.2)">
+    <div class="card-title" style="color:var(--red)">⚠️ Zona perigosa</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-red" onclick="confirmarBorrarLS()">🗑 Borrar localStorage</button>
+      <button class="btn btn-muted" onclick="comprobarIntegridade()">🔍 Comprobar integridade</button>
+      <button class="btn btn-muted" onclick="mostrarStats()">📊 Stats</button>
+      <button class="btn btn-muted" onclick="exportarTodoCsv()">📊 Exportar notas CSV</button>
+    </div>
+    <p style="font-size:.68rem;color:rgba(239,68,68,.7);font-weight:700;margin-top:.6rem">Borrar o localStorage elimina os datos do navegador. Ten o ficheiro JSON gardado antes.</p>
+  </div>
+
+</div>
+
+<!-- MODAIS -->
+<div class="modal-overlay" id="modal-restaurar">
+  <div class="modal">
+    <div class="modal-title">🔄 Confirmar restauración</div>
+    <div class="modal-sub">Esta operación <strong>sobreescribirá</strong> todos os datos actuais do localStorage. Os datos non gardados no ficheiro perderanse.</div>
+    <div id="modal-restaurar-preview" style="background:rgba(0,0,0,.3);border-radius:10px;padding:.75rem;font-size:.68rem;color:var(--muted);max-height:180px;overflow-y:auto;margin-bottom:.5rem;font-family:monospace;white-space:pre"></div>
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="cerrarModal('modal-restaurar')">Cancelar</button>
+      <button class="btn btn-gold" onclick="executarRestaurar()">✅ Restaurar agora</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-borrar">
+  <div class="modal">
+    <div class="modal-title">🗑 Confirmar borrado</div>
+    <div class="modal-sub">Borraranse todos os datos docentes do localStorage. Esta acción non se pode desfacer. ¿Tes o ficheiro JSON gardado?</div>
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="cerrarModal('modal-borrar')">Cancelar</button>
+      <button class="btn btn-red" onclick="executarBorrarLS()">⚠️ Borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-preview">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">👁 Previsualización do ficheiro</div>
+    <div id="preview-content" style="background:rgba(0,0,0,.3);border-radius:10px;padding:.75rem;font-size:.67rem;color:var(--muted);max-height:400px;overflow-y:auto;font-family:monospace;line-height:1.5;white-space:pre"></div>
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="cerrarModal('modal-preview')">Pechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-axuda">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title">❓ Como usar o Xestor de BBDD</div>
+    <div style="font-size:.73rem;color:var(--muted);font-weight:600;line-height:1.8">
+      <p style="color:var(--white);font-weight:800">1. Primeiro uso</p>
+      <p style="margin-bottom:.7rem">Fai clic en <em>"Crear novo ficheiro"</em> e garda un <code>.json</code> nun lugar seguro (ex: Escritorio). Tes os teus datos fóra do navegador desde ese momento.</p>
+      <p style="color:var(--white);font-weight:800">2. Gardar datos</p>
+      <p style="margin-bottom:.7rem">Fai clic en <em>"Gardar ficheiro"</em> ou activa o autoguardado. Cada vez que traballas coas ferramentas os datos van ao localStorage; este xestor cópiaos ao disco.</p>
+      <p style="color:var(--white);font-weight:800">3. Recuperar tras limpeza de caché</p>
+      <p style="margin-bottom:.7rem">Abre este xestor → <em>"Abrir ficheiro existente"</em> → selecciona o teu <code>.json</code> → <em>"Restaurar a localStorage"</em>. Listo.</p>
+      <p style="color:var(--white);font-weight:800">4. Firefox</p>
+      <p style="margin-bottom:.7rem">Usa <em>"Copia datada"</em> para descargar e <em>"Importar JSON"</em> para recuperar. O autoguardado non está dispoñible nese navegador.</p>
+      <p style="color:var(--gold);font-weight:800">💡 Consello extra: Garda tamén unha copia nunha memoria USB ou Google Drive.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="cerrarModal('modal-axuda')">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-fallback">
+  <div class="modal">
+    <div class="modal-title">📥 Importar ficheiro JSON</div>
+    <div class="modal-sub">Selecciona un <code>.json</code> exportado previamente para cargar os datos no localStorage.</div>
+    <input type="file" id="fallback-file" accept=".json" style="display:none" onchange="procesarFallback(event)">
+    <button class="btn btn-primary" onclick="document.getElementById('fallback-file').click()">📂 Seleccionar ficheiro</button>
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="cerrarModal('modal-fallback')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// MAPA DE MÓDULOS E CLAVES
+// ══════════════════════════════════════════════════════
+const MODULES = [
+  { id:'panel', nome:'Panel de Clase', icon:'🏫',
+    claves:['pc_alumnos','pc_asist','pc_axenda','pc_bdays','pc_cds','pc_gardas',
+            'pc_horario','pc_incidencias','pc_materias','pc_asignaturas',
+            'pc_quendas','pc_reunions','pc_tablon','pc_notes','pc_events',
+            'pc_alertas_config','pc_vistaModo','equipos_coop_v4'] },
+  { id:'caderno', nome:'Caderno Docente', icon:'📒',
+    claves:['pc_alumnos','sn3_alumnos','sn3_materias','sn3_grupos','sn3_notas',
+            'sn3_escala','sn3_corte','sn3_aR','sn3_aA','sn3_dsn','sn3_modo',
+            'sn3_trim_datas','sn3_trim_notas','sn3_trim_pesos','sn3_trim_pesos_mat','sn3_ma'] },
+  { id:'lomloe', nome:'Programación LOMLOE', icon:'🎓',
+    claves:['lomloe_uds','lomloe_asign','lomloe_vals','lomloe_modo'] },
+  { id:'novos', nome:'Novos módulos', icon:'🆕',
+    claves:['dr_reflexions','ps_sesions','xa_adaptacions','xe_exames'] },
+  { id:'titoria', nome:'Titoría', icon:'👨‍👩‍👧',
+    claves:['tit_familias','tit_reunions','tit_citas','tit_comuns'] },
+  { id:'xestor', nome:'Xestor Cooperativo', icon:'🤝',
+    claves:['equipos_coop_v4'] },
+  { id:'votacions', nome:'Votacións de Aula', icon:'🗳️',
+    claves:['va_banco','va_hist'] },
+  { id:'puntos', nome:'Sistema de Puntos', icon:'⭐',
+    claves:['sp_alumnos','sp_equipos','sp_motivos','sp_puntos','sp_hist'] },
+  { id:'avoral', nome:'Avaliación Oral', icon:'🎤',
+    claves:['ao_sesions','ao_criterios'] },
+  { id:'carnes', nome:'Carnés Lectores', icon:'📚',
+    claves:['cl_lecturas','cl_meta'] },
+  { id:'deberes', nome:'Control de Deberes', icon:'📝',
+    claves:['cd_asigs','cd_rexs','cd_exports','cd_limite'] },
+  { id:'autoaval', nome:'Autoavaliación', icon:'🪞',
+    claves:['aa_vals'] },
+  { id:'saidas', nome:'Control de Saídas', icon:'🚪',
+    claves:['cs_historial','cs_config','cs_destinos','cs_fora'] },
+  { id:'ruido', nome:'Medidor de Ruído', icon:'🔊',
+    claves:['mr_log','mr_stats','mr_thresh'] },
+  { id:'problema', nome:'Problema do Día', icon:'🧮',
+    claves:['pd_racha','pd_historial','pd_userProblemas'] },
+  { id:'obradoiro_exp', nome:'Obradoiro Expresión', icon:'✍️',
+    claves:['oe_evals','oe_estado'] },
+  { id:'obradoiro_prob', nome:'Obradoiro Problemas', icon:'📐',
+    claves:['op_estado'] },
+  { id:'caderno_extra', nome:'Caderno (notas inf.)', icon:'📒',
+    claves:['sn3_inf_vals','sn3_inf_xen','sn3_obs_','sn3_draft'] }
+];
+
+// Prefixos de claves dinámicas (por alumno)
+const PREFIXOS = ['sn3_obs_','tit_informes_','tit_inf_','tit_ff_','tit_infopt_'];
+
+// Claves a ignorar (caché e preferencias de cor — non son datos docentes)
+const IGNORAR = new Set(['pc_meteo_cache','portal_meteo_cache','portal_modo',
+  'pc_modo','sn3_modo','tit_modo','xc_modo']);
+
+// ══════════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════════
+let fileHandle   = null;
+let autoMinutos  = 2; // Por defecto: autoguardado cada 2 minutos
+let autoTick     = null;
+let autoContador = 0;
+let datosEnMem   = null;
+
+// ══════════════════════════════════════════════════════
+// LOG
+// ══════════════════════════════════════════════════════
+function ts(){ return new Date().toTimeString().slice(0,8); }
+
+function log(msg, cls=''){
+  const box = document.getElementById('log-box');
+  const div = document.createElement('div');
+  div.className = 'log-entry';
+  div.innerHTML = `<span class="ts">${ts()}</span><span class="msg ${cls}">${msg}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function alerta(msg, tipo='info', dur=4000){
+  const el = document.getElementById('alert-global');
+  const ic = {info:'ℹ️',warn:'⚠️',ok:'✅',err:'❌'};
+  el.className = `alert ${tipo} show`;
+  el.innerHTML = `${ic[tipo]||'•'} ${msg}`;
+  if(dur>0) setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+function setStatus(txt, sub, dot){
+  document.getElementById('status-text').textContent = txt;
+  document.getElementById('status-sub').textContent  = sub;
+  document.getElementById('status-dot').className    = 'status-dot '+dot;
+}
+
+function setBtns(dis){
+  ['btn-gardar','btn-restaurar','btn-previsualizar'].forEach(id=>{
+    document.getElementById(id).disabled = dis;
+  });
+}
+
+function progAnim(id, cb){
+  const el = document.getElementById(id);
+  if(!el){ cb(); return; }
+  let w=0;
+  const t = setInterval(()=>{
+    w = Math.min(w + Math.random()*25, 90);
+    el.style.width = w+'%';
+    if(w>=90){
+      clearInterval(t);
+      cb();
+      el.style.width='100%';
+      setTimeout(()=>{ el.style.width='0%'; }, 600);
+    }
+  }, 80);
+}
+
+// ══════════════════════════════════════════════════════
+// LER LOCALSTORAGE → OBXECTO
+// ══════════════════════════════════════════════════════
+function mostrarStats(){
+  const n=localStorage.length;
+  let totalBytes=0;
+  const items=[];
+  for(let i=0;i<n;i++){
+    const k=localStorage.key(i);
+    const v=localStorage.getItem(k)||'';
+    const bytes=(k.length+v.length)*2;
+    totalBytes+=bytes;
+    items.push({k,bytes,kb:+(bytes/1024).toFixed(1)});
+  }
+  items.sort((a,b)=>b.bytes-a.bytes);
+  const kb=+(totalBytes/1024).toFixed(1);
+  const pct=Math.round(kb/5120*100); // 5MB típico límite
+  const COMP_COLS={CCL:'#60a5fa',STEM:'#34d399'};
+  const html=`<div style="margin-bottom:14px">
+    <div style="font-size:.62rem;font-weight:900;color:var(--muted);margin-bottom:6px">ESPAZO USADO</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="flex:1;height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${pct>80?'#ef4444':pct>50?'#fbbf24':'#34d399'};border-radius:999px"></div>
+      </div>
+      <span style="font-family:'DM Mono',monospace;font-size:.78rem;font-weight:900;color:${pct>80?'#ef4444':'#34d399'}">${kb} KB / 5 MB (${pct}%)</span>
+    </div>
+    <div style="font-size:.65rem;color:var(--muted)">${n} claves no localStorage</div>
+  </div>
+  <div style="font-size:.6rem;font-weight:900;color:var(--muted);margin-bottom:6px">TOP 10 CLAVES POR TAMAÑO</div>
+  ${items.slice(0,10).map(x=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+    <span style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--white);flex:1">${x.k}</span>
+    <div style="width:80px;height:5px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden">
+      <div style="height:100%;width:${Math.round(x.bytes/items[0].bytes*100)}%;background:#818cf8;border-radius:999px"></div>
+    </div>
+    <span style="font-size:.62rem;font-weight:900;color:#818cf8;min-width:45px;text-align:right">${x.kb} KB</span>
+  </div>`).join('')}
+  <div style="margin-top:12px;display:flex;justify-content:flex-end">
+    <button onclick="closeModal()" style="height:28px;padding:0 14px;background:rgba(255,255,255,.06);border:1.5px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Pechar</button>
+  </div>`;
+  openModal(`<h3>📊 Estatísticas de almacenamento</h3>${html}`);
+}
+
+function lerLS(){
+  const out = {};
+  const n = localStorage.length;
+  for(let i=0;i<n;i++){
+    const k = localStorage.key(i);
+    if(!k || IGNORAR.has(k)) continue;
+    const esDin = PREFIXOS.some(p=>k.startsWith(p));
+    const esCoñ = MODULES.some(m=>m.claves.includes(k));
+    if(esDin||esCoñ){
+      try{ out[k] = JSON.parse(localStorage.getItem(k)); }
+      catch{ out[k] = localStorage.getItem(k); }
+    }
+  }
+  return out;
+}
+
+// ══════════════════════════════════════════════════════
+// UI: MÓDULOS
+// ══════════════════════════════════════════════════════
+function actualizarModulos(){
+  const grid = document.getElementById('mod-grid');
+  grid.innerHTML = '';
+
+  // Módulos estáticos (sen duplicar equipos_coop)
+  const vistos = new Set();
+  MODULES.filter(m=>m.id!=='xestor').forEach(m=>{
+    const pres = m.claves.filter(k=>localStorage.getItem(k)!==null);
+    const pct  = Math.round(pres.length/m.claves.length*100);
+    let est='vacio', bcls='empty', btxt='Sen datos';
+    if(pct===100){est='activo';bcls='ok';btxt='Completo';}
+    else if(pct>0){est='parcial';bcls='warn';btxt=pct+'%';}
+    m.claves.forEach(k=>vistos.add(k));
+
+    const div = document.createElement('div');
+    div.className = `mod-card ${est}`;
+    div.innerHTML = `
+      <div class="mod-icon">${m.icon}</div>
+      <div><div class="mod-nome">${m.nome}</div>
+      <div class="mod-info">${pres.length}/${m.claves.length} claves</div></div>
+      <span class="mod-badge ${bcls}">${btxt}</span>`;
+    grid.appendChild(div);
+  });
+
+  // Claves dinámicas
+  let din=0;
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&PREFIXOS.some(p=>k.startsWith(p))) din++;
+  }
+  if(din>0){
+    const div=document.createElement('div');
+    div.className='mod-card activo';
+    div.innerHTML=`
+      <div class="mod-icon">📄</div>
+      <div><div class="mod-nome">Informes / Obs.</div>
+      <div class="mod-info">${din} entradas dinámicas</div></div>
+      <span class="mod-badge ok">${din}</span>`;
+    grid.appendChild(div);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// UI: ESTATÍSTICAS
+// ══════════════════════════════════════════════════════
+function actualizarStats(){
+  const row = document.getElementById('stat-row');
+  row.innerHTML = '';
+
+  const g = k=>{ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch{ return null; } };
+
+  const alumnos  = g('pc_alumnos') || g('sn3_alumnos') || [];
+  const notas    = g('sn3_notas') || [];
+  const asist    = Object.keys(g('pc_asist')||{}).length;
+  const familias = Object.keys(g('tit_familias')||{}).length;
+  const reunions = (g('tit_reunions')||[]).length;
+  const equipos  = ((g('equipos_coop_v4')||{}).grupos||[]).length;
+  const votHist  = (g('va_hist')||[]).length;
+  const votBanco = (g('va_banco')||[]).length;
+
+  const items=[
+    {l:'Alumnado', v:alumnos.length||'—'},
+    {l:'Notas', v:notas.length||'—'},
+    {l:'Días asistencia', v:asist||'—'},
+    {l:'Familias', v:familias||'—'},
+    {l:'Reunións', v:reunions||'—'},
+    {l:'Equipos coop.', v:equipos||'—'},
+    {l:'Votacións gardadas', v:votHist||'—'},
+    {l:'Banco preguntas', v:votBanco||'—'},
+  ];
+
+  let tam=0;
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k) tam+=(localStorage.getItem(k)||'').length;
+  }
+  items.push({l:'LS total', v:(tam/1024).toFixed(1)+' KB'});
+
+  items.forEach(s=>{
+    const c=document.createElement('div');
+    c.className='stat-chip';
+    c.innerHTML=`<span>${s.l}: </span><strong>${s.v}</strong>`;
+    row.appendChild(c);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// FILE SYSTEM ACCESS API
+// ══════════════════════════════════════════════════════
+function fsOk(){ return 'showOpenFilePicker' in window; }
+// Mostrar aviso se o navegador non soporta File System API
+(function(){
+  if(!fsOk()){
+    const av=document.getElementById('fsapi-aviso');
+    if(av) av.style.display='block';
+  }
+})();
+
+async function seleccionarFicheiro(){
+  if(!fsOk()){ alerta('Usa "Importar JSON" (Firefox non soporta acceso directo a ficheiros).','warn',6000); return; }
+  try{
+    const [h] = await window.showOpenFilePicker({
+      types:[{description:'JSON',accept:{'application/json':['.json']}}], multiple:false
+    });
+    fileHandle = h;
+    await lerFicheiro();
+    setBtns(false);
+    activarAutoguardado();
+  }catch(e){ if(e.name!=='AbortError') log('Erro ao abrir: '+e.message,'err'); }
+}
+
+async function crearFicheiro(){
+  if(!fsOk()){
+    const datos = lerLS();
+    const payload = {_meta:{versao:'1.0',creado:new Date().toISOString()}, ...datos};
+    descargarJSON(payload, 'datos_docentes_'+new Date().toISOString().slice(0,10)+'.json');
+    localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+    alerta('Ficheiro descargado. Gárdao nun lugar seguro. Usa "Importar JSON" para recuperar.','info',8000);
+    log('Ficheiro creado (modo descarga)','ok');
+    return;
+  }
+  try{
+    const h = await window.showSaveFilePicker({
+      suggestedName:'datos_docentes_'+new Date().toISOString().slice(0,10)+'.json',
+      types:[{description:'JSON',accept:{'application/json':['.json']}}]
+    });
+    fileHandle = h;
+    await escribirFicheiro();
+    setBtns(false);
+    setStatus('Ficheiro creado: '+h.name,'Autoguardado listo','ok');
+    log('Novo ficheiro creado: '+h.name,'ok');
+    alerta('Ficheiro creado. Autoguardado activado.','ok');
+    activarAutoguardado();
+  }catch(e){ if(e.name!=='AbortError') log('Erro ao crear: '+e.message,'err'); }
+}
+
+async function lerFicheiro(){
+  if(!fileHandle) return;
+  try{
+    const file = await fileHandle.getFile();
+    const txt  = await file.text();
+    datosEnMem = JSON.parse(txt);
+    setStatus('Ficheiro: '+file.name, 'Modificado: '+new Date(file.lastModified).toLocaleString('gl'), 'ok');
+    log('Cargado: '+file.name+' ('+(txt.length/1024).toFixed(1)+' KB)','ok');
+    actualizarModulos();
+    actualizarStats();
+  }catch(e){
+    setStatus('Erro ao ler o ficheiro','Pode estar corrupto','err');
+    log('Erro: '+e.message,'err');
+  }
+}
+
+async function escribirFicheiro(){
+  if(!fileHandle){ log('Sen ficheiro aberto','warn'); return false; }
+  try{
+    const payload = JSON.stringify(
+      {_meta:{versao:'1.0',actualizado:new Date().toISOString()}, ...lerLS()},
+      null, 2
+    );
+    const w = await fileHandle.createWritable();
+    await w.write(payload);
+    await w.close();
+    const hora = new Date().toLocaleTimeString('gl');
+    document.getElementById('last-save-txt').textContent = 'Gardado: '+hora;
+    localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+    log('Ficheiro gardado ('+(payload.length/1024).toFixed(1)+' KB)','ok');
+    return true;
+  }catch(e){ log('Erro ao gardar: '+e.message,'err'); return false; }
+}
+
+// ══════════════════════════════════════════════════════
+// GARDAR / COPIA
+// ══════════════════════════════════════════════════════
+async function gardarAFicheiro(){
+  if(!fileHandle){ alerta('Primeiro selecciona ou crea un ficheiro.','warn'); return; }
+  progAnim('prog-gardar', async()=>{
+    const ok = await escribirFicheiro();
+    alerta(ok?'Datos gardados correctamente.':'Erro ao gardar. Tenta crear o ficheiro de novo.', ok?'ok':'err');
+    autoContador = autoMinutos*60; // resetear contador
+  });
+}
+
+function gardarCopiaAuto(){
+  // Backup silencioso ao localStorage sen notificación molesta
+  try{
+    const datos={};
+    MODULOS.forEach(m=>{
+      m.claves.forEach(k=>{
+        try{const v=localStorage.getItem(k);if(v!==null)datos[k]=JSON.parse(v);}catch{}
+      });
+    });
+    const key='bbdd_auto_backup_'+new Date().toISOString().split('T')[0];
+    localStorage.setItem(key,JSON.stringify({ts:new Date().toISOString(),datos}));
+    localStorage.setItem('bbdd_last_backup',new Date().toISOString());
+    // Manter só os últimos 3 backups automáticos
+    const autoKeys=Object.keys(localStorage).filter(k=>k.startsWith('bbdd_auto_backup_')).sort();
+    while(autoKeys.length>3){localStorage.removeItem(autoKeys.shift());}
+    const hora=new Date().toLocaleTimeString('gl-ES',{hour:'2-digit',minute:'2-digit'});
+    const txt=document.getElementById('last-save-txt');
+    if(txt) txt.textContent='Auto-backup: '+hora;
+    document.getElementById('auto-countdown').textContent='Próximo auto-backup en: '+autoMinutos+':00';
+  }catch(e){log('Erro no auto-backup: '+e.message,'err');}
+}
+
+// ── GARDAR / IMPORTAR UNIVERSAL (calquera navegador) ─────────────────────────
+function descargarJSON(){
+  try{
+    const datos={_meta:{app:'AULA OS · Xestor BBDD',ts:new Date().toISOString(),version:'1.0'}};
+    MODULOS.forEach(m=>{
+      m.claves.forEach(k=>{
+        try{const v=localStorage.getItem(k);if(v!==null)datos[k]=JSON.parse(v);}catch(e){datos[k]=localStorage.getItem(k);}
+      });
+    });
+    // Incluír tamén claves extra non en módulos
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&!datos.hasOwnProperty(k)){
+        try{datos[k]=JSON.parse(localStorage.getItem(k));}catch{datos[k]=localStorage.getItem(k);}
+      }
+    }
+    const json=JSON.stringify(datos,null,2);
+    const blob=new Blob([json],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const dk=new Date().toISOString().replace(/[:.]/g,'-').slice(0,16);
+    a.href=url;a.download='aula_os_backup_'+dk+'.json';a.click();
+    URL.revokeObjectURL(url);
+    localStorage.setItem('bbdd_last_backup',new Date().toISOString());
+    const txt=document.getElementById('last-save-txt');
+    if(txt) txt.textContent='Descargado: '+new Date().toLocaleTimeString('gl-ES',{hour:'2-digit',minute:'2-digit'});
+    log('⬇️ Backup descargado correctamente ('+Object.keys(datos).length+' claves)','ok');
+    actualizarStats();
+  }catch(e){log('Erro ao descargar: '+e.message,'err');}
+}
+
+function importarJSON(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file) return;
+    try{
+      const txt=await file.text();
+      const datos=JSON.parse(txt);
+      const claves=Object.keys(datos).filter(k=>!k.startsWith('_meta'));
+      if(!claves.length){alerta('Ficheiro baleiro ou formato non recoñecido.','err');return;}
+      const _claves=claves, _datos=datos;
+      _confirmar(
+        'Isto sobrescribirá '+_claves.length+' claves no localStorage cós datos do ficheiro. Continuar?',
+        async ()=>{
+          let ok=0,erros=0;
+          _claves.forEach(k=>{
+            try{localStorage.setItem(k,JSON.stringify(_datos[k]));ok++;}catch(e){erros++;}
+          });
+          log('📂 Importación completada: '+ok+' claves restauradas'+(erros?' ('+erros+' erros)':''),'ok');
+          alerta('Importación completada: '+ok+' claves restauradas.','ok');
+          actualizarModulos();actualizarStats();
+        },'Importar e sobrescribir'
+      );
+      return; // async continues in callback
+    }catch(e){alerta('Erro ao ler o ficheiro: '+e.message,'err');}
+  };
+  inp.click();
+}
+
+function gardarCopia(){
+  const payload = {_meta:{versao:'1.0',actualizado:new Date().toISOString()}, ...lerLS()};
+  const nome = 'bbdd_copia_'+new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)+'.json';
+  descargarJSON(payload, nome);
+  localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+  log('Copia descargada: '+nome,'ok');
+  alerta('Copia gardada correctamente.','ok');
+}
+
+function descargarJSON(obj, nome){
+  const b = new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href=u; a.download=nome; a.click();
+  URL.revokeObjectURL(u);
+}
+
+// ══════════════════════════════════════════════════════
+// RESTAURAR
+// ══════════════════════════════════════════════════════
+function confirmarRestaurar(){
+  if(!datosEnMem){ alerta('Non hai datos no ficheiro. Ábreo primeiro.','warn'); return; }
+  const lines=[];
+  Object.entries(datosEnMem).forEach(([k,v])=>{
+    if(k.startsWith('_')) return;
+    const s=JSON.stringify(v);
+    lines.push(`${k}: ${Array.isArray(v)?v.length+' items':typeof v==='object'?Object.keys(v||{}).length+' entradas':s.slice(0,50)}`);
+  });
+  document.getElementById('modal-restaurar-preview').textContent = lines.join('\n');
+  document.getElementById('modal-restaurar').classList.add('open');
+}
+
+async function executarRestaurar(){
+  cerrarModal('modal-restaurar');
+  progAnim('prog-restaurar', ()=>{
+    if(!datosEnMem){ log('Sen datos','err'); return; }
+    let n=0, err=0;
+    Object.entries(datosEnMem).forEach(([k,v])=>{
+      if(k.startsWith('_')) return;
+      try{ localStorage.setItem(k, JSON.stringify(v)); n++; }
+      catch(e){ log('Erro '+k+': '+e.message,'err'); err++; }
+    });
+    log(`Restauradas ${n} claves${err?' ('+err+' erros)':''}`, err?'warn':'ok');
+    alerta(`${n} claves restauradas correctamente.`,'ok');
+    actualizarModulos();
+    actualizarStats();
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// PREVISUALIZAR
+// ══════════════════════════════════════════════════════
+function previsualizar(){
+  if(!datosEnMem){ alerta('Non hai datos para previsualizar.','warn'); return; }
+  const lines=[];
+  Object.entries(datosEnMem).forEach(([k,v])=>{
+    if(k.startsWith('_')){ lines.push(`// ${k}`); return; }
+    const s=JSON.stringify(v);
+    lines.push(`${k}:\n  ${s.length>200?s.slice(0,200)+'…':s}`);
+  });
+  document.getElementById('preview-content').textContent = lines.join('\n\n');
+  document.getElementById('modal-preview').classList.add('open');
+}
+
+// ══════════════════════════════════════════════════════
+// FALLBACK (Firefox)
+// ══════════════════════════════════════════════════════
+function importarFallback(){
+  document.getElementById('modal-fallback').classList.add('open');
+}
+
+function procesarFallback(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    try{
+      datosEnMem = JSON.parse(ev.target.result);
+      setBtns(false);
+      setStatus('Ficheiro importado: '+file.name,'Listo para restaurar','ok');
+      log('Importado: '+file.name,'ok');
+      cerrarModal('modal-fallback');
+      alerta('Ficheiro cargado. Usa "Restaurar" para aplicar os datos.','ok');
+    }catch(err){ log('JSON inválido: '+err.message,'err'); alerta('Ficheiro non válido.','err'); }
+  };
+  r.readAsText(file);
+}
+
+// ══════════════════════════════════════════════════════
+// AUTOGUARDADO
+// ══════════════════════════════════════════════════════
+function setAutoguardado(min){
+  document.querySelectorAll('.interval-btn').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.dataset.min)===min);
+  });
+  autoMinutos = min;
+  if(autoTick){ clearInterval(autoTick); autoTick=null; }
+  document.getElementById('auto-badge').style.display    = 'none';
+  document.getElementById('auto-countdown').textContent  = '';
+
+  if(min===0){ log('Autoguardado desactivado','warn'); return; }
+  if(!fsOk()){ alerta('Autoguardado non dispoñible en Firefox. Usa "Copia datada".','warn',5000); return; }
+  if(!fileHandle){ alerta('Selecciona primeiro un ficheiro.','warn'); return; }
+  activarAutoguardado();
+}
+
+function activarAutoguardado(){
+  if(autoMinutos===0) return;
+  // Continúa aínda sen ficheiro: fará backup ao localStorage
+  if(autoTick) clearInterval(autoTick);
+  document.getElementById('auto-badge').style.display = '';
+  autoContador = autoMinutos*60;
+
+  autoTick = setInterval(()=>{
+    autoContador--;
+    const m=Math.floor(autoContador/60), s=autoContador%60;
+    document.getElementById('auto-countdown').textContent =
+      `Próximo autoguardado en: ${m}:${String(s).padStart(2,'0')}`;
+    if(autoContador<=0){
+      autoContador = autoMinutos*60;
+      if(fileHandle&&fsOk()){
+        escribirFicheiro().then(ok=>{
+          if(ok){ log('⏱ Autoguardado automático en ficheiro','ok'); actualizarModulos(); actualizarStats(); }
+        });
+      } else {
+        // Sen ficheiro: backup automático ao localStorage (copia datada)
+        gardarCopiaAuto();
+      }
+    }
+  },1000);
+
+  log(`Autoguardado activado cada ${autoMinutos} min`,'ok');
+}
+
+// ══════════════════════════════════════════════════════
+// ZONA PERIGOSA
+// ══════════════════════════════════════════════════════
+function confirmarBorrarLS(){
+  document.getElementById('modal-borrar').classList.add('open');
+}
+
+function executarBorrarLS(){
+  cerrarModal('modal-borrar');
+  const toDelete=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k||IGNORAR.has(k)) continue;
+    if(PREFIXOS.some(p=>k.startsWith(p))||MODULES.some(m=>m.claves.includes(k))) toDelete.push(k);
+  }
+  toDelete.forEach(k=>localStorage.removeItem(k));
+  log(`Borradas ${toDelete.length} claves docentes`,'warn');
+  alerta(`${toDelete.length} claves eliminadas.`,'warn');
+  actualizarModulos();
+  actualizarStats();
+}
+
+function comprobarIntegridade(){
+  const g = k=>{ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch{ return null; } };
+  const issues=[];
+  const al1=g('pc_alumnos')||[], al2=g('sn3_alumnos')||[];
+  if(al1.length>0&&al2.length>0&&JSON.stringify(al1.sort())!==JSON.stringify(al2.sort()))
+    issues.push('⚠️ Lista de alumnos difire entre panel e caderno');
+  const notas=g('sn3_notas')||[];
+  const aSet=new Set([...al1,...al2]);
+  const orphans=notas.filter(n=>aSet.size>0&&!aSet.has(n.alumno));
+  if(orphans.length) issues.push(`⚠️ ${orphans.length} notas sen alumno correspondente`);
+  const trim=g('sn3_trim_datas');
+  if(!trim) issues.push('⚠️ Non hai datas de trimestres configuradas no caderno');
+
+  if(!issues.length){ log('Integridade correcta ✓','ok'); alerta('Sen problemas detectados.','ok'); }
+  else{ issues.forEach(i=>log(i,'warn')); alerta(issues.length+' problemas detectados. Ver rexistro.','warn',8000); }
+}
+
+function exportarTodoCsv(){
+  const notas = (()=>{ try{ return JSON.parse(localStorage.getItem('sn3_notas')||'[]'); }catch{ return []; } })();
+  if(!notas.length){ alerta('Non hai notas para exportar.','warn'); return; }
+  const header='Alumno,Materia,Tipo,Valor,Grupo,Etiqueta,Data,Trimestre,Comentario';
+  const rows=notas.map(n=>[
+    `"${n.alumno||''}"`,`"${n.materia||''}"`,`"${n.tipo||''}"`,
+    n.valor??'',`"${n.grupoId||''}"`,`"${n.label||''}"`,
+    `"${n.data||''}"`,n.trimestre??'',`"${(n.comentario||'').replace(/"/g,"'")}"`,
+  ].join(',')).join('\n');
+  const b=new Blob([header+'\n'+rows],{type:'text/csv;charset=utf-8'});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download='notas_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  URL.revokeObjectURL(u);
+  log('CSV exportado ('+notas.length+' notas)','ok');
+}
+
+// ══════════════════════════════════════════════════════
+// MODAIS
+// ══════════════════════════════════════════════════════
+function cerrarModal(id){ document.getElementById(id).classList.remove('open'); }
+function abrirAyuda(){ document.getElementById('modal-axuda').classList.add('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+function limparLog(){ document.getElementById('log-box').innerHTML=''; log('Rexistro limpo'); }
+
+// ══════════════════════════════════════════════════════
+// GARDAR AO PECHAR
+// ══════════════════════════════════════════════════════
+window.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden'&&fileHandle&&autoMinutos>0){
+    // Intento asíncrono de gardar ao ocultar a páxina
+    escribirFicheiro();
+  }
+});
+
+// ── AUTOGUARDADO POR CAMBIOS EN OUTROS MÓDULOS ─────────────────────────────
+// Detecta cambios en localStorage desde calquera outra pestana/módulo
+// e escribe no ficheiro tras un debounce de 3 s (evita escrituras en cada tecla)
+let _storageDebounce = null;
+const IGNORAR_CAMBIOS = new Set(['bbdd_last_backup','portal_meteo_cache','portal_modo',
+  'pc_modo','sn3_modo','tit_modo','xc_modo','oe_estado','op_estado']);
+
+window.addEventListener('storage', (e) => {
+  if (!fileHandle || !fsOk()) return;              // sen ficheiro aberto, nada que facer
+  if (!e.key || IGNORAR_CAMBIOS.has(e.key)) return; // ignorar cachés e preferencias
+  if (e.key.startsWith('_')) return;
+  // Hai un cambio de datos real — programar escritura
+  if (_storageDebounce) clearTimeout(_storageDebounce);
+  // Mostrar aviso visual de que hai cambios pendentes de gardar
+  const countdown = document.getElementById('auto-countdown');
+  const storageBadge = document.getElementById('storage-badge');
+  if (countdown) countdown.textContent = '💾 Gardando cambios en 3 s…';
+  if (storageBadge) storageBadge.style.display = '';
+  _storageDebounce = setTimeout(async () => {
+    const ok = await escribirFicheiro();
+    if (ok) {
+      log('💾 Autoguardado por cambio en: ' + e.key, 'ok');
+      if (countdown) countdown.textContent = '✅ Gardado automaticamente ás ' + new Date().toLocaleTimeString('gl');
+      localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+      actualizarModulos();
+      actualizarStats();
+    }
+  }, 3000);
+});
+
+// ══════════════════════════════════════════════════════
+// INICIO
+// ══════════════════════════════════════════════════════
+(function init(){
+  actualizarModulos();
+  actualizarStats();
+  if(!fsOk()){
+    log('Navegador sen File System Access API — usa modo manual (Firefox)','warn');
+    setStatus('Modo compatible','Usa "Copia datada" + "Importar JSON" para backups','warn');
+  } else {
+    log('File System Access API dispoñible (Chrome/Edge) ✓','ok');
+  }
+  log('Xestor iniciado. Selecciona ou crea un ficheiro .json para comezar.');
+  setInterval(()=>{ actualizarModulos(); actualizarStats();
+// Activar autoguardado por defecto ao cargar (2 min)
+setTimeout(()=>{
+  document.getElementById('auto-badge').style.display='';
+  document.getElementById('auto-countdown').textContent='Auto-backup activo (cada '+autoMinutos+' min)';
+  activarAutoguardado();
+},1000); }, 30000);
+})();
+
+// Gardar último acceso ao saír
+window.addEventListener('beforeunload', () => {
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+});
+
+
+// Aliases para consistencia con outros módulos
+const exportarJSON = () => gardarAFicheiro();
+
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el){
+      const base='Portal Docente · autoguardado offline';
+      el.textContent=parts.length?parts.join(' · ')+' · '+base:base;
+    }
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:420px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliación Oral en Directo · 4º B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700;9..40,800;9..40,900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+  --white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#fbbf24;--green:#22c55e;--red:#ef4444;
+  --purple:#a78bfa;--teal:#2dd4bf;--blue:#60a5fa;--orange:#fb923c;
+  --shadow:0 4px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--white);font-size:14px}
+.header{background:var(--card);border-bottom:2px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1rem,3vw,1.5rem);color:var(--gold)}
+.btn{height:36px;padding:0 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;border:none;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--white);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-green{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.btn-sm{height:30px;padding:0 10px;font-size:.72rem}
+
+/* LAYOUT */
+.main{display:grid;grid-template-columns:260px 1fr;gap:0;height:calc(100vh - 60px)}
+.sidebar{background:var(--card);border-right:1px solid var(--border);overflow-y:auto}
+.content{overflow-y:auto;padding:1.25rem}
+
+/* ALUMNO LIST */
+.al-search{width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;outline:none;margin:.75rem .75rem 0}
+.al-search::placeholder{color:var(--muted)}
+.al-item{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s}
+.al-item:hover{background:rgba(255,255,255,.04)}
+.al-item.active{background:rgba(251,191,36,.08);border-left:3px solid var(--gold)}
+.al-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:white;flex-shrink:0}
+.al-name{font-size:.8rem;font-weight:800;flex:1}
+.al-score{font-family:'DM Serif Display',Georgia,serif;font-size:.9rem;font-weight:400}
+
+/* SESIÓN ACTUAL */
+.sess-header{background:var(--card);border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem;border:1px solid var(--border)}
+.sess-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold);margin-bottom:.5rem}
+.sess-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.meta-inp{height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:700;padding:0 10px;outline:none}
+
+/* RUBRICA TÁCTIL */
+.rubric-card{background:var(--card);border-radius:14px;padding:1rem 1.25rem;margin-bottom:.75rem;border:1px solid var(--border)}
+.crit-label{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.6rem}
+.crit-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.crit-row:last-child{border-bottom:none}
+.crit-name{font-size:.82rem;font-weight:800;flex:1}
+.crit-btns{display:flex;gap:5px}
+.crit-btn{width:38px;height:38px;border-radius:10px;border:2px solid transparent;cursor:pointer;font-size:.8rem;font-weight:900;font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.crit-btn.lvl-0{background:rgba(239,68,68,.1);color:#ef4444;border-color:rgba(239,68,68,.2)}
+.crit-btn.lvl-1{background:rgba(245,158,11,.1);color:#f59e0b;border-color:rgba(245,158,11,.2)}
+.crit-btn.lvl-2{background:rgba(96,165,250,.1);color:#60a5fa;border-color:rgba(96,165,250,.2)}
+.crit-btn.lvl-3{background:rgba(34,197,94,.1);color:#22c55e;border-color:rgba(34,197,94,.2)}
+.crit-btn.sel-0{background:rgba(239,68,68,.35);border-color:#ef4444;transform:scale(1.12)}
+.crit-btn.sel-1{background:rgba(245,158,11,.35);border-color:#f59e0b;transform:scale(1.12)}
+.crit-btn.sel-2{background:rgba(96,165,250,.35);border-color:#60a5fa;transform:scale(1.12)}
+.crit-btn.sel-3{background:rgba(34,197,94,.35);border-color:#22c55e;transform:scale(1.12)}
+
+/* PUNTUACIÓN */
+.score-bar{background:var(--card);border-radius:14px;padding:1rem 1.25rem;border:1px solid var(--border);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.score-num{font-family:'DM Serif Display',Georgia,serif;font-size:2.5rem;line-height:1}
+.score-pct{font-size:.72rem;font-weight:900;color:var(--muted)}
+.score-track{flex:1;height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;min-width:120px}
+.score-fill{height:100%;border-radius:999px;transition:width .3s ease,background .3s}
+
+/* HISTORIAL */
+.hist-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:.78rem}
+.hist-row:last-child{border-bottom:none}
+.hist-badge{padding:2px 8px;border-radius:999px;font-size:.65rem;font-weight:900}
+
+/* EMPTY STATE */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60%;gap:12px;color:var(--muted)}
+.empty-icon{font-size:3rem}
+
+/* PROXECTOR */
+#prox-overlay{display:none;position:fixed;inset:0;z-index:9999;background:#080e1a;align-items:center;justify-content:center;flex-direction:column;gap:2rem}
+#prox-overlay.show{display:flex}
+.prox-name{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(2rem,6vw,4rem);color:var(--gold)}
+.prox-score-big{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(4rem,15vw,9rem);line-height:1}
+.prox-crits{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;max-width:900px;width:90%}
+.prox-crit{background:rgba(255,255,255,.05);border-radius:14px;padding:14px 18px;border:1px solid rgba(255,255,255,.1)}
+.prox-crit-name{font-size:.75rem;font-weight:800;color:var(--muted);margin-bottom:6px}
+.prox-crit-val{font-family:'DM Serif Display',Georgia,serif;font-size:1.2rem}
+.prox-close{position:fixed;top:1rem;right:1rem;background:rgba(255,255,255,.08);border:1px solid var(--border2);border-radius:10px;color:var(--muted);font-size:.72rem;font-weight:800;padding:6px 14px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:10000;padding:9px 22px;border-radius:12px;font-size:.85rem;font-weight:800;color:white;pointer-events:none;opacity:0;transition:opacity .3s;font-family:'DM Sans',sans-serif}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.4rem">🎤</span>
+  <div>
+    <h1>Avaliación Oral en Directo</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+    <button class="btn btn-ghost btn-sm" onclick="abrirConfigRubrica()">⚙️ Rúbrica</button>
+    <button class="btn btn-ghost btn-sm" onclick="abrirProxector()" id="btn-prox" style="display:none">📺 Proxector</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarPDF('taboa')">📄 PDF clase</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarPDF('individual')">📋 PDF individual</button>
+    <button class="btn btn-ghost btn-sm" onclick="abrirEnviarAoCaderno()">📒 Enviar ao Caderno</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">📊 CSV</button>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Ir ao Portal / Configuración">⚙️ Portal</a>
+    <button class="btn btn-ghost btn-sm" onclick="toggleModo()">☀️ Claro</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- SIDEBAR ALUMNOS -->
+  <div class="sidebar">
+    <div style="padding:.75rem .75rem 0">
+      <input class="al-search" id="al-search" placeholder="🔍 Buscar alumno/a…" oninput="renderAlumnos()">
+    </div>
+    <div style="padding:.5rem .75rem;font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">
+      Alumnado · <span id="al-count">0</span>
+    </div>
+    <div id="al-list"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content-area">
+    <div class="empty">
+      <div class="empty-icon">🎤</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem">Selecciona un alumno/a para avaliar</div>
+      <div style="font-size:.78rem;color:var(--muted);text-align:center;max-width:320px">Preme nos niveis de cada criterio mentres o alumno/a fala. Os datos gárdanse automaticamente.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROXECTOR -->
+<div id="prox-overlay">
+  <button class="prox-close" onclick="document.getElementById('prox-overlay').classList.remove('show');document.body.style.overflow=''">✕ ESC</button>
+  <div class="prox-name" id="prox-name">—</div>
+  <div class="prox-score-big" id="prox-score-big" style="color:var(--green)">—</div>
+  <div class="prox-crits" id="prox-crits"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)this.style.display='none'">
+  <div id="modal-content" style="background:var(--card);border-radius:16px;padding:1.5rem;max-width:520px;width:100%;max-height:80vh;overflow-y:auto;border:1px solid var(--border2)"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATOS ─────────────────────────────────────────────────────────────────────
+const LS = {
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+
+const AVCOLS=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#f97316','#14b8a6','#ef4444','#84cc16','#a855f7','#06b6d4','#f43f5e','#22c55e','#eab308','#6366f1','#64748b','#0ea5e9','#d946ef','#fb923c','#4ade80','#818cf8','#34d399','#fbbf24','#f87171'];
+
+const DEFAULT_CRITERIOS = [
+  {id:'fluidez',   label:'Fluidez e entoación'},
+  {id:'contido',   label:'Contido e ideas'},
+  {id:'estrutura', label:'Estrutura e organización'},
+  {id:'lingua',    label:'Corrección lingüística'},
+  {id:'postura',   label:'Postura e contacto visual'},
+];
+const NIVEIS = [
+  {v:0, label:'Non acadado', emoji:'❌', short:'NA'},
+  {v:1, label:'En proceso',  emoji:'🔶', short:'EP'},
+  {v:2, label:'Acadado',     emoji:'✅', short:'AC'},
+  {v:3, label:'Excelente',   emoji:'⭐', short:'EX'},
+];
+const NIV_COLS = ['#ef4444','#f59e0b','#60a5fa','#22c55e'];
+
+let alumnos = LS.get('pc_alumnos', []);
+let criterios = LS.get('ao_criterios', DEFAULT_CRITERIOS);
+let sesions = LS.get('ao_sesions', []);   // [{id,data,titulo,punts:{alumno:{critId:val}}}]
+let selAlumno = null;
+let selSesionId = null;
+
+// ── SESIÓN ACTUAL ─────────────────────────────────────────────────────────────
+function getSesionActual() {
+  if (!selSesionId) {
+    const id = 'ses_' + Date.now();
+    const today = new Date().toISOString().split('T')[0];
+    sesions.push({id, data: today, titulo: 'Exposición oral', punts: {}});
+    selSesionId = id;
+    gardar();
+  }
+  return sesions.find(s => s.id === selSesionId) || sesions[sesions.length-1];
+}
+
+function getVal(alumno, critId) {
+  const ses = getSesionActual();
+  return ses.punts[alumno]?.[critId] ?? null;
+}
+
+function setVal(alumno, critId, val) {
+  const ses = getSesionActual();
+  if (!ses.punts[alumno]) ses.punts[alumno] = {};
+  if (ses.punts[alumno][critId] === val) {
+    delete ses.punts[alumno][critId];  // toggle off
+  } else {
+    ses.punts[alumno][critId] = val;
+  }
+  gardar();
+  renderContent();
+  renderAlumnos();
+  if (document.getElementById('prox-overlay').classList.contains('show')) renderProxector();
+}
+
+function getScore(alumno) {
+  const ses = getSesionActual();
+  const vals = criterios.map(c => ses.punts[alumno]?.[c.id] ?? null).filter(v => v !== null);
+  if (!vals.length) return null;
+  return +(vals.reduce((a,b) => a+b, 0) / vals.length * 10 / 3).toFixed(1);
+}
+
+function getScoreRaw(alumno) {
+  const ses = getSesionActual();
+  const vals = criterios.map(c => ses.punts[alumno]?.[c.id] ?? null).filter(v => v !== null);
+  if (!vals.length) return null;
+  return vals.reduce((a,b) => a+b, 0);
+}
+
+function scoreColor(s) {
+  if (s === null) return 'var(--muted)';
+  if (s >= 8) return '#22c55e';
+  if (s >= 6) return '#60a5fa';
+  if (s >= 4) return '#f59e0b';
+  return '#ef4444';
+}
+
+// ── RENDER ALUMNOS ────────────────────────────────────────────────────────────
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function ac(i) { return AVCOLS[i % AVCOLS.length]; }
+
+function renderAlumnos() {
+  const q = document.getElementById('al-search').value.toLowerCase();
+  const list = alumnos.filter(a => !q || a.toLowerCase().includes(q));
+  document.getElementById('al-count').textContent = alumnos.length;
+  document.getElementById('al-list').innerHTML = list.map(a => {
+    const i = alumnos.indexOf(a);
+    const sc = getScore(a);
+    const col = scoreColor(sc);
+    return `<div class="al-item${selAlumno===a?' active':''}" onclick="seleccionar('${a.replace(/'/g,"\\'")}')">
+      <div class="al-avatar" style="background:${ac(i)}">${ini(a)}</div>
+      <div class="al-name">${a}</div>
+      ${sc!==null ? `<div class="al-score" style="color:${col}">${sc}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function seleccionar(nome) {
+  selAlumno = nome;
+  renderAlumnos();
+  renderContent();
+  document.getElementById('btn-prox').style.display = 'inline-flex';
+}
+
+// ── RENDER CONTENT ────────────────────────────────────────────────────────────
+function renderContent() {
+  if (!selAlumno) return;
+  const area = document.getElementById('content-area');
+  const sc = getScore(selAlumno);
+  const raw = getScoreRaw(selAlumno);
+  const maxRaw = criterios.length * 3;
+  const pct = raw !== null ? Math.round(raw / maxRaw * 100) : 0;
+  const col = scoreColor(sc);
+  const idx = alumnos.indexOf(selAlumno);
+  const ses = getSesionActual();
+
+  area.innerHTML = `
+    <!-- ALUMNO HEADER -->
+    <div class="sess-header">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap">
+        <div style="width:46px;height:46px;border-radius:50%;background:${ac(idx)};display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:900;color:white;flex-shrink:0">${ini(selAlumno)}</div>
+        <div>
+          <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.2rem;color:var(--white)">${selAlumno}</div>
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+            <span style="font-size:.68rem;color:var(--muted);font-weight:700">Sesión activa · ${ses.data}</span>
+            ${ses.udNum?`<span style="font-size:.6rem;font-weight:900;padding:1px 6px;border-radius:4px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)">📚 UD${ses.udNum}${ses.udTit?' · '+ses.udTit.substring(0,14):''}</span>`:''}
+          </div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="gardarEnCaderno()">📒 Exportar ao Caderno</button>
+          <button class="btn btn-red btn-sm" onclick="borrarPunts()">🗑 Limpar</button>
+        </div>
+      </div>
+      <div class="sess-meta">
+        <input class="meta-inp" id="ses-titulo" value="${ses.titulo}" placeholder="Título da sesión" oninput="actualizarSes()" style="width:200px">
+        <input class="meta-inp" id="ses-data" type="date" value="${ses.data}" oninput="actualizarSes()">
+        <select id="ses-ud" class="meta-inp" style="cursor:pointer;width:auto" onchange="actualizarSes()">
+          <option value="">📚 Sen UD</option>
+          ${(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const allUDs=new Map();Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));return[...allUDs.entries()].sort((a,b)=>a[0]-b[0]).map(([num,tit])=>`<option value="${num}"${(ses.udNum||0)===num?' selected':''}>UD${num}${tit?' · '+tit.substring(0,18):''}</option>`).join('');}catch{return '';}})()}
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="novaSesion()">+ Nova sesión</button>
+      </div>
+    </div>
+
+    <!-- PUNTUACIÓN -->
+    <div class="score-bar" style="margin-bottom:.75rem">
+      <div>
+        <div class="score-num" style="color:${col}">${sc !== null ? sc : '—'}</div>
+        <div class="score-pct">${sc !== null ? `${pct}% · ${raw}/${maxRaw} pts` : 'Sen valorar'}</div>
+      </div>
+      <div class="score-track">
+        <div class="score-fill" style="width:${pct}%;background:${col}"></div>
+      </div>
+      ${sc !== null ? `<div style="font-size:1.6rem">${sc>=8?'⭐':sc>=6?'✅':sc>=4?'🔶':'❌'}</div>` : ''}
+    </div>
+
+    <!-- RÚBRICA TÁCTIL -->
+    <div class="rubric-card">
+      <div class="crit-label">📋 Rúbrica táctil · preme o nivel mentres fala</div>
+      ${criterios.map(c => {
+        const val = getVal(selAlumno, c.id);
+        return `<div class="crit-row">
+          <div class="crit-name">${c.label}</div>
+          <div class="crit-btns">
+            ${NIVEIS.map(n => {
+              const sel = val === n.v;
+              return `<button class="crit-btn lvl-${n.v}${sel?' sel-'+n.v:''}" 
+                title="${n.label}"
+                onclick="setVal('${selAlumno.replace(/'/g,"\\'")}','${c.id}',${n.v})">
+                ${n.short}
+              </button>`;
+            }).join('')}
+          </div>
+          <div style="font-size:.68rem;font-weight:800;color:${val!==null?NIV_COLS[val]:'var(--muted)'};min-width:80px;text-align:right">
+            ${val !== null ? NIVEIS[val].emoji + ' ' + NIVEIS[val].label : '—'}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- HISTORIAL DESTA SESIÓN -->
+    ${Object.keys(ses.punts).length > 0 ? `
+    <div class="rubric-card">
+      <div class="crit-label">📊 Resumo da sesión</div>
+      ${alumnos.filter(a => ses.punts[a] && Object.keys(ses.punts[a]).length).map(a => {
+        const sc2 = getScore(a); const col2 = scoreColor(sc2); const i2 = alumnos.indexOf(a);
+        return `<div class="hist-row">
+          <div class="al-avatar" style="width:24px;height:24px;background:${ac(i2)};font-size:.55rem">${ini(a)}</div>
+          <div style="flex:1;font-weight:800">${a}</div>
+          <span class="hist-badge" style="background:${col2}18;color:${col2}">${sc2 ?? '—'}/10</span>
+          ${criterios.map(c => {
+            const v = ses.punts[a]?.[c.id] ?? null;
+            return v !== null ? `<span style="font-size:.6rem;color:${NIV_COLS[v]}">${NIVEIS[v].short}</span>` : '';
+          }).join('')}
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+  `;
+}
+
+// ── ACCIÓNS ───────────────────────────────────────────────────────────────────
+function actualizarSes() {
+  const ses = getSesionActual();
+  ses.titulo = document.getElementById('ses-titulo')?.value || ses.titulo;
+  ses.data = document.getElementById('ses-data')?.value || ses.data;
+  const _udNum=parseInt(document.getElementById('ses-ud')?.value)||null;
+  ses.udNum=_udNum;
+  ses.udTit=_udNum?(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');for(const arr of Object.values(lomloeUDs)){const u=arr.find(x=>x.num===_udNum);if(u)return u.tit||'';}return '';}catch{return '';}})():'';
+  gardar();
+}
+
+function novaSesion() {
+  _confirmar(
+    'Crear nova sesión de avaliación? A sesión actual gárdase automaticamente.',
+    ()=>{
+      selSesionId = null;
+      getSesionActual();
+      renderContent();
+      toast('Nova sesión creada', '#22c55e');
+    }
+  );
+}
+
+function borrarPunts() {
+  if (!selAlumno) return;
+  const ses = getSesionActual();
+  const backup = ses.punts[selAlumno] ? {...ses.punts[selAlumno]} : null;
+  if (!backup) return;
+  delete ses.punts[selAlumno];
+  gardar(); renderContent(); renderAlumnos();
+  _toastDesfacer(
+    `Puntuación de ${selAlumno} eliminada`,
+    ()=>{
+      const s = getSesionActual();
+      s.punts[selAlumno] = backup;
+      gardar(); renderContent(); renderAlumnos();
+    }
+  );
+}
+
+function gardarEnCaderno() {
+  if (!selAlumno) return;
+  const sc = getScore(selAlumno);
+  if (sc === null) { alert('Non hai puntuación para exportar.'); return; }
+  const ses = getSesionActual();
+  const notas = LS.get('sn3_notas', []);
+  const materias = LS.get('sn3_materias', []);
+  const matOral = materias.find(m => m.nome.toLowerCase().includes('oral') || m.nome.toLowerCase().includes('expresión')) || materias[0];
+  if (!matOral) { alert('Non se atopou ningunha materia no Caderno Docente. Configura as materias primeiro.'); return; }
+  const maxId = Math.max(0, ...notas.map(n => n.id || 0));
+  notas.push({
+    id: maxId + 1,
+    alumno: selAlumno,
+    materia: matOral.id,
+    tipo: 'oral',
+    valor: sc,
+    peso: 0,
+    grupoId: '',
+    label: ses.titulo,
+    data: ses.data,
+    ...(ses.udNum?{unidade:{num:ses.udNum,tit:ses.udTit||''}}:{}),
+    comentario: criterios.map(c => {
+      const v = ses.punts[selAlumno]?.[c.id] ?? null;
+      return v !== null ? `${c.label}: ${NIVEIS[v].label}` : '';
+    }).filter(Boolean).join(' · '),
+    materiaNome: matOral.nome,
+    trimestre: null
+  });
+  LS.set('sn3_notas', notas);
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+  toast(`✅ Exportado ao Caderno (${matOral.nome})`, '#22c55e');
+}
+
+// ── PROXECTOR ─────────────────────────────────────────────────────────────────
+function abrirProxector() {
+  if (!selAlumno) return;
+  renderProxector();
+  document.getElementById('prox-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderProxector() {
+  const sc = getScore(selAlumno);
+  const col = scoreColor(sc);
+  const ses = getSesionActual();
+  document.getElementById('prox-name').textContent = selAlumno;
+  document.getElementById('prox-score-big').textContent = sc !== null ? sc + '/10' : '—';
+  document.getElementById('prox-score-big').style.color = col;
+  document.getElementById('prox-crits').innerHTML = criterios.map(c => {
+    const v = ses.punts[selAlumno]?.[c.id] ?? null;
+    const niv = v !== null ? NIVEIS[v] : null;
+    return `<div class="prox-crit" style="border-color:${v!==null?NIV_COLS[v]+'44':'rgba(255,255,255,.1)'}">
+      <div class="prox-crit-name">${c.label}</div>
+      <div class="prox-crit-val" style="color:${v!==null?NIV_COLS[v]:'var(--muted)'}">${niv ? niv.emoji + ' ' + niv.label : '—'}</div>
+    </div>`;
+  }).join('');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { document.getElementById('prox-overlay').classList.remove('show'); document.body.style.overflow = ''; }
+});
+
+// ── CONFIG RÚBRICA ────────────────────────────────────────────────────────────
+function abrirConfigRubrica() {
+  document.getElementById('modal-content').innerHTML = `
+    <h3 style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);margin-bottom:1rem">⚙️ Configurar rúbrica</h3>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.75rem;font-weight:700">Edita os criterios de avaliación. Orde: arrastra para reorganizar.</div>
+    <div id="crit-edit-list">${criterios.map((c,i) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="color:var(--muted);font-size:.8rem;cursor:grab">⠿</span>
+        <input value="${c.label}" id="crit-lbl-${i}" style="flex:1;height:30px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;padding:0 8px;outline:none">
+        <button onclick="eliminarCrit(${i})" style="background:rgba(239,68,68,.12);border:none;border-radius:7px;color:var(--red);cursor:pointer;padding:4px 8px;font-size:.7rem">✕</button>
+      </div>`).join('')}
+    </div>
+    <button onclick="engadirCrit()" style="margin-top:.75rem;width:100%;height:34px;background:rgba(251,191,36,.1);border:1.5px dashed var(--gold);border-radius:9px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">+ Engadir criterio</button>
+    <div style="display:flex;gap:8px;margin-top:1rem;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-bg').style.display='none'">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarCriterios()">💾 Gardar</button>
+    </div>
+  `;
+  document.getElementById('modal-bg').style.display = 'flex';
+}
+
+function engadirCrit() {
+  criterios.push({id: 'c_'+Date.now(), label: 'Novo criterio'});
+  abrirConfigRubrica();
+}
+
+function eliminarCrit(i) {
+  if (criterios.length <= 1) { alert('Debe haber polo menos un criterio.'); return; }
+  const eliminado = criterios[i];
+  criterios.splice(i, 1);
+  LS.set('ao_criterios', criterios);
+  abrirConfigRubrica();
+  _toastDesfacer(
+    `Criterio "${eliminado.label}" eliminado`,
+    ()=>{
+      criterios.splice(i, 0, eliminado);
+      LS.set('ao_criterios', criterios);
+      abrirConfigRubrica();
+    }
+  );
+}
+
+function gardarCriterios() {
+  criterios.forEach((c, i) => {
+    const inp = document.getElementById('crit-lbl-'+i);
+    if (inp) c.label = inp.value.trim() || c.label;
+  });
+  LS.set('ao_criterios', criterios);
+  document.getElementById('modal-bg').style.display = 'none';
+  renderContent();
+  toast('Rúbrica gardada', '#22c55e');
+}
+
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORTAR PDF
+// ══════════════════════════════════════════════════════════════════════════════
+function exportarPDF(modo) {
+  // modo: 'taboa' = todos nunha táboa | 'individual' = un por páxina
+  const ses = getSesionActual();
+  const alumnosConDatos = alumnos.filter(a => criterios.some(cr => ses.punts[a]?.[cr.id] !== undefined));
+  const todosAlumnos = alumnos.length > 0 ? alumnos : alumnosConDatos;
+  if (!todosAlumnos.length) { alert('Sen alumnos/as configurados.'); return; }
+
+  const NIV_COLS = ['#ef4444','#f59e0b','#60a5fa','#22c55e'];
+  const NIV_BG   = ['rgba(239,68,68,.1)','rgba(245,158,11,.1)','rgba(96,165,250,.1)','rgba(34,197,94,.1)'];
+
+  const css = `
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',system-ui,sans-serif;color:#1e293b;background:#fff;font-size:11px}
+    @page{margin:1.2cm;size:A4}
+    @media print{.no-print{display:none}}
+    .cabezallo{display:flex;align-items:center;gap:12px;border-bottom:2px solid #6366f1;padding-bottom:8px;margin-bottom:12px}
+    .cab-logo{width:38px;height:38px;border-radius:8px;background:#6366f1;display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;flex-shrink:0}
+    .cab-info{flex:1}
+    .cab-centro{font-size:.65rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+    .cab-titulo{font-family:'Georgia',serif;font-size:1.05rem;font-weight:700;color:#1e293b}
+    .cab-subtitulo{font-size:.68rem;color:#64748b;margin-top:1px}
+    .cab-data{font-size:.65rem;color:#64748b;text-align:right}
+    table{border-collapse:collapse;width:100%;margin-bottom:12px}
+    th{background:#f1f5f9;padding:5px 7px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#475569;border:1px solid #e2e8f0;text-align:center}
+    td{padding:5px 7px;border:1px solid #e2e8f0;vertical-align:middle}
+    .td-nome{font-weight:800;font-size:.78rem;text-align:left}
+    .chip{display:inline-block;padding:1px 6px;border-radius:5px;font-weight:800;font-size:.65rem;text-align:center;min-width:28px}
+    .score{font-family:'Georgia',serif;font-size:.95rem;font-weight:700;text-align:center}
+    .page-break{page-break-before:always;margin-top:1.5rem}
+    .alumno-card{border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:16px}
+    .alumno-nome{font-family:'Georgia',serif;font-size:1.1rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .crit-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f1f5f9}
+    .crit-label{flex:1;font-size:.78rem;color:#475569}
+    .crit-val{font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:5px;min-width:80px;text-align:center}
+    .resumo-score{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 12px;border-radius:8px;font-weight:800}
+    .no-print{margin:1rem 0;display:flex;gap:8px}
+    button{height:32px;padding:0 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:.82rem}
+  `;
+
+  const cabezallo = (subtitulo) => `
+    <div class="cabezallo">
+      <div class="cab-logo">🎤</div>
+      <div class="cab-info">
+        <div class="cab-centro">CEIP Pío XII · Santiago de Compostela · 4º B</div>
+        <div class="cab-titulo">Avaliación Oral en Directo</div>
+        <div class="cab-subtitulo">${ses.titulo} · ${subtitulo}</div>
+      </div>
+      <div class="cab-data">${ses.data}<br><span style="color:#6366f1;font-weight:800">${sesions.length} sesión${sesions.length!==1?'s':''}</span></div>
+    </div>`;
+
+  const getNivChip = (v) => {
+    if (v === null) return '<span style="color:#94a3b8">—</span>';
+    const n = NIVEIS[v];
+    return `<span class="chip" style="background:${NIV_BG[v]};color:${NIV_COLS[v]}">${n.emoji} ${n.short}</span>`;
+  };
+
+  const getScoreChip = (alumno) => {
+    const sc = getScore(alumno);
+    if (sc === null) return '<span style="color:#94a3b8">—</span>';
+    const col = scoreColor(sc);
+    return `<span class="score" style="color:${col}">${sc}</span>`;
+  };
+
+  let html;
+
+  if (modo === 'taboa') {
+    // ── MODO TÁBOA COMPLETA ──────────────────────────────────────────────────
+    const critsHead = criterios.map(cr =>
+      `<th style="min-width:70px">${cr.label}</th>`).join('');
+    const rows = todosAlumnos.map((a, i) => {
+      const critsVals = criterios.map(cr =>
+        `<td style="text-align:center">${getNivChip(ses.punts[a]?.[cr.id] ?? null)}</td>`
+      ).join('');
+      const bg = i % 2 === 0 ? '' : 'background:#f8fafc';
+      return `<tr style="${bg}">
+        <td class="td-nome">${a}</td>
+        ${critsVals}
+        <td style="text-align:center">${getScoreChip(a)}</td>
+      </tr>`;
+    }).join('');
+
+    html = `<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+      <title>Avaliación Oral · ${ses.titulo}</title><style>${css}</style></head><body>
+      <div class="no-print">
+        <button onclick="window.print()" style="background:#6366f1;color:white">🖨️ Imprimir / Gardar PDF</button>
+        <button onclick="window.close()" style="background:#f1f5f9;color:#475569">✕ Pechar</button>
+      </div>
+      ${cabezallo('Táboa completa da clase')}
+      <table>
+        <thead><tr>
+          <th style="text-align:left;min-width:140px">Alumno/a</th>
+          ${critsHead}
+          <th>Nota</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="font-size:.6rem;color:#94a3b8;text-align:center;margin-top:8px">
+        © 2026 Montserrat Blanco Vázquez · CEIP Pío XII · Avaliación Oral
+      </div>
+    </body></html>`;
+
+  } else {
+    // ── MODO INDIVIDUAL (un por páxina) ──────────────────────────────────────
+    const pages = todosAlumnos.map((a, i) => {
+      const critRows = criterios.map(cr => {
+        const v = ses.punts[a]?.[cr.id] ?? null;
+        const col = v !== null ? NIV_COLS[v] : '#94a3b8';
+        const bg  = v !== null ? NIV_BG[v]  : 'transparent';
+        const niv = v !== null ? `${NIVEIS[v].emoji} ${NIVEIS[v].label}` : '— Sen valorar';
+        return `<div class="crit-row">
+          <span class="crit-label">${cr.label}</span>
+          <span class="crit-val" style="background:${bg};color:${col}">${niv}</span>
+        </div>`;
+      }).join('');
+
+      const sc = getScore(a);
+      const scCol = scoreColor(sc);
+      const scBg = sc===null?'#f1f5f9':sc>=8?'rgba(34,197,94,.12)':sc>=6?'rgba(96,165,250,.12)':sc>=4?'rgba(245,158,11,.12)':'rgba(239,68,68,.12)';
+      const scoreBlock = sc !== null
+        ? `<div class="resumo-score" style="background:${scBg};color:${scCol}">
+             Nota media: <span style="font-family:'Georgia',serif;font-size:1.1rem">${sc} / 10</span>
+           </div>` : '';
+
+      const pageBreak = i > 0 ? 'class="page-break"' : '';
+      return `<div ${pageBreak}>
+        ${cabezallo('Informe individual')}
+        <div class="alumno-card">
+          <div class="alumno-nome">
+            <span style="background:#6366f1;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900">${i+1}</span>
+            ${a}
+          </div>
+          ${critRows}
+          ${scoreBlock}
+        </div>
+      </div>`;
+    }).join('');
+
+    html = `<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+      <title>Avaliación Oral · ${ses.titulo} · Individual</title><style>${css}</style></head><body>
+      <div class="no-print">
+        <button onclick="window.print()" style="background:#6366f1;color:white">🖨️ Imprimir / Gardar PDF</button>
+        <button onclick="window.close()" style="background:#f1f5f9;color:#475569">✕ Pechar</button>
+      </div>
+      ${pages}
+    </body></html>`;
+  }
+
+  const w = window.open('','_blank','width=900,height=700');
+  if (!w) {
+    const a = document.createElement('a');
+    a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+    a.download = `avaliacion_oral_${ses.data}_${modo}.html`;
+    a.click();
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ENVIAR NOTAS AO CADERNO DOCENTE
+// ══════════════════════════════════════════════════════════════════════════════
+function abrirEnviarAoCaderno(){
+  // Load materias and grupos from caderno
+  let materias = [];
+  let grupos = [];
+  try { materias = JSON.parse(localStorage.getItem('sn3_materias')||'[]'); } catch{}
+  try { grupos = JSON.parse(localStorage.getItem('sn3_grupos')||'[]'); } catch{}
+
+  const ses = getSesionActual();
+  const conDatos = alumnos.filter(a => getScore(a) !== null);
+
+  if(!conDatos.length){
+    alert('Non hai notas na sesión actual para enviar.');
+    return;
+  }
+  if(!materias.length){
+    alert('Non se atoparon materias no Caderno Docente. Abre o Caderno primeiro para inicializalas.');
+    return;
+  }
+
+  const matOpts = materias
+    .filter(m => m.id !== 'outras')
+    .map(m => `<option value="${m.id}">${m.icon||'📚'} ${m.nome}</option>`)
+    .join('');
+
+  const grupOpts = grupos.map(g =>
+    `<option value="${g.id}">${g.nome} (${g.peso}%)</option>`
+  ).join('');
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Auto-detect trimestre
+  let trimAuto = 0;
+  try {
+    const td = JSON.parse(localStorage.getItem('sn3_trim_datas')||'null');
+    if(td){
+      for(const tk of ['t1','t2','t3']){
+        const r = td[tk];
+        if(r && r.ini && r.fin && today >= r.ini && today <= r.fin){
+          trimAuto = parseInt(tk.replace('t',''));
+          break;
+        }
+      }
+    }
+  } catch{}
+
+  openModal(`<h3 style="margin-bottom:12px">📒 Enviar ao Caderno Docente</h3>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:14px">${conDatos.length} alumno${conDatos.length!==1?'s/as':'/a'} con nota na sesión <strong>${ses.titulo}</strong></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">📚 Materia</label>
+        <select id="ec-mat" class="inp" style="cursor:pointer">${matOpts}</select>
+      </div>
+      <div>
+        <label style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">📁 Apartado</label>
+        <select id="ec-grp" class="inp" style="cursor:pointer">${grupOpts}</select>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">📅 Trimestre</label>
+      <select id="ec-trim" class="inp" style="cursor:pointer">
+        <option value="0"${trimAuto===0?' selected':''}>Automático (por data)</option>
+        <option value="1"${trimAuto===1?' selected':''}>1º Trimestre</option>
+        <option value="2"${trimAuto===2?' selected':''}>2º Trimestre</option>
+        <option value="3"${trimAuto===3?' selected':''}>3º Trimestre</option>
+      </select>
+    </div>
+    <div style="margin-top:10px">
+      <label style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px">🏷️ Etiqueta da nota</label>
+      <input id="ec-label" class="inp" value="${ses.titulo}" placeholder="Ex: Exposición oral T2"/>
+    </div>
+    <div style="margin-top:10px;padding:8px 12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px">
+      <div style="font-size:.68rem;font-weight:900;color:var(--green);margin-bottom:6px">📋 Vista previa das notas</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;max-height:80px;overflow-y:auto">
+        ${conDatos.map(a=>{
+          const sc = getScore(a);
+          const col = scoreColor(sc);
+          return `<span style="font-size:.65rem;padding:2px 7px;border-radius:5px;background:${col}22;color:${col};font-weight:800">${a.split(' ')[0]}: ${sc}</span>`;
+        }).join('')}
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button onclick="closeModal()" style="height:32px;padding:0 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:9px;color:var(--muted,#94a3b8);font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="confirmarEnviarAoCaderno()" style="height:32px;padding:0 14px;background:#f59e0b;border:none;border-radius:9px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:800;cursor:pointer">📒 Enviar ao Caderno</button>
+    </div>`);
+}
+
+function confirmarEnviarAoCaderno(){
+  const matId  = document.getElementById('ec-mat')?.value;
+  const grupId = document.getElementById('ec-grp')?.value;
+  const trim   = parseInt(document.getElementById('ec-trim')?.value||'0');
+  const label  = document.getElementById('ec-label')?.value.trim() || getSesionActual().titulo;
+
+  if(!matId){ alert('Selecciona unha materia.'); return; }
+
+  const ses = getSesionActual();
+  const today = new Date().toISOString().split('T')[0];
+  const conDatos = alumnos.filter(a => getScore(a) !== null);
+
+  // Load existing notas
+  let notas = [];
+  let nextId = 1;
+  try {
+    notas = JSON.parse(localStorage.getItem('sn3_notas')||'[]');
+    nextId = Math.max(0, ...notas.map(n=>n.id||0)) + 1;
+  } catch{}
+
+  let engadidas = 0;
+  conDatos.forEach(alumno => {
+    const sc = getScore(alumno);
+    if(sc === null) return;
+
+    // Auto-detect trimestre if 0
+    let trimFinal = trim;
+    if(!trimFinal){
+      try {
+        const td = JSON.parse(localStorage.getItem('sn3_trim_datas')||'null');
+        if(td){
+          for(const tk of ['t1','t2','t3']){
+            const r = td[tk];
+            if(r && r.ini && r.fin && today >= r.ini && today <= r.fin){
+              trimFinal = parseInt(tk.replace('t',''));
+              break;
+            }
+          }
+        }
+      } catch{}
+    }
+
+    // Build rubricaVals from criterios
+    const rubricaVals = criterios.map(cr => ses.punts[alumno]?.[cr.id] ?? null);
+
+    notas.push({
+      id: nextId++,
+      alumno,
+      materia: matId,
+      tipo: 'oral',
+      valor: sc,
+      peso: 0,
+      grupoId: grupId || '',
+      label: label,
+      data: today,
+      comentario: `Avaliación oral · ${ses.titulo} · Sesión ${ses.data}`,
+      materiaNome: '',
+      trimestre: trimFinal || null,
+      rubricaVals,
+    });
+    engadidas++;
+  });
+
+  try {
+    localStorage.setItem('sn3_notas', JSON.stringify(notas));
+    localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+  } catch(e){
+    alert('Erro ao gardar: ' + e.message);
+    return;
+  }
+
+  closeModal();
+
+  // Toast confirmation
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:10px 20px;border-radius:12px;font-weight:800;font-size:.85rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+  toast.textContent = `✅ ${engadidas} nota${engadidas!==1?'s':''} enviada${engadidas!==1?'s':''} ao Caderno Docente`;
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 3500);
+}
+
+function exportarCSV() {
+  const ses = getSesionActual();
+  const header = ['Alumno/a', 'Nota (0-10)', ...criterios.map(c => c.label), 'Observacións'].join(',');
+  const rows = alumnos.filter(a => ses.punts[a]).map(a => {
+    const sc = getScore(a) ?? '';
+    const crits = criterios.map(c => {
+      const v = ses.punts[a]?.[c.id] ?? null;
+      return v !== null ? NIVEIS[v].label : '';
+    });
+    const obs = criterios.map(c => {
+      const v = ses.punts[a]?.[c.id] ?? null;
+      return v !== null ? `${c.label}: ${NIVEIS[v].label}` : '';
+    }).filter(Boolean).join(' | ');
+    return [`"${a}"`, sc, ...crits.map(x => `"${x}"`), `"${obs}"`].join(',');
+  });
+  if (!rows.length) { alert('Non hai datos para exportar.'); return; }
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent([header, ...rows].join('\n'));
+  a.download = `avaliacion_oral_${ses.data}.csv`;
+  a.click();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function gardar() {
+  LS.set('ao_sesions', sesions);
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+}
+
+function toast(msg, col='#22c55e') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = col; t.style.opacity = '1';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.opacity = '0', 2200);
+}
+
+function toggleModo() {
+  const actual = localStorage.getItem('ao_modo') || 'escuro';
+  const nou = actual === 'escuro' ? 'claro' : 'escuro';
+  aplicarModo(nou); localStorage.setItem('ao_modo', nou);
+}
+function aplicarModo(m) {
+  const r = document.documentElement.style;
+  const btn = document.querySelector('[onclick="toggleModo()"]');
+  if (m === 'claro') {
+    r.setProperty('--bg','#f0f4f8'); r.setProperty('--card','#ffffff'); r.setProperty('--card2','#f5f8fb');
+    r.setProperty('--border','rgba(15,23,42,.10)'); r.setProperty('--border2','rgba(15,23,42,.18)');
+    r.setProperty('--white','#1e293b'); r.setProperty('--muted','rgba(30,41,59,.50)');
+    if(btn) btn.textContent = '🌙 Escuro';
+  } else {
+    r.setProperty('--bg','#0f172a'); r.setProperty('--card','#1e293b'); r.setProperty('--card2','#263347');
+    r.setProperty('--border','rgba(255,255,255,.08)'); r.setProperty('--border2','rgba(255,255,255,.14)');
+    r.setProperty('--white','#f1f5f9'); r.setProperty('--muted','rgba(241,245,249,.45)');
+    if(btn) btn.textContent = '☀️ Claro';
+  }
+}
+
+// ── AUTOGUARDADO ──────────────────────────────────────────────────────────────
+window.addEventListener('beforeunload', gardar);
+setInterval(gardar, 30000);
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+aplicarModo(localStorage.getItem('ao_modo') || 'escuro');
+window.addEventListener('storage', e => {
+  if (e.key === 'pc_alumnos') { alumnos = LS.get('pc_alumnos', []); renderAlumnos(); }
+});
+
+// Recuperar sesión máis recente
+const sesRecente = sesions[sesions.length - 1];
+if (sesRecente) selSesionId = sesRecente.id;
+
+renderAlumnos();
+
+
+function exportarJSON(){
+  const keys=['ao_sesions','ao_criterios'];
+  const data={_exportado:new Date().toISOString()};
+  keys.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)data[k]=JSON.parse(v);}catch{}});
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='avaliacion_oral_backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+function importarJSON(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        let count=0;
+        const keys=['ao_sesions','ao_criterios'];
+        keys.forEach(k=>{
+          if(data[k]!==undefined){localStorage.setItem(k,JSON.stringify(data[k]));count++;}
+        });
+        if(count){
+          sesions=LS.get('ao_sesions',[]);criterios=LS.get('ao_criterios',DEFAULT_CRITERIOS);renderAlumnos();if(typeof toast==='function')toast('✅ Datos importados','#22c55e');
+        } else alert('Non se atoparon datos compatibles.');
+      }catch(ex){alert('Erro: '+ex.message);}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+function openModal(html){
+  const bg = document.getElementById('modal-bg');
+  const content = document.getElementById('modal-content');
+  if(!bg || !content) return;
+  content.innerHTML = html;
+  bg.style.display = 'flex';
+}
+
+function closeModal(e){
+  const bg = document.getElementById('modal-bg');
+  if(!bg) return;
+  if(e && e.target !== bg) return;
+  bg.style.display = 'none';
+}
+function closeModalDirect(){
+  const bg = document.getElementById('modal-bg');
+  if(bg) bg.style.display = 'none';
+}
+
+
+function confirmarExportClase() {
+  var ses = getSesionActual();
+  var matId = document.getElementById('aoe-mat')?.value;
+  var grupoId = document.getElementById('aoe-grupo')?.value || '';
+  var peso = parseInt(document.getElementById('aoe-peso')?.value) || 0;
+  var skipDup = document.getElementById('aoe-skip-dup')?.checked !== false;
+
+  var notas = LS.get('sn3_notas', []);
+  var materias = LS.get('sn3_materias', []);
+  var matObj = materias.find(function(m) { return m.id === matId; }) || materias[0];
+  if (!matObj) { toast('Non se atopou a materia', '#ef4444'); return; }
+
+  var maxId = notas.length ? Math.max.apply(null, notas.map(function(n){return n.id||0;})) : 0;
+  var engadidas = 0;
+  var omitidas = 0;
+
+  // Determine trimestre actual
+  function getTrimActual() {
+    var trimDatas = LS.get('sn3_trim_datas', {});
+    var hoxe = new Date().toISOString().split('T')[0];
+    for (var t = 1; t <= 3; t++) {
+      var r = trimDatas['t'+t];
+      if (r && r.ini && r.fin && hoxe >= r.ini && hoxe <= r.fin) return t;
+    }
+    var m = new Date().getMonth();
+    return m >= 8 ? 1 : m >= 1 && m <= 4 ? 2 : 3;
+  }
+  var trimestre = getTrimActual();
+
+  var alumnosConPunts = Object.keys(ses.punts || {}).filter(function(a) {
+    return Object.keys(ses.punts[a]).length > 0;
+  });
+
+  alumnosConPunts.forEach(function(a) {
+    var vals = criterios.map(function(c) { return ses.punts[a]?.[c.id] ?? null; }).filter(function(v) { return v !== null; });
+    if (!vals.length) return;
+    var raw = vals.reduce(function(s,v){return s+v;},0);
+    var sc = Math.round(raw / vals.length * 10) / 10;
+
+    // Skip duplicates if option checked
+    if (skipDup) {
+      var jaDuplicado = notas.some(function(n) {
+        return n.alumno === a && n.materia === matId && n.label === ses.titulo && n.data === ses.data;
+      });
+      if (jaDuplicado) { omitidas++; return; }
+    }
+
+    notas.push({
+      id: ++maxId,
+      alumno: a,
+      materia: matId,
+      tipo: 'oral',
+      valor: sc,
+      peso: peso,
+      grupoId: grupoId,
+      label: ses.titulo,
+      data: ses.data,
+      comentario: criterios.map(function(c) {
+        var v = ses.punts[a]?.[c.id] ?? null;
+        return v !== null ? c.label + ': ' + NIVEIS[v].label : '';
+      }).filter(Boolean).join(' \xB7 '),
+      materiaNome: matObj.nome,
+      trimestre: trimestre,
+      ausente: false
+    });
+    engadidas++;
+  });
+
+  LS.set('sn3_notas', notas);
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+
+  document.getElementById('ao-exp-clase-overlay').style.display = 'none';
+
+  var msg = '\u2705 ' + engadidas + ' nota' + (engadidas !== 1 ? 's' : '') + ' exportada' + (engadidas !== 1 ? 's' : '') + ' ao Caderno';
+  if (omitidas) msg += ' \xB7 ' + omitidas + ' omitida' + (omitidas !== 1 ? 's' : '') + ' (xa gardadas)';
+  toast(msg, '#22c55e');
+
+  // Update btn-exp-clase to show success
+  var btn = document.getElementById('btn-exp-clase');
+  if (btn) {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '\u2705 Exportado!';
+    btn.style.borderColor = 'rgba(34,197,94,.5)';
+    btn.style.color = '#22c55e';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 2500);
+  }
+}
+
+function exportarClaseAoCaderno() {
+  var ses = getSesionActual();
+  var alumnosConPunts = Object.keys(ses.punts || {}).filter(function(a) {
+    return Object.keys(ses.punts[a]).length > 0;
+  });
+
+  if (!alumnosConPunts.length) {
+    toast('Sen puntuacións rexistradas nesta sesi\xF3n', '#ef4444');
+    return;
+  }
+
+  // Compute scores for each alumno
+  var materias = LS.get('sn3_materias', []);
+  var matOral = materias.find(function(m) {
+    return m.nome.toLowerCase().includes('oral') || m.nome.toLowerCase().includes('expresi\xF3n');
+  }) || materias[0];
+
+  if (!matOral) {
+    toast('Non se atopou ningunha materia no Caderno. Configura as materias primeiro.', '#ef4444');
+    return;
+  }
+
+  var preview = alumnosConPunts.map(function(a) {
+    var vals = criterios.map(function(c) { return ses.punts[a]?.[c.id] ?? null; }).filter(function(v) { return v !== null; });
+    if (!vals.length) return null;
+    var raw = vals.reduce(function(s, v) { return s + v; }, 0);
+    var sc = Math.round(raw / vals.length * 10) / 10;
+    var col = sc >= 8 ? '#22c55e' : sc >= 6 ? '#60a5fa' : sc >= 4 ? '#fbbf24' : '#ef4444';
+    return { a: a, sc: sc, col: col, n: vals.length };
+  }).filter(Boolean);
+
+  if (!preview.length) {
+    toast('Non hai alumnos/as con puntuaci\xF3ns completas', '#ef4444');
+    return;
+  }
+
+  var sinPunts = alumnos.filter(function(a) {
+    return !alumnosConPunts.includes(a);
+  });
+
+  // Build modal overlay
+  var ov = document.getElementById('ao-exp-clase-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'ao-exp-clase-overlay';
+    ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem;overflow-y:auto';
+    document.body.appendChild(ov);
+  }
+
+  var matOpts = materias.filter(function(m) { return m.id !== 'outras'; })
+    .map(function(m) {
+      var sel = m.id === matOral.id ? ' selected' : '';
+      return '<option value="' + m.id + '"' + sel + '>' + (m.icon||'') + ' ' + m.nome + '</option>';
+    }).join('');
+
+  var previewRows = preview.map(function(p) {
+    var idx = alumnos.indexOf(p.a);
+    var avCol = (idx >= 0 && window.AVCOLS) ? AVCOLS[idx % AVCOLS.length] : '#6366f1';
+    var ini2 = p.a.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+      + '<div style="width:24px;height:24px;border-radius:50%;background:' + avCol + ';display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:900;color:white;flex-shrink:0">' + ini2 + '</div>'
+      + '<div style="flex:1;font-size:.8rem;font-weight:700">' + p.a + '</div>'
+      + '<div style="font-size:.65rem;color:rgba(238,242,255,.4)">' + p.n + '/' + criterios.length + ' criterios</div>'
+      + '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1rem;color:' + p.col + ';min-width:32px;text-align:right">' + p.sc + '</div>'
+      + '</div>';
+  }).join('');
+
+  var sinStr = sinPunts.length
+    ? '<div style="margin-top:.5rem;font-size:.65rem;color:rgba(239,68,68,.7);font-weight:700">\u26A0\uFE0F Sen puntuaci\xF3n: ' + sinPunts.map(function(a){return a.split(' ')[0];}).join(', ') + '</div>'
+    : '<div style="margin-top:.5rem;font-size:.65rem;color:#22c55e;font-weight:700">\u2705 Todos os alumnos/as puntuados/as</div>';
+
+  ov.innerHTML = '<div style="background:#1e293b;border-radius:20px;padding:1.5rem;max-width:500px;width:100%;border:1px solid rgba(255,255,255,.12);max-height:90vh;overflow-y:auto">'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">'
+    + '<span style="font-size:1.3rem">\uD83D\uDCD2</span>'
+    + '<div><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.1rem;color:#fbbf24">Exportar clase ao Caderno</div>'
+    + '<div style="font-size:.65rem;color:rgba(238,242,255,.4);font-weight:700">' + preview.length + ' alumnos/as con puntuaci\xF3n \xB7 Sesi\xF3n: ' + ses.titulo + ' \xB7 ' + ses.data + '</div>'
+    + '</div></div>'
+
+    // Materia selector
+    + '<div style="margin-bottom:.75rem">'
+    + '<label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">Materia no Caderno</label>'
+    + '<select id="aoe-mat" style="width:100%;height:34px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 10px;outline:none">'
+    + matOpts + '</select></div>'
+
+    // Grupo selector
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem">'
+    + '<div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">Grupo / Bloque</label>'
+    + '<select id="aoe-grupo" style="width:100%;height:34px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 10px;outline:none">'
+    + '<option value="">\u2014 Sen grupo</option>'
+    + (LS.get('sn3_grupos',[]).map(function(g){return '<option value="'+g.id+'">'+g.nome+' ('+g.peso+'%)</option>';}).join(''))
+    + '</select></div>'
+    + '<div><label style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);display:block;margin-bottom:4px">Peso (%)</label>'
+    + '<input id="aoe-peso" type="number" min="0" max="100" value="0" style="width:100%;height:34px;background:#263347;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f4ff;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 10px;outline:none"></div>'
+    + '</div>'
+
+    // Preview list
+    + '<div style="background:rgba(255,255,255,.03);border-radius:10px;padding:8px 10px;margin-bottom:.75rem;max-height:240px;overflow-y:auto">'
+    + '<div style="font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(238,242,255,.4);margin-bottom:5px">Vista previa</div>'
+    + previewRows
+    + sinStr
+    + '</div>'
+
+    // Duplicate check
+    + '<label style="display:flex;align-items:center;gap:7px;font-size:.75rem;font-weight:700;color:rgba(238,242,255,.5);cursor:pointer;margin-bottom:.75rem">'
+    + '<input type="checkbox" id="aoe-skip-dup" checked style="accent-color:#fbbf24"> Omitir alumnos/as que xa te\xF1en nota desta sesi\xF3n gardada'
+    + '</label>'
+
+    + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+    + '<button onclick="document.getElementById(\'ao-exp-clase-overlay\').style.display=\'none\'" style="height:34px;padding:0 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;color:rgba(238,242,255,.5);font-family:\'DM Sans\',system-ui,sans-serif;font-size:.78rem;font-weight:700;cursor:pointer">Cancelar</button>'
+    + '<button onclick="confirmarExportClase()" style="height:34px;padding:0 18px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:10px;color:#fbbf24;font-family:\'DM Sans\',system-ui,sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">\uD83D\uDCD2 Gardar ' + preview.length + ' alumnos/as</button>'
+    + '</div></div>';
+
+  ov.style.display = 'flex';
+}
+
+function renderProxectorRanking() {
+  var el = document.getElementById('prox-ranking');
+  if (!el) return;
+  var ses = getSesionActual();
+
+  var ranked = alumnos.map(function(a) {
+    var sc = getScore(a);
+    var vals = criterios.map(function(c) { return ses.punts[a]?.[c.id] ?? null; }).filter(function(v){return v!==null;});
+    return { a: a, sc: sc, n: vals.length };
+  }).filter(function(x){ return x.sc !== null; })
+    .sort(function(a,b){ return b.sc - a.sc; });
+
+  if (!ranked.length) {
+    el.innerHTML = '<div style="color:rgba(238,242,255,.3);font-size:1.2rem;text-align:center;padding:2rem">Aínda non hai puntuacións</div>';
+    return;
+  }
+
+  var medals = ['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49'];
+  var AVCOLS_P = ['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#f97316','#14b8a6'];
+
+  el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;width:100%">'
+    + ranked.map(function(item, i) {
+        var idx = alumnos.indexOf(item.a);
+        var col = AVCOLS_P[idx % AVCOLS_P.length];
+        var ini2 = item.a.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
+        var scCol = item.sc>=8?'#22c55e':item.sc>=6?'#60a5fa':item.sc>=4?'#fbbf24':'#ef4444';
+        var pct = Math.round(item.sc/10*100);
+        return '<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:8px 14px;border:1px solid rgba(255,255,255,.08)">'
+          + '<div style="font-size:'+(i<3?'1.4rem':'1rem')+';min-width:28px;text-align:center">'+(medals[i]||i+1)+'</div>'
+          + '<div style="width:34px;height:34px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:white;flex-shrink:0">'+ini2+'</div>'
+          + '<div style="flex:1;font-family:\'DM Sans\',sans-serif;font-weight:800;font-size:.92rem">'+item.a+'</div>'
+          + '<div style="font-size:.65rem;color:rgba(238,242,255,.4)">'+item.n+'/'+criterios.length+' crit.</div>'
+          + '<div style="width:100px;height:6px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+scCol+';border-radius:999px"></div></div>'
+          + '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.3rem;color:'+scCol+';min-width:48px;text-align:right">'+item.sc+'</div>'
+          + '</div>';
+      }).join('')
+    + '</div>';
+}
+
+function setProxVista(v) {
+  _proxVista = v;
+  var bc = document.getElementById('pv-crit');
+  var br = document.getElementById('pv-rank');
+  if (bc) { bc.style.background = v==='criterios' ? 'var(--accent,#6366f1)' : 'transparent'; bc.style.color = v==='criterios' ? 'white' : 'rgba(238,242,255,.5)'; }
+  if (br) { br.style.background = v==='ranking' ? 'var(--accent,#6366f1)' : 'transparent'; br.style.color = v==='ranking' ? 'white' : 'rgba(238,242,255,.5)'; }
+
+  var nameEl = document.getElementById('prox-name');
+  var scoreEl = document.getElementById('prox-score-big');
+  var critsEl = document.getElementById('prox-crits');
+  var rankEl  = document.getElementById('prox-ranking');
+
+  if (v === 'criterios') {
+    if (nameEl) nameEl.style.display = '';
+    if (scoreEl) scoreEl.style.display = '';
+    if (critsEl) critsEl.style.display = '';
+    if (rankEl) rankEl.style.display = 'none';
+    renderProxector();
+  } else {
+    if (nameEl) nameEl.style.display = 'none';
+    if (scoreEl) scoreEl.style.display = 'none';
+    if (critsEl) critsEl.style.display = 'none';
+    if (rankEl) { rankEl.style.display = 'block'; renderProxectorRanking(); }
+  }
+}
+
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>

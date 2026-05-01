@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Votación de Aula – </title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<meta name="copyright" content="© 2026 Montserrat Blanco Vázquez. CC BY-NC-SA 4.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,0.08);
+ --white:#f1f5f9;--muted:rgba(241,245,249,0.5);
+ --gold:#fbbf24;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+ --orange:#f97316;--purple:#a78bfa;--teal:#2dd4bf;--pink:#f472b6;
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--white);overflow-x:hidden}
+
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header h1{font-family:'Fredoka One',cursive;font-size:clamp(1.2rem,3.5vw,1.8rem);color:var(--gold)}
+.header-sub{font-size:.72rem;color:var(--muted)}
+
+.tab-nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab{padding:11px 18px;cursor:pointer;font-family:'Fredoka One',cursive;font-size:.85rem;color:var(--muted);border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--white)}.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.section{display:none;padding:1.25rem}.section.show{display:block}
+
+.btn{height:40px;padding:0 18px;font-family:'Fredoka One',cursive;font-size:.92rem;border:none;border-radius:11px;cursor:pointer;transition:transform .12s;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{transform:scale(1.04)}.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-green{background:var(--green);color:white}
+.btn-ghost{background:var(--card2);color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
+.btn-red{background:rgba(239,68,68,.18);color:var(--red);border:1.5px solid var(--red)}
+.btn-sm{height:32px;padding:0 12px;font-size:.78rem}
+
+/* ══ VOTACIÓN MAIN ══ */
+.vot-layout{display:grid;grid-template-columns:1fr 280px;gap:1.25rem;max-width:1060px;margin:0 auto}
+@media(max-width:800px){.vot-layout{grid-template-columns:1fr}}
+
+/* Pregunta display */
+.pregunta-card{background:var(--card);border-radius:20px;overflow:hidden;border:2px solid var(--border);margin-bottom:1rem}
+.pregunta-top{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pregunta-tipo{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;padding:3px 10px;border-radius:999px}
+.pregunta-text{font-family:'Fredoka One',cursive;font-size:clamp(1.1rem,3vw,1.6rem);line-height:1.35;padding:1rem 1.5rem;color:var(--white)}
+
+/* Opcions grid */
+.opcions-grid{display:grid;gap:10px;padding:0 1rem 1rem}
+
+.opcion-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center}
+.opcion-label{font-family:'Fredoka One',cursive;font-size:1rem;min-width:28px;text-align:center}
+.opcion-bar-wrap{position:relative;height:44px;background:var(--card2);border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid var(--border);transition:border-color .15s}
+.opcion-bar-wrap:hover{border-color:rgba(255,255,255,.2)}
+.opcion-bar{height:100%;border-radius:10px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+.opcion-bar-text{position:absolute;inset:0;display:flex;align-items:center;padding:0 12px;font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--white);pointer-events:none}
+.opcion-pct{font-family:'Fredoka One',cursive;font-size:1rem;min-width:44px;text-align:right}
+.opcion-btns{display:flex;gap:5px}
+.vot-btn{width:36px;height:36px;border-radius:10px;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.vot-btn:hover{transform:scale(1.1)}
+.vot-plus{background:rgba(34,197,94,.2);color:var(--green)}
+.vot-minus{background:rgba(239,68,68,.15);color:var(--red)}
+
+/* Total bar */
+.total-bar{height:4px;background:var(--card2);border-radius:999px;overflow:hidden;margin:0 1rem .75rem}
+.total-fill{height:100%;background:var(--gold);border-radius:999px;transition:width .4s}
+
+/* Right panel */
+.panel-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px;margin-bottom:10px}
+.panel-title{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
+
+/* Stat pill */
+.stat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.stat-pill{flex:1;min-width:60px;background:var(--card2);border-radius:12px;padding:8px;text-align:center}
+.stat-num{font-family:'Fredoka One',cursive;font-size:1.5rem;display:block}
+.stat-lbl{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+
+/* Winner highlight */
+.winner-wrap{background:rgba(251,191,36,.1);border:1.5px solid rgba(251,191,36,.3);border-radius:14px;padding:12px;text-align:center;display:none}
+.winner-wrap.show{display:block}
+.winner-label{font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--gold)}
+.winner-pct{font-family:'Fredoka One',cursive;font-size:1.6rem;color:var(--gold)}
+
+/* Escala Likert */
+.likert-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:.5rem 1rem 1rem}
+.likert-btn{flex:1;min-width:50px;max-width:90px;padding:10px 5px;border-radius:12px;border:2px solid var(--border);background:var(--card2);cursor:pointer;text-align:center;font-family:'Fredoka One',cursive;transition:all .18s}
+.likert-btn:hover{transform:scale(1.05)}
+.likert-btn.sel{border-width:3px}
+.likert-emoji{font-size:1.5rem;display:block}
+.likert-num{font-size:.75rem;color:var(--muted)}
+
+/* ── FULLSCREEN PROXECTOR ── */
+#fs-vot{display:none;position:fixed;inset:0;background:#060f1e;z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:2rem;overflow-y:auto}
+#fs-vot.show{display:flex}
+.fs-pregunta{font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,5vw,3.5rem);color:var(--white);text-align:center;margin-bottom:2rem;max-width:900px;line-height:1.3}
+.fs-opcions{width:100%;max-width:860px;display:flex;flex-direction:column;gap:14px}
+.fs-row{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+.fs-label{font-family:'Fredoka One',cursive;font-size:1.3rem;min-width:40px;text-align:center}
+.fs-bar-wrap{height:60px;background:rgba(255,255,255,.08);border-radius:14px;overflow:hidden;position:relative}
+.fs-bar{height:100%;border-radius:12px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.fs-bar-txt{position:absolute;inset:0;display:flex;align-items:center;padding:0 16px;font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--white)}
+.fs-pct{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--white);min-width:70px;text-align:right}
+.fs-total{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--muted);text-align:center;margin-top:1rem}
+.fs-exit{position:fixed;top:1rem;right:1rem;z-index:1000}
+
+/* ══ BANCO DE PREGUNTAS ══ */
+.banco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.bq-card{background:var(--card);border-radius:14px;border:2px solid var(--border);padding:14px;cursor:pointer;transition:all .18s}
+.bq-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.bq-text{font-size:.9rem;font-weight:700;line-height:1.5;margin-bottom:8px}
+.bq-tags{display:flex;gap:5px;flex-wrap:wrap}
+.bq-tag{font-size:.6rem;font-weight:900;padding:2px 8px;border-radius:999px}
+
+/* ══ HISTORIAL ══ */
+.hist-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:14px;margin-bottom:8px}
+.hist-q{font-size:.88rem;font-weight:800;margin-bottom:6px}
+.hist-bars{display:flex;flex-direction:column;gap:4px}
+.hist-row{display:flex;align-items:center;gap:8px;font-size:.75rem;font-weight:700}
+.hist-bar-wrap{flex:1;height:8px;background:var(--card2);border-radius:999px;overflow:hidden}
+.hist-bar{height:100%;border-radius:999px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:20px;padding:1.5rem;max-width:520px;width:100%;border:1px solid var(--border);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold);margin-bottom:1rem}
+.modal-input{width:100%;height:38px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;padding:0 12px;outline:none;margin-bottom:8px}
+.modal-input:focus{border-color:var(--gold)}
+.modal-label{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:4px}
+.modal-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9999}
+.license-bar{background:var(--card);border-top:1px solid var(--border);padding:.65rem 1.5rem;text-align:center;font-size:.58rem;color:var(--muted)}
+.license-bar a{color:var(--gold);text-decoration:none}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<!-- FULLSCREEN -->
+<div id="fs-vot">
+ <button class="btn btn-ghost btn-sm fs-exit" onclick="exitFS()">✕ Saír · Esc</button>
+ <div class="fs-pregunta" id="fs-pregunta">—</div>
+ <div class="fs-opcions" id="fs-opcions"></div>
+ <div class="fs-total" id="fs-total">0 votos</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+ <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="header">
+ <div style="font-size:2rem">🗳️</div>
+ <div>
+  <h1>Votación de Aula</h1>
+  <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+ </div>
+ <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+ <button class="btn btn-ghost btn-sm" onclick="launchFS()">⛶ Proxector</button>
+ <button class="btn btn-ghost btn-sm" onclick="gardarResultado()">💾 Gardar</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">📤 JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="importarJSON()">📥 Importar</button>
+ <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
+ <button class="btn btn-gold btn-sm" onclick="openNovaPregunta()">+ Nova pregunta</button>
+ </div>
+</div>
+
+<div class="tab-nav">
+ <div class="tab active" id="tab-vot" onclick="showTab('vot')">🗳️ Votar</div>
+ <div class="tab" id="tab-banco" onclick="showTab('banco')">📚 Banco</div>
+ <div class="tab" id="tab-hist" onclick="showTab('hist')">📋 Historial</div>
+</div>
+
+<!-- ══ VOTAR ══ -->
+<div class="section show" id="sec-vot">
+ <div class="vot-layout">
+
+ <!-- LEFT -->
+ <div>
+ <div class="pregunta-card" id="pregunta-card">
+ <div class="pregunta-top">
+ <div class="pregunta-tipo" id="preg-tipo" style="background:rgba(59,130,246,.15);color:var(--blue)">Opción múltiple</div>
+ <div id="vot-ud-chip" style="display:none;font-size:.6rem;font-weight:900;padding:2px 8px;border-radius:5px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)"></div>
+ <div style="margin-left:auto;display:flex;gap:6px">
+ <button class="btn btn-ghost btn-sm" onclick="clearVotos()">↺ Limpar votos</button>
+ <button class="btn btn-ghost btn-sm" onclick="openEditPregunta()">✏️ Editar</button>
+ </div>
+ </div>
+ <div class="pregunta-text" id="preg-text">Preme "+ Nova pregunta" para comezar</div>
+ <div class="total-bar"><div class="total-fill" id="total-fill" style="width:0%"></div></div>
+ <div class="opcions-grid" id="opcions-grid"></div>
+ </div>
+
+ <!-- Controis rápidos -->
+ <div style="display:flex;gap:8px;flex-wrap:wrap">
+ <button class="btn btn-gold" onclick="openNovaPregunta()">+ Nova pregunta</button>
+ <button class="btn btn-ghost" onclick="launchFS()">⛶ Proxector</button>
+ <button class="btn btn-ghost" onclick="showTab('banco')">📚 Banco</button>
+ <button class="btn btn-ghost" onclick="gardarResultado()" id="btn-gardar" style="display:none">💾 Gardar resultado</button>
+ </div>
+ </div>
+
+ <!-- RIGHT -->
+ <div>
+ <!-- Stats -->
+ <div class="panel-card">
+ <div class="panel-title">📊 Resultados</div>
+ <div class="stat-row" id="stat-row">
+ <div class="stat-pill"><span class="stat-num" id="st-total" style="color:var(--gold)">0</span><span class="stat-lbl">Votos</span></div>
+ <div class="stat-pill"><span class="stat-num" id="st-alumnos" style="color:var(--blue)">25</span><span class="stat-lbl">Alumnos</span></div>
+ <div class="stat-pill"><span class="stat-num" id="st-pct" style="color:var(--green)">0%</span><span class="stat-lbl">Participación</span></div>
+ </div>
+ <div class="winner-wrap" id="winner-wrap">
+ <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px">🏆 Máis votada</div>
+ <div class="winner-label" id="winner-label">—</div>
+ <div class="winner-pct" id="winner-pct">—</div>
+ </div>
+ </div>
+
+ <!-- Acceso rápido banco -->
+ <div class="panel-card">
+ <div class="panel-title">⚡ Preguntas rápidas</div>
+ <div style="display:flex;flex-direction:column;gap:5px" id="quick-bank"></div>
+ </div>
+
+ <!-- Tipo de gráfico -->
+ <div class="panel-card">
+ <div class="panel-title">📈 Vista</div>
+ <div style="display:flex;gap:5px;flex-wrap:wrap">
+ <button class="btn btn-ghost btn-sm" id="vw-barras" onclick="setVista('barras')" style="flex:1">📊 Barras</button>
+ <button class="btn btn-ghost btn-sm" id="vw-numeros" onclick="setVista('numeros')" style="flex:1">🔢 Números</button>
+ <button class="btn btn-ghost btn-sm" id="vw-anonima" onclick="setVista('anonima')" style="flex:1">🙈 Anónima</button>
+ </div>
+ </div>
+ </div>
+
+ </div>
+</div>
+
+<!-- ══ BANCO ══ -->
+<div class="section" id="sec-banco">
+ <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+ <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold)">📚 Banco de preguntas</div>
+ <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="openNovaPregunta()">+ Nova</button>
+ </div>
+ <div class="banco-grid" id="banco-grid"></div>
+</div>
+
+<!-- ══ HISTORIAL ══ -->
+<div class="section" id="sec-hist">
+ <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+ <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold)">📋 Historial de votacións</div>
+ <button class="btn btn-ghost btn-sm" onclick="exportarHistorialPDF()" style="margin-left:auto">🖨️ PDF</button>
+ <button class="btn btn-ghost btn-sm" onclick="exportarHistorialCSV()">📊 CSV</button>
+ <button class="btn btn-red btn-sm" onclick="clearHistorial()">🗑️ Borrar</button>
+ </div>
+ <div id="hist-list"></div>
+</div>
+
+<div class="license-bar">
+ © 2026 Montserrat Blanco Vázquez · ·
+ <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.gl" target="_blank">CC BY-NC-SA 4.0</a>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// BANCO DE PREGUNTAS
+// ══════════════════════════════════════════════════════════════════════════════
+const OPCION_COLORS = ['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fbbf24','#ef4444'];
+const LIKERT_CONFIG = [
+ {emoji:'😞',label:'Moi mal', color:'#ef4444',n:1},
+ {emoji:'😕',label:'Mal', color:'#f97316',n:2},
+ {emoji:'😐',label:'Regular', color:'#fbbf24',n:3},
+ {emoji:'🙂',label:'Ben', color:'#22c55e',n:4},
+ {emoji:'😄',label:'Moi ben', color:'#2dd4bf',n:5},
+];
+
+const BANCO_BASE = [
+ // Si/Non
+ {id:1, tipo:'sinon', texto:'Entendestes a explicación de hoxe?',
+ opcions:['Si ✅','Non ❌','Máis ou menos 🤔'], votos:[0,0,0]},
+ {id:2, tipo:'sinon', texto:'Está difícil o problema de hoxe?',
+ opcins:['Si ✅','Non ❌','Un pouco 😅'], votos:[0,0,0]},
+ {id:3, tipo:'sinon', texto:'Remataches os exercicios?',
+ opcions:['Si, todo ✅','Case todo 🟡','Pouco ou nada 🔴'], votos:[0,0,0]},
+ // Opinión
+ {id:4, tipo:'opinion', texto:'Que preferides para o proxecto de clase?',
+ opcions:['Traballo en grupo 👥','Traballo individual 🙋','Exposición oral 🎤','Mural 🖼️'], votos:[0,0,0,0]},
+ {id:5, tipo:'opinion', texto:'Que actividade vos gustou máis esta semana?',
+ opcions:['Lectura 📖','Matemáticas ➕','Ciencias 🔬','Plástica 🎨'], votos:[0,0,0,0]},
+ {id:6, tipo:'opinion', texto:'Como preferides estudar?',
+ opcions:['Só/Soa 🙋','En parella 👫','En grupo 👥','Tanto fai 🤷'], votos:[0,0,0,0]},
+ // Coñecemento
+ {id:7, tipo:'coñecemento', texto:'Cantas provincias ten Galicia?',
+ opcions:['3','4','5','6'], votos:[0,0,0,0], correcta:1},
+ {id:8, tipo:'coñecemento', texto:'Cal é a capital de Galicia?',
+ opcins:['Vigo','A Coruña','Santiago de Compostela','Lugo'], votos:[0,0,0,0], correcta:2},
+ {id:9, tipo:'coñecemento', texto:'Canto é 7 × 8?',
+ opcions:['48','54','56','63'], votos:[0,0,0,0], correcta:2},
+ {id:10,tipo:'coñecemento', texto:'Cantos continentes hai na Terra?',
+ opcions:['4','5','6','7'], votos:[0,0,0,0], correcta:3},
+ // Likert
+ {id:11,tipo:'likert', texto:'Como te sentes hoxe?', opcions:[], votos:[0,0,0,0,0]},
+ {id:12,tipo:'likert', texto:'Como foi o exame de hoxe?', opcins:[], votos:[0,0,0,0,0]},
+ // Aberta (a mestra escribe as opcions)
+ {id:13,tipo:'libre', texto:'Que queredes facer na excursión?',
+ opcions:['Visitar un museo','Ir á praia','Coñecer a cidade','Outro'], votos:[0,0,0,0]},
+];
+
+// ── NORMALIZE: ensure 'opcions' key exists ──────────────────────────────────
+BANCO_BASE.forEach(q=>{
+ if (!q.opcions && q.opcins) { q.opcions = q.opcins; delete q.opcins; }
+ if (!q.opcions) q.opcions = [];
+ if (!q.votos || q.votos.length !== q.opcions.length)
+ q.votos = Array(q.opcions.length).fill(0);
+});
+
+let banco = JSON.parse(localStorage.getItem('va_banco') || JSON.stringify(BANCO_BASE));
+let historial= JSON.parse(localStorage.getItem('va_hist') || '[]');
+function saveBanco() { localStorage.setItem('va_banco', JSON.stringify(banco)); try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){} }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EDITAR / BORRAR HISTORIAL
+// ══════════════════════════════════════════════════════════════════════════════
+function borrarVotacion(hid){
+ const idx = historial.findIndex(h => h.hid === hid);
+ const eliminada = idx !== -1 ? historial[idx]
+   : historial.find(h => String(h.id)===String(hid));
+ if(!eliminada) return;
+ if(idx !== -1){
+  historial.splice(idx, 1);
+ } else {
+  historial = historial.filter(h => String(h.id)!==String(hid));
+ }
+ saveHistorial();
+ renderHistorial();
+ _toastDesfacer(
+  `Votación "${(eliminada.titulo||eliminada.pregunta||'sen título').substring(0,40)}" eliminada`,
+  ()=>{
+   historial.push(eliminada);
+   historial.sort((a,b)=>(b.ts||b.id||0)-(a.ts||a.id||0));
+   saveHistorial(); renderHistorial();
+  }
+ );
+}
+
+function editarVotacion(id){
+ const nid=typeof id==='string'?Number(id):id;
+ const h = historial.find(x=>x.id===nid||x.id===id);
+ if(!h) return;
+ const isLikert = h.tipo==='likert';
+ const opcions = isLikert ? LIKERT_CONFIG.map(l=>l.emoji+' '+l.label) : (h.opcins||h.opcions||[]);
+ const total = h.votos.reduce((a,b)=>a+b,0);
+
+ const opcionRows = (opcins=>opcins.map((op,i)=>`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+   <span style="min-width:140px;font-size:.78rem;color:var(--muted)">${op}</span>
+   <input type="number" id="ev-v${i}" min="0" value="${h.votos[i]||0}"
+    style="width:70px;padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--white,#f1f5f9);font-size:.85rem;text-align:center"/>
+  </div>`).join(''))(opcions);
+
+ openModal(`<h3 style="margin-bottom:12px">✏️ Editar votación</h3>
+  <div style="margin-bottom:10px">
+   <label style="font-size:.7rem;font-weight:900;color:var(--muted);display:block;margin-bottom:4px">PREGUNTA</label>
+   <input id="ev-texto" class="inp" value="${h.texto.replace(/"/g,'&quot;')}" style="width:100%"/>
+  </div>
+  ${!isLikert ? '' : '<p style="font-size:.72rem;color:var(--muted);margin-bottom:8px">Tipo Likert — edita só os votos</p>'}
+  <div style="margin-bottom:10px">
+   <label style="font-size:.7rem;font-weight:900;color:var(--muted);display:block;margin-bottom:6px">VOTOS POR OPCIÓN</label>
+   ${opcionRows}
+   <div style="font-size:.68rem;color:var(--muted);margin-top:4px">Total: <span id="ev-total">${total}</span></div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+   <button onclick="closeModal()" style="height:34px;padding:0 16px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--muted);cursor:pointer">Cancelar</button>
+   <button onclick="gardarEditVotacion('${id}',${opcions.length})" style="height:34px;padding:0 16px;background:var(--purple,#8b5cf6);border:none;border-radius:10px;color:white;font-weight:800;cursor:pointer">💾 Gardar</button>
+  </div>`);
+
+ // Live total update
+ Array.from({length:opcions.length},(_,i)=>{
+  const inp = document.getElementById('ev-v'+i);
+  if(inp) inp.addEventListener('input',()=>{
+   const tot = Array.from({length:opcions.length},(_,j)=>parseInt(document.getElementById('ev-v'+j)?.value||0)).reduce((a,b)=>a+b,0);
+   const el = document.getElementById('ev-total');
+   if(el) el.textContent = tot;
+  });
+ });
+}
+
+function gardarEditVotacion(id, nOpcins){
+ const nid=typeof id==='string'?Number(id):id;
+ const h = historial.find(x=>x.id===nid||x.id===id);
+ if(!h) return;
+ const texto = document.getElementById('ev-texto')?.value.trim();
+ if(!texto){ alert('A pregunta non pode estar baleira.'); return; }
+ h.texto = texto;
+ h.votos = Array.from({length:nOpcins},(_,i)=>parseInt(document.getElementById('ev-v'+i)?.value||0));
+ saveHistorial();
+ closeModal();
+ renderHistorial();
+}
+
+
+// ── EXPORTAR / IMPORTAR JSON ──────────────────────────────────────────────────
+function exportarJSON(){
+  const data={
+    va_hist: historial,
+    va_banco: banco,
+    _exportado: new Date().toISOString()
+  };
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='votacion_backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+
+function importarJSON(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        let count=0;
+        if(data.va_hist&&Array.isArray(data.va_hist)){
+          historial=data.va_hist;
+          localStorage.setItem('va_hist',JSON.stringify(historial));
+          count++;
+        }
+        if(data.va_banco&&Array.isArray(data.va_banco)){
+          banco=data.va_banco;
+          localStorage.setItem('va_banco',JSON.stringify(banco));
+          count++;
+        }
+        if(count){renderHistorial();renderBanco();}
+        else alert('Non se atoparon datos compatibles.');
+      }catch(ex){alert('Erro: '+ex.message);}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+function saveHistorial(){ localStorage.setItem('va_hist', JSON.stringify(historial)); try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){} }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let current = null; // pregunta activa (copia con votos en directo)
+let vista = 'barras';
+let totalAlumnos = 25;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════════════════════
+function showTab(t) {
+  if(t==='analise') setTimeout(renderAnalise,50);
+ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+t));
+ document.querySelectorAll('.section').forEach(el=>el.classList.toggle('show',el.id==='sec-'+t));
+ if(t==='banco') renderBanco();
+ if(t==='hist') renderHistorial();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CARGAR PREGUNTA
+// ══════════════════════════════════════════════════════════════════════════════
+function loadPregunta(q) {
+ // Deep copy so we don't mutate the bank
+ current = JSON.parse(JSON.stringify(q));
+ if(!current.votos || current.votos.length !== current.opcions.length)
+ current.votos = Array(current.opcions.length).fill(0);
+ renderPregunta();
+ document.getElementById('btn-gardar').style.display='inline-flex';
+ showTab('vot');
+}
+
+function renderPregunta() {
+ if(!current) return;
+ const tipos = {sinon:'Si / Non',opinion:'Opinión',coñecemento:'Coñecemento',likert:'Escala',libre:'Libre'};
+ const tipoColors = {sinon:'var(--green)',opinion:'var(--blue)',coñecemento:'var(--gold)',likert:'var(--purple)',libre:'var(--teal)'};
+ const t = current.tipo||'opinion';
+
+ document.getElementById('preg-tipo').textContent = tipos[t]||t;
+ document.getElementById('preg-tipo').style.background = (tipoColors[t]||'var(--blue)')+'22';
+ document.getElementById('preg-tipo').style.color = tipoColors[t]||'var(--blue)';
+ document.getElementById('preg-text').textContent = current.texto;
+
+ // Chip UD activa
+ try{
+  const chip=document.getElementById('vot-ud-chip');
+  if(chip){
+   const notas=JSON.parse(localStorage.getItem('sn3_notas')||'[]');
+   const udAct=notas.filter(n=>n.unidade?.num).sort((a,b)=>new Date(b.data)-new Date(a.data))[0]?.unidade||null;
+   if(udAct){chip.textContent='📚 UD'+udAct.num+(udAct.tit?' · '+udAct.tit.substring(0,16):'');chip.style.display='inline-flex';}
+   else chip.style.display='none';
+  }
+ }catch{}
+
+ if(t==='likert') renderLikert();
+ else renderOpcions();
+
+ renderStats();
+ updateFS();
+}
+
+function renderOpcions() {
+ const grid = document.getElementById('opcions-grid');
+ if(!current?.opcions?.length){ grid.innerHTML=''; return; }
+ const total = current.votos.reduce((a,b)=>a+b,0);
+ const max = Math.max(...current.votos,1);
+
+ grid.innerHTML = current.opcions.map((op,i)=>{
+ const v = current.votos[i]||0;
+ const pct = total ? Math.round(v/total*100) : 0;
+ const col = OPCION_COLORS[i%OPCION_COLORS.length];
+ const isWinner = v===Math.max(...current.votos) && v>0;
+ const showCount = vista!=='anonima';
+ const showPct = vista!=='numeros' && vista!=='anonima';
+ return `<div class="opcion-row">
+ <div class="opcion-label" style="color:${col}">${String.fromCharCode(65+i)}</div>
+ <div class="opcion-bar-wrap" onclick="addVoto(${i})" style="${isWinner?`border-color:${col}`:''}">
+ <div class="opcion-bar" style="width:${total?pct:0}%;background:${col}22"></div>
+ <div class="opcion-bar-text">
+ <span style="flex:1">${op}</span>
+ ${showCount?`<span style="color:${col};margin-left:8px">${v}</span>`:''}
+ </div>
+ </div>
+ <div class="opcion-pct" style="color:${col}">${showPct?pct+'%':''}</div>
+ <div class="opcion-btns">
+ <button class="vot-btn vot-plus" onclick="addVoto(${i})">+</button>
+ <button class="vot-btn vot-minus" onclick="removeVoto(${i})">−</button>
+ </div>
+ </div>`;
+ }).join('');
+
+ // Total bar
+ const pctTotal = Math.min(100, total/totalAlumnos*100);
+ document.getElementById('total-fill').style.width = pctTotal+'%';
+}
+
+function renderLikert() {
+ const grid = document.getElementById('opcions-grid');
+ const total= current.votos.reduce((a,b)=>a+b,0);
+ grid.innerHTML = `<div class="likert-row">
+ ${LIKERT_CONFIG.map((lk,i)=>{
+ const v=current.votos[i]||0;
+ return `<div class="likert-btn" style="border-color:${lk.color}44;${v>0?`background:${lk.color}22;border-color:${lk.color}`:''}">
+ <span class="likert-emoji">${lk.emoji}</span>
+ <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:${lk.color}">${lk.n}</span>
+ ${v>0?`<span style="font-family:'Fredoka One',cursive;font-size:.75rem;color:${lk.color};display:block">${v}</span>`:''}
+ <div class="opcion-btns" style="justify-content:center;margin-top:4px">
+ <button class="vot-btn vot-plus" onclick="addVoto(${i})" style="width:28px;height:28px">+</button>
+ <button class="vot-btn vot-minus" onclick="removeVoto(${i})" style="width:28px;height:28px">−</button>
+ </div>
+ </div>`;
+ }).join('')}
+ </div>
+ <div style="padding:0 1rem .5rem;font-size:.75rem;color:var(--muted);text-align:center;font-weight:800">
+ Total: ${total} votos · Media: ${total?((current.votos.reduce((a,v,i)=>a+v*(i+1),0)/total).toFixed(1)):'-'}
+ </div>`;
+}
+
+function addVoto(idx) {
+ current.votos[idx]++;
+ renderPregunta();
+ // Flash animation
+ const rows=document.querySelectorAll('.opcion-bar-wrap,.likert-btn');
+ if(rows[idx]){ rows[idx].style.transform='scale(1.04)'; setTimeout(()=>rows[idx].style.transform='',200); }
+}
+function removeVoto(idx) {
+ if(current.votos[idx]>0) current.votos[idx]--;
+ renderPregunta();
+}
+function clearVotos() {
+ if(!current) return;
+ current.votos = Array(current.opcions.length||5).fill(0);
+ renderPregunta();
+}
+
+function renderStats() {
+ if(!current) return;
+ const total = current.votos.reduce((a,b)=>a+b,0);
+ const pct = Math.round(total/totalAlumnos*100);
+ document.getElementById('st-total').textContent = total;
+ document.getElementById('st-alumnos').textContent = totalAlumnos;
+ document.getElementById('st-pct').textContent = pct+'%';
+
+ const maxV = Math.max(...current.votos);
+ const winnerIdx = current.votos.indexOf(maxV);
+ const winnerWrap = document.getElementById('winner-wrap');
+ if(maxV>0 && current.opcions[winnerIdx]) {
+ winnerWrap.classList.add('show');
+ document.getElementById('winner-label').textContent = current.tipo==='likert'
+ ? LIKERT_CONFIG[winnerIdx]?.emoji+' '+LIKERT_CONFIG[winnerIdx]?.label
+ : current.opcions[winnerIdx];
+ document.getElementById('winner-pct').textContent = total ? Math.round(maxV/total*100)+'%' : '—';
+ } else {
+ winnerWrap.classList.remove('show');
+ }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FULLSCREEN
+// ══════════════════════════════════════════════════════════════════════════════
+function launchFS() {
+ if(!current) return;
+ updateFS();
+ document.getElementById('fs-vot').classList.add('show');
+}
+function exitFS() { document.getElementById('fs-vot').classList.remove('show'); }
+
+function updateFS() {
+ if(!current) return;
+ document.getElementById('fs-pregunta').textContent = current.texto;
+ const total = current.votos.reduce((a,b)=>a+b,0);
+ document.getElementById('fs-total').textContent = `${total} voto${total!==1?'s':''}`;
+
+ const isLikert = current.tipo==='likert';
+ const opcions = isLikert ? LIKERT_CONFIG.map(l=>l.emoji+' '+l.label) : current.opcions;
+ const max = Math.max(...current.votos,1);
+
+ document.getElementById('fs-opcions').innerHTML = opcions.map((op,i)=>{
+ const v = current.votos[i]||0;
+ const pct = total ? Math.round(v/total*100) : 0;
+ const col = isLikert ? LIKERT_CONFIG[i].color : OPCION_COLORS[i%OPCION_COLORS.length];
+ return `<div class="fs-row">
+ <div class="fs-label" style="color:${col}">${isLikert?LIKERT_CONFIG[i].emoji:String.fromCharCode(65+i)}</div>
+ <div class="fs-bar-wrap">
+ <div class="fs-bar" style="width:${total?pct:0}%;background:${col}44"></div>
+ <div class="fs-bar-txt"><span style="flex:1">${op}</span><span style="color:${col}">${vista!=='anonima'?v:''}</span></div>
+ </div>
+ <div class="fs-pct" style="color:${col}">${vista!=='anonima'?pct+'%':''}</div>
+ </div>`;
+ }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NOVA PREGUNTA MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+function openNovaPregunta() {
+ openModal(`<h3>🗳️ Nova pregunta</h3>
+ <label class="modal-label">Tipo</label>
+ <select class="modal-input" id="np-tipo" onchange="updateOpcinsFields()">
+ <option value="sinon">Si / Non / Outro</option>
+ <option value="opinion">Opinión (opcions libres)</option>
+ <option value="coñecemento">Coñecemento (con resposta correcta)</option>
+ <option value="likert">Escala de valoración 1-5</option>
+ </select>
+ <label class="modal-label">Pregunta</label>
+ <input class="modal-input" id="np-texto" placeholder="Escribe a pregunta..."/>
+ <div id="np-opcins-wrap">
+ <label class="modal-label">Opcións (unha por liña)</label>
+ <textarea class="modal-input" id="np-opcins" rows="4" style="height:100px;resize:vertical"
+ placeholder="Si ✅&#10;Non ❌&#10;Máis ou menos 🤔"></textarea>
+ </div>
+ <div id="np-correcta-wrap" style="display:none">
+ <label class="modal-label">Opción correcta (número, empezando por 1)</label>
+ <input class="modal-input" id="np-correcta" type="number" min="1" value="1"/>
+ </div>
+ <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">
+ <input type="checkbox" id="np-gardar" checked style="width:14px;height:14px;accent-color:var(--gold)">
+ <span style="font-size:.82rem;font-weight:800">Gardar no banco</span>
+ </label>
+ <div class="modal-row">
+ <button class="btn btn-gold" onclick="crearPregunta()">Crear e votar</button>
+ <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+ </div>`);
+ setTimeout(()=>document.getElementById('np-texto')?.focus(),100);
+}
+
+function updateOpcinsFields() {
+ const tipo = document.getElementById('np-tipo')?.value;
+ const wrap = document.getElementById('np-opcins-wrap');
+ const cwrap= document.getElementById('np-correcta-wrap');
+ if(tipo==='likert') {
+ wrap.style.display='none';
+ cwrap.style.display='none';
+ } else {
+ wrap.style.display='block';
+ cwrap.style.display=tipo==='coñecemento'?'block':'none';
+ // Prefill Si/Non
+ if(tipo==='sinon') {
+ const ta=document.getElementById('np-opcins');
+ if(ta&&!ta.value) ta.value='Si ✅\nNon ❌\nMáis ou menos 🤔';
+ }
+ }
+}
+
+function crearPregunta() {
+ const tipo = document.getElementById('np-tipo')?.value||'opinion';
+ const texto = document.getElementById('np-texto')?.value.trim();
+ if(!texto) return;
+ const opcins = tipo==='likert' ? [] :
+ (document.getElementById('np-opcins')?.value||'').split('\n').map(l=>l.trim()).filter(Boolean);
+ if(tipo!=='likert' && !opcins.length) return;
+ const correcta = tipo==='coñecemento' ? (parseInt(document.getElementById('np-correcta')?.value||1)-1) : undefined;
+ const q = {id:Date.now(), tipo, texto, opcions:opcins, votos:Array(tipo==='likert'?5:opcins.length).fill(0),
+ ...(correcta!==undefined?{correcta}:{})};
+ if(document.getElementById('np-gardar')?.checked) {
+ banco.push(q); saveBanco();
+ }
+ closeModal();
+ loadPregunta(q);
+}
+
+function openEditPregunta() {
+ if(!current) return;
+ openModal(`<h3>✏️ Editar pregunta</h3>
+ <label class="modal-label">Pregunta</label>
+ <input class="modal-input" id="ep-texto" value="${current.texto}"/>
+ ${current.tipo!=='likert'?`
+ <label class="modal-label">Opcións (unha por liña)</label>
+ <textarea class="modal-input" id="ep-opcins" rows="4" style="height:100px;resize:vertical">${(current.opcions||[]).join('\n')}</textarea>`:''}
+ <div class="modal-row">
+ <button class="btn btn-gold" onclick="applyEdit()">Gardar</button>
+ <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+ </div>`);
+}
+function applyEdit() {
+ current.texto = document.getElementById('ep-texto')?.value.trim()||current.texto;
+ if(current.tipo!=='likert') {
+ const newOpcins=(document.getElementById('ep-opcins')?.value||'').split('\n').map(l=>l.trim()).filter(Boolean);
+ if(newOpcins.length) {
+ current.opcions=newOpcins;
+ current.votos =Array(newOpcins.length).fill(0);
+ }
+ }
+ closeModal(); renderPregunta();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// GARDAR RESULTADO
+// ══════════════════════════════════════════════════════════════════════════════
+function gardarResultado() {
+ if(!current) return;
+ const rec = {...current, ts:new Date().toLocaleString('gl')};
+ historial.unshift(rec);
+ if(historial.length>50) historial.pop();
+ saveHistorial();
+ const btn=document.getElementById('btn-gardar');
+ const orig=btn.textContent; btn.textContent='✅ Gardado!'; btn.style.background='var(--green)';
+ setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1500);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BANCO VIEW
+// ══════════════════════════════════════════════════════════════════════════════
+function renderBanco() {
+ const tipos = {sinon:'Si/Non',opinion:'Opinión',coñecemento:'Coñecemento',likert:'Escala',libre:'Libre'};
+ const tcols = {sinon:'var(--green)',opinion:'var(--blue)',coñecemento:'var(--gold)',likert:'var(--purple)',libre:'var(--teal)'};
+ document.getElementById('banco-grid').innerHTML = banco.map(q=>`
+ <div class="bq-card" onclick="loadPregunta(${JSON.stringify(q).replace(/"/g,'&quot;')})">
+ <div class="bq-text">${q.texto}</div>
+ <div class="bq-tags">
+ <span class="bq-tag" style="background:${(tcols[q.tipo]||'var(--blue)')}22;color:${tcols[q.tipo]||'var(--blue)'}">${tipos[q.tipo]||q.tipo}</span>
+ ${q.tipo!=='likert'?`<span class="bq-tag" style="background:var(--card2);color:var(--muted)">${(q.opcions||[]).length} opcions</span>`:'<span class="bq-tag" style="background:var(--card2);color:var(--muted)">1–5 😊</span>'}
+ ${q.isUser?'<span class="bq-tag" style="background:rgba(167,139,250,.15);color:var(--purple)">✏️ Propia</span>':''}
+ </div>
+ </div>`).join('');
+
+ // Quick bank (side panel, max 5)
+ document.getElementById('quick-bank').innerHTML = banco.slice(0,5).map(q=>
+ `<button class="btn btn-ghost btn-sm" style="text-align:left;height:auto;padding:6px 10px;font-size:.72rem;font-family:'Nunito',sans-serif;font-weight:800;white-space:normal"
+ onclick="loadPregunta(${JSON.stringify(q).replace(/"/g,'&quot;')})">${q.texto.substring(0,50)}${q.texto.length>50?'...':''}</button>`
+ ).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HISTORIAL
+// ══════════════════════════════════════════════════════════════════════════════
+function renderHistorial() {
+ const el=document.getElementById('hist-list');
+ if(!historial.length){el.innerHTML='<div style="color:var(--muted);padding:2rem;text-align:center">A\xEDnda non hai votaci\xF3ns gardadas</div>';return;}
+ el.innerHTML=historial.map(h=>{
+  const isAnon=h.anonimo||!h.votos;
+  const total=isAnon?(h.total||0):(h.votos||[]).reduce((a,b)=>a+b,0);
+  const isLikert=h.tipo==='likert';
+  const opcins=isAnon?null:(isLikert?LIKERT_CONFIG.map(l=>l.emoji+' '+l.label):(h.opcins||h.opcions||[]));
+  const hid=h.hid||h.id;
+  const maxV=opcins&&h.votos?Math.max(1,...(h.votos||[])):'';
+  const barsHTML=isAnon
+   ?'<div style="font-size:.72rem;color:var(--muted);font-style:italic;padding:6px 0">\uD83D\uDD12 Votaci\xF3n an\xF3nima \xB7 '+total+' votos \xB7 Datos non gardados</div>'
+   :'<div id="hbars-'+hid+'" style="display:none;margin-top:6px">'
+    +(opcins||[]).map((op,i)=>{
+     const v=(h.votos||[])[i]||0;
+     const pct=total?Math.round(v/total*100):0;
+     const col=isLikert?LIKERT_CONFIG[i].color:OPCION_COLORS[i%OPCION_COLORS.length];
+     const isWin=v===maxV&&v>0;
+     return '<div class="hist-row" style="'+(isWin?'background:'+col+'0a;border-radius:6px;':'')+'padding:2px 4px">'
+      +'<span style="color:'+col+';min-width:150px;font-size:.72rem;font-weight:'+(isWin?'900':'700')+'">'+op+'</span>'
+      +'<div class="hist-bar-wrap"><div class="hist-bar" style="width:'+pct+'%;background:'+col+'"></div></div>'
+      +'<span style="color:'+col+';min-width:48px;text-align:right;font-size:.72rem">'+v+' ('+pct+'%)</span>'
+      +(isWin?'<span style="font-size:.6rem;margin-left:4px">\uD83C\uDFC6</span>':'')
+      +'</div>';
+    }).join('')
+    +'</div>';
+  return '<div class="hist-card">'
+   +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;flex-wrap:wrap">'
+   +'<div class="hist-q" style="flex:1">'+h.texto+'</div>'
+   +'<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">'
+   +(isAnon?'<span style="font-size:.6rem;padding:1px 6px;border-radius:999px;background:rgba(251,191,36,.15);color:var(--gold)">\uD83D\uDD12 An\xF3nima</span>':'')
+   +'<span style="font-size:.6rem;color:var(--muted);font-weight:700">'+(h.data||'')+' '+(h.hora||'')+' \xB7 '+total+' votos</span>'
+   +(!isAnon?'<button onclick="toggleHistBars(\''+hid+'\')" id="hbtn-'+hid+'" style="height:22px;padding:0 8px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.6rem;cursor:pointer">\u25BC Ver</button>':'')
+   +'<button onclick="reVotar(\''+hid+'\')" style="height:22px;padding:0 8px;background:rgba(99,102,241,.15);border:1.5px solid rgba(99,102,241,.35);border-radius:6px;color:#818cf8;font-size:.6rem;font-weight:800;cursor:pointer">\u21BA Re-votar</button>'
+   +'<button onclick="editarVotacion(\''+hid+'\')" style="height:22px;padding:0 8px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);border-radius:6px;color:#60a5fa;font-size:.6rem;cursor:pointer">\u270F\uFE0F</button>'
+   +'<button onclick="borrarVotacion(\''+hid+'\')" style="height:22px;padding:0 8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:6px;color:#ef4444;font-size:.6rem;cursor:pointer">\u2715</button>'
+   +'</div></div>'
+   +barsHTML+'</div>';
+ }).join('');
+}
+function clearHistorial() {
+ const backup=[...historial];
+ _confirmar(
+  'Borrar todo o historial de votacións? Pódese desfacer durante 6 segundos.',
+  ()=>{
+   historial=[]; saveHistorial(); renderHistorial();
+   _toastDesfacer(
+    'Historial de votacións borrado',
+    ()=>{ historial=backup; saveHistorial(); renderHistorial(); },
+    6000
+   );
+  }
+ );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VISTA
+// ══════════════════════════════════════════════════════════════════════════════
+function setVista(v) {
+ vista=v;
+ ['barras','numeros','anonima'].forEach(vv=>{
+ const btn=document.getElementById('vw-'+vv);
+ if(btn){ btn.style.background=v===vv?'var(--gold)':''; btn.style.color=v===vv?'#0f172a':''; }
+ });
+ renderPregunta(); updateFS();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){exitFS();document.getElementById('modal-bg').classList.remove('show');}});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════════════════════════════════════
+let confFrame=null;
+function launchConfetti(){
+ if(confFrame){cancelAnimationFrame(confFrame);confFrame=null;}
+ const c=document.getElementById('confetti'),cx=c.getContext('2d');
+ c.width=innerWidth;c.height=innerHeight;
+ const pal=['#fbbf24','#22c55e','#3b82f6','#f472b6','#a78bfa'];
+ const ps=Array.from({length:60},()=>({x:Math.random()*c.width,y:-10,w:5+Math.random()*7,h:7+Math.random()*5,color:pal[~~(Math.random()*pal.length)],vx:(Math.random()-.5)*5,vy:2+Math.random()*4,rot:Math.random()*360,rotV:(Math.random()-.5)*8,alpha:1}));
+ function draw(){cx.clearRect(0,0,c.width,c.height);let a=false;ps.forEach(p=>{if(p.alpha<=0)return;a=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;if(p.y>c.height*.7)p.alpha-=.03;cx.save();cx.globalAlpha=Math.max(0,p.alpha);cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.fillStyle=p.color;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore();});if(a)confFrame=requestAnimationFrame(draw);else{cx.clearRect(0,0,c.width,c.height);confFrame=null;}}
+ draw();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderBanco();
+// Load first question
+if(banco.length) loadPregunta(banco[0]);
+// ── EXPORTAR HISTORIAL ───────────────────────────────────────────────────────
+function exportarHistorialCSV(){
+  if(!historial.length){alert('Non hai historial para exportar.');return;}
+  const rows=['Pregunta,Tipo,Opción,Votos,Porcentaxe,Timestamp'];
+  historial.forEach(h=>{
+    if(!h.votos){rows.push(`"${h.texto}","${h.tipo}","An\xF3nima",${h.total||0},—,"${h.ts}"`);return;}
+    const total=(h.votos||[]).reduce((a,b)=>a+b,0);
+    const isLikert=h.tipo==='likert';
+    const opcions=isLikert?LIKERT_CONFIG.map(l=>l.emoji+' '+l.label):(h.opcins||h.opcions||[]);
+    (opcions||[]).forEach((op,i)=>{
+      const v=(h.votos||[])[i]||0;
+      const pct=total?Math.round(v/total*100):0;
+      rows.push(`"${h.texto}","${h.tipo}","${op}",${v},${pct}%,"${h.ts}"`);
+    });
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));
+  a.download='votacions_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+function exportarHistorialPDF(){
+  if(!historial.length){alert('Non hai historial para exportar.');return;}
+  const COLS=['#6366f1','#22c55e','#ef4444','#fbbf24','#2dd4bf','#a78bfa','#fb923c','#f472b6'];
+  const html=`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Historial de Votacións</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',system-ui,sans-serif;background:#f8fafc;color:#1e293b;padding:2rem;max-width:800px;margin:0 auto}
+    @media print{body{padding:.3cm;background:white}@page{margin:1.2cm;size:A4}.no-print{display:none}}
+    h1{font-family:Georgia,serif;font-size:1.4rem;color:#0f172a;margin-bottom:.3rem}
+    .sub{font-size:.72rem;color:#64748b;font-weight:700;margin-bottom:1.5rem}
+    .card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:14px}
+    .q{font-family:Georgia,serif;font-size:1rem;color:#0f172a;margin-bottom:4px}
+    .meta{font-size:.65rem;color:#94a3b8;font-weight:700;margin-bottom:12px}
+    .row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+    .label{font-size:.78rem;font-weight:700;min-width:160px;color:#334155}
+    .bar-wrap{flex:1;height:14px;background:#f1f5f9;border-radius:999px;overflow:hidden}
+    .bar{height:100%;border-radius:999px}
+    .pct{font-size:.72rem;font-weight:800;min-width:50px;text-align:right;color:#334155}
+    .no-print{margin-top:1.5rem;display:flex;gap:8px}
+    button{height:34px;padding:0 18px;border:none;border-radius:9px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .footer{font-size:.6rem;color:#94a3b8;text-align:center;margin-top:1.5rem}
+  </style></head><body>
+  <h1>📊 Historial de Votacións</h1>
+  <div class="sub">CEIP Pío XII · 4º B · Xerado o ${new Date().toLocaleDateString('gl-ES',{day:'2-digit',month:'long',year:'numeric'})}</div>
+  ${historial.map(h=>{
+    const total=h.votos.reduce((a,b)=>a+b,0);
+    const isLikert=h.tipo==='likert';
+    const opcions=isLikert?LIKERT_CONFIG.map(l=>l.emoji+' '+l.label):h.opcions;
+    return `<div class="card">
+      <div class="q">${h.texto}</div>
+      <div class="meta">${h.ts} · ${total} votos · ${h.tipo}</div>
+      ${(opcions||[]).map((op,i)=>{
+        const v=h.votos[i]||0;
+        const pct=total?Math.round(v/total*100):0;
+        const col=isLikert?LIKERT_CONFIG[i].color:COLS[i%COLS.length];
+        return `<div class="row">
+          <div class="label">${op}</div>
+          <div class="bar-wrap"><div class="bar" style="width:${pct}%;background:${col}"></div></div>
+          <div class="pct">${v} (${pct}%)</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('')}
+  <div class="footer">© 2026 Montserrat Blanco Vázquez · CC BY-NC-SA 4.0</div>
+  <div class="no-print">
+    <button onclick="window.print()" style="background:#1e293b;color:white">🖨️ Imprimir / PDF</button>
+    <button onclick="window.close()" style="background:#f1f5f9;color:#475569">✕ Pechar</button>
+  </div>
+  <div class="section" id="sec-analise" style="padding:16px 20px">
+  <div id="analise-content"></div>
+</div>
+</body></html>`;
+  const w=window.open('','_blank','width=860,height=700');
+  if(!w){const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(html);a.download='votacions.html';a.click();return;}
+  w.document.write(html);w.document.close();
+}
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AUTOGUARDADO — AVISO DE SAÍDA E GARDADO PERIÓDICO
+// ══════════════════════════════════════════════════════════════════════════════
+let _vaCambiosSinGardar = false;
+
+document.addEventListener('input', (e) => {
+  const modal = e.target.closest('.modal-overlay, .modal, [class*="modal"]');
+  if (!modal) return;
+  _vaCambiosSinGardar = true;
+});
+
+document.addEventListener('click', (e) => {
+  if (e.target.matches('[onclick*="closeModal"],[onclick*="cerrarModal"]')) {
+    _vaCambiosSinGardar = false;
+  }
+});
+
+window.addEventListener('beforeunload', (e) => {
+  saveBanco(); saveHistorial();
+  localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+  if (_vaCambiosSinGardar) {
+    e.preventDefault();
+    e.returnValue = 'Tes cambios sen gardar. Garda antes de saír.';
+  }
+});
+
+setInterval(() => {
+  saveBanco(); saveHistorial();
+  localStorage.setItem('bbdd_last_backup', new Date().toISOString());
+}, 30000);
+
+
+function actualizarBtnAnon() {
+  var btn = document.getElementById('btn-modo-anon');
+  if (!btn) return;
+  if (_modoAnon) {
+    btn.textContent = '\uD83D\uDD12 An\xF3nimo';
+    btn.style.background = 'rgba(251,191,36,.12)';
+    btn.style.borderColor = 'rgba(251,191,36,.35)';
+    btn.style.color = 'var(--gold)';
+  } else {
+    btn.textContent = '\uD83D\uDC64 Nominal';
+    btn.style.background = 'var(--card2)';
+    btn.style.borderColor = 'var(--border2)';
+    btn.style.color = 'var(--muted)';
+  }
+}
+
+function timerFinished() {
+  clearInterval(_timerInt);
+  _timerInt = null;
+  _timerRunning = false;
+  var pb = document.getElementById('timer-play');
+  var sb = document.getElementById('timer-stop');
+  if (pb) { pb.className = 'timer-ctrl play'; pb.innerHTML = '&#x25B6; Iniciar'; }
+  if (sb) sb.style.display = 'none';
+
+  // Beep
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[880, 0], [1100, 200], [880, 400], [1100, 600]].forEach(function(pair) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = pair[0]; g.gain.value = 0.3;
+      o.start(ctx.currentTime + pair[1]/1000);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + pair[1]/1000 + 0.18);
+      o.stop(ctx.currentTime + pair[1]/1000 + 0.18);
+    });
+  } catch(e) {}
+
+  // Flash display red
+  var disp = document.getElementById('timer-display');
+  var fsNum = document.getElementById('fs-timer-num');
+  if (disp) { disp.style.color = 'var(--red)'; disp.textContent = '\u23F1\uFE0F Rematou!'; }
+  if (fsNum) { fsNum.style.color = 'var(--red)'; fsNum.textContent = '\u23F1\uFE0F!'; }
+
+  var fst = document.getElementById('fs-timer');
+  if (fst) fst.classList.remove('show');
+
+  // Auto-close if checked
+  var autoClose = document.getElementById('timer-auto-close');
+  if (autoClose && autoClose.checked) {
+    setTimeout(function() { gardarResultado(); }, 500);
+  }
+
+  setTimeout(function() {
+    _timerLeft = _timerTotal;
+    timerUpdateDisplay();
+  }, 2000);
+}
+
+function timerPlay() {
+  if (!current) { alert('Carga unha pregunta primeiro.'); return; }
+  if (_timerRunning) {
+    // Pause
+    clearInterval(_timerInt);
+    _timerInt = null;
+    _timerRunning = false;
+    var pb = document.getElementById('timer-play');
+    var sb = document.getElementById('timer-stop');
+    if (pb) { pb.className = 'timer-ctrl play'; pb.innerHTML = '&#x25B6; Continuar'; }
+    return;
+  }
+  if (_timerLeft <= 0) {
+    _timerLeft = _timerTotal;
+    timerUpdateDisplay();
+  }
+  _timerRunning = true;
+  var pb = document.getElementById('timer-play');
+  var sb = document.getElementById('timer-stop');
+  if (pb) { pb.className = 'timer-ctrl pause'; pb.innerHTML = '&#x23F8;&#xFE0F; Pausar'; }
+  if (sb) sb.style.display = 'flex';
+
+  // Show FS timer if fullscreen is open
+  var fst = document.getElementById('fs-timer');
+  if (fst && document.getElementById('fs-vot').classList.contains('show')) {
+    fst.classList.add('show');
+  }
+
+  _timerInt = setInterval(function() {
+    _timerLeft--;
+    timerUpdateDisplay();
+    if (_timerLeft <= 0) {
+      timerFinished();
+    }
+  }, 1000);
+}
+
+function timerSetCustom(v) {
+  var n = parseInt(v);
+  if (!n || n < 5 || n > 600) return;
+  timerStop();
+  _timerTotal = n;
+  _timerLeft  = n;
+  [30, 60, 120, 300].forEach(function(p) {
+    var btn = document.getElementById('tp-' + p);
+    if (btn) btn.classList.remove('sel');
+  });
+  timerUpdateDisplay();
+}
+
+function timerSetPreset(s) {
+  timerStop();
+  _timerTotal = s;
+  _timerLeft  = s;
+  // highlight button
+  [30, 60, 120, 300].forEach(function(v) {
+    var btn = document.getElementById('tp-' + v);
+    if (btn) btn.classList.toggle('sel', v === s);
+  });
+  var ci = document.getElementById('tp-custom');
+  if (ci) ci.value = '';
+  timerUpdateDisplay();
+}
+
+function timerStop() {
+  clearInterval(_timerInt);
+  _timerInt = null;
+  _timerRunning = false;
+  _timerLeft = _timerTotal;
+  var pb = document.getElementById('timer-play');
+  var sb = document.getElementById('timer-stop');
+  if (pb) { pb.className = 'timer-ctrl play'; pb.innerHTML = '&#x25B6; Iniciar'; }
+  if (sb) sb.style.display = 'none';
+  var fst = document.getElementById('fs-timer');
+  if (fst) fst.classList.remove('show');
+  timerUpdateDisplay();
+}
+
+function timerUpdateDisplay() {
+  var left = Math.max(0, _timerLeft);
+  var mins = Math.floor(left / 60);
+  var secs = left % 60;
+  var txt = mins + ':' + secs.toString().padStart(2, '0');
+  var pct = _timerTotal > 0 ? (left / _timerTotal * 100) : 100;
+
+  // Color: green > 50%, gold 25-50%, red < 25%
+  var col = pct > 50 ? 'var(--green)' : pct > 25 ? 'var(--gold)' : 'var(--red)';
+
+  var disp = document.getElementById('timer-display');
+  var bar  = document.getElementById('timer-bar');
+  if (disp && _timerLeft >= 0) { disp.textContent = txt; disp.style.color = col; }
+  if (bar)  { bar.style.width = pct + '%'; bar.style.background = col; }
+
+  // FS
+  var fsNum  = document.getElementById('fs-timer-num');
+  var fsFill = document.getElementById('fs-timer-fill');
+  if (fsNum)  { fsNum.textContent = txt; fsNum.style.color = col; }
+  if (fsFill) { fsFill.style.width = pct + '%'; fsFill.style.background = col; }
+}
+
+function toggleModoAnon() {
+  _modoAnon = !_modoAnon;
+  localStorage.setItem('va_modo_anon', _modoAnon ? '1' : '0');
+  actualizarBtnAnon();
+}
+
+
+function renderAnalise(){
+  const el=document.getElementById('analise-content');
+  if(!el||!historial.length){
+    if(el) el.innerHTML='<div style="color:var(--muted);padding:2rem;text-align:center;font-size:.82rem">Sen votaci\xF3ns gardadas para analizar.</div>';
+    return;
+  }
+
+  // Agrupar por pregunta (texto)
+  const byPregunta={};
+  historial.forEach(h=>{
+    const k=h.texto;
+    if(!byPregunta[k]) byPregunta[k]=[];
+    byPregunta[k].push(h);
+  });
+
+  // Tipos de votaci\xF3n
+  const tipos={};
+  historial.forEach(h=>{tipos[h.tipo||'libre']=(tipos[h.tipo||'libre']||0)+1;});
+  const tipoHtml=Object.entries(tipos).map(([t,n])=>`
+    <span style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border2)">
+      ${t} <strong style="color:var(--white)">${n}</strong></span>`).join('');
+
+  // Tendencia comprensión (pregunta "entendestes" ou "comprendestes")
+  const comprPregs=historial.filter(h=>{
+    const t=(h.texto||'').toLowerCase();
+    return t.includes('entend')||t.includes('comprend')||t.includes('claridade');
+  }).sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+
+  const tendenciaHtml=comprPregs.length>=2?(()=>{
+    const W=500,H=120,PAD={t:15,r:20,b:30,l:40};
+    const cW=W-PAD.l-PAD.r,cH=H-PAD.t-PAD.b;
+    const pts=comprPregs.map((h,i)=>{
+      const tot=h.votos.reduce((s,v)=>s+v,0);
+      const si=h.votos[0]||0;
+      return {x:PAD.l+(i/(comprPregs.length-1))*cW,y:PAD.t+cH-(si/(tot||1))*cH,pct:tot?Math.round(si/tot*100):0,txt:h.ts?.split(',')[0]||''};
+    });
+    const path=pts.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const area=`${path} L${pts[pts.length-1].x.toFixed(1)},${H-PAD.b} L${pts[0].x.toFixed(1)},${H-PAD.b} Z`;
+    const dots=pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#22c55e" stroke="var(--card)" stroke-width="2"/>
+      <text x="${p.x.toFixed(1)}" y="${(H-PAD.b+14).toFixed(1)}" text-anchor="middle" font-size="8" fill="rgba(241,245,249,.4)">${p.txt}</text>
+      <text x="${p.x.toFixed(1)}" y="${(p.y-8).toFixed(1)}" text-anchor="middle" font-size="9" fill="#22c55e" font-weight="800">${p.pct}%</text>`).join('');
+    const gridLines=Array.from({length:5},(_,i)=>{const y=PAD.t+(i/4)*cH;const v=100-i*25;
+      return `<line x1="${PAD.l}" y1="${y.toFixed(1)}" x2="${W-PAD.r}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.05)"/>
+        <text x="${PAD.l-5}" y="${y.toFixed(1)}" text-anchor="end" font-size="8" fill="rgba(241,245,249,.3)" dominant-baseline="middle">${v}%</text>`;}).join('');
+    return `<div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
+      <div style="font-size:.72rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">📈 Tendencia comprensión</div>
+      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="'DM Sans',sans-serif" style="max-width:100%">
+        ${gridLines}
+        <path d="${area}" fill="#22c55e" opacity=".08"/>
+        <path d="${path}" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+        ${dots}
+      </svg>
+    </div>`;
+  })():'';
+
+  // Preguntas con menor comprensión
+  const alertasHtml=(()=>{
+    const probs=[];
+    historial.forEach(h=>{
+      const tot=h.votos.reduce((s,v)=>s+v,0);
+      if(!tot) return;
+      // Se "Si" ou primeira opción < 60%
+      const si=h.votos[0]||0;
+      const pctSi=Math.round(si/tot*100);
+      // Ou se "Máis ou menos" > 40%
+      const maisMenos=h.opcins?.[1]||'';
+      const pctMM=h.votos[1]?Math.round(h.votos[1]/tot*100):0;
+      if((pctSi<60&&tot>=3)||(pctMM>40&&tot>=3)){
+        probs.push({texto:h.texto,pctSi,pctMM,tot,ts:h.ts});
+      }
+    });
+    if(!probs.length) return '';
+    return `<div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="font-size:.72rem;font-weight:900;color:#ef4444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">⚠️ Preguntas con baixa comprensión</div>
+      ${probs.slice(0,5).map(p=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(239,68,68,.1)">
+        <div style="font-size:.75rem;flex:1;font-weight:700">${p.texto}</div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:.68rem;color:#ef4444;font-weight:900">${p.pctSi}% Si · ${p.pctMM}% Máis/menos</div>
+          <div style="font-size:.6rem;color:var(--muted)">${p.ts?.split(',')[0]||''} · ${p.tot} votos</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  })();
+
+  // Por pregunta: histograma empilado
+  const preguntasHtml=Object.entries(byPregunta).slice(0,8).map(([texto,hits])=>{
+    const ultima=hits[hits.length-1];
+    const tot=ultima.votos.reduce((s,v)=>s+v,0);
+    const opcions=ultima.opcins||ultima.opcions||[];
+    const COLS=['#22c55e','#ef4444','#f59e0b','#60a5fa','#a78bfa','#2dd4bf'];
+    const barras=opcins.map((op,i)=>{
+      const v=ultima.votos[i]||0;
+      const pct=tot?Math.round(v/tot*100):0;
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:.68rem;min-width:90px;color:var(--muted);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${op}</span>
+        <div style="flex:1;height:16px;background:rgba(255,255,255,.05);border-radius:999px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${COLS[i%COLS.length]};border-radius:999px;transition:width .5s"></div>
+        </div>
+        <span style="font-size:.68rem;font-weight:900;color:${COLS[i%COLS.length]};min-width:40px;text-align:right">${pct}% (${v})</span>
+      </div>`;
+    }).join('');
+    return `<div style="background:var(--card2);border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid var(--border)">
+      <div style="font-size:.78rem;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <span>${texto}</span>
+        <span style="font-size:.6rem;color:var(--muted);white-space:nowrap">${hits.length} vez${hits.length>1?'es':''} · ${tot} votos</span>
+      </div>
+      ${barras}
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem">📊 Análise de votaci\xF3ns</div>
+      <div style="display:flex;gap:6px">${tipoHtml}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px">
+      ${[{v:historial.length,l:'Votaci\xF3ns gardadas'},{v:Object.keys(byPregunta).length,l:'Preguntas \xFAnicas'},{v:comprPregs.length,l:'De comprensión'}].map(x=>`
+        <div style="background:var(--card2);border-radius:12px;padding:10px 14px;border:1px solid var(--border)">
+          <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.5rem;color:var(--gold)">${x.v}</div>
+          <div style="font-size:.62rem;font-weight:800;color:var(--muted);margin-top:2px">${x.l}</div>
+        </div>`).join('')}
+    </div>
+    ${tendenciaHtml}
+    ${alertasHtml}
+    <div style="font-size:.72rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Preguntas recentes</div>
+    ${preguntasHtml}
+  `;
+}
+
+function toggleHistBars(hid){
+  const div = document.getElementById('hbars-'+hid);
+  const btn = document.getElementById('hbtn-'+hid);
+  if(!div) return;
+  const open = div.style.display === 'none' || div.style.display === '';
+  div.style.display = open ? 'block' : 'none';
+  if(btn) btn.innerHTML = open ? '\u25B2 Ocultar' : '\u25BC Ver';
+}
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+
+</script>

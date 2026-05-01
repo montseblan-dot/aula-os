@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Docente</title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<meta name="copyright" content="© 2026 Montserrat Blanco Vázquez. CC BY-NC-SA 4.0"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#080e1a;
+ --surface:#0f1829;
+ --card:#141f33;
+ --card2:#1a2640;
+ --border:rgba(255,255,255,.07);
+ --border2:rgba(255,255,255,.12);
+ --white:#eef2ff;
+ --muted:rgba(238,242,255,.45);
+ --gold:#fbbf24;--green:#22c55e;--red:#ef4444;
+ --blue:#60a5fa;--teal:#2dd4bf;--purple:#a78bfa;
+ --orange:#fb923c;--pink:#f472b6;
+ --accent:#6366f1;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--white);overflow-x:hidden}
+
+/* ── FONDO animado ── */
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-mesh::before{content:'';position:absolute;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.12) 0%,transparent 70%);top:-200px;left:-200px;animation:drift1 18s ease-in-out infinite}
+.bg-mesh::after{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.09) 0%,transparent 70%);bottom:-100px;right:-100px;animation:drift2 22s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,-30px)}}
+
+/* ── LAYOUT ── */
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:1.5rem 1.25rem}
+
+/* ── HEADER ── */
+.hdr{display:flex;align-items:center;gap:16px;margin-bottom:2rem;flex-wrap:wrap}
+.hdr-logo{font-size:2.4rem;line-height:1;filter:drop-shadow(0 0 12px rgba(99,102,241,.6))}
+.hdr-title{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1.5rem,4vw,2.2rem);background:linear-gradient(135deg,var(--white) 0%,var(--blue) 60%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-sub{font-size:.78rem;font-weight:700;color:var(--muted);margin-top:2px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hdr-meteo{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:7px 14px}
+.hdr-meteo-temp{font-family:'DM Serif Display',Georgia,serif;font-size:1.2rem;color:var(--white)}
+.hdr-meteo-desc{font-size:.68rem;font-weight:800;color:var(--muted)}
+.hdr-clock{text-align:right}
+.hdr-date{font-size:.7rem;font-weight:800;color:var(--teal)}
+.hdr-time{font-family:'DM Serif Display',Georgia,serif;font-size:1.6rem;color:var(--white);line-height:1}
+.btn-modo{height:32px;padding:0 13px;font-family:'DM Serif Display',Georgia,serif;font-size:.72rem;border:1.5px solid var(--border2);background:var(--card);color:var(--muted);border-radius:999px;cursor:pointer;transition:all .2s}
+.btn-modo:hover{color:var(--white);border-color:rgba(255,255,255,.25)}
+
+/* ── SECCIÓN APPS ── */
+.section-title{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);margin-bottom:.9rem;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── APPS GRID ── */
+.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:2rem}
+.app-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1.25rem 1.4rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-decoration:none;display:block}
+.app-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:20px}
+.app-card:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.app-card:hover::before{opacity:1}
+.app-card:active{transform:translateY(-1px)}
+.app-icon{font-size:2rem;margin-bottom:.75rem;display:block;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
+.app-name{font-family:'DM Serif Display',Georgia,serif;font-size:1.05rem;color:var(--white);margin-bottom:3px}
+.app-desc{font-size:.7rem;font-weight:700;color:var(--muted);line-height:1.5}
+.app-badge{position:absolute;top:14px;right:14px;font-size:.6rem;font-weight:900;padding:2px 8px;border-radius:999px}
+.app-stats{display:flex;gap:8px;margin-top:.75rem;flex-wrap:wrap}
+.app-stat{font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--muted)}
+.app-arrow{position:absolute;bottom:14px;right:14px;font-size:.9rem;color:var(--muted);transition:all .2s;opacity:0}
+.app-card:hover .app-arrow{opacity:1;transform:translate(2px,-2px)}
+
+/* Cores específicas por app */
+.app-panel::before{background:linear-gradient(135deg,rgba(99,102,241,.08),transparent)}
+.app-panel:hover{border-color:rgba(99,102,241,.4);box-shadow:0 12px 40px rgba(99,102,241,.15)}
+.app-caderno::before{background:linear-gradient(135deg,rgba(251,191,36,.08),transparent)}
+.app-caderno:hover{border-color:rgba(251,191,36,.4);box-shadow:0 12px 40px rgba(251,191,36,.12)}
+.app-coop::before{background:linear-gradient(135deg,rgba(45,212,191,.08),transparent)}
+.app-coop:hover{border-color:rgba(45,212,191,.4);box-shadow:0 12px 40px rgba(45,212,191,.12)}
+.app-roles::before{background:linear-gradient(135deg,rgba(167,139,250,.08),transparent)}
+.app-roles:hover{border-color:rgba(167,139,250,.4);box-shadow:0 12px 40px rgba(167,139,250,.12)}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:2rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.2rem;display:flex;align-items:center;gap:12px}
+.stat-icon{font-size:1.6rem;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+.stat-val{font-family:'DM Serif Display',Georgia,serif;font-size:1.6rem;line-height:1;display:block}
+.stat-lbl{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-top:2px}
+
+/* ── HOXE ── */
+.hoxe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:2rem}
+@media(max-width:560px){.hoxe-grid{grid-template-columns:1fr}}
+.hoxe-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.2rem}
+.hoxe-title{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.6rem;display:flex;align-items:center;gap:6px}
+.bday-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(244,114,182,.12);border:1px solid rgba(244,114,182,.25);font-size:.72rem;font-weight:800;color:var(--pink);margin:2px}
+.asist-bar{height:8px;border-radius:999px;background:var(--card2);overflow:hidden;display:flex;margin-top:6px}
+.asist-bar-p{background:var(--green);transition:width .6s ease;border-radius:999px 0 0 999px}
+.asist-bar-a{background:var(--red);transition:width .6s ease}
+.horario-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:.7rem;font-weight:800;margin:2px;border:1.5px solid transparent}
+.horario-chip.activa{border-color:var(--gold);background:rgba(251,191,36,.1);animation:pulse-gold 2s infinite}
+@keyframes pulse-gold{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.3)}50%{box-shadow:0 0 0 4px rgba(251,191,36,0)}}
+
+/* ── PIÉ ── */
+.footer{text-align:center;font-size:.58rem;color:var(--muted);padding:1.5rem 0 .5rem;border-top:1px solid var(--border)}
+.footer a{color:var(--gold);text-decoration:none}
+
+/* ── MODO CLARO ── */
+body.claro{--bg:#f0f4ff;--surface:#e8edf8;--card:#ffffff;--card2:#f5f7ff;--border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.14);--white:#0f172a;--muted:rgba(15,23,42,.5)}
+body.claro .bg-mesh::before{background:radial-gradient(circle,rgba(99,102,241,.06) 0%,transparent 70%)}
+body.claro .bg-mesh::after{background:radial-gradient(circle,rgba(45,212,191,.05) 0%,transparent 70%)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){.apps-grid{grid-template-columns:1fr 1fr}.hdr{gap:10px}}
+@media(max-width:400px){.apps-grid{grid-template-columns:1fr}}
+
+/* ── ANIMACIÓNS ENTRADA ── */
+.fade-in{animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}
+.d4{animation-delay:.2s}.d5{animation-delay:.25s}.d6{animation-delay:.3s}
+.d7{animation-delay:.35s}.d8{animation-delay:.4s}.d9{animation-delay:.45s}.d10{animation-delay:.5s}.d11{animation-delay:.55s}.d12{animation-delay:.6s}.d13{animation-delay:.65s}.d14{animation-delay:.7s}.d15{animation-delay:.75s}.d16{animation-delay:.8s}.d17{animation-delay:.85s}.d18{animation-delay:.9s}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="wrap">
+
+ <!-- HEADER -->
+ <div class="hdr fade-in">
+  <div class="hdr-logo">🏫</div>
+  <div>
+   <div class="hdr-title">Portal Docente</div>
+   <div class="hdr-sub" id="hdr-docente-info" style="display:none"></div>
+  </div>
+  <div id="notif-bell" style="position:relative;cursor:pointer;margin-right:4px" onclick="verNotificacions()" title="Alertas do sistema">
+    <span style="font-size:1.2rem">🔔</span>
+    <span id="notif-count" style="position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:.5rem;font-weight:900;padding:1px 4px;border-radius:999px;display:none">0</span>
+  </div>
+  <div class="hdr-right">
+   <!-- Meteo -->
+   <div class="hdr-meteo" id="portal-meteo">
+    <span id="pm-icon" style="font-size:1.4rem">⏳</span>
+    <div>
+     <div class="hdr-meteo-temp"><span id="pm-temp">—</span>°C</div>
+     <div class="hdr-meteo-desc" id="pm-desc">Cargando…</div>
+    </div>
+   </div>
+   <!-- Modo claro -->
+   <button class="btn-modo" onclick="abrirConfig()" title="Configuración docente" style="background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.25);color:var(--gold)">⚙️ Config</button>
+   <button class="btn-modo" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
+   <!-- Reloxo -->
+   <div class="hdr-clock">
+    <div class="hdr-date" id="portal-date"></div>
+    <div class="hdr-time" id="portal-time"></div>
+   </div>
+  </div>
+ </div>
+
+ <!-- APPS -->
+ <div class="section-title fade-in d1">🚀 Aplicacións</div>
+ <div class="apps-grid">
+
+  <a class="app-card app-panel fade-in d1" href="panel_clase.html" target="_blank">
+   <span class="app-icon">🏠</span>
+   <div class="app-name">Panel de Clase</div>
+   <div class="app-desc">Asistencia, horario, axenda, ferramentas de aula e widgets diarios</div>
+   <div class="app-stats" id="portal-panel-stats"></div>
+   <div class="app-badge" style="background:rgba(99,102,241,.2);color:#818cf8">Principal</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card app-caderno fade-in d2" href="caderno_docente.html" target="_blank">
+   <span class="app-icon">📒</span>
+   <div class="app-name">Caderno Docente</div>
+   <div class="app-desc">Rexistro de notas, semáforo de avaliación, evolución e informes PDF</div>
+   <div class="app-stats" id="portal-caderno-stats"></div>
+   <div id="portal-ud-progress" style="margin-top:8px;display:none"></div>
+   <div id="portal-proximas-uds" style="margin-top:6px;display:none"></div>
+   <div class="app-badge" style="background:rgba(251,191,36,.15);color:var(--gold)">Avaliación</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card app-coop fade-in d3" href="xestor_cooperativo.html" target="_blank">
+   <span class="app-icon">🤝</span>
+   <div class="app-name">Xestor Cooperativo</div>
+   <div class="app-desc">Grupos, roles, rotacións, rúbricas e seguimento do traballo cooperativo</div>
+   <div class="app-stats" id="portal-coop-stats"></div>
+   <div class="app-badge" style="background:rgba(45,212,191,.15);color:var(--teal)">Cooperativo</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card fade-in d4" href="titoria.html" target="_blank" style="--hover-col:rgba(244,114,182,.4);--hover-shadow:rgba(244,114,182,.12)">
+   <span class="app-icon">👨‍👩‍👧</span>
+   <div class="app-name">Titoría con Familias</div>
+   <div class="app-desc">Reunións, citas, comunicacións e informes para as familias do alumnado</div>
+   <div class="app-stats" id="portal-tit-stats"></div>
+   <div class="app-badge" style="background:rgba(244,114,182,.15);color:var(--pink)">Titoría</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card fade-in d5" href="xestor_bbdd.html" target="_blank" style="--hover-col:rgba(20,184,166,.4);--hover-shadow:rgba(20,184,166,.12)">
+   <span class="app-icon">🗄️</span>
+   <div class="app-name">Xestor de Base de Datos</div>
+   <div class="app-desc">Copia de seguridade, restauración e comprobación de integridade de todos os datos docentes</div>
+   <div class="app-badge" style="background:rgba(20,184,166,.15);color:var(--teal)">Backup</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card fade-in d6" href="votacion_aula.html" target="_blank" style="--hover-col:rgba(251,191,36,.4);--hover-shadow:rgba(251,191,36,.12)">
+   <span class="app-icon">🗳️</span>
+   <div class="app-name">Votacións de Aula</div>
+   <div class="app-desc">Preguntas de opción múltiple, escala Likert e banco de preguntas para votacións en tempo real</div>
+   <div class="app-stats">
+    <span class="app-stat" id="portal-vot-banco">— no banco</span>
+    <span class="app-stat" id="portal-vot-hist">— gardadas</span>
+   </div>
+   <div class="app-badge" style="background:rgba(251,191,36,.15);color:var(--gold)">Votacións</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card fade-in d7" href="problema_do_dia.html" target="_blank" style="--hover-col:rgba(34,197,94,.4);--hover-shadow:rgba(34,197,94,.12)">
+   <span class="app-icon">🧮</span>
+   <div class="app-name">Problema do Día</div>
+   <div class="app-desc">Banco de problemas matemáticos de 4º Primaria con 7 tipos, 3 niveis de dificultade e racha diaria</div>
+   <div class="app-stats">
+    <span class="app-stat" id="portal-prob-racha">🔥 — días de racha</span>
+    <span class="app-stat" id="portal-prob-hist">— resoltos</span>
+   </div>
+   <div class="app-badge" style="background:rgba(34,197,94,.15);color:var(--green)">Matemáticas</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card fade-in d8" href="sistema_puntos.html" target="_blank" style="--hover-col:rgba(251,191,36,.4);--hover-shadow:rgba(251,191,36,.15)">
+   <span class="app-icon">⭐</span>
+   <div class="app-name">Sistema de Puntos</div>
+   <div class="app-desc">Puntos individuais e por equipos cooperativos, rachas, historial de eventos e ranking da clase</div>
+   <div class="app-stats">
+    <span class="app-stat" id="portal-sp-lider">⭐ — líder</span>
+    <span class="app-stat" id="portal-sp-total">— eventos</span>
+   </div>
+   <div class="app-badge" style="background:rgba(251,191,36,.15);color:var(--gold)">Gamificación</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card fade-in d9" href="obradoiro_expresion.html" target="_blank" style="--hover-col:rgba(167,139,250,.4);--hover-shadow:rgba(167,139,250,.12)">
+   <span class="app-icon">✍️</span>
+   <div class="app-name">Obradoiro de Expresión</div>
+   <div class="app-desc">Tarxetas de frase, guía de exposición oral, xerador de prompts e rúbrica de expresión escrita</div>
+   <div class="app-badge" style="background:rgba(167,139,250,.15);color:var(--purple)">Lingua</div>
+   <span class="app-arrow">↗</span>
+  </a>
+
+  <a class="app-card fade-in d10" href="obradoiro_problemas.html" target="_blank" style="--hover-col:rgba(45,212,191,.4);--hover-shadow:rgba(45,212,191,.12)">
+   <span class="app-icon">🔢</span>
+   <div class="app-name">Obradoiro de Problemas</div>
+   <div class="app-desc">Resolución guiada paso a paso: comprensión, datos, pregunta, operación, cálculo e verificación</div>
+   <div class="app-badge" style="background:rgba(45,212,191,.15);color:var(--teal)">Matemáticas</div>
+   <span class="app-arrow">↗</span>
+  </a>
+  <a class="app-card fade-in d11" href="temporizador_aula.html" target="_blank" style="--hover-col:rgba(251,191,36,.4);--hover-shadow:rgba(251,191,36,.12)">
+   <div class="app-icon">⏱️</div>
+   <div class="app-name">Temporizador</div>
+   <div class="app-desc">Simple, Pomodoro, Exame e Semáforo</div>
+   <div class="app-stats">
+    <span class="app-stat">🆕 Novo</span>
+   </div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d12" href="medidor_ruido.html" target="_blank" style="--hover-col:rgba(45,212,191,.4);--hover-shadow:rgba(45,212,191,.12)">
+   <div class="app-icon">🔊</div>
+   <div class="app-name">Medidor de Ruído</div>
+   <div class="app-desc">Semáforo, rexistro e responsables</div>
+   <div class="app-stats">
+    <span class="app-stat">🆕 Novo</span>
+   </div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d13" href="control_saidas.html" target="_blank" style="--hover-col:rgba(251,146,60,.4);--hover-shadow:rgba(251,146,60,.12)">
+   <div class="app-icon">🚪</div>
+   <div class="app-name">Control de Saídas</div>
+   <div class="app-desc">Baño, enfermería, cronómetro e alertas</div>
+   <div class="app-stats">
+    <span class="app-stat">🆕 Novo</span>
+   </div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d14" href="avaliacion_oral.html" target="_blank" style="--hover-col:rgba(239,68,68,.4);--hover-shadow:rgba(239,68,68,.12)">
+   <div class="app-icon">🎤</div>
+   <div class="app-name">Avaliación Oral</div>
+   <div class="app-desc">Rúbrica táctil · Proxector · Caderno</div>
+   <div class="app-stats"><span class="app-stat">📋 Rúbrica</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d15" href="carnes_lectores.html" target="_blank" style="--hover-col:rgba(132,204,22,.4);--hover-shadow:rgba(132,204,22,.12)">
+   <div class="app-icon">📚</div>
+   <div class="app-name">Carnés Lectores</div>
+   <div class="app-desc">Lecturas · Valoracións · PDF</div>
+   <div class="app-stats" id="portal-cl-stats"></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in" href="lectura_velocidade.html" target="_blank" style="--hover-col:rgba(96,165,250,.4);--hover-shadow:rgba(96,165,250,.12)">
+   <div class="app-icon">📖</div>
+   <div class="app-name">Lectura Velocidade</div>
+   <div class="app-desc">Velocidade · Comprensión · Rúbrica</div>
+   <div class="app-stats" id="portal-lv-stats"></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d16" href="control_deberes.html" target="_blank" style="--hover-col:rgba(251,191,36,.4);--hover-shadow:rgba(251,191,36,.12)">
+   <div class="app-icon">📝</div>
+   <div class="app-name">Control de Deberes</div>
+   <div class="app-desc">Entregas · Alertas · Caderno</div>
+   <div class="app-stats" id="portal-cd-stats"></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d17" href="autoavaliacion_alumnado.html" target="_blank" style="--hover-col:rgba(167,139,250,.4);--hover-shadow:rgba(167,139,250,.12)">
+   <div class="app-icon">🪞</div>
+   <div class="app-name">Autoavaliación</div>
+   <div class="app-desc">Autopercepción · Comparativa</div>
+   <div class="app-stats" id="portal-aa-stats"></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d18" href="informe_individual.html" target="_blank" style="--hover-col:rgba(45,212,191,.4);--hover-shadow:rgba(45,212,191,.12)">
+   <div class="app-icon">📋</div>
+   <div class="app-name">Informe Individual</div>
+   <div class="app-desc">Datos completos · 14 bloques · PDF</div>
+   <div class="app-stats"><span class="app-stat">📊 Todos os módulos</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d19" href="plano_aula.html" target="_blank" style="--hover-col:rgba(96,165,250,.4);--hover-shadow:rgba(96,165,250,.12)">
+   <div class="app-icon">🗺️</div>
+   <div class="app-name">Plano de Aula</div>
+   <div class="app-desc">Distribución de mesas · Info rápida · Varios planos</div>
+   <div class="app-stats"><span class="app-stat">🪑 Drag &amp; drop</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d20" href="caderno_tarefas.html" target="_blank" style="--hover-col:rgba(245,158,11,.4);--hover-shadow:rgba(245,158,11,.12)">
+   <div class="app-icon">📋</div>
+   <div class="app-name">Caderno de Tarefas</div>
+   <div class="app-desc">Pendentes persoais · Categorías · Prioridades · Datas límite</div>
+   <div class="app-stats" id="portal-ct-stats"><span class="app-stat">✅ Xestión persoal</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d21" href="xerador_documentos.html" target="_blank" style="--hover-col:rgba(45,212,191,.4);--hover-shadow:rgba(45,212,191,.12)">
+   <div class="app-icon">📄</div>
+   <div class="app-name">Xerador de Documentos</div>
+   <div class="app-desc">Actas · Autorizacións · Comunicados · Partes · Certificados</div>
+   <div class="app-stats"><span class="app-stat">📝 8 modelos oficiais</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d22" href="diario_aula.html" target="_blank" style="--hover-col:rgba(96,165,250,.4);--hover-shadow:rgba(96,165,250,.12)">
+   <div class="app-icon">📓</div>
+   <div class="app-name">Diario de Aula</div>
+   <div class="app-desc">Rexistro diario por sesión · Calendario · Vista semana/mes</div>
+   <div class="app-stats"><span class="app-stat">📅 Historial completo</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d23" href="coevaluacion.html" target="_blank" style="--hover-col:rgba(167,139,250,.4);--hover-shadow:rgba(167,139,250,.12)">
+   <div class="app-icon">👥</div>
+   <div class="app-name">Coevaluación</div>
+   <div class="app-desc">Avaliación entre iguais · Grupos · Resultados · Envío ao Caderno</div>
+   <div class="app-stats"><span class="app-stat">🤝 Peer assessment</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in d24" href="obxectivos_rubricas.html" target="_blank" style="--hover-col:rgba(34,197,94,.4);--hover-shadow:rgba(34,197,94,.12)">
+   <div class="app-icon">🎯</div>
+   <div class="app-name">Obxectivos e Rúbricas</div>
+   <div class="app-desc">Obxectivos persoais por trimestre · Rúbricas reutilizables</div>
+   <div class="app-stats"><span class="app-stat">📋 Seguimento individual</span></div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in" href="dashboard_semaforo.html" target="_blank" style="--hover-col:rgba(239,68,68,.4);--hover-shadow:rgba(239,68,68,.12)">
+    <div class="app-icon" style="background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(249,115,22,.1));border:1.5px solid rgba(239,68,68,.25)">🚦</div>
+    <div class="app-name">Dashboard Semáforo</div>
+    <div class="app-desc">Vista global da clase con indicadores de risco</div>
+  </a>
+  <a class="app-card fade-in" href="evolucion_alumno.html" target="_blank" style="--hover-col:rgba(96,165,250,.4);--hover-shadow:rgba(96,165,250,.12)">
+    <div class="app-icon" style="background:linear-gradient(135deg,rgba(96,165,250,.15),rgba(167,139,250,.1));border:1.5px solid rgba(96,165,250,.25)">📈</div>
+    <div class="app-name">Evolución do Alumno/a</div>
+    <div class="app-desc">Gráfica temporal de notas, asistencia e puntos</div>
+  </a>
+  <a class="app-card fade-in" href="competencias_lomloe.html" target="_blank" style="--hover-col:rgba(20,184,166,.4);--hover-shadow:rgba(20,184,166,.12)">
+    <div class="app-icon" style="background:linear-gradient(135deg,rgba(20,184,166,.15),rgba(99,102,241,.1));border:1.5px solid rgba(20,184,166,.25)">🎓</div>
+    <div class="app-name">Competencias LOMLOE</div>
+    <div class="app-desc">Avaliación das 8 competencias clave con radar</div>
+  </a>
+  <a class="app-card fade-in" href="importador_programacion.html" target="_blank" style="--hover-col:rgba(251,191,36,.4);--hover-shadow:rgba(251,191,36,.12)">
+    <div class="app-icon" style="background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(249,115,22,.1));border:1.5px solid rgba(251,191,36,.25)">📥</div>
+    <div class="app-name">Importar Programación</div>
+    <div class="app-desc">Carga PDFs de programacións didácticas LOMLOE</div>
+  </a>
+
+  <!-- NOVOS MÓDULOS -->
+  <a class="app-card fade-in" href="diario_reflexion_docente.html" target="_blank" style="--hover-col:rgba(251,191,36,.4);--hover-shadow:rgba(251,191,36,.12)">
+   <div class="app-icon" style="background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(245,158,11,.1));border:1.5px solid rgba(251,191,36,.25)">📔</div>
+   <div class="app-name">Diario de Reflexión</div>
+   <div class="app-desc">Seguimento de UDs · Grao de cumprimento · Propostas de mellora</div>
+   <div class="app-badge" style="background:rgba(251,191,36,.15);color:var(--gold)">Novo</div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in" href="planificador_semanal.html" target="_blank" style="--hover-col:rgba(99,102,241,.4);--hover-shadow:rgba(99,102,241,.12)">
+   <div class="app-icon" style="background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(129,140,248,.1));border:1.5px solid rgba(99,102,241,.25)">📅</div>
+   <div class="app-name">Planificador Semanal</div>
+   <div class="app-desc">Vista semanal por materia e UD · Planificado vs realizado</div>
+   <div class="app-badge" style="background:rgba(129,140,248,.15);color:var(--indigo)">Novo</div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in" href="panel_titoria_grupal.html" target="_blank" style="--hover-col:rgba(52,211,153,.4);--hover-shadow:rgba(52,211,153,.12)">
+   <div class="app-icon" style="background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(16,185,129,.1));border:1.5px solid rgba(52,211,153,.25)">👨‍👩‍👧</div>
+   <div class="app-name">Panel de Titoría</div>
+   <div class="app-desc">Resumo para reunións con familias · Imprimible</div>
+   <div class="app-badge" style="background:rgba(52,211,153,.15);color:var(--green)">Novo</div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in" href="medidas_apoio.html" target="_blank" style="--hover-col:rgba(52,211,153,.4);--hover-shadow:rgba(52,211,153,.12)">
+   <div class="app-icon">🧩</div>
+   <div class="app-info">
+    <div class="app-name">Medidas de Apoio</div>
+    <div class="app-desc">R.E. · E.C. · A.C. · Seguimento</div>
+    <div class="app-stats"><span class="app-stat" id="act-medidas_apoio">—</span></div>
+   </div>
+  </a>
+  <a class="app-card fade-in" href="xestor_adaptacions.html" target="_blank" style="--hover-col:rgba(248,113,113,.4);--hover-shadow:rgba(248,113,113,.12)">
+   <div class="app-icon" style="background:linear-gradient(135deg,rgba(248,113,113,.15),rgba(239,68,68,.1));border:1.5px solid rgba(248,113,113,.25)">📋</div>
+   <div class="app-name">Adaptacións Curriculares</div>
+   <div class="app-desc">ACI/ACS · Obxectivos adaptados por UD · Seguimento</div>
+   <div class="app-badge" style="background:rgba(248,113,113,.12);color:var(--red)">Novo</div>
+   <div class="app-arrow">↗</div>
+  </a>
+  <a class="app-card fade-in" href="xerador_exames.html" target="_blank" style="--hover-col:rgba(192,132,252,.4);--hover-shadow:rgba(192,132,252,.12)">
+   <div class="app-icon" style="background:linear-gradient(135deg,rgba(192,132,252,.15),rgba(167,139,250,.1));border:1.5px solid rgba(192,132,252,.25)">📝</div>
+   <div class="app-name">Xerador de Exames</div>
+   <div class="app-desc">Preguntas por UD e competencia · Niveis · PDF</div>
+   <div class="app-badge" style="background:rgba(192,132,252,.15);color:var(--purple)">Novo</div>
+   <div class="app-arrow">↗</div>
+  </a>
+
+ </div>
+
+ <!-- DATOS EN TEMPO REAL -->
+ <!-- ACCESOS RÁPIDOS -->
+ <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+   <div class="section-title fade-in" style="margin-bottom:0">⚡ Accesos rápidos</div>
+   <button onclick="editarAccesosRapidos()" style="height:22px;padding:0 9px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.6rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif">✏️ Editar</button>
+ </div>
+ <div id="accesos-rapidos-grid" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem"></div>
+
+ <!-- CONSELLO DO DÍA -->
+ <div id="consello-widget" style="background:linear-gradient(135deg,rgba(129,140,248,.08),rgba(192,132,252,.05));border:1px solid rgba(129,140,248,.2);border-radius:14px;padding:14px 20px;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:12px">
+  <span style="font-size:1.6rem;flex-shrink:0">💡</span>
+  <div>
+    <div style="font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(129,140,248,.6);margin-bottom:5px">Consello do día</div>
+    <div id="consello-txt" style="font-size:.82rem;font-weight:700;color:var(--white);line-height:1.5">—</div>
+  </div>
+ </div>
+
+ <!-- WIDGET METEOROLOXÍA -->
+ <div id="meteo-widget" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 18px;margin-bottom:1.5rem;display:flex;align-items:center;gap:14px;cursor:pointer" onclick="fetchMeteo()" title="Actualizar meteoroloxía">
+  <div id="meteo-icon" style="font-size:2rem">🌤️</div>
+  <div style="flex:1">
+    <div id="meteo-temp" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;color:var(--white)">—</div>
+    <div id="meteo-desc" style="font-size:.68rem;color:var(--muted);font-weight:700">Santiago de Compostela · Cargando...</div>
+  </div>
+  <div style="text-align:right">
+    <div id="meteo-hum" style="font-size:.68rem;color:var(--muted)">—</div>
+    <div id="meteo-vento" style="font-size:.68rem;color:var(--muted)">—</div>
+    <div id="meteo-updated" style="font-size:.58rem;color:var(--muted);margin-top:3px">—</div>
+  </div>
+ </div>
+
+ <!-- WIDGET EVENTOS PRÓXIMOS -->
+ <div id="eventos-widget" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 18px;margin-bottom:1.5rem">
+  <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">📅 Eventos próximos (7 días)</div>
+  <div id="eventos-list"><div style="color:var(--muted);font-size:.72rem">Cargando...</div></div>
+ </div>
+
+ <!-- CONSELLO DO DÍA -->
+ <div id="consello-widget" style="background:linear-gradient(135deg,rgba(129,140,248,.08),rgba(192,132,252,.06));border:1px solid rgba(129,140,248,.2);border-radius:14px;padding:14px 20px;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:12px">
+  <div style="font-size:1.6rem;flex-shrink:0">💡</div>
+  <div>
+   <div style="font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(129,140,248,.6);margin-bottom:5px">Consello pedagóxico do día</div>
+   <div id="consello-txt" style="font-size:.82rem;font-weight:700;color:var(--white);line-height:1.6;font-style:italic">Cargando...</div>
+  </div>
+ </div>
+
+ <div class="section-title fade-in d2">📊 Estado actual</div>
+ <div class="stats-grid fade-in d3" id="portal-stats-grid">
+  <div class="stat-card">
+   <span class="stat-icon">✅</span>
+   <div><span class="stat-val" id="st-presentes" style="color:var(--green)">—</span><span class="stat-lbl">Presentes hoxe</span></div>
+  </div>
+  <div class="stat-card">
+   <span class="stat-icon">📝</span>
+   <div><span class="stat-val" id="st-notas" style="color:var(--gold)">—</span><span class="stat-lbl">Notas rexistradas</span></div>
+  </div>
+  <div class="stat-card">
+   <span class="stat-icon">🎂</span>
+   <div><span class="stat-val" id="st-bday" style="color:var(--pink)">—</span><span class="stat-lbl">Aniversarios hoxe</span></div>
+  </div>
+  <div class="stat-card">
+   <span class="stat-icon">📋</span>
+   <div><span class="stat-val" id="st-incid" style="color:var(--orange)">—</span><span class="stat-lbl">Incidencias rexistradas</span></div>
+  </div>
+  <div class="stat-card">
+   <span class="stat-icon">🗳️</span>
+   <div><span class="stat-val" id="st-votac" style="color:var(--gold)">—</span><span class="stat-lbl">Votacións gardadas</span></div>
+  </div>
+  <div class="stat-card">
+   <span class="stat-icon">🔥</span>
+   <div><span class="stat-val" id="st-racha" style="color:var(--orange)">—</span><span class="stat-lbl">Racha problemas</span></div>
+  </div>
+  <div class="stat-card">
+   <span class="stat-icon">⭐</span>
+   <div><span class="stat-val" id="st-puntos-top" style="color:var(--gold)">—</span><span class="stat-lbl">Top puntos hoxe</span></div>
+  </div>
+ </div>
+
+ <!-- HOXE -->
+ <div class="section-title fade-in d4">📅 Hoxe</div>
+ <div class="hoxe-grid fade-in d5">
+
+  <div class="hoxe-card">
+   <div class="hoxe-title">⏱️ Sesión actual / seguinte</div>
+   <div id="portal-sesion">—</div>
+  </div>
+
+  <div class="hoxe-card">
+   <div class="hoxe-title">🎂 Aniversarios este mes</div>
+   <div id="portal-bdaylist">—</div>
+  </div>
+
+  <div class="hoxe-card">
+   <div class="hoxe-title">✅ Asistencia de hoxe</div>
+   <div id="portal-asist">—</div>
+  </div>
+
+  <div class="hoxe-card">
+   <div class="hoxe-title">📋 Incidencias recentes</div>
+   <div id="portal-incid">—</div>
+  </div>
+
+  <div class="hoxe-card">
+   <div class="hoxe-title">🗳️ Última votación</div>
+   <div id="portal-votac">—</div>
+  </div>
+
+  <div class="hoxe-card">
+   <div class="hoxe-title">🧮 Problema do día</div>
+   <div id="portal-problema">—</div>
+  </div>
+
+  <div class="hoxe-card">
+   <div class="hoxe-title">⭐ Ranking de puntos</div>
+   <div id="portal-puntos">—</div>
+  </div>
+
+  <!-- ALERTAS PREDITIVAS -->
+  <div class="hoxe-card" style="grid-column:1/-1;border-left:3px solid var(--red,#ef4444)">
+   <div class="hoxe-title" style="color:var(--red,#ef4444)">🔔 Alertas e pendentes</div>
+   <div id="portal-alertas" style="font-size:.78rem">Cargando...</div>
+  </div>
+
+  <!-- ÍNDICE DE RISCO -->
+  <div class="hoxe-card" style="grid-column:1/-1">
+   <div class="hoxe-title" style="color:var(--gold,#f59e0b)">⚠️ Alumnado en seguimento</div>
+   <div id="portal-risco" style="font-size:.78rem;color:var(--muted)">Cargando...</div>
+  </div>
+
+ </div>
+
+ <!-- PIÉ -->
+ <div class="footer fade-in d6">
+  <div style="text-align:center;font-size:.72rem;color:var(--muted);font-weight:700;padding:.5rem 0">© 2026 Montserrat Blanco Vázquez · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.gl" target="_blank" style="color:var(--muted);text-decoration:none">CC BY-NC-SA 4.0</a></div>
+ </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── RELOXO ────────────────────────────────────────────────────────────────────
+const GL_DAYS   = ['Domingo','Luns','Martes','Mércores','Xoves','Venres','Sábado'];
+const GL_MONTHS = ['xaneiro','febreiro','marzo','abril','maio','xuño','xullo','agosto','setembro','outubro','novembro','decembro'];
+function tick(){
+ const n=new Date();
+ const d=document.getElementById('portal-date');
+ const t=document.getElementById('portal-time');
+ if(d) d.textContent=GL_DAYS[n.getDay()]+', '+n.getDate()+' de '+GL_MONTHS[n.getMonth()];
+ if(t) t.textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+}
+setInterval(tick,1000); tick();
+
+// ── MODO CLARO/ESCURO ─────────────────────────────────────────────────────────
+function toggleModo(){
+ const actual=localStorage.getItem('portal_modo')||'escuro';
+ const novo=actual==='escuro'?'claro':'escuro';
+ aplicarModo(novo);
+}
+function aplicarModo(modo){
+ document.body.classList.toggle('claro',modo==='claro');
+ const btn=document.getElementById('btn-modo');
+ if(btn) btn.textContent=modo==='claro'?'🌙 Escuro':'☀️ Claro';
+ localStorage.setItem('portal_modo',modo);
+}
+aplicarModo(localStorage.getItem('portal_modo')||'escuro');
+
+// ── METEO ─────────────────────────────────────────────────────────────────────
+const WMO={0:'☀️:Despexado',1:'🌤️:Pouco nubrado',2:'⛅:Parcialmente nubrado',3:'☁️:Nubrado',
+ 45:'🌫️:Néboa',48:'🌫️:Néboa xeada',51:'🌦️:Orballo leve',53:'🌦️:Orballo',55:'🌦️:Orballo intenso',
+ 61:'🌧️:Choiva leve',63:'🌧️:Choiva',65:'🌧️:Choiva intensa',71:'🌨️:Nevada leve',73:'🌨️:Nevada',
+ 80:'🌦️:Chuviscos',81:'🌧️:Chuviscos mod.',82:'⛈️:Chuviscos fortes',95:'⛈️:Treboada',99:'⛈️:Treboada forte'};
+async function fetchMeteo(){
+ // Mostrar estimación inmediatamente (sen esperar á API)
+ const mes=new Date().getMonth();
+ const tempsEst=[10,11,13,14,17,20,22,22,19,16,12,10];
+ const codesEst=[61,61,51,2,1,1,0,0,2,61,61,61];
+ renderMeteo({current:{temperature_2m:tempsEst[mes],weather_code:codesEst[mes],relativehumidity_2m:75,windspeed_10m:15}});
+
+ // Logo tentar API en segundo plano
+ try{
+  const cache=JSON.parse(localStorage.getItem('portal_meteo_cache')||'null');
+  if(cache&&cache.ts&&Date.now()-cache.ts<30*60*1000){renderMeteo(cache.data||cache);return;}
+  const ctrl=new AbortController();
+  setTimeout(()=>ctrl.abort(),6000);
+  const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=42.8782&longitude=-8.5448&current=temperature_2m,weather_code,weathercode,relativehumidity_2m,windspeed_10m&timezone=Europe%2FMadrid',{signal:ctrl.signal});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const data=await r.json();
+  if(data.current) data.current.weather_code=data.current.weather_code??data.current.weathercode??1;
+  localStorage.setItem('portal_meteo_cache',JSON.stringify({data,ts:Date.now()}));
+  renderMeteo(data);
+ }catch{
+  // Sen conexión: manter estimación, marcar como tal
+  const pm=document.getElementById('pm-desc');
+  if(pm&&!pm.textContent.includes('est.')) pm.textContent+=' (est.)';
+ }
+}
+
+
+function renderMeteo(data){
+ // Normalizar: acepta {current:{...}}, {data:{current:{...}},ts:N}, ou {temp:N,code:N,...}
+ let c={};
+ if(data&&data.current) c=data.current;
+ else if(data&&data.data&&data.data.current) c=data.data.current;
+ else if(data&&data.temp!==undefined) c={temperature_2m:data.temp,weather_code:data.code||1};
+ const temp=c.temperature_2m??c.temp;
+ const code=c.weather_code??c.weathercode??c.code??1;
+ const wmo=(WMO[code]||'🌡️:—').split(':');
+ const el=id=>document.getElementById(id);
+ if(el('pm-icon'))  el('pm-icon').textContent=wmo[0];
+ if(el('pm-temp'))  el('pm-temp').textContent=temp!==undefined&&temp!==null?Math.round(temp):'—';
+ if(el('pm-desc'))  el('pm-desc').textContent=wmo[1]||'—';
+ if(el('meteo-temp'))  el('meteo-temp').textContent=temp!==undefined&&temp!==null?Math.round(temp)+'°C':'—';
+ if(el('meteo-desc'))  el('meteo-desc').textContent='Santiago de Compostela · '+(wmo[1]||'—');
+ if(el('meteo-icon'))  el('meteo-icon').textContent=wmo[0];
+ if(el('meteo-hum')&&c.relativehumidity_2m!==undefined)  el('meteo-hum').textContent='💧 Humidade: '+c.relativehumidity_2m+'%';
+ if(el('meteo-vento')&&c.windspeed_10m!==undefined)  el('meteo-vento').textContent='💨 Vento: '+Math.round(c.windspeed_10m)+' km/h';
+}
+fetchMeteo();
+
+// ── LS HELPER ─────────────────────────────────────────────────────────────────
+function ls(k,d){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}}
+
+// ── CONFIGURACIÓN DOCENTE ─────────────────────────────────────────────────────
+function getConf(){return ls('sn3_config',{});}
+function saveConf(obj){try{const c=getConf();Object.assign(c,obj);localStorage.setItem('sn3_config',JSON.stringify(c));}catch{}}
+
+function aplicarInfoDocente(){
+  const c=getConf();
+  const parts=[];
+  if(c.docente) parts.push(c.docente);
+  if(c.grupo) parts.push(c.grupo);
+  if(c.curso) parts.push(c.curso);
+  const el=document.getElementById('hdr-docente-info');
+  if(el){if(parts.length){el.textContent=parts.join(' · ');el.style.display='block';}else{el.style.display='none';}}
+}
+
+function abrirConfig(){
+  const c=getConf();
+  const overlay=document.createElement('div');
+  overlay.id='conf-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  overlay.innerHTML=`
+    <div style="background:var(--card);border-radius:20px;padding:1.75rem;max-width:420px;width:100%;border:1px solid var(--border2)">
+      <h3 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold);margin-bottom:1.25rem">⚙️ Configuración docente</h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="display:block;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px">Nome do/a docente</label>
+          <input id="conf-docente" value="${c.docente||''}" placeholder="Ex: Marta Rodríguez" style="width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.84rem;padding:0 12px;outline:none"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px">Grupo / clase</label>
+          <input id="conf-grupo" value="${c.grupo||''}" placeholder="Ex: 4º B" style="width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.84rem;padding:0 12px;outline:none"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px">Ano académico</label>
+          <input id="conf-curso" value="${c.curso||''}" placeholder="Ex: 2024-2025" style="width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.84rem;padding:0 12px;outline:none"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end">
+        <button onclick="document.getElementById('conf-overlay').remove()" style="height:36px;padding:0 16px;background:transparent;border:1.5px solid var(--border2);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer">Cancelar</button>
+        <button onclick="gardarConfig()" style="height:36px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+      </div>
+      <p style="font-size:.62rem;color:var(--muted);margin-top:.9rem;text-align:center;line-height:1.5">Os datos gárdanse localmente e propáganse a todos os módulos</p>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+}
+
+function gardarConfig(){
+  const docente=document.getElementById('conf-docente')?.value.trim()||'';
+  const grupo=document.getElementById('conf-grupo')?.value.trim()||'';
+  const curso=document.getElementById('conf-curso')?.value.trim()||'';
+  saveConf({docente,grupo,curso});
+  document.getElementById('conf-overlay')?.remove();
+  aplicarInfoDocente();
+  // Toasr
+  const t=document.createElement('div');
+  t.textContent='✓ Configuración gardada';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.4);color:var(--green);padding:8px 20px;border-radius:10px;font-size:.78rem;font-weight:800;z-index:9999;pointer-events:none;font-family:"DM Sans",sans-serif';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2200);
+}
+
+// ── DATOS EN TEMPO REAL ───────────────────────────────────────────────────────
+function cargarDatos(){
+ const el=id=>document.getElementById(id);
+
+ // Alumnos
+ const alumnos=ls('pc_alumnos',[]); 
+
+ // Asistencia hoxe
+ const hoxeKey=new Date().toISOString().split('T')[0];
+ const asist=ls('pc_asist',{});
+ const recHoxe=(asist[hoxeKey]||{}).__global__||{};
+ const presentes=alumnos.filter(n=>recHoxe[n]==='presente').length;
+ const ausentes=alumnos.filter(n=>recHoxe[n]==='ausente').length;
+ const total=alumnos.length||1;
+ if(el('st-presentes')) el('st-presentes').textContent=presentes||'—';
+
+ // Asistencia widget
+ const pct=Math.round(presentes/total*100);
+ const pctCol=pct>=90?'var(--green)':pct>=75?'var(--gold)':'var(--red)';
+ if(el('portal-asist')) el('portal-asist').innerHTML=presentes+ausentes>0?`
+  <div style="display:flex;gap:12px;margin-bottom:6px;flex-wrap:wrap">
+   <span style="font-family:'DM Serif Display',Georgia,serif;color:var(--green)">${presentes} presentes</span>
+   <span style="font-family:'DM Serif Display',Georgia,serif;color:var(--red)">${ausentes} ausentes</span>
+   <span style="font-family:'DM Serif Display',Georgia,serif;color:${pctCol};margin-left:auto">${pct}%</span>
+  </div>
+  <div class="asist-bar">
+   <div class="asist-bar-p" style="width:${presentes/total*100}%"></div>
+   <div class="asist-bar-a" style="width:${ausentes/total*100}%"></div>
+  </div>`:'<span style="font-size:.78rem;color:var(--muted)">Sen datos de hoxe</span>';
+
+ // Notas
+ const notas=ls('sn3_notas',[]);
+ if(el('st-notas')) el('st-notas').textContent=notas.length||'—';
+
+ // Incidencias
+ const incid=ls('pc_incidencias',[]);
+ const votHist=ls('va_hist',[]);
+ const votBanco=ls('va_banco',[]);
+ if(el('st-incid')) el('st-incid').textContent=incid.length||'—';
+
+ // Incidencias recentes
+ if(el('portal-incid')){
+  const rec=incid.slice(0,4);
+  const ICONS={positivo:'👍',negativo:'👎',familia:'👨‍👩‍👧',outro:'📌'};
+  const COLS={positivo:'var(--green)',negativo:'var(--red)',familia:'var(--blue)',outro:'var(--gold)'};
+  el('portal-incid').innerHTML=rec.length?rec.map(i=>`
+   <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:.85rem">${ICONS[i.tipo]||'📌'}</span>
+    <span style="font-size:.72rem;font-weight:800;color:${COLS[i.tipo]||'var(--gold)'};flex:1">${i.alumno}</span>
+    <span style="font-size:.6rem;color:var(--muted)">${i.hora}</span>
+   </div>`).join(''):'<span style="font-size:.78rem;color:var(--muted)">Sen incidencias rexistradas</span>';
+ }
+
+ // Aniversarios
+ const bdayList=ls('pc_bdays',[]);
+ const now=new Date();
+ const todayMD=(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0');
+ const mesNum=now.getMonth();
+ const bdaysHoxe=bdayList.filter(b=>b.mmdd===todayMD);
+ const bdaysMes=bdayList.filter(b=>parseInt(b.mmdd.split('-')[0])-1===mesNum);
+ if(el('st-bday')) el('st-bday').textContent=bdaysHoxe.length||'—';
+ if(el('portal-bdaylist')){
+  if(bdaysHoxe.length){
+   el('portal-bdaylist').innerHTML=`<div style="margin-bottom:5px;font-size:.75rem;font-weight:800;color:var(--pink)">🎉 Hoxe:</div>`+
+    bdaysHoxe.map(b=>`<span class="bday-chip">🎂 ${b.name}</span>`).join('')+
+    (bdaysMes.filter(b=>b.mmdd>todayMD).length?`<div style="margin-top:6px;font-size:.68rem;color:var(--muted)">Este mes: ${bdaysMes.filter(b=>b.mmdd>todayMD).map(b=>b.name).join(', ')}</div>`:'');
+  } else if(bdaysMes.length){
+   el('portal-bdaylist').innerHTML=`<div style="font-size:.72rem;color:var(--muted);margin-bottom:4px">Este mes:</div>`+
+    bdaysMes.slice(0,5).map(b=>{
+     const [mm,dd]=b.mmdd.split('-');
+     return `<div style="font-size:.72rem;font-weight:800;padding:2px 0">${b.name} <span style="color:var(--muted);font-weight:600">${dd}/${mm}</span></div>`;
+    }).join('');
+  } else {
+   el('portal-bdaylist').innerHTML='<span style="font-size:.78rem;color:var(--muted)">Sen aniversarios este mes</span>';
+  }
+ }
+
+ // Stats das apps
+ if(el('portal-panel-stats')){
+  const chips=[];
+  if(alumnos.length) chips.push(`👥 ${alumnos.length} alumnos/as`);
+  if(presentes+ausentes>0) chips.push(`✅ ${presentes}/${total} hoxe`);
+  el('portal-panel-stats').innerHTML=chips.map(c=>`<span class="app-stat">${c}</span>`).join('');
+ }
+ if(el('portal-caderno-stats')){
+  const chips=[];
+  if(notas.length) chips.push(`📝 ${notas.length} notas`);
+  const materias=ls('sn3_materias',[]);
+  if(materias.length) chips.push(`📚 ${materias.length} materias`);
+  el('portal-caderno-stats').innerHTML=chips.map(c=>`<span class="app-stat">${c}</span>`).join('');
+
+  // Widget progreso UDs
+  const udWidget=el('portal-ud-progress');
+  if(udWidget){
+    try{
+      const lomloeUDs=ls('lomloe_uds',{});
+      const matActivas=materias.filter(m=>m.id!=='outras');
+      // Por cada materia con UDs programadas, calcular cantas teñen polo menos 1 nota
+      const filas=matActivas.map(m=>{
+        const udsProgr=(lomloeUDs[m.id]||[]);
+        if(!udsProgr.length) return null;
+        const totalUDs=udsProgr.length;
+        const udsConNotas=udsProgr.filter(ud=>
+          notas.some(n=>n.materia===m.id&&n.unidade&&n.unidade.num===ud.num)
+        ).length;
+        const pct=Math.round(udsConNotas/totalUDs*100);
+        const c=pct>=80?'#22c55e':pct>=40?'#fbbf24':'#818cf8';
+        return `<div style="margin-bottom:5px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+            <span style="font-size:.6rem;font-weight:900;color:var(--muted)">${m.icon||''} ${m.nome.substring(0,18)}</span>
+            <span style="font-size:.6rem;font-weight:900;color:${c}">${udsConNotas}/${totalUDs} UDs</span>
+          </div>
+          <div style="height:5px;border-radius:999px;background:var(--border);overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${c};border-radius:999px;transition:width .5s"></div>
+          </div>
+        </div>`;
+      }).filter(Boolean);
+
+      if(filas.length){
+        udWidget.style.display='block';
+        udWidget.innerHTML=`<div style="font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:rgba(251,191,36,.6);margin-bottom:5px">📚 Progreso UDs</div>${filas.join('')}`;
+      }
+    // Próximas UDs (desde planificador)
+    const proximasEl=el('portal-proximas-uds');
+    if(proximasEl){
+      try{
+        const sesSemana=ls('ps_sesions',[]);
+        const hoxe=new Date().toISOString().split('T')[0];
+        const prox=sesSemana.filter(s=>s.data>=hoxe&&!s.realizada)
+          .sort((a,b)=>a.data.localeCompare(b.data)).slice(0,3);
+        if(prox.length){
+          proximasEl.style.display='block';
+          proximasEl.innerHTML='<div style="font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:rgba(251,191,36,.6);margin-bottom:4px">📅 Próximas sesións</div>'+
+            prox.map(s=>{const mat=ls('sn3_materias',[]).find(m=>m.id===s.materia);return'<div style="font-size:.6rem;color:var(--muted);margin-bottom:2px">'+(mat?.icon||'')+'UD'+(s.udNum||'?')+(s.udTit?' · '+s.udTit.substring(0,14):'')+'<span style="margin-left:5px;opacity:.6">'+s.data+'</span></div>';}).join('');
+        }
+      }catch(e){}
+    }
+    }catch(e){}
+  }
+ }
+
+ // Stats titoría
+ const reunions=ls('tit_reunions',[]);
+ const citas=ls('tit_citas',[]).filter(c=>c.data>=hoxeKey);
+  if(el('portal-coop-stats')){
+  const xcDb=ls('equipos_coop_v4',null);
+  const chips=[];
+  if(xcDb?.grupos?.length) chips.push(`👥 ${xcDb.grupos.length} grupo${xcDb.grupos.length!==1?'s':''}`);
+  if(xcDb?.rubricas?.length) chips.push(`📋 ${xcDb.rubricas.length} rúbrica${xcDb.rubricas.length!==1?'s':''}`);
+  if(xcDb?.diarios?.length) chips.push(`📓 ${xcDb.diarios.length} sesión${xcDb.diarios.length!==1?'s':''}`);
+  el('portal-coop-stats').innerHTML=chips.map(c=>`<span class="app-stat">${c}</span>`).join('');
+ }
+ if(el('portal-tit-stats')){
+  const chips=[];
+  if(reunions.length) chips.push(`📝 ${reunions.length} reunión${reunions.length!==1?'s':''}`);
+  if(citas.length) chips.push(`📅 ${citas.length} cita${citas.length!==1?'s':''} próxima${citas.length!==1?'s':''}`);
+  el('portal-tit-stats').innerHTML=chips.map(c=>`<span class="app-stat">${c}</span>`).join('');
+ }
+
+ // Votacións
+ if(el('st-votac')) el('st-votac').textContent=votHist.length||'—';
+ if(el('portal-vot-banco')) el('portal-vot-banco').textContent=(votBanco.length||'—')+' no banco';
+ if(el('portal-vot-hist'))  el('portal-vot-hist').textContent=(votHist.length||'—')+' gardadas';
+
+ // Caderno de Tarefas stats
+ if(el('portal-ct-stats')){
+   const ctTarefas=ls('ct_tarefas',[]);
+   const pendentes=ctTarefas.filter(t=>!t.feita).length;
+   const hoxeK=new Date().toISOString().split('T')[0];
+   const vencidas=ctTarefas.filter(t=>!t.feita&&t.data&&t.data<hoxeK).length;
+   const chips=[];
+   if(pendentes) chips.push(`📋 ${pendentes} pendente${pendentes!==1?'s':''}`);
+   if(vencidas) chips.push(`⚠️ ${vencidas} vencida${vencidas!==1?'s':''}`);
+   el('portal-ct-stats').innerHTML=chips.length?chips.map(c=>`<span class="app-stat">${c}</span>`).join(''):'<span class="app-stat">✅ Sen pendentes</span>';
+ }
+
+ // Carnés Lectores stats
+ if(el('portal-cl-stats')){
+   const clLect=ls('cl_lecturas',[]);
+   const chips=[];
+   if(clLect.length) chips.push(`📚 ${clLect.length} lectura${clLect.length!==1?'s':''}`);
+   const alWithBooks=new Set(clLect.map(l=>l.alumno)).size;
+   if(alWithBooks) chips.push(`👤 ${alWithBooks} alumnos/as`);
+   el('portal-cl-stats').innerHTML=chips.map(c=>`<span class="app-stat">${c}</span>`).join('');
+ }
+ // Control de Deberes stats
+ if(el('portal-cd-stats')){
+   const cdAsigs=ls('cd_asigs',[]);
+   const cdRexs=ls('cd_rexs',[]);
+   const chips=[];
+   if(cdAsigs.length) chips.push(`📋 ${cdAsigs.length} asign.`);
+   const nFixo=cdRexs.filter(r=>r.fixo===true).length;
+   const nNon=cdRexs.filter(r=>r.fixo===false).length;
+   if(nNon>0) chips.push(`❌ ${nNon} non entreg.`);
+   el('portal-cd-stats').innerHTML=chips.map(c=>`<span class="app-stat">${c}</span>`).join('');
+ }
+ // Autoavaliación stats
+ if(el('portal-aa-stats')){
+   const aaVals=ls('aa_vals',[]);
+   const chips=[];
+   if(aaVals.length) chips.push(`🪞 ${new Set(aaVals.map(a=>a.alumno)).size} aval.`);
+   el('portal-aa-stats').innerHTML=chips.map(c=>`<span class="app-stat">${c}</span>`).join('');
+ }
+ if(el('portal-votac')){
+  if(votHist.length){
+   const ult=votHist[0];
+   const total=ult.votos.reduce((a,b)=>a+b,0);
+   const maxV=Math.max(...ult.votos);
+   const winIdx=ult.votos.indexOf(maxV);
+   const winner=ult.opcions?.[winIdx]||'—';
+   const pct=total?Math.round(maxV/total*100):0;
+   const LIKERT_CONFIG=[
+    {emoji:'😔',label:'Moi mal',color:'#ef4444'},
+    {emoji:'😕',label:'Mal',color:'#f97316'},
+    {emoji:'😐',label:'Regular',color:'#fbbf24'},
+    {emoji:'🙂',label:'Ben',color:'#22c55e'},
+    {emoji:'😄',label:'Moi ben',color:'#3b82f6'}
+   ];
+   const isLikert=ult.tipo==='likert';
+   const winLabel=isLikert?(LIKERT_CONFIG[winIdx]?.emoji+' '+LIKERT_CONFIG[winIdx]?.label):winner;
+   el('portal-votac').innerHTML=`
+    <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:4px">${ult.texto}</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+     <span style="font-size:.85rem">🏆</span>
+     <span style="font-size:.72rem;font-weight:800;color:var(--gold)">${winLabel}</span>
+     <span style="font-size:.65rem;color:var(--muted);margin-left:auto">${pct}% · ${total} votos</span>
+    </div>
+    <div style="font-size:.62rem;color:var(--muted);font-weight:700">${ult.ts||''}</div>`;
+  } else {
+   el('portal-votac').innerHTML='<span style="font-size:.78rem;color:var(--muted)">Sen votacións gardadas</span>';
+  }
+ }
+
+ // Problema do Día
+ const pddHist  = ls('pdd_history', []);
+ const pddRacha = ls('pdd_racha', 0);
+
+ // Stat racha
+ if(el('st-racha')) el('st-racha').textContent = pddRacha ? '🔥 '+pddRacha : '—';
+
+ // Chips na tarxeta
+ if(el('portal-prob-racha')) el('portal-prob-racha').textContent = pddRacha ? '🔥 '+pddRacha+' días de racha' : '🔥 Sen racha aínda';
+ if(el('portal-prob-hist'))  el('portal-prob-hist').textContent  = pddHist.length ? pddHist.length+' resoltos' : '— resoltos';
+
+ // Card Hoxe: problema de hoxe ou último resolto
+ if(el('portal-problema')){
+  const todayKey = new Date().toDateString();
+  const hoxe = pddHist.find(h=>h.dateKey===todayKey);
+  const TIPO_LABELS = {
+   '1paso':'1 paso','2pasos':'2 pasos','medida':'Medida',
+   'tempo':'Tempo','dineiro':'Diñeiro','fraccions':'Fraccións','combinado':'Combinado'
+  };
+  const difStars = n=>'⭐'.repeat(Math.min(n||1,3));
+  if(hoxe){
+   el('portal-problema').innerHTML=`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+     <span style="font-size:.65rem;font-weight:900;padding:2px 7px;border-radius:999px;background:rgba(34,197,94,.15);color:var(--green)">✅ Feito hoxe</span>
+     <span style="font-size:.62rem;font-weight:800;color:var(--muted)">${TIPO_LABELS[hoxe.tipo]||hoxe.tipo}</span>
+     <span style="font-size:.62rem">${difStars(hoxe.dif)}</span>
+    </div>
+    <div style="font-size:.75rem;font-weight:700;color:var(--white);line-height:1.55">${hoxe.text||'—'}</div>
+    ${pddRacha>1?`<div style="margin-top:6px;font-size:.68rem;font-weight:800;color:var(--orange)">🔥 ${pddRacha} días seguidos</div>`:''}`;
+  } else if(pddHist.length){
+   const ult = pddHist[0];
+   el('portal-problema').innerHTML=`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+     <span style="font-size:.65rem;font-weight:900;padding:2px 7px;border-radius:999px;background:rgba(251,191,36,.12);color:var(--gold)">Último resolto</span>
+     <span style="font-size:.62rem;color:var(--muted);font-weight:700">${ult.date||''}</span>
+     <span style="font-size:.62rem;font-weight:800;color:var(--muted)">${TIPO_LABELS[ult.tipo]||ult.tipo||''}</span>
+    </div>
+    <div style="font-size:.75rem;font-weight:700;color:rgba(238,242,255,.7);line-height:1.55">${ult.text||'—'}</div>
+    <div style="margin-top:6px;font-size:.67rem;color:var(--muted);font-weight:700">📌 Hoxe aínda non se resolveu — <a href="problema_do_dia.html" target="_blank" style="color:var(--green);text-decoration:none;font-weight:900">Resolver agora →</a></div>`;
+  } else {
+   el('portal-problema').innerHTML=`<div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">Aínda non se resolveu ningún problema</div>
+    <a href="problema_do_dia.html" target="_blank" style="font-size:.72rem;font-weight:800;color:var(--green);text-decoration:none">🧮 Comezar agora →</a>`;
+  }
+ }
+
+ // Sistema de Puntos
+ const spPuntos   = ls('sp_puntos', {});
+ const spAlumnos  = ls('sp_alumnos', []);
+ const spEquipos  = ls('sp_equipos', []);
+ const spHist     = ls('sp_hist', []);
+
+ // Función total por alumno
+ const spTot = nome => {
+  const p = spPuntos[nome]||{individual:0,equipo:0};
+  return (p.individual||0)+(p.equipo||0);
+ };
+
+ // Ranking ordenado
+ const spRanking = [...spAlumnos].sort((a,b)=>spTot(b)-spTot(a));
+ const spLider   = spRanking[0];
+ const spTopVal  = spLider ? spTot(spLider) : 0;
+
+ // Stat
+ if(el('st-puntos-top')) el('st-puntos-top').textContent = spLider ? spTopVal+'⭐' : '—';
+
+ // Chip tarxeta
+ if(el('portal-sp-lider')) el('portal-sp-lider').textContent = spLider ? '⭐ '+spLider.split(' ')[0]+' ('+spTopVal+')' : '⭐ Sen datos';
+ if(el('portal-sp-total')) el('portal-sp-total').textContent = spHist.length ? spHist.length+' eventos' : '— eventos';
+
+ // Card Hoxe: top 5 + últimos eventos de hoxe
+ if(el('portal-puntos')){
+  if(!spAlumnos.length){
+   el('portal-puntos').innerHTML='<span style="font-size:.78rem;color:var(--muted)">Sen alumnado configurado</span>';
+  } else {
+   const AVCOLS=['#6366f1','#22c55e','#f59e0b','#ec4899','#14b8a6','#f97316','#8b5cf6','#3b82f6','#ef4444','#84cc16'];
+   const top5 = spRanking.slice(0,5);
+   const maxPts = spTopVal || 1;
+   // Eventos de hoxe
+   const hoxeData = new Date().toLocaleDateString('gl');
+   const hoxeEvts = spHist.filter(h=>h.data===hoxeData).slice(0,3);
+
+   el('portal-puntos').innerHTML =
+    top5.map((nome,i)=>{
+     const pts = spTot(nome);
+     const pct = Math.round(pts/maxPts*100);
+     const col = AVCOLS[spAlumnos.indexOf(nome)%AVCOLS.length];
+     const ini = nome.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+     return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:.62rem;font-weight:900;color:var(--muted);min-width:14px">${i+1}</span>
+      <div style="width:20px;height:20px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:#fff;flex-shrink:0">${ini}</div>
+      <span style="font-size:.72rem;font-weight:700;flex:1;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nome.split(' ')[0]}</span>
+      <div style="flex:1;height:4px;background:var(--card2);border-radius:999px;overflow:hidden;max-width:50px">
+       <div style="height:100%;width:${pct}%;background:${col};border-radius:999px"></div>
+      </div>
+      <span style="font-family:'Georgia',serif;font-size:.78rem;color:${col};font-weight:900;min-width:28px;text-align:right">${pts}</span>
+     </div>`;
+    }).join('') +
+    (hoxeEvts.length ? `<div style="margin-top:6px;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px">Hoxe</div>`+
+     hoxeEvts.map(h=>`<div style="display:flex;align-items:center;gap:5px;font-size:.67rem;padding:1px 0">
+      <span style="color:${h.pts>0?'var(--green)':'var(--red)'};font-weight:900">${h.pts>0?'+'+h.pts:h.pts}</span>
+      <span style="color:var(--white);font-weight:700">${(h.nome||'').split(' ')[0]}</span>
+      <span style="color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.motivo||''}</span>
+     </div>`).join('') : '');
+  }
+ }
+
+ // Horario — sesión actual
+ const HD_FRANXAS=[
+  {id:'s1',hora:'09:00–09:50',ini:[9,0],fin:[9,50],tipo:'sesion',label:'1ª'},
+  {id:'s2',hora:'09:50–10:40',ini:[9,50],fin:[10,40],tipo:'sesion',label:'2ª'},
+  {id:'s3',hora:'10:40–11:30',ini:[10,40],fin:[11,30],tipo:'sesion',label:'3ª'},
+  {id:'rec',hora:'11:30–12:00',ini:[11,30],fin:[12,0],tipo:'recreo',label:'🏃'},
+  {id:'pl',hora:'12:00–12:20',ini:[12,0],fin:[12,20],tipo:'lector',label:'📖'},
+  {id:'s4',hora:'12:20–13:10',ini:[12,20],fin:[13,10],tipo:'sesion',label:'4ª'},
+  {id:'s5',hora:'13:10–14:00',ini:[13,10],fin:[14,0],tipo:'sesion',label:'5ª'},
+ ];
+ const HD_MAT={
+  'Lingua Galega':'#3b82f6','Matemáticas':'#22c55e','Lingua Castelá':'#a78bfa',
+  'CC. Naturais':'#f97316','CC. Sociais':'#fbbf24','Inglés':'#f472b6',
+  'Ed. Física':'#ef4444','Ed. Plástica':'#2dd4bf','Música':'#8b5cf6','Relixión/Valores':'#94a3b8'
+ };
+ const horario=ls('pc_horario',{});
+ const dow=now.getDay();
+ const dia=(dow===0||dow===6)?1:dow;
+ const dHor=horario[dia]||{};
+ const hm=now.getHours()*60+now.getMinutes();
+ let activaId=null;
+ for(const f of HD_FRANXAS){
+  if(hm>=f.ini[0]*60+f.ini[1]&&hm<f.fin[0]*60+f.fin[1]){activaId=f.id;break;}
+ }
+ if(el('portal-sesion')){
+  const chips=HD_FRANXAS.map(f=>{
+   const eActiva=activaId===f.id;
+   if(f.tipo==='recreo') return `<span class="horario-chip${eActiva?' activa':''}" style="background:rgba(255,255,255,.06);color:var(--muted)">🏃 Recreo</span>`;
+   if(f.tipo==='lector') return `<span class="horario-chip${eActiva?' activa':''}" style="background:rgba(45,212,191,.1);color:var(--teal)">📖 Plan Lector</span>`;
+   const mat=dHor[f.id]||'';
+   const col=HD_MAT[mat]||'#64748b';
+   return `<span class="horario-chip${eActiva?' activa':''}" style="background:${col}18;color:${col};border-color:${eActiva?'var(--gold)':col+'44'}">${mat||f.label}</span>`;
+  }).join('');
+  el('portal-sesion').innerHTML=chips||'<span style="font-size:.78rem;color:var(--muted)">Configura o horario no Panel</span>';
+ }
+ // ── ALERTAS PREDITIVAS ──────────────────────────────────────────────────────
+ const alertasEl = document.getElementById('portal-alertas');
+ const riscoEl   = document.getElementById('portal-risco');
+ if(alertasEl || riscoEl){
+  const SESS=['1','2','3','4','5'];
+  const hoxe = hoxeKey;
+  const manana = (()=>{const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];})();
+  const alertas=[];
+
+  // Faltas acumuladas ≥ 8
+  const faltasPor={};
+  Object.entries(asist).forEach(([dk,dd])=>{
+   SESS.forEach(s=>{Object.entries(dd[s]||{}).forEach(([al,est])=>{
+    if(est==='ausente') faltasPor[al]=(faltasPor[al]||0)+1;
+   });});
+  });
+  Object.entries(faltasPor).filter(([,n])=>n>=8).sort((a,b)=>b[1]-a[1]).slice(0,3)
+   .forEach(([al,n])=>alertas.push({icon:'⚠️',col:'#ef4444',txt:`<b>${al}</b> — ${n} sesións de falta`}));
+
+  // Citas/reunions hoxe ou mañá
+  const citas=ls('tit_citas',[]).filter(c=>c.data===hoxe||c.data===manana);
+  citas.forEach(c=>alertas.push({icon:'📅',col:'#a78bfa',txt:`Cita con <b>${c.alumno}</b> ${c.data===hoxe?'hoxe':'mañá'}${c.hora?' ás '+c.hora:''}`}));
+  const reunions=ls('tit_reunions',[]).filter(r=>r.data===hoxe||r.data===manana);
+  reunions.forEach(r=>alertas.push({icon:'📝',col:'#60a5fa',txt:`Reunión ${r.data===hoxe?'hoxe':'mañá'}${r.hora?' ás '+r.hora:''}`}));
+
+  // Deberes con entrega hoxe sen entregar
+  const cdAsigs=ls('cd_asigs',[]).filter(a=>a.dataEntrega===hoxe);
+  const cdRexs=ls('cd_rexs',[]);
+  cdAsigs.forEach(asig=>{
+   const ne=alumnos.filter(al=>!cdRexs.find(r=>r.asigId===asig.id&&r.alumno===al&&r.estado==='entregado')).length;
+   if(ne>0) alertas.push({icon:'📝',col:'#f59e0b',txt:`<b>${asig.titulo||asig.materia}</b>: ${ne} non entregaron (entrega hoxe)`});
+  });
+
+  // Tarefas pendentes vencidas
+  const ctT=ls('ct_tarefas',[]).filter(t=>!t.feita&&t.data&&t.data<hoxe);
+  if(ctT.length) alertas.push({icon:'📋',col:'#f97316',txt:`${ctT.length} tarefa${ctT.length!==1?'s':''} persoal${ctT.length!==1?'s':''} vencida${ctT.length!==1?'s':''}`});
+
+  if(alertasEl){
+   alertasEl.innerHTML = alertas.length
+    ? alertas.map(a=>`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)"><span>${a.icon}</span><span style="color:${a.col};font-weight:700;font-size:.76rem;line-height:1.4">${a.txt}</span></div>`).join('')
+    : '<span style="color:var(--green,#22c55e);font-weight:800;font-size:.78rem">✅ Sen alertas pendentes</span>';
+  }
+
+  // ── ÍNDICE DE RISCO PREDITIVO ────────────────────────────────────────────
+  if(riscoEl && alumnos.length){
+   const notas=ls('sn3_notas',[]);
+   const deberes=ls('cd_rexs',[]);
+   const allAsigs=ls('cd_asigs',[]);
+
+   const riscos = alumnos.map(al=>{
+    let score=0; const motivos=[];
+
+    // Faltas (peso alto)
+    const faltas=faltasPor[al]||0;
+    if(faltas>=10){score+=3;motivos.push(`${faltas} faltas`);}
+    else if(faltas>=5){score+=2;motivos.push(`${faltas} faltas`);}
+    else if(faltas>=3){score+=1;}
+
+    // Nota media baixa
+    const nsAl=notas.filter(n=>n.alumno===al&&n.valor!==undefined);
+    if(nsAl.length){
+     const med=nsAl.reduce((s,n)=>s+n.valor,0)/nsAl.length;
+     if(med<4){score+=3;motivos.push(`media ${med.toFixed(1)}`);}
+     else if(med<5){score+=2;motivos.push(`media ${med.toFixed(1)}`);}
+     else if(med<6){score+=1;}
+    }
+
+    // Deberes non entregados (últimas 4 semanas)
+    const haceMonth=new Date(); haceMonth.setDate(haceMonth.getDate()-28);
+    const limStr=haceMonth.toISOString().split('T')[0];
+    const asigRecentes=allAsigs.filter(a=>a.dataEntrega>=limStr);
+    if(asigRecentes.length>=3){
+     const noEnt=asigRecentes.filter(a=>!deberes.find(r=>r.asigId===a.id&&r.alumno===al&&r.estado==='entregado')).length;
+     const pct=noEnt/asigRecentes.length;
+     if(pct>=0.7){score+=2;motivos.push(`${noEnt}/${asigRecentes.length} deb. sen entregar`);}
+     else if(pct>=0.4){score+=1;}
+    }
+
+    return {al, score, motivos};
+   }).filter(r=>r.score>=2).sort((a,b)=>b.score-a.score).slice(0,6);
+
+   if(!riscos.length){
+    riscoEl.innerHTML='<span style="color:var(--green,#22c55e);font-weight:800;font-size:.78rem">✅ Non se detectan alumnos/as en risco</span>';
+   } else {
+    riscoEl.innerHTML=riscos.map(r=>{
+     const col=r.score>=5?'#ef4444':r.score>=3?'#f59e0b':'#60a5fa';
+     const nivel=r.score>=5?'Risco alto':r.score>=3?'Seguimento':'Atención';
+     const i=alumnos.indexOf(r.al);
+     const bg=['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf'][i%6];
+     return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <div style="width:24px;height:24px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:white;flex-shrink:0">${r.al.match(/^(\d+)/)?r.al.match(/^(\d+)/)[1].slice(0,2):r.al.slice(0,2).toUpperCase()}</div>
+      <span style="font-size:.78rem;font-weight:800;flex:1">${r.al}</span>
+      <span style="font-size:.62rem;font-weight:900;padding:2px 8px;border-radius:999px;background:${col}18;color:${col}">${nivel}</span>
+      <span style="font-size:.65rem;color:var(--muted)">${r.motivos.join(' · ')}</span>
+     </div>`;
+    }).join('');
+   }
+  }
+ }
+}
+
+cargarDatos();
+aplicarInfoDocente();
+setTimeout(renderAccesosRapidos,100);
+setTimeout(actualizarBadgeNotif,200);
+setTimeout(fetchMeteo,300);
+setTimeout(actualizarStatsLectura,400);
+setTimeout(renderEventosProximos,400);
+setTimeout(renderConsellos,50);
+setTimeout(renderConselloDodia,50);
+// Recargar cada 60s
+setInterval(cargarDatos, 60000);
+// E cando outra xanela garde datos
+// Mostrar última actividade nas tarxetas
+function actualizarStatsLectura(){
+  try{
+    const hist=JSON.parse(localStorage.getItem('lectura_historico')||'[]');
+    const el=document.getElementById('portal-lv-stats');
+    if(!el) return;
+    if(!hist.length){el.textContent='Sen rexistros';return;}
+    const hoxe=new Date();hoxe.setDate(hoxe.getDate()-30);
+    const recentes=hist.filter(r=>r.data&&r.data>=hoxe.toISOString().split('T')[0]).length;
+    el.innerHTML=`<span class="app-stat">${hist.length} sesión${hist.length!==1?'s':''} · ${recentes} este mes</span>`;
+  }catch{}
+}
+
+function calcNotificacions(){
+  const alerts=[];
+  try{
+    const notas=ls('sn3_notas',[]);
+    const alumnos=ls('pc_alumnos',ls('sn3_alumnos',[]));
+    const escala=ls('sn3_escala',10);
+    const corte=ls('sn3_corte',5);
+    const lomloeUDs=ls('lomloe_uds',{});
+    const asist=ls('pc_asist',{});
+    const lastBackup=localStorage.getItem('bbdd_last_backup');
+
+    // 1. Alumnos con risco alto (media global < corte)
+    const alRisco=alumnos.filter(al=>{
+      const ns=notas.filter(n=>n.alumno===al);
+      if(!ns.length) return false;
+      const med=ns.reduce((s,n)=>s+n.valor,0)/ns.length;
+      return med<corte;
+    });
+    if(alRisco.length) alerts.push({tipo:'risco',icon:'🚨',cor:'#ef4444',txt:alRisco.length+' alumno'+(alRisco.length!==1?'s':'')+(alRisco.length!==1?'/as':'/a')+' con media por baixo do mínimo',detail:alRisco.slice(0,5).join(', ')+(alRisco.length>5?'...':'')});
+
+    // 2. UDs sen avaliar (importadas pero sen notas)
+    const allUDs=[];
+    Object.entries(lomloeUDs).forEach(([matId,uds])=>uds.forEach(u=>allUDs.push({matId,udNum:u.num,udTit:u.tit||''})));
+    const udsSenNotas=allUDs.filter(u=>!notas.some(n=>n.materia===u.matId&&n.unidade?.num===u.udNum));
+    if(udsSenNotas.length>0&&udsSenNotas.length<=allUDs.length*0.6){
+      alerts.push({tipo:'uds',icon:'📚',cor:'#f97316',txt:udsSenNotas.length+' UD'+(udsSenNotas.length!==1?'s':'')+' importadas sen notas rexistradas',detail:udsSenNotas.slice(0,4).map(u=>'UD'+u.udNum).join(', ')+(udsSenNotas.length>4?'...':'')});
+    }
+
+    // 3. Backup sen facer en máis de 7 días
+    if(!lastBackup||(new Date()-new Date(lastBackup))>7*24*60*60*1000){
+      const dias=lastBackup?Math.round((new Date()-new Date(lastBackup))/86400000):null;
+      alerts.push({tipo:'backup',icon:'💾',cor:'#fbbf24',txt:dias?'Último backup hai '+dias+' días — recoméndase facer backup':'Non se detectou ningún backup gardado',detail:'Vai a Xestor BBDD para facer un backup'});
+    }
+
+    // 3b. Medidas de apoio caducadas ou sen seguimento
+    try{
+      const meds=JSON.parse(localStorage.getItem('medidas_apoio')||'{}');
+      const alumnos3=ls('pc_alumnos',ls('sn3_alumnos',[]));
+      const hoxe3=new Date().toISOString().split('T')[0];
+      const haiTresMeses=new Date();haiTresMeses.setMonth(haiTresMeses.getMonth()-3);
+      const h3str=haiTresMeses.toISOString().split('T')[0];
+      const caducadas=alumnos3.filter(a=>{const m=meds[a];return m?.tipo&&m.tipo!=='ninguna'&&m.renovacion&&m.renovacion<hoxe3;});
+      const senSeg=alumnos3.filter(a=>{const m=meds[a];if(!m?.tipo||m.tipo==='ninguna') return false;const last=m.seguimento?.slice(-1)[0];return !last||(last.data&&last.data<h3str);});
+      if(caducadas.length) alerts.push({tipo:'medidas_cad',icon:'🧩',cor:'#ef4444',txt:caducadas.length+' medida'+(caducadas.length!==1?'s':'')+(caducadas.length!==1?' caducadas':' caducada')+' (R.E./E.C./A.C.)',detail:caducadas.slice(0,4).join(', ')+(caducadas.length>4?'...':'')});
+      if(senSeg.length) alerts.push({tipo:'medidas_seg',icon:'🧩',cor:'#fbbf24',txt:senSeg.length+' alumno'+(senSeg.length!==1?'s/as':'/a')+' con medida sen seguimento en 3 meses',detail:senSeg.slice(0,4).join(', ')+(senSeg.length>4?'...':'')});
+    }catch{}
+
+    // 4. Ausencias frecuentes (alumnos con >20% ausencias)
+    const alAusentes=alumnos.filter(al=>{
+      let p=0,a=0;
+      Object.values(asist).forEach(rec=>{const v=(rec.__global__||{})[al]||'';if(v==='P'||v==='presente')p++;else if(v==='A'||v==='ausente')a++;});
+      return (p+a)>10&&a/(p+a)>0.2;
+    });
+    if(alAusentes.length) alerts.push({tipo:'asist',icon:'📅',cor:'#8b5cf6',txt:alAusentes.length+' alumno'+(alAusentes.length!==1?'s/as':'/a')+' con máis do 20% de ausencias',detail:alAusentes.slice(0,4).join(', ')+(alAusentes.length>4?'...':'')});
+
+  }catch(e){}
+  return alerts;
+}
+
+function id(i){return document.getElementById(i);}
+
+const CONSELLOS=[
+  "Lembra recompensar o esforzo, non só os resultados. Un alumno/a que tenta merece recoñecemento.",
+  "Varía as agrupacións ao longo da semana: traballo individual, en parella e en grupo teñen vantaxes diferentes.",
+  "Comeza a clase cun reto curto ou pregunta motivadora para activar a atención.",
+  "Usa o erro como oportunidade de aprendizaxe. Pregunta: 'Que aprendeches deste erro?'",
+  "Conecta os contidos coa vida real dos teus alumnos/as. A relevancia aumenta a motivación.",
+  "Dálle voz ao alumnado: pídelles que expliquen o que aprenderon coas súas propias palabras.",
+  "Planifica momentos de movemento ou transición entre tarefas para manter a atención.",
+  "Revisa os obxectivos de aprendizaxe ao comezo e ao final de cada sesión.",
+  "Usa preguntas abertas para fomentar o pensamento crítico: 'Por que?', 'Como sabes?', 'Que pasaría se?'",
+  "Celebra os logros colectivos da clase, non só os individuais.",
+  "O feedback específico é máis útil que o xeral: 'Mellorou a estrutura do teu texto' vs 'Moi ben'.",
+  "Fai pausas de reflexión: '¿Que aprendemos hoxe? ¿Como podemos melloralo mañá?'",
+  "Usa a regra 80/20: 80% do tempo os alumnos/as activos, 20% a mestra explica.",
+  "Crea rutinas claras de entrada e saída de clase. A previsibilidade reduce a ansiedade.",
+  "Fomenta a autoavaliación: os alumnos/as que se avían aprenden a ser máis autónomos/as.",
+  "Usa diferentes formatos de presentación: visual, auditivo, kinestésico.",
+  "O humor sa na aula mellora o clima e facilita a aprendizaxe.",
+  "Comunica expectativas claras antes de cada tarefa. O alumnado traballa mellor cando sabe o que se espera.",
+  "Recoñece publicamente o bo comportamento. O reforzo positivo é máis efectivo que a corrección.",
+  "Mantén contacto visual e move pola aula para manter a atención e o vínculo.",
+  "Permite que o alumnado elixe entre opcións: dálle axencia e responsabilidade.",
+  "Usa o traballo cooperativo con roles claros para que todos/as participen de forma equitativa.",
+  "Dedica 5 minutos ao final da clase para consolidar o aprendido. A síntese final mellora a retención.",
+  "Adapta o nivel de dificultade: retos alcanzables pero desafiantes para cada alumno/a.",
+  "Crea un ambiente onde equivocarse está ben: 'Aquí aprendemos do erro'.",
+  "Usa a tecnoloxía como ferramenta, non como fin en si mesma.",
+  "A relación mestra-alumno/a é a base de todo. Inviste tempo en coñecer a cada alumno/a.",
+  "Comparte con familias non só dificultades, senón tamén logros e avances.",
+  "Planifica, pero sé flexible: o mellor momento pedagóxico pode non estar no guión.",
+  "Coida o teu benestar para poder coidar o do teu alumnado. Non podes dar o que non tes.",
+];
+
+function renderConselloDodia(){
+  const el=document.getElementById('consello-txt');
+  if(!el) return;
+  // Mesmo consello todo o día (basado na data)
+  const hoxe=new Date().toISOString().split('T')[0].replace(/-/g,'');
+  const idx=parseInt(hoxe)%CONSELLOS.length;
+  el.textContent=CONSELLOS[idx];
+}
+
+function renderEventosProximos(){
+  const el=document.getElementById('eventos-list');
+  if(!el) return;
+  const hoxe=new Date();
+  const en7=new Date(hoxe.getTime()+7*24*60*60*1000);
+  const hoxeStr=hoxe.toISOString().split('T')[0];
+  const en7Str=en7.toISOString().split('T')[0];
+  const eventos=[];
+
+  // 1. Reunións de titoría
+  try{
+    const reunions=JSON.parse(localStorage.getItem('tit_reunions')||'[]');
+    reunions.filter(r=>r.data>=hoxeStr&&r.data<=en7Str).forEach(r=>{
+      eventos.push({data:r.data,icon:'👨‍👩‍👧',txt:(r.alumno||'—')+': '+( r.tipo||'Reunión familias'),col:'#60a5fa'});
+    });
+  }catch{}
+
+  // 2. Acordos con prazo
+  try{
+    const acordos=JSON.parse(localStorage.getItem('tit_acordos')||'[]');
+    acordos.filter(a=>a.prazo&&a.prazo>=hoxeStr&&a.prazo<=en7Str&&a.estado!=='cumprido').forEach(a=>{
+      eventos.push({data:a.prazo,icon:'✅',txt:a.alumno+': '+a.texto.substring(0,40),col:'#fbbf24'});
+    });
+  }catch{}
+
+  // 3. Sesións planificadas
+  try{
+    const sesions=JSON.parse(localStorage.getItem('ps_sesions')||'[]');
+    const mats=JSON.parse(localStorage.getItem('sn3_materias')||'[]');
+    sesions.filter(s=>!s.realizada&&s.data>=hoxeStr&&s.data<=en7Str).slice(0,5).forEach(s=>{
+      const mat=mats.find(m=>m.id===s.materia);
+      eventos.push({data:s.data,icon:mat?.icon||'📅',txt:(mat?.nome||s.materia)+' · UD'+(s.udNum||'?')+(s.obs?' · '+s.obs.substring(0,25):''),col:'#34d399'});
+    });
+  }catch{}
+
+  // 4. Citacións/notas da axenda
+  try{
+    const axenda=JSON.parse(localStorage.getItem('pc_axenda')||'[]');
+    axenda.filter(a=>a.data&&a.data>=hoxeStr&&a.data<=en7Str).slice(0,3).forEach(a=>{
+      eventos.push({data:a.data,icon:'📌',txt:a.texto||a.note||'Nota',col:'#c084fc'});
+    });
+  }catch{}
+
+  eventos.sort((a,b)=>a.data.localeCompare(b.data));
+
+  if(!eventos.length){
+    el.innerHTML='<div style="color:var(--muted);font-size:.72rem">Sen eventos nos próximos 7 días</div>';
+    return;
+  }
+  el.innerHTML=eventos.map(e=>{
+    const d=new Date(e.data+'T12:00:00');
+    const dStr=d.toLocaleDateString('gl-ES',{weekday:'short',day:'numeric',month:'short'});
+    const isHoxe=e.data===hoxeStr;
+    const isMana=e.data===new Date(hoxe.getTime()+86400000).toISOString().split('T')[0];
+    const when=isHoxe?'Hoxe':isMana?'Mañá':dStr;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:.6rem;font-weight:900;min-width:45px;color:${isHoxe?e.col:'var(--muted)'}">${when}</span>
+      <span style="font-size:.85rem">${e.icon}</span>
+      <span style="font-size:.7rem;font-weight:700;flex:1;color:var(--white)">${e.txt}</span>
+    </div>`;
+  }).join('');
+}
+
+
+function renderConsellos(){
+  const el=document.getElementById('consello-txt');
+  if(!el) return;
+  const hoxe=new Date().toISOString().split('T')[0];
+  const cached=localStorage.getItem('portal_consello_data');
+  if(cached){try{const c=JSON.parse(cached);if(c.data===hoxe){el.textContent=c.txt;return;}}catch{}}
+  // Seleccionar consello baseado no día do ano para ser consistente
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  const idx=dayOfYear%CONSELLOS.length;
+  const txt=CONSELLOS[idx];
+  el.textContent=txt;
+  try{localStorage.setItem('portal_consello_data',JSON.stringify({data:hoxe,txt}));}catch{}
+}
+
+function actualizarBadgeNotif(){
+  const alerts=calcNotificacions();
+  const badge=document.getElementById('notif-count');
+  if(badge){
+    badge.textContent=alerts.length;
+    badge.style.display=alerts.length?'block':'none';
+  }
+}
+
+function verNotificacions(){
+  const alerts=calcNotificacions();
+  if(!alerts.length){
+    const m=document.createElement('div');
+    m.style.cssText='position:fixed;bottom:20px;right:20px;background:#34d399;color:#fff;font-size:.75rem;font-weight:800;padding:8px 16px;border-radius:10px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+    m.textContent='✅ Sen alertas activas';document.body.appendChild(m);setTimeout(()=>m.remove(),2500);
+    return;
+  }
+  const html=alerts.map(a=>`
+    <div style="padding:10px 14px;background:${a.cor}10;border:1px solid ${a.cor}30;border-radius:10px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <span style="font-size:1.1rem">${a.icon}</span>
+        <span style="font-size:.78rem;font-weight:800;color:${a.cor}">${a.txt}</span>
+      </div>
+      ${a.detail?`<div style="font-size:.65rem;color:var(--muted);padding-left:28px">${a.detail}</div>`:''}
+    </div>`).join('');
+
+  // Simple modal
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center';
+  overlay.innerHTML=`<div style="background:var(--card);border-radius:16px;padding:22px;width:460px;max-width:95vw;border:1px solid var(--border2)">
+    <h3 style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:14px">🔔 Alertas do sistema (${alerts.length})</h3>
+    ${html}
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="height:30px;padding:0 16px;background:rgba(255,255,255,.06);border:1.5px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Pechar</button>
+    </div>
+  </div>`;
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  document.body.appendChild(overlay);
+}
+
+function mostrarUltimaActividade(){
+  try{
+    const act=JSON.parse(localStorage.getItem('portal_last_act')||'{}');
+    const fmtAgo=iso=>{if(!iso)return'—';const d=new Date(iso);const now=new Date();const diff=Math.round((now-d)/60000);if(diff<1)return'agora mesmo';if(diff<60)return diff+'min';if(diff<1440)return Math.round(diff/60)+'h';return d.toLocaleDateString('gl-ES',{day:'2-digit',month:'short'});};
+    Object.entries(act).forEach(([mod,iso])=>{const el=document.getElementById('act-'+mod);if(el)el.textContent='🕐 '+fmtAgo(iso);});
+  }catch{}
+}
+setTimeout(mostrarUltimaActividade,300);
+
+// ── ACCESOS RÁPIDOS ──────────────────────────────────────────────────────────
+const DEF_ACCESOS=['caderno_docente','dashboard_semaforo','sistema_puntos','competencias_lomloe','planificador_semanal'];
+const TODOS_MODULOS=[
+  {id:'panel_clase',nome:'Panel de Clase',icon:'📋',href:'panel_clase.html'},
+  {id:'caderno_docente',nome:'Caderno Docente',icon:'📒',href:'caderno_docente.html'},
+  {id:'dashboard_semaforo',nome:'Dashboard Semáforo',icon:'🚦',href:'dashboard_semaforo.html'},
+  {id:'evolucion_alumno',nome:'Evolución Alumno',icon:'📈',href:'evolucion_alumno.html'},
+  {id:'competencias_lomloe',nome:'Competencias LOMLOE',icon:'🎓',href:'competencias_lomloe.html'},
+  {id:'sistema_puntos',nome:'Sistema de Puntos',icon:'🏆',href:'sistema_puntos.html'},
+  {id:'informe_individual',nome:'Informes',icon:'📄',href:'informe_individual.html'},
+  {id:'titoria',nome:'Titoría',icon:'👨‍👩‍👧',href:'titoria.html'},
+  {id:'xestor_cooperativo',nome:'Cooperativo',icon:'🤝',href:'xestor_cooperativo.html'},
+  {id:'planificador_semanal',nome:'Planificador',icon:'📅',href:'planificador_semanal.html'},
+  {id:'diario_reflexion_docente',nome:'Diario Reflexión',icon:'📔',href:'diario_reflexion_docente.html'},
+  {id:'xerador_exames',nome:'Xerador Exames',icon:'📝',href:'xerador_exames.html'},
+  {id:'panel_titoria_grupal',nome:'Panel Titoría',icon:'👥',href:'panel_titoria_grupal.html'},
+  {id:'xestor_adaptacions',nome:'Adaptacións',icon:'📋',href:'xestor_adaptacions.html'},
+  {id:'medidas_apoio',nome:'Medidas de Apoio',icon:'🧩',href:'medidas_apoio.html'},
+  {id:'lectura_velocidade',nome:'Lectura Velocidade',icon:'📖',href:'lectura_velocidade.html'},
+  {id:'xestor_bbdd',nome:'Base de Datos',icon:'💾',href:'xestor_bbdd.html'},
+];
+
+function renderAccesosRapidos(){
+  const saved=ls('portal_accesos_rapidos',DEF_ACCESOS);
+  const el=el2('accesos-rapidos-grid');
+  if(!el) return;
+  el.innerHTML=saved.map(id=>{
+    const m=TODOS_MODULOS.find(x=>x.id===id);
+    if(!m) return '';
+    return `<a href="${m.href}" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:10px;border:1.5px solid var(--border2);background:var(--card2);color:var(--white);text-decoration:none;font-size:.75rem;font-weight:800;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseover="this.style.borderColor='rgba(251,191,36,.4)'" onmouseout="this.style.borderColor='var(--border2)'">${m.icon} ${m.nome}</a>`;
+  }).join('');
+}
+
+function editarAccesosRapidos(){
+  const saved=ls('portal_accesos_rapidos',DEF_ACCESOS);
+  const checks=TODOS_MODULOS.map(m=>`<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:.78rem;font-weight:700;border-bottom:1px solid var(--border)">
+    <input type="checkbox" ${saved.includes(m.id)?'checked':''} value="${m.id}" style="accent-color:var(--gold);width:14px;height:14px"/>
+    ${m.icon} ${m.nome}
+  </label>`).join('');
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`<div style="background:var(--card);border-radius:16px;padding:22px;width:380px;max-height:80vh;overflow-y:auto;border:1px solid var(--border2)">
+    <h3 style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold);margin-bottom:12px">⚡ Editar accesos rápidos</h3>
+    <div id="ar-checks">${checks}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="height:30px;padding:0 14px;background:rgba(255,255,255,.06);border:1.5px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button onclick="(()=>{const sel=[...document.querySelectorAll('#ar-checks input:checked')].map(c=>c.value);ls2('portal_accesos_rapidos',sel);renderAccesosRapidos();this.closest('div[style*=fixed]').remove();})()" style="height:30px;padding:0 14px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:8px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">💾 Gardar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function el2(id){return document.getElementById(id);}
+function ls2(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+window.addEventListener('storage', cargarDatos);
+
+function abrirBuscador(){
+ document.getElementById('search-overlay')?.classList.add('show');
+ document.body.style.overflow='hidden';
+ setTimeout(()=>document.getElementById('search-input')?.focus(),80);
+}
+
+function abrirNotifs(){
+ const notifs=xerarNotificacions();
+ const lista=document.getElementById('notif-lista');
+ if(lista){
+  const COLS={alerta:'var(--red)',aviso:'var(--gold)',info:'var(--blue)',ok:'var(--green)'};
+  lista.innerHTML=notifs.length?notifs.map((n,i)=>`
+   <div class="notif-item ${n.tipo}" style="animation-delay:${i*0.05}s">
+    <div class="notif-icon">${n.icon}</div>
+    <div class="notif-text">
+     <div class="notif-msg">${n.msg}</div>
+     ${n.sub?`<div class="notif-sub">${n.sub}</div>`:''}
+    </div>
+   </div>`).join(''):`<div class="notif-empty">🎉<br>Sen notificacións</div>`;
+ }
+ document.getElementById('notif-panel')?.classList.add('open');
+ document.getElementById('notif-overlay')?.classList.add('show');
+ document.body.style.overflow='hidden';
+}
+
+function buscarGlobal(q){
+ const res=document.getElementById('search-results');
+ if(!res) return;
+ q=(q||'').trim().toLowerCase();
+ if(q.length<2){
+  res.innerHTML=`<div class="search-hint"><span>💡 Escribe o nome dun alumno/a ou "faltas", "notas", "deberes"...</span></div>`;
+  return;
+ }
+
+ const alumnos=ls('pc_alumnos',[]);
+ const notas=ls('sn3_notas',[]);
+ const asist=ls('pc_asist',{});
+ const cdTarefas=ls('cd_tarefas',[]);
+ const cdEntregas=ls('cd_entregas',{});
+ const citas=ls('tit_citas',[]);
+ const reunions=ls('tit_reunions',[]);
+
+ let html='';
+
+ // — Alumnos coincidentes —
+ const alMatch=alumnos.filter(a=>a.toLowerCase().includes(q));
+ if(alMatch.length){
+  html+=`<div class="search-cat">👤 Alumnado</div>`;
+  alMatch.slice(0,5).forEach(a=>{
+   // Contar faltas
+   let faltas=0;
+   Object.values(asist).forEach(d=>{const rec=d.__global__||{};if(rec[a]==='ausente') faltas++;});
+   // Notas do alumno
+   const ns=notas.filter(n=>n.alumno===a);
+   const media=ns.length?(ns.reduce((s,n)=>s+n.valor,0)/ns.length).toFixed(1):'—';
+   html+=`<div class="search-result-item" onclick="window.open('caderno_docente.html','_blank')">
+    <div class="search-result-icon">🧑‍🎓</div>
+    <div class="search-result-main">
+     <div class="search-result-title">${a}</div>
+     <div class="search-result-sub">${ns.length} notas · Media: ${media} · ${faltas} falta${faltas!==1?'s':''}</div>
+    </div>
+    <span class="search-result-badge">Caderno →</span>
+   </div>`;
+  });
+ }
+
+ // — Busca por tipo: faltas —
+ if('faltas'.includes(q)||q.includes('falt')||q.includes('asist')){
+  html+=`<div class="search-cat">✅ Asistencia</div>`;
+  const hoxeKey=new Date().toISOString().split('T')[0];
+  const recHoxe=(asist[hoxeKey]||{}).__global__||{};
+  const ausHoxe=alumnos.filter(a=>recHoxe[a]==='ausente');
+  html+=`<div class="search-result-item" onclick="window.open('panel_clase.html','_blank')">
+   <div class="search-result-icon">🚪</div>
+   <div class="search-result-main">
+    <div class="search-result-title">Asistencia de hoxe</div>
+    <div class="search-result-sub">${ausHoxe.length} ausente${ausHoxe.length!==1?'s':''}${ausHoxe.length?': '+ausHoxe.slice(0,3).join(', ')+(ausHoxe.length>3?'...':''):' · Todo o alumnado presente'}</div>
+   </div>
+   <span class="search-result-badge">Panel →</span>
+  </div>`;
+ }
+
+ // — Busca por tipo: notas —
+ if('notas'.includes(q)||q.includes('nota')||q.includes('avali')){
+  const notasMatch=notas.filter(n=>n.alumno.toLowerCase().includes(q)||n.label?.toLowerCase().includes(q));
+  if(notasMatch.length){
+   html+=`<div class="search-cat">📝 Notas</div>`;
+   notasMatch.slice(0,5).forEach(n=>{
+    html+=`<div class="search-result-item" onclick="window.open('caderno_docente.html','_blank')">
+     <div class="search-result-icon">📝</div>
+     <div class="search-result-main">
+      <div class="search-result-title">${n.alumno} · ${n.valor}/${ls('sn3_config',{escala:10}).escala||10}</div>
+      <div class="search-result-sub">${n.label||n.tipo} · ${n.data}${n.comentario?' · '+n.comentario.substring(0,40):''}</div>
+     </div>
+     <span class="search-result-badge">Caderno →</span>
+    </div>`;
+   });
+  }
+ }
+
+ // — Deberes —
+ if('deberes'.includes(q)||q.includes('debe')||q.includes('tarefa')){
+  html+=`<div class="search-cat">📋 Deberes</div>`;
+  cdTarefas.slice(0,4).forEach(t=>{
+   const entregados=Object.values(cdEntregas[t.id]||{}).filter(v=>v==='si').length;
+   html+=`<div class="search-result-item" onclick="window.open('control_deberes.html','_blank')">
+    <div class="search-result-icon">📋</div>
+    <div class="search-result-main">
+     <div class="search-result-title">${t.titulo||t.materia||'Tarefa'}</div>
+     <div class="search-result-sub">${t.data} · ${entregados} entregados</div>
+    </div>
+    <span class="search-result-badge">Deberes →</span>
+   </div>`;
+  });
+ }
+
+ // — Citas —
+ const citasMatch=citas.filter(c=>c.alumno.toLowerCase().includes(q)||c.motivo?.toLowerCase().includes(q));
+ if(citasMatch.length){
+  html+=`<div class="search-cat">📅 Citas</div>`;
+  citasMatch.slice(0,3).forEach(c=>{
+   html+=`<div class="search-result-item" onclick="window.open('titoria.html','_blank')">
+    <div class="search-result-icon">📅</div>
+    <div class="search-result-main">
+     <div class="search-result-title">${c.alumno}</div>
+     <div class="search-result-sub">${c.data}${c.hora?' · '+c.hora:''}${c.motivo?' · '+c.motivo.substring(0,40):''}</div>
+    </div>
+    <span class="search-result-badge">Titoría →</span>
+   </div>`;
+  });
+ }
+
+ // — Dashboard / Semáforo —
+ if('semaforo'.includes(q)||q.includes('semaf')||q.includes('risco')||q.includes('dashboard')||q.includes('clase')){
+  html+=`<div class="search-cat">🚦 Dashboard de clase</div>
+  <div class="search-result-item" onclick="window.open('dashboard_semaforo.html','_blank')">
+   <div class="search-result-icon">🚦</div>
+   <div class="search-result-main">
+    <div class="search-result-title">Dashboard Semáforo</div>
+    <div class="search-result-sub">Vista global con indicadores de risco por alumno/a</div>
+   </div>
+   <span class="search-result-badge">Abrir →</span>
+  </div>`;
+ }
+
+ // — Evolución —
+ if('evolucion'.includes(q)||q.includes('evol')||q.includes('progreso')||q.includes('grafica')||q.includes('temporal')){
+  html+=`<div class="search-cat">📈 Evolución</div>
+  <div class="search-result-item" onclick="window.open('evolucion_alumno.html','_blank')">
+   <div class="search-result-icon">📈</div>
+   <div class="search-result-main">
+    <div class="search-result-title">Evolución do Alumno/a</div>
+    <div class="search-result-sub">Gráfica temporal de notas, asistencia e autoavaliación</div>
+   </div>
+   <span class="search-result-badge">Abrir →</span>
+  </div>`;
+ }
+
+ // — Competencias LOMLOE —
+ if('competencias'.includes(q)||q.includes('compet')||q.includes('lomloe')||q.includes('ccl')||q.includes('stem')){
+  html+=`<div class="search-cat">🎓 Competencias LOMLOE</div>
+  <div class="search-result-item" onclick="window.open('competencias_lomloe.html','_blank')">
+   <div class="search-result-icon">🎓</div>
+   <div class="search-result-main">
+    <div class="search-result-title">Avaliación Competencial LOMLOE</div>
+    <div class="search-result-sub">8 competencias clave con radar e asignación por materia</div>
+   </div>
+   <span class="search-result-badge">Abrir →</span>
+  </div>`;
+ }
+
+ // — Alumno con links a módulos novos —
+ const alMatchNew=alumnos.filter(a=>a.toLowerCase().includes(q));
+ if(alMatchNew.length&&(q.includes('risco')||q.includes('evol')||q.length>=3)){
+  alMatchNew.slice(0,3).forEach(a=>{
+   html+=`<div class="search-result-item" onclick="localStorage.setItem('evol_presel','${a.replace(/'/g,"\\'")}');window.open('evolucion_alumno.html','_blank')">
+    <div class="search-result-icon">📈</div>
+    <div class="search-result-main">
+     <div class="search-result-title">${a}</div>
+     <div class="search-result-sub">Ver evolución temporal</div>
+    </div>
+    <span class="search-result-badge">Evolución →</span>
+   </div>`;
+  });
+ }
+
+ if(!html) html=`<div class="search-empty">😶 Sen resultados para "<strong>${q}</strong>"</div>`;
+ res.innerHTML=html;
+}
+
+function pecharBuscador(){
+ document.getElementById('search-overlay')?.classList.remove('show');
+ document.body.style.overflow='';
+ const inp=document.getElementById('search-input');
+ if(inp) inp.value='';
+ const res=document.getElementById('search-results');
+ if(res) res.innerHTML=`<div class="search-hint"><span>💡 Exemplos:</span><span style="color:var(--white)">nome alumno/a</span><span style="color:var(--white)">faltas</span><span style="color:var(--white)">deberes</span><span style="color:var(--white)">notas</span></div>`;
+}
+
+function pecharNotifs(){
+ document.getElementById('notif-panel')?.classList.remove('open');
+ document.getElementById('notif-overlay')?.classList.remove('show');
+ document.body.style.overflow='';
+}
+
+function renderFavs() {
+  var sec = document.getElementById('favs-section');
+  var row = document.getElementById('favs-row');
+  if (!sec || !row) return;
+
+  // Update star buttons
+  document.querySelectorAll('.fav-star').forEach(function(btn) {
+    var href = btn.dataset.href || btn.getAttribute('data-href');
+    btn.classList.toggle('on', _favs.includes(href));
+    btn.title = _favs.includes(href) ? 'Quitar de favoritos (m\xE1x. 5)' : 'Engadir a favoritos';
+  });
+
+  if (!_favs.length) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = 'block';
+
+  // Build fav chips from app cards
+  var chips = _favs.map(function(href) {
+    var card = document.querySelector('.app-card[href="' + href + '"]');
+    if (!card) return '';
+    var icon = card.querySelector('.app-icon')?.textContent?.trim() || '\uD83D\uDCCB';
+    var title = card.querySelector('.app-title')?.textContent?.trim() || href;
+    return '<a class="fav-chip" href="' + href + '" target="_blank">'
+      + '<span class="fav-chip-icon">' + icon + '</span>'
+      + '<span>' + title + '</span>'
+      + '</a>';
+  }).join('');
+  row.innerHTML = chips;
+}
+
+function renderResumeSemanal(){
+ const grid=document.getElementById('semana-grid');
+ if(!grid) return;
+
+ const alumnos=ls('pc_alumnos',[]);
+ const asist=ls('pc_asist',{});
+ const notas=ls('sn3_notas',[]);
+ const cdTarefas=ls('cd_tarefas',[]);
+ const cdEntregas=ls('cd_entregas',{});
+
+ // Calcular semana actual (luns a venres)
+ const hoxe=new Date();
+ const dow=hoxe.getDay();
+ const luns=new Date(hoxe); luns.setDate(hoxe.getDate()-(dow===0?6:dow-1));
+ const dias=[];
+ const GL_SHORT=['Dom','Lun','Mar','Mér','Xov','Ven','Sáb'];
+ for(let i=0;i<5;i++){const d=new Date(luns);d.setDate(luns.getDate()+i);dias.push(d);}
+ const diaKeys=dias.map(d=>d.toISOString().split('T')[0]);
+
+ // Asistencia por día desta semana
+ const total=alumnos.length||1;
+ const asistSemana=diaKeys.map(k=>{
+  const rec=(asist[k]||{}).__global__||{};
+  return alumnos.filter(a=>rec[a]==='presente').length;
+ });
+ const totalPres=asistSemana.reduce((s,v)=>s+v,0);
+ const mediaPres=total>0?Math.round(totalPres/(diaKeys.filter((_,i)=>asistSemana[i]>0).length||1)):0;
+ const maxPres=Math.max(...asistSemana,1);
+
+ // Notas desta semana
+ const notasSem=notas.filter(n=>n.data>=diaKeys[0]&&n.data<=diaKeys[4]);
+
+ // Deberes desta semana
+ const deberesS=cdTarefas.filter(t=>t.data>=diaKeys[0]&&t.data<=diaKeys[4]);
+ const totalEntregas=deberesS.reduce((s,t)=>s+Object.values(cdEntregas[t.id]||{}).filter(v=>v==='si').length,0);
+
+ // Faltas totais da semana
+ const faltasTot=asistSemana.reduce((s,v)=>s+(total-v),0);
+
+ // Barra de asistencia por día
+ const barrasHtml=diaKeys.map((k,i)=>{
+  const pct=Math.round(asistSemana[i]/maxPres*100);
+  const isHoxe=k===hoxe.toISOString().split('T')[0];
+  const col=asistSemana[i]/total>=0.9?'var(--green)':asistSemana[i]/total>=0.75?'var(--gold)':'var(--red)';
+  return `<div class="semana-day">
+   <div class="semana-day-bar" style="height:${4+pct*0.4}px;background:${asistSemana[i]?col:'var(--border)'};border-radius:3px;${isHoxe?'box-shadow:0 0 0 2px '+col+'44':''}"></div>
+   <div class="semana-day-lbl" style="${isHoxe?'color:var(--gold)':''}">${GL_SHORT[dias[i].getDay()]}</div>
+  </div>`;
+ }).join('');
+
+ grid.innerHTML=`
+  <div class="semana-card">
+   <div class="semana-label">✅ Asistencia media</div>
+   <span class="semana-val" style="color:${mediaPres/total>=.9?'var(--green)':mediaPres/total>=.75?'var(--gold)':'var(--red)'}">${mediaPres}<span style="font-size:.9rem;color:var(--muted)">/${total}</span></span>
+   <div class="semana-sub">${Math.round(mediaPres/total*100)}% de presenza</div>
+   <div class="semana-bar"><div class="semana-week-row">${barrasHtml}</div></div>
+  </div>
+  <div class="semana-card">
+   <div class="semana-label">🚪 Total faltas semana</div>
+   <span class="semana-val" style="color:${faltasTot===0?'var(--green)':faltasTot<5?'var(--gold)':'var(--red)'}">${faltasTot}</span>
+   <div class="semana-sub">Faltas de ${diaKeys[0].slice(5)} a ${diaKeys[4].slice(5)}</div>
+  </div>
+  <div class="semana-card">
+   <div class="semana-label">📝 Notas rexistradas</div>
+   <span class="semana-val" style="color:var(--blue)">${notasSem.length}</span>
+   <div class="semana-sub">${notasSem.length?'Esta semana':'Sen notas esta semana'}</div>
+  </div>
+  <div class="semana-card">
+   <div class="semana-label">📋 Deberes / entregas</div>
+   <span class="semana-val" style="color:var(--teal)">${deberesS.length}</span>
+   <div class="semana-sub">${totalEntregas} entrega${totalEntregas!==1?'s':''} recibidas</div>
+  </div>`;
+}
+
+function searchKey(e){if(e.key==='Escape') pecharBuscador();}
+
+function toggleFav(btn, href) {
+  var idx = _favs.indexOf(href);
+  if (idx >= 0) {
+    _favs.splice(idx, 1);
+    btn.classList.remove('on');
+    btn.title = 'Engadir a favoritos';
+  } else {
+    if (_favs.length >= 5) {
+      btn.style.color = '#ef4444';
+      setTimeout(function() { btn.style.color = ''; }, 800);
+      return; // max 5
+    }
+    _favs.push(href);
+    btn.classList.add('on');
+    btn.title = 'Quitar de favoritos';
+  }
+  localStorage.setItem('portal_favs', JSON.stringify(_favs));
+  renderFavs();
+}
+
+function xerarNotificacions(){
+ const notifs=[];
+ const hoxeKey=new Date().toISOString().split('T')[0];
+
+ // Alumnos con moitas faltas (≥3 nun mes)
+ const alumnos=ls('pc_alumnos',[]);
+ const asist=ls('pc_asist',{});
+ const faltasXAlumno={};
+ Object.values(asist).forEach(diaRec=>{
+  const rec=diaRec.__global__||{};
+  alumnos.forEach(a=>{if(rec[a]==='ausente') faltasXAlumno[a]=(faltasXAlumno[a]||0)+1;});
+ });
+ const conMuitasFaltas=alumnos.filter(a=>faltasXAlumno[a]>=3);
+ if(conMuitasFaltas.length){
+  notifs.push({tipo:'alerta',icon:'🚨',msg:`${conMuitasFaltas.length} alumno${conMuitasFaltas.length>1?'s':''} con 3 ou máis faltas`,sub:conMuitasFaltas.slice(0,4).join(', ')+(conMuitasFaltas.length>4?'...':'')});
+ }
+
+ // Deberes non entregados hoxe
+ const cdTarefas=ls('cd_tarefas',[]);
+ const cdEntregas=ls('cd_entregas',{});
+ const deberesHoxe=cdTarefas.filter(t=>t.data===hoxeKey);
+ deberesHoxe.forEach(t=>{
+  const entregados=Object.values(cdEntregas[t.id]||{}).filter(v=>v==='si').length;
+  const total=alumnos.length||1;
+  const pct=Math.round(entregados/total*100);
+  if(pct<70){
+   notifs.push({tipo:'aviso',icon:'📝',msg:`Deberes "${t.titulo||t.materia}" con baixa entrega hoxe`,sub:`${entregados}/${total} entregados (${pct}%)`});
+  }
+ });
+
+ // Citas próximas (nos próximos 2 días)
+ const citas=ls('tit_citas',[]);
+ const mañana=new Date(); mañana.setDate(mañana.getDate()+1);
+ const pasadoMañana=new Date(); pasadoMañana.setDate(pasadoMañana.getDate()+2);
+ const mKey=mañana.toISOString().split('T')[0];
+ const pmKey=pasadoMañana.toISOString().split('T')[0];
+ const citasProximas=citas.filter(c=>c.data>=hoxeKey&&c.data<=pmKey);
+ if(citasProximas.length){
+  notifs.push({tipo:'info',icon:'📅',msg:`${citasProximas.length} cita${citasProximas.length>1?'s':''} próxima${citasProximas.length>1?'s':''}`,sub:citasProximas.map(c=>`${c.alumno} · ${c.data}`).join(' / ')});
+ }
+
+ // Reunións próximas
+ const reunions=ls('tit_reunions',[]);
+ const reunionsProximas=reunions.filter(r=>r.data>=hoxeKey&&r.data<=pmKey);
+ if(reunionsProximas.length){
+  notifs.push({tipo:'info',icon:'🤝',msg:`${reunionsProximas.length} reunión${reunionsProximas.length>1?'s':''} esta semana`,sub:reunionsProximas.slice(0,2).map(r=>`${r.familia||r.alumno} · ${r.data}`).join(' / ')});
+ }
+
+ // Aniversarios hoxe
+ const bdayList=ls('pc_bdays',[]);
+ const todayMD=(new Date().getMonth()+1).toString().padStart(2,'0')+'-'+new Date().getDate().toString().padStart(2,'0');
+ const bdaysHoxe=bdayList.filter(b=>b.mmdd===todayMD);
+ if(bdaysHoxe.length){
+  notifs.push({tipo:'ok',icon:'🎂',msg:`${bdaysHoxe.length} aniversario${bdaysHoxe.length>1?'s':''} hoxe!`,sub:bdaysHoxe.map(b=>b.name).join(', ')});
+ }
+
+ // Alumnos sen notas recentes (>14 días)
+ const notas=ls('sn3_notas',[]);
+ if(alumnos.length&&notas.length){
+  const haceDosSem=new Date(); haceDosSem.setDate(haceDosSem.getDate()-14);
+  const haceKey=haceDosSem.toISOString().split('T')[0];
+  const sinNotasRec=alumnos.filter(a=>!notas.some(n=>n.alumno===a&&n.data>=haceKey));
+  if(sinNotasRec.length>0&&sinNotasRec.length<=5){
+   notifs.push({tipo:'aviso',icon:'📒',msg:`${sinNotasRec.length} alumno${sinNotasRec.length>1?'s':''} sen notas nas últimas 2 semanas`,sub:sinNotasRec.join(', ')});
+  }
+ }
+
+ if(!notifs.length){
+  notifs.push({tipo:'ok',icon:'✅',msg:'Todo ao día — sen alertas pendentes',sub:'Bo traballo!'});
+ }
+
+ // Badge
+ const alertas=notifs.filter(n=>n.tipo==='alerta'||n.tipo==='aviso').length;
+ const badge=document.getElementById('notif-badge');
+ if(badge){
+  badge.textContent=alertas;
+  badge.classList.toggle('show',alertas>0);
+ }
+
+ return notifs;
+}
+
+</script>
+</body>
+</html>

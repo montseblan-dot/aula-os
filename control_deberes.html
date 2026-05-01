@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Deberes · 4º B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,700;9..40,800;9..40,900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#fbbf24;--green:#22c55e;--red:#ef4444;--purple:#a78bfa;--teal:#2dd4bf;--blue:#60a5fa;--orange:#fb923c;--shadow:0 4px 24px rgba(0,0,0,.35)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--white);font-size:14px}
+.header{background:var(--card);border-bottom:2px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1rem,3vw,1.5rem);color:var(--gold)}
+.btn{height:36px;padding:0 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;border:none;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--white);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-sm{height:30px;padding:0 10px;font-size:.72rem}
+.tab-nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none}
+.tab{padding:10px 16px;cursor:pointer;font-size:.82rem;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.section{display:none;padding:1.25rem;max-width:1100px;margin:0 auto}.section.show{display:block}
+.inp{width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 12px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--gold)}
+.label{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px;display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;margin-bottom:.75rem}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:10000;padding:9px 22px;border-radius:12px;font-size:.85rem;font-weight:800;color:white;pointer-events:none;opacity:0;transition:opacity .3s}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.4rem">📝</span>
+  <h1>Control de Deberes<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted);margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted);text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a></h1>
+  <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn btn-ghost btn-sm" onclick="verStatsDeberes()">📊 Estatísticas</button>
+    <button class="btn btn-gold btn-sm" onclick="abrirNovaAsignacion()">+ Nova asignación</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">📊 CSV</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">📤 JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="importarJSON()">📥 Importar</button>
+    <button class="btn btn-ghost btn-sm" onclick="toggleModo()">☀️ Claro</button>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <div class="tab active" id="tab-hoxe" onclick="showTab('hoxe')">📋 Hoxe</div>
+  <div class="tab" id="tab-historial" onclick="showTab('historial')">📅 Historial</div>
+  <div class="tab" id="tab-alertas" onclick="showTab('alertas')">⚠️ Alertas <span id="badge-alertas" style="background:var(--red);color:white;border-radius:999px;padding:1px 7px;font-size:.6rem;margin-left:4px;display:none">0</span></div>
+  <div class="tab" id="tab-stats" onclick="showTab('stats')">📊 Estatísticas</div>
+</div>
+
+<!-- HOXE -->
+<div class="section show" id="sec-hoxe">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+    <div style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);font-size:1rem">📋 Rexistro do día</div>
+    <input type="date" id="data-sel" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;padding:0 10px;outline:none" oninput="renderHoxe();mostrarSuxerenciasAxenda()">
+    <button class="btn btn-ghost btn-sm" id="btn-axenda" onclick="importarDesdaAxenda()" style="display:none;color:var(--teal);border-color:rgba(45,212,191,.3)">📅 Importar da axenda</button>
+    <select id="mat-fil" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer" onchange="renderHoxe()">
+      <option value="">Todas as materias</option>
+    </select>
+    <select id="asig-sel" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer" onchange="renderHoxe()">
+      <option value="">Todas as asignacións</option>
+    </select>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" onclick="marcarTodos(true)">✅ Todos fixeron</button>
+      <button class="btn btn-ghost btn-sm" onclick="marcarTodos('tarde')" style="border-color:rgba(249,115,22,.4);color:#f97316">🟠 Todos fóra prazo</button>
+      <button class="btn btn-ghost btn-sm" onclick="marcarTodos(false)">❌ Resetear</button>
+    </div>
+  </div>
+  <div id="hoxe-content"></div>
+</div>
+
+<!-- HISTORIAL -->
+<div class="section" id="sec-historial">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+    <div style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);font-size:1rem">📅 Historial de asignacións</div>
+    <input id="hist-search" placeholder="🔍 Buscar…" oninput="renderHistorial()" style="height:32px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;padding:0 10px;outline:none;width:200px">
+    <button class="btn btn-red btn-sm" onclick="borrarHistorial()">🗑 Borrar todo</button>
+  </div>
+  <div id="hist-content"></div>
+</div>
+
+<!-- ALERTAS -->
+<div class="section" id="sec-alertas">
+  <div style="font-family:'DM Serif Display',Georgia,serif;color:var(--red);font-size:1rem;margin-bottom:1rem">⚠️ Alumnado con non entregas repetidas</div>
+  <div id="alertas-content"></div>
+</div>
+
+<!-- STATS -->
+<div class="section" id="sec-stats">
+  <div style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);font-size:1rem;margin-bottom:1rem">📊 Estatísticas de cumprimento</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:1.25rem" id="stat-cards"></div>
+  <div class="card">
+    <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem">% Cumprimento por alumno/a</div>
+    <div id="stats-bars"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)this.style.display='none'">
+  <div id="modal-content" style="background:var(--card);border-radius:16px;padding:1.5rem;max-width:500px;width:100%;border:1px solid var(--border2)"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const AVCOLS=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#f97316','#14b8a6','#ef4444','#84cc16','#a855f7','#06b6d4','#f43f5e','#22c55e','#eab308','#6366f1','#64748b','#0ea5e9','#d946ef','#fb923c','#4ade80','#818cf8','#34d399','#fbbf24','#f87171'];
+
+let alumnos=LS.get('pc_alumnos',[]);
+// asignacións: [{id, titulo, materia, data, notas}]
+// rexistros: [{id, asignId, data, alumno, fixo(bool), observacion}]
+let asignacions=LS.get('cd_asigs',[]);
+let rexistros=LS.get('cd_rexs',[]);
+const LIMITE_ALERTAS=LS.get('cd_limite',3); // non entregas seguidas
+
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('data-sel').value=today;
+
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();}
+function ac(i){return AVCOLS[i%AVCOLS.length];}
+function gardar(){LS.set('cd_asigs',asignacions);LS.set('cd_rexs',rexistros);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){}}
+function toast(msg,col='#22c55e'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=col;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2200);}
+
+function showTab(t){
+  document.querySelectorAll('.tab,.section').forEach(el=>el.classList.remove('active','show'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('sec-'+t).classList.add('show');
+  if(t==='hoxe')renderHoxe();
+  if(t==='historial')renderHistorial();
+  if(t==='alertas')renderAlertas();
+  if(t==='stats')renderStats();
+}
+
+// ── NOVA ASIGNACIÓN ────────────────────────────────────────────────────────────
+
+function getMatNome(asig){
+  if(!asig.materia) return '';
+  if(asig.materiaNome) return asig.materiaNome;
+  const mats=LS.get('sn3_materias',[]);
+  const m=mats.find(x=>x.id===asig.materia);
+  return m?(m.icon||'')+' '+m.nome:asig.materia;
+}
+function abrirNovaAsignacion(id=null){
+  const a=id?asignacions.find(x=>x.id===id):{};
+  document.getElementById('modal-content').innerHTML=`
+    <h3 style="font-family:'DM Serif Display',Georgia,serif;color:var(--gold);margin-bottom:1rem">${id?'✏️ Editar':'📝 Nova asignación'}</h3>
+    <div style="display:grid;gap:10px">
+      <div><label class="label">Título / descrición</label>
+        <input id="na-titulo" class="inp" value="${a.titulo||''}" placeholder="Ex: Problemas páx. 45-46"></div>
+      <div><label class="label">Materia</label>
+        <select id="na-mat" class="inp" style="cursor:pointer" onchange="document.getElementById('na-mat-libre').style.display=this.value==='__libre__'?'block':'none'">
+          <option value="">Sen materia</option>
+          ${(()=>{const mats=LS.get('sn3_materias',[]);return mats.filter(m=>m.id!=='outras').map(m=>`<option value="${m.id}" data-nome="${m.nome}" ${(a.materia||'')===(m.id)?'selected':''}>${m.icon||''} ${m.nome}</option>`).join('');})()}
+          <option value="__libre__" ${(a.materia||'').startsWith('__')||(!LS.get('sn3_materias',[]).find(m=>m.id===a.materia)&&a.materia)?'selected':''}>Outra…</option>
+        </select>
+        <input id="na-mat-libre" class="inp" style="margin-top:6px;display:none" placeholder="Nome da materia" value="${(!LS.get('sn3_materias',[]).find(m=>m.id===a.materia)&&a.materia)?a.materia:''}">
+      </div>
+      <div><label class="label">Data de entrega</label>
+        <input id="na-data" class="inp" type="date" value="${a.data||today}"></div>
+      <div style="display:grid;grid-template-columns:1fr 80px;gap:8px">
+        <div><label class="label">Grupo no Caderno (para a nota)</label>
+          <select id="na-grupo" class="inp" style="cursor:pointer">
+            <option value="">Sen grupo</option>
+            ${(()=>{const gs=LS.get('sn3_grupos',[]);return gs.map(g=>`<option value="${g.id}"${(a.grupoId||'')===(g.id)?'selected':''}>${g.nome} (${g.peso}%)</option>`).join('');})()}
+          </select></div>
+        <div><label class="label">Peso (%)</label>
+          <input id="na-peso" class="inp" type="number" min="0" max="100" value="${a.peso||0}"></div>
+      </div>
+      <div><label class="label">📚 Unidade Didáctica (opcional)</label>
+        <select id="na-ud" class="inp" style="cursor:pointer">
+          <option value="">— Sen UD —</option>
+          ${(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const matId=a.materia||'';const allUDs=matId&&lomloeUDs[matId]?lomloeUDs[matId]:Object.values(lomloeUDs).flat();const seen=new Set();return allUDs.filter(u=>{if(seen.has(u.num))return false;seen.add(u.num);return true;}).sort((a,b)=>a.num-b.num).map(u=>`<option value="${u.num}"${(a.udNum||0)===u.num?' selected':''}>UD${u.num}${u.tit?' · '+u.tit.substring(0,22):''}</option>`).join('');}catch{return '';}})()}
+        </select>
+      </div>
+      <div><label class="label">Notas / instrucións (opcional)</label>
+        <textarea id="na-notas" rows="2" style="width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:8px 12px;outline:none;resize:vertical">${a.notas||''}</textarea></div>
+    </div>
+    <div style="font-size:.68rem;color:var(--muted);font-weight:700;margin-top:.5rem">💡 Ao marcar ✅/❌ un alumno/a, a nota sincronizarase <strong style="color:var(--teal)">automaticamente</strong> no Caderno Docente.</div>
+    <div style="display:flex;gap:8px;margin-top:.75rem;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-bg').style.display='none'">Cancelar</button>
+      <button class="btn btn-gold" onclick="gardarAsignacion('${id||''}')">💾 Gardar</button>
+    </div>`;
+  document.getElementById('modal-bg').style.display='flex';
+}
+
+function gardarAsignacion(id){
+  const titulo=document.getElementById('na-titulo').value.trim();
+  if(!titulo){alert('Introduce un título.');return;}
+  const matSel=document.getElementById('na-mat').value;
+  const matNome=matSel==='__libre__'?(document.getElementById('na-mat-libre').value.trim()||'Outra'):(LS.get('sn3_materias',[]).find(m=>m.id===matSel)?.nome||matSel||'');
+  const matId=matSel==='__libre__'?'__libre__':matSel;
+  const grupoId=document.getElementById('na-grupo')?.value||'';
+  const peso=parseInt(document.getElementById('na-peso')?.value)||0;
+  const _udNum=parseInt(document.getElementById('na-ud')?.value)||null;
+  const _udTit=_udNum?(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');for(const arr of Object.values(lomloeUDs)){const u=arr.find(x=>x.num===_udNum);if(u)return u.tit||'';}return '';}catch{return '';}})():'';
+  const obj={id:id||'a_'+Date.now(),titulo,materia:matId,materiaNome:matNome,data:document.getElementById('na-data').value,notas:document.getElementById('na-notas').value.trim(),grupoId,peso,udNum:_udNum||null,udTit:_udTit||''};
+  if(id){const i=asignacions.findIndex(a=>a.id===id);if(i>=0)asignacions[i]=obj;}
+  else asignacions.push(obj);
+  // Crear rexistros para todos os alumnos se non existen
+  alumnos.forEach(al=>{
+    if(!rexistros.find(r=>r.asignId===obj.id&&r.alumno===al)){
+      rexistros.push({id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2),asignId:obj.id,data:obj.data,alumno:al,fixo:null,observacion:''});
+    }
+  });
+  gardar();
+  // Re-sync caderno notas for all alumnos with this asig (titulo/materia/data may have changed)
+  alumnos.forEach(al => syncNotaCaderno(obj.id, al));
+  document.getElementById('modal-bg').style.display='none';
+  renderHoxe();
+  actualizarAsigSel();
+  toast('Asignación gardada','#22c55e');
+}
+
+function actualizarAsigSel(){
+  const sel=document.getElementById('asig-sel');
+  const matFil=document.getElementById('mat-fil');
+  const val=sel.value;
+  const matVal=matFil?.value||'';
+  const data=document.getElementById('data-sel').value;
+  // Actualizar filtro de materias
+  if(matFil){
+    const allMats=[...new Set(asignacions.filter(a=>!data||a.data===data).map(a=>a.materia).filter(Boolean))];
+    const curMat=matFil.value;
+    const mats=LS.get('sn3_materias',[]);
+    matFil.innerHTML='<option value="">Todas as materias</option>'+allMats.map(id=>{
+      const m=mats.find(x=>x.id===id);
+      const nome=m?(m.icon||'')+' '+m.nome:id;
+      return `<option value="${id}"${id===curMat?' selected':''}>${nome}</option>`;
+    }).join('');
+  }
+  // Actualizar asignacións filtrando por materia
+  const asigData=asignacions.filter(a=>(!data||a.data===data)&&(!matVal||a.materia===matVal));
+  sel.innerHTML='<option value="">Todas as asignacións</option>'+asigData.map(a=>`<option value="${a.id}"${a.id===val?' selected':''}>${a.titulo} · ${getMatNome(a)||'—'}</option>`).join('');
+}
+
+// ── HOXE ───────────────────────────────────────────────────────────────────────
+function renderHoxe(){
+  const data=document.getElementById('data-sel').value;
+  const asigFiltro=document.getElementById('asig-sel').value;
+  actualizarAsigSel();
+  const asigsDia=asignacions.filter(a=>a.data===data);
+  const content=document.getElementById('hoxe-content');
+  if(!asigsDia.length){
+    content.innerHTML=`<div class="card" style="text-align:center;padding:2.5rem;color:var(--muted)">
+      <div style="font-size:2.5rem;margin-bottom:.5rem">📋</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem">Non hai deberes para este día</div>
+      <div style="font-size:.75rem;margin-top:.5rem">Preme "+ Nova asignación" para engadir</div>
+    </div>`;return;
+  }
+  const asigsMostrar=asigFiltro?asigsDia.filter(a=>a.id===asigFiltro):asigsDia;
+  content.innerHTML=asigsMostrar.map(asig=>{
+    const rexs=rexistros.filter(r=>r.asignId===asig.id);
+    const nFixo=rexs.filter(r=>r.fixo===true||r.fixo==='tarde').length;
+    const nTarde=rexs.filter(r=>r.fixo==='tarde').length;
+    const nNon=rexs.filter(r=>r.fixo===false).length;
+    const total=alumnos.length;
+    const pct=total?Math.round(nFixo/total*100):0;
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem">${asig.titulo}</div>
+            ${asig.udNum?`<span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:5px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.2)">📚 UD${asig.udNum}${asig.udTit?' · '+asig.udTit.substring(0,14):''}</span>`:''}
+          </div>
+          <div style="font-size:.68rem;color:var(--muted);font-weight:700">${getMatNome(asig)||'Sen materia'} · ${asig.data} · ${nFixo}/${total} entregados (${pct}%)</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:5px">
+          <button class="btn btn-ghost btn-sm" onclick="abrirNovaAsignacion('${asig.id}')">✏️</button>
+          ${(()=>{
+            const notas=LS.get('sn3_notas',[]);
+            const nSinc=notas.filter(n=>n.cdAsigId===asig.id).length;
+            const trim=nSinc?notas.find(n=>n.cdAsigId===asig.id)?.trimestre:null;
+            if(nSinc>0) return `<span style="font-size:.65rem;font-weight:900;padding:2px 8px;border-radius:7px;background:rgba(45,212,191,.12);color:var(--teal);border:1px solid rgba(45,212,191,.3)" title="Sincronizado co Caderno Docente">📒 T${trim||'?'} · ${nSinc} notas</span>
+              <button class="btn btn-red btn-sm" onclick="borrarDosCaderno('${asig.id}')" title="Eliminar do Caderno">🗑📒</button>`;
+            return `<span style="font-size:.65rem;color:var(--muted);font-weight:700">Sen marcar</span>`;
+          })()}
+          <button class="btn btn-red btn-sm" onclick="borrarAsignacion('${asig.id}')">🗑</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${alumnos.map(al=>{
+          const r=rexs.find(rx=>rx.alumno===al);
+          const fixo=r?.fixo;
+          const i=alumnos.indexOf(al);
+          const col=fixo===true?'var(--green)':fixo==='tarde'?'#f97316':fixo===false?'var(--red)':'var(--muted)';
+          const bg=fixo===true?'rgba(34,197,94,.12)':fixo==='tarde'?'rgba(249,115,22,.12)':fixo===false?'rgba(239,68,68,.12)':'rgba(255,255,255,.05)';
+          return `<div onclick="toggleRex('${asig.id}','${al.replace(/'/g,"\\'")}','${r?.id||''}')"
+            title="${al} · ${fixo===true?'Entregou':fixo==='tarde'?'Entregou fóra de prazo':fixo===false?'Non entregou':'Sen marcar'}"
+            style="width:36px;height:36px;border-radius:9px;background:${bg};border:1.5px solid ${col};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:${col};transition:all .12s"
+          >${fixo===true?'✅':fixo==='tarde'?'🟠':fixo===false?'❌':ini(al)}</div>`;
+        }).join('')}
+      </div>
+      ${asig.notas?`<div style="font-size:.72rem;color:var(--muted);margin-top:.5rem;font-style:italic;border-top:1px solid var(--border);padding-top:.5rem">${asig.notas}</div>`:''}
+    </div>`;
+  }).join('');
+  actualizarBadgeAlertas();
+}
+
+function syncNotaCaderno(asigId, alumno){
+  const asig = asignacions.find(a => a.id === asigId);
+  if(!asig || !asig.materia || asig.materia === '__libre__' || asig.materia === '') return;
+
+  const escala = LS.get('sn3_escala', 10);
+  const trimestre = _calcTrimestre(asig.data);
+  let notas = LS.get('sn3_notas', []);
+  const r = rexistros.find(x => x.asignId === asigId && x.alumno === alumno);
+
+  // Remove existing nota for this alumno+asig
+  notas = notas.filter(n => !(n.cdAsigId === asigId && n.alumno === alumno));
+
+  if(r && r.fixo !== null && r.fixo !== undefined) {
+    // Add updated nota
+    const maxId = Math.max(0, ...notas.map(n => n.id || 0));
+    notas.push({
+      id: maxId + 1,
+      alumno,
+      materia: asig.materia,
+      materiaNome: asig.materiaNome || '',
+      tipo: 'deberes',
+      subtipo: '',
+      valor: r.fixo === true ? escala : r.fixo === 'tarde' ? Math.round(escala/2) : 0,
+      peso: asig.peso || 0,
+      grupoId: asig.grupoId || '',
+      label: asig.titulo,
+      data: asig.data,
+      comentario: r.fixo === true ? 'Entregou' : r.fixo === 'tarde' ? 'Entregou fóra de prazo' : 'Non entregou',
+      trimestre,
+      cdAsigId: asigId
+    });
+  }
+
+  LS.set('sn3_notas', notas);
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+}
+
+function toggleRex(asigId, alumno, rexId){
+  let r = rexistros.find(x => x.id === rexId) || (rexId ? null : rexistros.find(x => x.asignId === asigId && x.alumno === alumno));
+  if(!r){
+    r = {id:'r_'+Date.now(), asignId, data: document.getElementById('data-sel').value, alumno, fixo: null, observacion:''};
+    rexistros.push(r);
+  }
+  // Ciclar: null → true → false → null
+  r.fixo = r.fixo === null ? true : r.fixo === true ? 'tarde' : r.fixo === 'tarde' ? false : null;
+  gardar();
+  syncNotaCaderno(asigId, alumno);
+  renderHoxe();
+}
+
+
+function marcarTodos(fixo){
+  const data=document.getElementById('data-sel').value;
+  const asigFiltro=document.getElementById('asig-sel').value;
+  const asigsDia=asignacions.filter(a=>a.data===data&&(!asigFiltro||a.id===asigFiltro));
+  asigsDia.forEach(asig=>{
+    alumnos.forEach(al=>{
+      let r=rexistros.find(x=>x.asignId===asig.id&&x.alumno===al);
+      if(!r){r={id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2),asignId:asig.id,data,alumno:al,fixo:null,observacion:''};rexistros.push(r);}
+      r.fixo=fixo===true?true:fixo==='tarde'?'tarde':null;
+    });
+    // Sync all to caderno
+    alumnos.forEach(al=>syncNotaCaderno(asig.id, al));
+  });
+  gardar();renderHoxe();
+}
+
+function borrarAsignacion(id){
+  _confirmar('Borrar esta asignación, os seus rexistros e as notas do Caderno?',()=>{
+  asignacions=asignacions.filter(a=>a.id!==id);
+  rexistros=rexistros.filter(r=>r.asignId!==id);
+  // Limpar notas do caderno
+  let notas=LS.get('sn3_notas',[]);
+  notas=notas.filter(n=>n.cdAsigId!==id);
+  LS.set('sn3_notas',notas);
+  try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){}
+  gardar();renderHoxe();toast('Asignación eliminada (e notas do Caderno)','#ef4444');
+});
+
+// ── HISTORIAL ─────────────────────────────────────────────────────────────────
+function renderHistorial(){
+  const q=document.getElementById('hist-search').value.toLowerCase();
+  const list=asignacions.filter(a=>!q||a.titulo.toLowerCase().includes(q)||a.materia?.toLowerCase().includes(q)).sort((a,b)=>b.data.localeCompare(a.data));
+  document.getElementById('hist-content').innerHTML=list.length?list.map(asig=>{
+    const rexs=rexistros.filter(r=>r.asignId===asig.id);
+    const nFixo=rexs.filter(r=>r.fixo===true).length;
+    const nNon=rexs.filter(r=>r.fixo===false).length;
+    const total=alumnos.length;
+    const pct=total&&rexs.length?Math.round(nFixo/total*100):null;
+    return `<div class="card" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-weight:800">${asig.titulo}</div>
+        <div style="font-size:.68rem;color:var(--muted)">${getMatNome(asig)||'—'} · ${asig.data}</div>
+      </div>
+      ${pct!==null?`<div style="font-size:.8rem;font-weight:800;color:${pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)'}">${pct}% (${nFixo}/${total})</div>`:'<div style="font-size:.75rem;color:var(--muted)">Sen rexistros</div>'}
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-ghost btn-sm" onclick="showTab('hoxe');document.getElementById('data-sel').value='${asig.data}';document.getElementById('asig-sel').value='${asig.id}';renderHoxe()">📋 Ver</button>
+        <button class="btn btn-red btn-sm" onclick="borrarAsignacion('${asig.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="card" style="text-align:center;padding:2rem;color:var(--muted)">Non hai asignacións rexistradas.</div>';
+}
+
+function borrarHistorial(){
+  _confirmar('Borrar TODAS as asignacións e rexistros?',()=>{
+  asignacions=[];rexistros=[];gardar();renderHistorial();toast('Historial borrado','#ef4444');
+});
+
+// ── ALERTAS ────────────────────────────────────────────────────────────────────
+function alumnoNonEntregasRecentes(al,n=LIMITE_ALERTAS){
+  const sorted=asignacions.sort((a,b)=>b.data.localeCompare(a.data)).slice(0,n);
+  return sorted.filter(asig=>{
+    const r=rexistros.find(rx=>rx.asignId===asig.id&&rx.alumno===al);
+    return r&&r.fixo===false;
+  }).length;
+}
+
+function actualizarBadgeAlertas(){
+  const n=alumnos.filter(al=>alumnoNonEntregasRecentes(al)>=LIMITE_ALERTAS).length;
+  const b=document.getElementById('badge-alertas');
+  b.style.display=n>0?'inline':'none';
+  b.textContent=n;
+}
+
+function renderAlertas(){
+  const alertados=alumnos.filter(al=>alumnoNonEntregasRecentes(al)>=LIMITE_ALERTAS);
+  const el=document.getElementById('alertas-content');
+  if(!alertados.length){
+    el.innerHTML='<div class="card" style="text-align:center;padding:2.5rem;color:var(--muted)"><div style="font-size:2.5rem;margin-bottom:.5rem">✅</div><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1rem">Non hai alertas activas</div></div>';return;
+  }
+  el.innerHTML=alertados.map(al=>{
+    const i=alumnos.indexOf(al);
+    const nonEnts=rexistros.filter(r=>{
+      const a=asignacions.find(x=>x.id===r.asignId);
+      return r.alumno===al&&r.fixo===false;
+    });
+    return `<div class="card" style="border-left:4px solid var(--red)">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="width:36px;height:36px;border-radius:50%;background:${ac(i)};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;color:white">${ini(al)}</div>
+        <div style="flex:1">
+          <div style="font-weight:800">${al}</div>
+          <div style="font-size:.7rem;color:var(--red);font-weight:700">⚠️ ${nonEnts.length} non entrega${nonEnts.length!==1?'s':''} rexistrada${nonEnts.length!==1?'s':''}</div>
+        </div>
+      </div>
+      <div style="margin-top:.6rem;display:flex;flex-wrap:wrap;gap:5px">
+        ${nonEnts.slice(0,6).map(r=>{
+          const a=asignacions.find(x=>x.id===r.asignId);
+          return a?`<span style="font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(239,68,68,.1);color:var(--red)">${a.titulo} · ${a.data}</span>`:'';
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ESTATÍSTICAS ────────────────────────────────────────────────────────────────
+function verStatsDeberes(){
+  const rexs=LS.get('cd_rexs',[]);
+  const asigs=LS.get('cd_asigs',[]).sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,12);
+  if(!asigs.length){openModal('<h3>📊 Estatísticas</h3><div style="color:var(--muted);padding:1rem">Sen asignacións</div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button onclick="closeModal()" class="btn btn-ghost">Pechar</button></div>');return;}
+  const bars=asigs.map(a=>{
+    const rexsA=rexs.filter(r=>r.asignId===a.id);
+    const total=rexsA.length;
+    const ok=rexsA.filter(r=>r.fixo===true||r.fixo==='true').length;
+    const pct=total?Math.round(ok/total*100):0;
+    const c=pct>=80?'#34d399':pct>=60?'#60a5fa':pct>=40?'#fbbf24':'#f87171';
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:.7rem;font-weight:800;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.titulo.substring(0,30)}</span>
+        <span style="font-size:.7rem;font-weight:900;color:${c};margin-left:8px">${ok}/${total} (${pct}%)</span>
+      </div>
+      <div style="height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${c};border-radius:999px"></div>
+      </div>
+      ${a.data?`<div style="font-size:.58rem;color:var(--muted);margin-top:2px">${a.data}${a.udNum?' · UD'+a.udNum:''}</div>`:''}
+    </div>`;
+  }).join('');
+  const totalRexs=rexs.length;
+  const totalOk=rexs.filter(r=>r.fixo===true||r.fixo==='true').length;
+  const pctGlobal=totalRexs?Math.round(totalOk/totalRexs*100):0;
+  openModal(`<h3>📊 Estatísticas de entrega</h3>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex:1;background:var(--card2);border-radius:10px;padding:10px 14px;text-align:center"><div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:var(--gold)">${pctGlobal}%</div><div style="font-size:.58rem;color:var(--muted);font-weight:900;text-transform:uppercase">Entrega global</div></div>
+      <div style="flex:1;background:var(--card2);border-radius:10px;padding:10px 14px;text-align:center"><div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:var(--green)">${totalOk}</div><div style="font-size:.58rem;color:var(--muted);font-weight:900;text-transform:uppercase">Entregados</div></div>
+      <div style="flex:1;background:var(--card2);border-radius:10px;padding:10px 14px;text-align:center"><div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:var(--red)">${totalRexs-totalOk}</div><div style="font-size:.58rem;color:var(--muted);font-weight:900;text-transform:uppercase">Sen entregar</div></div>
+    </div>
+    <div style="font-size:.62rem;font-weight:900;color:var(--muted);margin-bottom:8px">ÚLTIMAS ${asigs.length} ASIGNACIÓNS</div>
+    <div style="max-height:340px;overflow-y:auto">${bars}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button onclick="closeModal()" class="btn btn-ghost">Pechar</button></div>`);
+}
+
+function renderStats(){
+  const totalAsigs=asignacions.length;
+  const totalRexs=rexistros.filter(r=>r.fixo!==null).length;
+  const totalFixo=rexistros.filter(r=>r.fixo===true).length;
+  const pctGlobal=totalRexs?Math.round(totalFixo/totalRexs*100):0;
+  document.getElementById('stat-cards').innerHTML=[
+    ['📋','Asignacións totais',totalAsigs,'var(--gold)'],
+    ['✅','Entregas rexistradas',totalFixo,'var(--green)'],
+    ['❌','Non entregas',totalRexs-totalFixo,'var(--red)'],
+    ['📊','% cumprimento',pctGlobal+'%','var(--blue)'],
+  ].map(([icon,label,val,col])=>`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px">
+    <div style="font-size:1.3rem;margin-bottom:4px">${icon}</div>
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.6rem;color:${col}">${val}</div>
+    <div style="font-size:.68rem;color:var(--muted);font-weight:700">${label}</div>
+  </div>`).join('');
+
+  const byAl=alumnos.map(al=>{
+    const total=rexistros.filter(r=>r.alumno===al&&r.fixo!==null).length;
+    const fixo=rexistros.filter(r=>r.alumno===al&&r.fixo===true).length;
+    const pct=total?Math.round(fixo/total*100):null;
+    return{al,pct,fixo,total};
+  }).sort((a,b)=>(a.pct??-1)-(b.pct??-1));
+
+  document.getElementById('stats-bars').innerHTML=byAl.map(({al,pct,fixo,total})=>{
+    const i=alumnos.indexOf(al);
+    const col=pct===null?'var(--muted)':pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
+    const alertFlag=alumnoNonEntregasRecentes(al)>=LIMITE_ALERTAS;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <div style="width:26px;height:26px;border-radius:50%;background:${ac(i)};display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:white;flex-shrink:0">${ini(al)}</div>
+      <div style="font-weight:800;font-size:.78rem;flex:1">${al}${alertFlag?' ⚠️':''}</div>
+      <div style="width:200px;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden">
+        <div style="height:100%;border-radius:999px;background:${col};width:${pct??0}%"></div>
+      </div>
+      <div style="font-size:.72rem;font-weight:800;color:${col};min-width:60px;text-align:right">${pct!==null?pct+'%':'—'} ${total?`(${fixo}/${total})`:''}  </div>
+    </div>`;
+  }).join('');
+}
+
+
+// ── EXPORTAR AO CADERNO DOCENTE ───────────────────────────────────────────────
+function exportarCaderno(asigId){
+  const asig=asignacions.find(a=>a.id===asigId);
+  if(!asig){return;}
+  const mats=LS.get('sn3_materias',[]);
+  const grupos=LS.get('sn3_grupos',[]);
+  const notas=LS.get('sn3_notas',[]);
+
+  // Construír opcions de materia e grupo
+  const matOpts=mats.filter(m=>m.id!=='outras').map(m=>`<option value="${m.id}"${m.id===asig.materia?' selected':''}>${m.icon||''} ${m.nome}</option>`).join('');
+  const grupoOpts=grupos.map(g=>`<option value="${g.id}">${g.nome} (${g.peso}%)</option>`).join('');
+
+  // Rexistros desta asignación
+  const rexs=rexistros.filter(r=>r.asignId===asigId);
+  const nFixo=rexs.filter(r=>r.fixo===true).length;
+  const total=alumnos.length;
+  const pctCumpr=total?Math.round(nFixo/total*100):0;
+
+  document.getElementById('modal-content').innerHTML=`
+    <h3 style="font-family:'DM Serif Display',Georgia,serif;color:var(--teal);margin-bottom:1rem">📒 Exportar ao Caderno Docente</h3>
+    <div style="background:var(--card2);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:.78rem">
+      <div style="font-weight:800">${asig.titulo}</div>
+      <div style="color:var(--muted);font-size:.68rem">${getMatNome(asig)||'Sen materia'} · ${asig.data} · ${nFixo}/${total} entregados (${pctCumpr}%)</div>
+    </div>
+    <div style="display:grid;gap:10px">
+      <div><label class="label">Materia no Caderno</label>
+        <select id="ex-mat" class="inp" style="cursor:pointer">
+          ${matOpts||'<option value="">Non hai materias no Caderno</option>'}
+        </select></div>
+      <div><label class="label">Grupo / tipo de avaliación</label>
+        <select id="ex-grupo" class="inp" style="cursor:pointer">
+          ${grupoOpts||'<option value="">Non hai grupos definidos</option>'}
+        </select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="label">Etiqueta</label>
+          <input id="ex-label" class="inp" value="${asig.titulo}"></div>
+        <div><label class="label">Peso (%)</label>
+          <input id="ex-peso" class="inp" type="number" value="0" min="0" max="100"></div>
+      </div>
+      <div style="background:var(--card2);border-radius:10px;padding:10px 14px;font-size:.75rem">
+        <div style="font-weight:900;color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Que se exporta:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:700">
+            <input type="radio" name="ex-tipo" id="ex-cumpr" value="cumpr" checked style="accent-color:var(--teal)"> ✅/🟠/❌ Entregou / Fóra de prazo / Non entregou (10/5/0)
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:700">
+            <input type="radio" name="ex-tipo" id="ex-nota" value="nota" style="accent-color:var(--teal)"> 📊 Nota numérica (só quen a ten)
+          </label>
+        </div>
+        ${rexs.filter(r=>r.notaNum!=null).length?'':`<div style="font-size:.65rem;color:var(--muted);margin-top:4px">Non hai notas numéricas rexistradas nesta asignación</div>`}
+      </div>
+      <div style="font-size:.7rem;color:var(--muted)">Exportaranse <strong style="color:var(--white)">${alumnos.length} entradas</strong> ao Caderno Docente (unha por alumno/a, data: ${asig.data}).</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-bg').style.display='none'">Cancelar</button>
+      <button class="btn" style="background:var(--teal);color:#0f172a" onclick="confirmarExportarCaderno('${asigId}')">📒 Exportar ao Caderno</button>
+    </div>`;
+  document.getElementById('modal-bg').style.display='flex';
+}
+
+function _calcTrimestre(data){
+  // Use sn3_trim_datas to determine trimestre from a date string
+  try{
+    const td=JSON.parse(localStorage.getItem('sn3_trim_datas')||'{}');
+    for(const tk of['t1','t2','t3']){
+      const r=td[tk];
+      if(r&&r.ini&&r.fin&&data>=r.ini&&data<=r.fin) return parseInt(tk.replace('t',''));
+    }
+  }catch{}
+  return null;
+}
+
+function confirmarExportarCaderno(asigId){
+  const asig=asignacions.find(a=>a.id===asigId);
+  if(!asig)return;
+  const mat=document.getElementById('ex-mat')?.value;
+  const grupo=document.getElementById('ex-grupo')?.value||'';
+  const label=document.getElementById('ex-label')?.value.trim()||asig.titulo;
+  const peso=parseInt(document.getElementById('ex-peso')?.value)||0;
+  const tipo=document.querySelector('input[name="ex-tipo"]:checked')?.value||'cumpr';
+  const escala=LS.get('sn3_escala',10);
+  if(!mat){alert('Selecciona unha materia do Caderno.');return;}
+
+  // Eliminar notas previas desta asignación se existían
+  let notas=LS.get('sn3_notas',[]);
+  notas=notas.filter(n=>n.cdAsigId!==asigId);
+
+  const trimestre=_calcTrimestre(asig.data);
+  const exportId='cdex_'+Date.now();
+  const maxId=Math.max(0,...notas.map(n=>n.id||0));
+  let gardadas=0;
+
+  alumnos.forEach((al,i)=>{
+    const r=rexistros.find(rx=>rx.asignId===asigId&&rx.alumno===al);
+    let valor=null;
+    if(tipo==='cumpr'){
+      valor=r?.fixo===true?escala:r?.fixo===false?0:null;
+    } else {
+      valor=r?.notaNum??null;
+    }
+    if(valor===null)return;
+    notas.push({
+      id:maxId+gardadas+1,
+      alumno:al,materia:mat,tipo:'deberes',subtipo:'',
+      valor,peso,grupoId:grupo,
+      label,data:asig.data,
+      comentario:r?.fixo===true?'Entregou':'Non entregou',
+      materiaNome:'',
+      trimestre,        // ← calculado automaticamente
+      cdAsigId:asigId,  // ← referencia á asignación orixe
+      cdExportId:exportId
+    });
+    gardadas++;
+  });
+
+  LS.set('sn3_notas',notas);
+
+  // Marcar asignación como exportada
+  const cdExports=LS.get('cd_exports',{});
+  cdExports[asigId]={mat,grupo,label,peso,tipo,exportId,data:asig.data,trimestre,gardadas};
+  LS.set('cd_exports',cdExports);
+
+  try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){}
+  document.getElementById('modal-bg').style.display='none';
+  renderHoxe();
+  toast(`✅ ${gardadas} notas gardadas no Caderno (T${trimestre||'?'})`,'#2dd4bf');
+}
+
+function borrarDosCaderno(asigId){
+  _confirmar('Eliminar as notas desta asignación do Caderno Docente?',()=>{
+  let notas=LS.get('sn3_notas',[]);
+  const antes=notas.length;
+  notas=notas.filter(n=>n.cdAsigId!==asigId);
+  LS.set('sn3_notas',notas);
+  const cdExports=LS.get('cd_exports',{});
+  delete cdExports[asigId];
+  LS.set('cd_exports',cdExports);
+  try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch(e){}
+  renderHoxe();
+  toast(`🗑 ${antes-notas.length} notas eliminadas do Caderno`,'#ef4444');
+});
+
+
+// ── IMPORTAR DESDE AXENDA ─────────────────────────────────────────────────────
+function getEntradasAxenda(data){
+  try{
+    const ax=JSON.parse(localStorage.getItem('pc_axenda')||'{}');
+    return ax[data]||[];
+  }catch{return[];}
+}
+
+function mostrarSuxerenciasAxenda(){
+  const data=document.getElementById('data-sel')?.value;
+  const btn=document.getElementById('btn-axenda');
+  if(!btn||!data)return;
+  const entradas=getEntradasAxenda(data).filter(e=>e.text);
+  btn.style.display=entradas.length>0?'inline-flex':'none';
+  if(entradas.length>0)btn.textContent=`📅 Axenda (${entradas.length})`;
+}
+
+function importarDesdaAxenda(){
+  const data=document.getElementById('data-sel')?.value;
+  if(!data)return;
+  const entradas=getEntradasAxenda(data).filter(e=>e.text);
+  if(!entradas.length){toast('Non hai entradas na axenda para este día','#64748b');return;}
+  const mats=LS.get('sn3_materias',[]);
+  function getMatNomeById(id){const m=mats.find(x=>x.id===id);return m?(m.icon||'')+' '+m.nome:id||'';}
+
+  document.getElementById('modal-content').innerHTML=`
+    <h3 style="font-family:'DM Serif Display',Georgia,serif;color:var(--teal);margin-bottom:.25rem">📅 Entradas da axenda · ${data}</h3>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.85rem;font-weight:700">Selecciona as que queres engadir como asignacións de deberes:</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem">
+      ${entradas.map((e,i)=>{
+        const matNome=e.asignatura?getMatNomeById(e.asignatura):(e.materia||'');
+        return `<label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--card2);border-radius:10px;border:1.5px solid var(--border);cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--border)'">
+          <input type="checkbox" id="ax-chk-${i}" checked style="accent-color:var(--teal);margin-top:2px;flex-shrink:0">
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:.85rem">${e.text}</div>
+            <div style="font-size:.65rem;color:var(--muted);margin-top:2px">
+              ${e.hora?'🕐 '+e.hora+' · ':''}${matNome?matNome+' · ':''}${e.tipo||'tarefa'}
+            </div>
+          </div>
+          <input type="hidden" id="ax-mat-${i}" value="${e.asignatura||''}">
+        </label>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-bg').style.display='none'">Cancelar</button>
+      <button class="btn" style="background:var(--teal);color:#0f172a" onclick="confirmarImportarAxenda(${JSON.stringify(entradas.map((e,i)=>i)).replace(/"/g,'&quot;')})">✅ Engadir seleccionadas</button>
+    </div>`;
+  document.getElementById('modal-bg').style.display='flex';
+}
+
+function confirmarImportarAxenda(indices){
+  const data=document.getElementById('data-sel')?.value;
+  if(!data)return;
+  const entradas=getEntradasAxenda(data).filter(e=>e.text);
+  const mats=LS.get('sn3_materias',[]);
+  let engadidas=0;
+  indices.forEach(i=>{
+    const chk=document.getElementById('ax-chk-'+i);
+    if(!chk?.checked)return;
+    const e=entradas[i];
+    if(!e)return;
+    const matId=document.getElementById('ax-mat-'+i)?.value||'';
+    const matNome=matId?(mats.find(m=>m.id===matId)?.nome||matId):'';
+    const obj={
+      id:'a_'+Date.now()+'_'+i,
+      titulo:e.text,
+      materia:matId,
+      materiaNome:matNome,
+      data,
+      notas:e.hora?'Hora: '+e.hora:''
+    };
+    asignacions.push(obj);
+    // Crear rexistros para todos os alumnos
+    alumnos.forEach(al=>{
+      rexistros.push({id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2),asignId:obj.id,data,alumno:al,fixo:null,observacion:''});
+    });
+    engadidas++;
+  });
+  gardar();
+  document.getElementById('modal-bg').style.display='none';
+  actualizarAsigSel();
+  renderHoxe();
+  toast(`✅ ${engadidas} asignación${engadidas!==1?'s':''} engadida${engadidas!==1?'s':''} desde a axenda`,'#2dd4bf');
+}
+
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
+function exportarCSV(){
+  const rows=[['Alumno/a','Asignación','Materia','Data','Fixo','Observación'].join(',')];
+  asignacions.forEach(asig=>{
+    alumnos.forEach(al=>{
+      const r=rexistros.find(rx=>rx.asignId===asig.id&&rx.alumno===al);
+      rows.push([`"${al}"`,`"${asig.titulo}"`,`"${asig.materia||''}"`,asig.data,r?.fixo===true?'Si':r?.fixo===false?'Non':'—',`"${r?.observacion||''}"`].join(','));
+    });
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));
+  a.download=`deberes_${today}.csv`;a.click();
+}
+
+function toggleModo(){const a=localStorage.getItem('cd_modo')||'escuro';const n=a==='escuro'?'claro':'escuro';aplicarModo(n);localStorage.setItem('cd_modo',n);}
+function aplicarModo(m){const r=document.documentElement.style,btn=document.querySelector('[onclick="toggleModo()"]');if(m==='claro'){r.setProperty('--bg','#f0f4f8');r.setProperty('--card','#ffffff');r.setProperty('--card2','#f5f8fb');r.setProperty('--border','rgba(15,23,42,.10)');r.setProperty('--border2','rgba(15,23,42,.18)');r.setProperty('--white','#1e293b');r.setProperty('--muted','rgba(30,41,59,.50)');if(btn)btn.textContent='🌙 Escuro';}else{r.setProperty('--bg','#0f172a');r.setProperty('--card','#1e293b');r.setProperty('--card2','#263347');r.setProperty('--border','rgba(255,255,255,.08)');r.setProperty('--border2','rgba(255,255,255,.14)');r.setProperty('--white','#f1f5f9');r.setProperty('--muted','rgba(241,245,249,.45)');if(btn)btn.textContent='☀️ Claro';}}
+
+window.addEventListener('beforeunload',gardar);
+setInterval(gardar,30000);
+window.addEventListener('storage',e=>{if(e.key==='pc_alumnos'){alumnos=LS.get('pc_alumnos',[]);renderHoxe();}});
+aplicarModo(localStorage.getItem('cd_modo')||'escuro');
+renderHoxe();
+actualizarBadgeAlertas();
+mostrarSuxerenciasAxenda();
+
+
+function exportarJSON(){
+  const keys=['cd_asigs','cd_rexs','cd_exports'];
+  const data={_exportado:new Date().toISOString()};
+  keys.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)data[k]=JSON.parse(v);}catch{}});
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='control_deberes_backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+function importarJSON(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        let count=0;
+        const keys=['cd_asigs','cd_rexs','cd_exports'];
+        keys.forEach(k=>{
+          if(data[k]!==undefined){localStorage.setItem(k,JSON.stringify(data[k]));count++;}
+        });
+        if(count){
+          asignacions=LS.get('cd_asigs',[]);rexistros=LS.get('cd_rexs',[]);gardar();renderHoxe();if(typeof toast==='function')toast('✅ Datos importados','#22c55e');
+        } else alert('Non se atoparon datos compatibles.');
+      }catch(ex){alert('Erro: '+ex.message);}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+function renderRankingDeberes(byAl) {
+  var maxAbs = Math.max(1, ...byAl.map(function(x){return x.total - x.fixo;}));
+  var sorted = byAl.slice().sort(function(a,b) {
+    if (_rkSort === 'pct') {
+      var pa = a.pct !== null ? a.pct : -1;
+      var pb = b.pct !== null ? b.pct : -1;
+      return pa - pb; // lowest first (most problematic)
+    } else {
+      return (b.total - b.fixo) - (a.total - a.fixo);
+    }
+  });
+
+  var medals = ['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49'];
+  // For pct sort, best students are at the end — reverse for top 3 medals
+  var topPct = _rkSort === 'pct'
+    ? sorted.slice().reverse().slice(0,3).map(function(x){return x.al;})
+    : [];
+
+  var LIMITE = LIMITE_ALERTAS || 3;
+
+  var html = sorted.map(function(item, i) {
+    var al = item.al, pct = item.pct, fixo = item.fixo, total = item.total;
+    var idx = alumnos.indexOf(al);
+    var col = pct === null ? 'var(--muted)' : pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--gold)' : 'var(--red)';
+    var alertFlag = alumnoNonEntregasRecentes(al) >= LIMITE;
+    var nonFix = total - fixo;
+    var barW = _rkSort === 'pct' ? (pct || 0) : Math.round(nonFix/maxAbs*100);
+    var barCol = _rkSort === 'pct' ? col : 'var(--red)';
+
+    // Medal: top 3 by % (shown at end of pct sort = highest pct)
+    var topIdx = topPct.indexOf(al);
+    var medalHtml = topIdx >= 0 ? '<span style="font-size:.9rem;min-width:20px">' + (medals[topIdx]||'') + '</span>' : '<span style="font-size:.75rem;min-width:20px;color:var(--muted);text-align:center">' + (i+1) + '</span>';
+
+    return '<div class="rk-card-deb' + (alertFlag?' rk-alerta':'') + '" style="' + (alertFlag?'background:rgba(239,68,68,.04);border-radius:8px;padding:6px 4px;margin:-2px 0;':'') + '">'
+      + medalHtml
+      + '<div style="width:26px;height:26px;border-radius:50%;background:' + ac(idx) + ';display:flex;align-items:center;justify-content:center;font-size:.52rem;font-weight:900;color:white;flex-shrink:0">' + ini(al) + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-weight:800;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + al + (alertFlag?' \u26A0\uFE0F':''  ) + '</div>'
+      + '<div style="font-size:.6rem;color:var(--muted)">' + fixo + '/' + total + ' entregados</div>'
+      + '</div>'
+      + '<div style="width:120px;height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:' + barW + '%;background:' + barCol + ';border-radius:999px;transition:width .4s"></div></div>'
+      + '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:.95rem;min-width:38px;text-align:right;color:' + col + '">' + (pct !== null ? pct + '%' : '\u2014') + '</div>'
+      + '</div>';
+  }).join('');
+
+  document.getElementById('stats-bars').innerHTML = html || '<div style="text-align:center;color:var(--muted);padding:1rem;font-size:.8rem">Sen datos</div>';
+}
+
+function renderStatsSemanais() {
+  var el = document.getElementById('stats-semanal');
+  if (!el) return;
+
+  var n = _semanasVista;
+  var now = new Date();
+
+  // Build array of week labels + date ranges (last n weeks, most recent last)
+  function getMondayOfWeek(d) {
+    var day = new Date(d);
+    var dow = (day.getDay() + 6) % 7; // 0=Mon
+    day.setDate(day.getDate() - dow);
+    day.setHours(0, 0, 0, 0);
+    return day;
+  }
+
+  var weeks = [];
+  for (var i = n - 1; i >= 0; i--) {
+    var mon = getMondayOfWeek(new Date(now.getTime() - i * 7 * 24 * 3600 * 1000));
+    var sun = new Date(mon.getTime() + 6 * 24 * 3600 * 1000);
+    var monStr = mon.getFullYear() + '-' + (mon.getMonth()+1).toString().padStart(2,'0') + '-' + mon.getDate().toString().padStart(2,'0');
+    var sunStr = sun.getFullYear() + '-' + (sun.getMonth()+1).toString().padStart(2,'0') + '-' + sun.getDate().toString().padStart(2,'0');
+    var lbl = (mon.getDate()) + '/' + (mon.getMonth()+1);
+    weeks.push({ mon: monStr, sun: sunStr, lbl: lbl, isCurrent: i === 0 });
+  }
+
+  // Get unique materias from asignacions in the period
+  var periodStart = weeks[0].mon;
+  var asigsPeriod = asignacions.filter(function(a) { return a.data >= periodStart; });
+
+  // Group by materia ID
+  var materiaIds = [];
+  asigsPeriod.forEach(function(a) {
+    if (a.materia && materiaIds.indexOf(a.materia) === -1) materiaIds.push(a.materia);
+  });
+
+  if (!materiaIds.length) {
+    el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.82rem">Sen deberes asignados nas \xFAltimas ' + n + ' semanas</div>';
+    return;
+  }
+
+  // Get materia metadata
+  var sn3Mats = LS.get('sn3_materias', []);
+  var MAT_COLS = ['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fbbf24','#ef4444','#06b6d4','#84cc16'];
+
+  var matData = materiaIds.map(function(mid, mi) {
+    var meta = sn3Mats.find(function(m) { return m.id === mid; });
+    var nome = meta ? ((meta.icon || '') + ' ' + meta.nome) : mid;
+    var col = meta ? (meta.color || MAT_COLS[mi % MAT_COLS.length]) : MAT_COLS[mi % MAT_COLS.length];
+
+    // For each week: collect asigs in that week for this materia and calc avg %
+    var weekPcts = weeks.map(function(wk) {
+      var asigsSem = asignacions.filter(function(a) {
+        return a.materia === mid && a.data >= wk.mon && a.data <= wk.sun;
+      });
+      if (!asigsSem.length) return null;
+      var total = alumnos.length || 1;
+      var totalEntregas = 0, totalPossible = 0;
+      asigsSem.forEach(function(a) {
+        var rexs = rexistros.filter(function(r) { return r.asignId === a.id && r.fixo !== null; });
+        var fixo = rexs.filter(function(r) { return r.fixo === true; }).length;
+        // Use rexistros count or total alumnos as denominator
+        var denom = Math.max(rexs.length, 1);
+        totalEntregas += fixo;
+        totalPossible += denom;
+      });
+      return totalPossible > 0 ? Math.round(totalEntregas / totalPossible * 100) : null;
+    });
+
+    return { mid: mid, nome: nome, col: col, weekPcts: weekPcts };
+  });
+
+  // SVG dimensions
+  var W = 680, H = 160;
+  var pad = { t: 20, r: 16, b: 40, l: 36 };
+  var iW = W - pad.l - pad.r;
+  var iH = H - pad.t - pad.b;
+  var nW = weeks.length;
+  var xf = function(i) { return pad.l + (i / Math.max(nW - 1, 1)) * iW; };
+  var yf = function(v) { return H - pad.b - (v / 100) * iH; };
+
+  // Draw SVG
+  var svgLines = '';
+  var svgDots = '';
+  var svgArea = '';
+
+  // Grid lines
+  [0, 25, 50, 75, 100].forEach(function(v) {
+    svgLines += '<line x1="' + pad.l + '" y1="' + yf(v) + '" x2="' + (W - pad.r) + '" y2="' + yf(v)
+      + '" stroke="rgba(255,255,255,.06)" stroke-width="1"/>';
+    svgLines += '<text x="' + (pad.l - 5) + '" y="' + (yf(v) + 4) + '" text-anchor="end" font-size="8" fill="rgba(255,255,255,.3)" font-family="system-ui,sans-serif">' + v + '</text>';
+  });
+
+  // 80% threshold line
+  svgLines += '<line x1="' + pad.l + '" y1="' + yf(80) + '" x2="' + (W - pad.r) + '" y2="' + yf(80)
+    + '" stroke="rgba(34,197,94,.35)" stroke-width="1" stroke-dasharray="4,3"/>';
+  svgLines += '<text x="' + (W - pad.r + 3) + '" y="' + (yf(80) + 4) + '" font-size="7" fill="rgba(34,197,94,.5)" font-family="system-ui,sans-serif">80%</text>';
+
+  // X axis labels (weeks)
+  weeks.forEach(function(wk, i) {
+    var x = xf(i);
+    svgLines += '<text x="' + x + '" y="' + (H - pad.b + 14) + '" text-anchor="middle" font-size="8" fill="rgba(255,255,255,' + (wk.isCurrent ? '.7' : '.3') + ')" font-family="system-ui,sans-serif">' + wk.lbl + '</text>';
+    if (wk.isCurrent) {
+      svgLines += '<line x1="' + x + '" y1="' + pad.t + '" x2="' + x + '" y2="' + (H - pad.b)
+        + '" stroke="rgba(251,191,36,.2)" stroke-width="1.5" stroke-dasharray="2,3"/>';
+    }
+  });
+
+  // Lines and dots per materia
+  matData.forEach(function(md) {
+    // Area fill
+    var validPts = [];
+    md.weekPcts.forEach(function(v, i) { if (v !== null) validPts.push({ x: xf(i), y: yf(v), v: v }); });
+    if (validPts.length < 1) return;
+
+    if (validPts.length >= 2) {
+      var areaD = 'M' + validPts[0].x + ',' + (H - pad.b);
+      validPts.forEach(function(p) { areaD += ' L' + p.x + ',' + p.y; });
+      areaD += ' L' + validPts[validPts.length-1].x + ',' + (H - pad.b) + ' Z';
+      svgArea += '<path d="' + areaD + '" fill="' + md.col + '" opacity=".07"/>';
+      var lineD = validPts.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p.x + ',' + p.y; }).join(' ');
+      svgLines += '<path d="' + lineD + '" fill="none" stroke="' + md.col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".85"/>';
+    }
+
+    // Dots with tooltips
+    md.weekPcts.forEach(function(v, i) {
+      if (v === null) return;
+      var col2 = v >= 80 ? md.col : v >= 60 ? '#f59e0b' : '#ef4444';
+      svgDots += '<circle cx="' + xf(i) + '" cy="' + yf(v) + '" r="4" fill="' + col2 + '" stroke="var(--card)" stroke-width="1.5">'
+        + '<title>' + md.nome + ' \xB7 Semana ' + weeks[i].lbl + ': ' + v + '%</title></circle>';
+    });
+  });
+
+  var svgHtml = '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="overflow:visible;display:block">'
+    + svgArea + svgLines + svgDots + '</svg>';
+
+  // Legend
+  var legendHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:.6rem">'
+    + matData.map(function(md) {
+        return '<span style="display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;color:var(--muted)">'
+          + '<span style="width:18px;height:3px;border-radius:2px;background:' + md.col + ';display:inline-block"></span>'
+          + md.nome + '</span>';
+      }).join('')
+    + '<span style="font-size:.65rem;color:rgba(34,197,94,.6);margin-left:auto;display:flex;align-items:center;gap:4px">'
+    + '<span style="width:12px;height:1px;background:rgba(34,197,94,.5);display:inline-block"></span>80% obxectivo</span>'
+    + '</div>';
+
+  // Weekly table below chart (compact)
+  var tableHtml = '<div style="overflow-x:auto;margin-top:.75rem">'
+    + '<table style="border-collapse:collapse;width:100%;font-size:.7rem">'
+    + '<thead><tr>'
+    + '<th style="padding:4px 8px;text-align:left;font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap">Materia</th>'
+    + weeks.map(function(wk) {
+        return '<th style="padding:4px 6px;text-align:center;font-size:.58rem;font-weight:900;color:' + (wk.isCurrent ? 'var(--gold)' : 'var(--muted)') + ';white-space:nowrap">' + wk.lbl + '</th>';
+      }).join('')
+    + '<th style="padding:4px 8px;text-align:center;font-size:.58rem;font-weight:900;color:var(--muted)">Media</th>'
+    + '</tr></thead><tbody>'
+    + matData.map(function(md) {
+        var vals = md.weekPcts.filter(function(v) { return v !== null; });
+        var media = vals.length ? Math.round(vals.reduce(function(s,v){return s+v;},0) / vals.length) : null;
+        return '<tr style="border-top:1px solid var(--border)">'
+          + '<td style="padding:4px 8px;font-weight:700;color:var(--white);white-space:nowrap">' + md.nome + '</td>'
+          + md.weekPcts.map(function(v) {
+              if (v === null) return '<td style="padding:4px 6px;text-align:center;color:var(--muted)">—</td>';
+              var col2 = v >= 80 ? 'var(--green)' : v >= 60 ? 'var(--gold)' : 'var(--red)';
+              return '<td style="padding:4px 6px;text-align:center;font-weight:800;color:' + col2 + '">' + v + '%</td>';
+            }).join('')
+          + '<td style="padding:4px 8px;text-align:center;font-weight:900;color:' + (media !== null ? (media >= 80 ? 'var(--green)' : media >= 60 ? 'var(--gold)' : 'var(--red)') : 'var(--muted)') + '">' + (media !== null ? media + '%' : '—') + '</td>'
+          + '</tr>';
+      }).join('')
+    + '</tbody></table></div>';
+
+  el.innerHTML = svgHtml + legendHtml + tableHtml;
+}
+
+function setRkSort(s) {
+  _rkSort = s;
+  document.getElementById('rk-btn-pct')?.classList.toggle('active', s==='pct');
+  document.getElementById('rk-btn-abs')?.classList.toggle('active', s==='abs');
+  renderStats();
+}
+
+function setSemanas(n) {
+  _semanasVista = n;
+  [4, 8, 12].forEach(function(v) {
+    var btn = document.getElementById('sw-btn-' + v);
+    if (btn) btn.classList.toggle('active', v === n);
+  });
+  renderStatsSemanais();
+}
+
+
+// ── CONFIG DOCENTE (lectura) ──────────────────────────────────────────────────
+function _getConf(){try{const v=localStorage.getItem('sn3_config');return v?JSON.parse(v):{}}catch{return {};}}
+function _aplicarCabeceira(){
+  const c=_getConf();
+  const parts=[];
+  if(c.docente) parts.push(c.docente);
+  if(c.grupo) parts.push(c.grupo);
+  if(c.curso) parts.push(c.curso);
+  const t=document.getElementById('_hdr-info');
+  if(t){t.textContent=parts.join(' · ');t.style.display=parts.length?'block':'none';}
+  const g=c.grupo||'';
+  document.querySelectorAll('._grupo-dyn').forEach(el=>el.textContent=g?(' · '+g):'');
+  document.querySelectorAll('title._title-dyn').forEach(el=>{
+    el.textContent=el.dataset.base+(g?' · '+g:'');
+  });
+}
+
+// ── MODAL CONFIRMAR BORRAR ────────────────────────────────────────────────────
+function _confirmar(msg, onSi){
+  const ov=document.createElement('div');
+  ov.id='_conf-del-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-del-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+</script>
+<script>_aplicarCabeceira();</script>
+</body>
+</html>

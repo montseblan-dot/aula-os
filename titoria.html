@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Titoría</title>
+<meta name="author" content="Montserrat Blanco Vázquez"/>
+<meta name="copyright" content="© 2026 Montserrat Blanco Vázquez. CC BY-NC-SA 4.0"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#f0f4f8;--card:#ffffff;--card2:#f5f8fb;--border:rgba(15,23,42,.10);--border2:rgba(15,23,42,.18);
+ --white:#1e293b;--muted:rgba(30,41,59,.50);
+ --gold:#b45309;--green:#15803d;--red:#dc2626;--blue:#1d4ed8;
+ --teal:#0f766e;--purple:#6d28d9;--orange:#c2410c;--pink:#be185d;
+ --accent:#4f46e5;
+ --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+}
+body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--bg);min-height:100vh;color:var(--white);overflow-x:hidden;font-size:14px}
+
+/* ── HEADER ── */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1.1rem,3vw,1.6rem);background:linear-gradient(135deg,var(--white),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-right{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
+/* ── TABS ── */
+.tab-nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab{padding:10px 16px;cursor:pointer;font-family:'DM Serif Display',Georgia,serif;font-size:.82rem;color:var(--muted);border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--white)}.tab.active{color:var(--purple);border-bottom-color:var(--purple)}
+
+/* ── SECCIONES ── */
+.section{display:none;padding:1.25rem;max-width:1100px;margin:0 auto}.section.show{display:block}
+
+/* ── BOTÓNS ── */
+.btn{height:36px;padding:0 16px;font-family:'DM Serif Display',Georgia,serif;font-size:.85rem;border:none;border-radius:10px;cursor:pointer;transition:transform .12s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{transform:scale(1.04)}.btn:active{transform:scale(.97)}
+.btn-purple{background:var(--purple);color:#0f172a}
+.btn-ghost{background:var(--card2);color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--white);border-color:var(--border2)}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1.5px solid rgba(239,68,68,.4)}
+.btn-sm{height:28px;padding:0 11px;font-size:.72rem}
+.btn-gold{background:var(--gold);color:#0f172a}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;margin-bottom:10px;transition:border-color .15s}
+.card:hover{border-color:var(--border2)}
+.card-title{font-family:'DM Serif Display',Georgia,serif;font-size:.88rem;color:var(--purple);margin-bottom:.6rem;display:flex;align-items:center;gap:6px}
+
+/* ── INPUTS ── */
+.inp{width:100%;height:36px;background:var(--card2);border:1px solid var(--border);border-radius:9px;color:var(--white);font-family:'DM Sans',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:0 11px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--purple)}
+.inp::placeholder{color:var(--muted);font-weight:400}
+.textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:9px;color:var(--white);font-family:'DM Sans',system-ui,sans-serif;font-size:.85rem;font-weight:700;padding:9px 11px;outline:none;resize:vertical;min-height:72px;line-height:1.55;transition:border-color .15s}
+.textarea:focus{border-color:var(--purple)}
+.label{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:4px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr}}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:20px;padding:1.5rem;max-width:580px;width:100%;border:1px solid var(--border2);max-height:92vh;overflow-y:auto}
+.modal h3{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--purple);margin-bottom:1rem}
+.modal-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* ── ALUMNOS PANEL ── */
+.alumnos-panel{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+.alumno-item{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
+.alumno-item:hover{background:var(--card2)}.alumno-item.sel{background:rgba(167,139,250,.1);border-left:3px solid var(--purple)}
+.alumno-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',Georgia,serif;font-size:.78rem;color:white;flex-shrink:0}
+
+/* ── REUNIÓN CARD ── */
+.reunion-card{background:var(--card2);border-radius:12px;padding:10px 14px;border-left:4px solid var(--purple);margin-bottom:7px;transition:all .15s}
+.reunion-card:hover{border-color:var(--gold)}
+.reunion-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.reunion-data{font-family:'DM Serif Display',Georgia,serif;font-size:.82rem;color:var(--purple)}
+.reunion-tipo{font-size:.62rem;font-weight:900;padding:2px 8px;border-radius:999px;background:rgba(167,139,250,.15);color:var(--purple)}
+.reunion-alumno{font-size:.78rem;font-weight:900;color:var(--white)}
+.reunion-txt{font-size:.75rem;color:var(--muted);font-weight:700;line-height:1.5;margin-top:3px}
+
+/* ── CITA CARD ── */
+.cita-card{background:var(--card2);border-radius:12px;padding:10px 14px;border-left:4px solid var(--teal);margin-bottom:7px;display:flex;align-items:center;gap:12px}
+.cita-card.pasada{opacity:.5;border-color:var(--muted)}
+.cita-data{font-family:'DM Serif Display',Georgia,serif;font-size:.88rem;color:var(--teal);min-width:90px}
+.cita-hora{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white)}
+
+/* ── SEMÁFORO ── */
+.semaf-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ── MODO CLARO ── */
+body.claro{--bg:#f0f4ff;--card:#ffffff;--card2:#f5f7ff;--border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.14);--white:#0f172a;--muted:rgba(15,23,42,.5)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+
+.license-bar{background:var(--card);border-top:1px solid var(--border);padding:.6rem 1.5rem;text-align:center;font-size:.57rem;color:var(--muted)}
+.license-bar a{color:var(--purple);text-decoration:none}
+@media(max-width:800px){
+ #sec-familias>div,#sec-informe>div{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)"><div class="modal" id="modal-content"></div></div>
+
+<!-- HEADER -->
+<div class="header">
+ <div style="font-size:1.8rem">👨‍👩‍👧</div>
+ <h1>Titoría con Familias<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted);margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted);text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a></h1>
+ <div class="hdr-right">
+  <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
+  <div style="position:relative;display:inline-flex" id="tit-bkp-wrap">
+   <button class="btn btn-ghost btn-sm" onclick="toggleTitBackup()" title="Exportar / Importar datos">⚙️ Datos</button>
+   <div id="tit-backup-menu" style="display:none;position:absolute;top:38px;right:0;z-index:200;background:var(--card);border:1.5px solid var(--border2);border-radius:14px;padding:6px;min-width:210px;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+    <button style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;width:100%;border:none;background:transparent;color:var(--white);font-family:'DM Sans',system-ui,sans-serif;font-size:.82rem;font-weight:700;cursor:pointer" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'" onclick="titAbrirEditorAlumnos()">
+     <span style="font-size:1rem;width:20px;text-align:center">👥</span>Editar alumnado
+    </button>
+    <div style="height:1px;background:var(--border);margin:4px 0"></div>
+    <button style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;width:100%;border:none;background:transparent;color:var(--white);font-family:'DM Sans',system-ui,sans-serif;font-size:.82rem;font-weight:700;cursor:pointer" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'" onclick="exportarTitoriaJSON()">
+     <span style="font-size:1rem;width:20px;text-align:center">📤</span>Exportar datos (JSON)
+    </button>
+    <button style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;width:100%;border:none;background:transparent;color:var(--white);font-family:'DM Sans',system-ui,sans-serif;font-size:.82rem;font-weight:700;cursor:pointer" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'" onclick="document.getElementById('tit-import-input').click()">
+     <span style="font-size:1rem;width:20px;text-align:center">📥</span>Importar datos (JSON)
+    </button>
+    <input type="file" id="tit-import-input" accept=".json" style="display:none" onchange="importarTitoriaJSON(event)"/>
+    <div style="height:1px;background:var(--border);margin:4px 0"></div>
+    <button style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;width:100%;border:none;background:transparent;color:var(--red);font-family:'DM Sans',system-ui,sans-serif;font-size:.82rem;font-weight:700;cursor:pointer" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'" onclick="confirmarBorrarTitoria()">
+     <span style="font-size:1rem;width:20px;text-align:center">🗑️</span>Borrar todos os datos
+    </button>
+   </div>
+  </div>
+  <button class="btn btn-ghost btn-sm" onclick="window.location.href='portal_docente.html'">🏠 Portal</button>
+ </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-nav">
+ <div class="tab active" id="tab-familias"  onclick="showTab('familias')">👥 Familias</div>
+ <div class="tab" id="tab-reunions"  onclick="showTab('reunions')">📝 Reunións</div>
+ <div class="tab" id="tab-acordos" onclick="showTab('acordos')">✅ Acordos</div>
+ <button onclick="xerarCartaCitacion()" style="height:26px;padding:0 10px;border-radius:7px;border:1.5px solid rgba(251,191,36,.3);background:rgba(251,191,36,.08);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.65rem;font-weight:800;cursor:pointer;margin-left:4px">📨 Citación</button>
+ <div class="tab" id="tab-citas"     onclick="showTab('citas')">📅 Citas</div>
+ <div class="tab" id="tab-comun"     onclick="showTab('comun')">📞 Comunicacións</div>
+ <div class="tab" id="tab-asistencia" onclick="showTab('asistencia')">✅ Asistencia</div>
+ <div class="tab" id="tab-informe"   onclick="showTab('informe')">📄 Informe familia</div>
+</div>
+
+<!-- ══ FAMILIAS ══ -->
+<div class="section show" id="sec-familias">
+ <div style="display:grid;grid-template-columns:260px 1fr;gap:14px;max-width:1100px">
+  <!-- Lista alumnos -->
+  <div>
+   <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
+    <span style="font-family:'DM Serif Display',Georgia,serif;font-size:.9rem;color:var(--purple)">👥 Alumnado</span>
+    <button class="btn btn-ghost btn-sm" onclick="imprimirPlantillaFamilias()" style="margin-left:auto;font-size:.65rem" title="Imprimir plantilla en branco para entregar ás familias">🖨️ Plantilla familias</button>
+    <button class="btn btn-purple btn-sm" onclick="sincronizarAlumnos()" style="font-size:.65rem">↺ Sincronizar</button>
+   </div>
+   <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden">
+    <div style="padding:8px;border-bottom:1px solid var(--border)">
+     <input class="inp" id="search-familias" placeholder="🔍 Buscar..." oninput="renderFamiliasList()" style="height:30px;font-size:.8rem"/>
+    </div>
+    <div id="familias-list" style="max-height:65vh;overflow-y:auto"></div>
+   </div>
+  </div>
+  <!-- Ficha familia -->
+  <div id="ficha-familia">
+   <div class="card" style="text-align:center;padding:3rem;color:var(--muted)">
+    <div style="font-size:3rem;margin-bottom:.75rem">👆</div>
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem">Selecciona un alumno/a para ver a súa ficha familiar</div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- ══ REUNIÓNS ══ -->
+<div class="section" id="sec-reunions">
+ <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+  <span style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--purple)">📝 Rexistro de reunións</span>
+  <!-- Filtros -->
+  <select id="filtro-reunion-alumno" class="inp" style="width:auto;height:30px;font-size:.78rem;cursor:pointer" onchange="renderReunions()">
+   <option value="">Todos os alumnos/as</option>
+  </select>
+  <select id="filtro-reunion-tipo" class="inp" style="width:auto;height:30px;font-size:.78rem;cursor:pointer" onchange="renderReunions()">
+   <option value="">Todos os tipos</option>
+   <option value="presencial">Presencial</option>
+   <option value="telefonica">Telefónica</option>
+   <option value="virtual">Virtual</option>
+   <option value="escrita">Escrita</option>
+  </select>
+  <button class="btn btn-purple btn-sm" onclick="openNovareunion()" style="margin-left:auto">+ Nova reunión</button>
+ </div>
+ <div id="reunions-lista"></div>
+</div>
+
+<!-- ══ CITAS ══ -->
+<div class="section" id="sec-citas">
+ <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+  <span style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--purple)">📅 Calendario de citas</span>
+  <label style="display:flex;align-items:center;gap:6px;font-size:.75rem;font-weight:800;color:var(--muted);margin-left:auto">
+   <input type="checkbox" id="mostrar-pasadas" onchange="renderCitas()" style="accent-color:var(--purple)"/> Mostrar pasadas
+  </label>
+  <button class="btn btn-purple btn-sm" onclick="openNovaCita()">+ Nova cita</button>
+ </div>
+ <div id="citas-lista"></div>
+</div>
+
+<!-- ══ COMUNICACIÓNS ══ -->
+<div class="section" id="sec-comun">
+ <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+  <span style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--purple)">📞 Rexistro de comunicacións</span>
+  <select id="filtro-comun-alumno" class="inp" style="width:auto;height:30px;font-size:.78rem;cursor:pointer" onchange="renderComun()">
+   <option value="">Todos os alumnos/as</option>
+  </select>
+  <button class="btn btn-ghost btn-sm" onclick="exportComunCSV()" style="font-size:.68rem">📥 CSV</button>
+  <button class="btn btn-purple btn-sm" onclick="openNovaComun()" style="margin-left:auto">+ Nova comunicación</button>
+ </div>
+ <div id="comun-lista"></div>
+</div>
+
+<!-- ══ INFORME FAMILIA ══ -->
+<div class="section" id="sec-asistencia">
+ <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+  <span style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--green)">✅ Xestión de asistencia</span>
+  <select id="filtro-asist-alumno" class="inp" style="width:auto;height:30px;font-size:.78rem;cursor:pointer" onchange="renderAsistTitoria()">
+   <option value="">Todos os alumnos/as</option>
+  </select>
+  <select id="filtro-asist-mes" class="inp" style="width:auto;height:30px;font-size:.78rem;cursor:pointer" onchange="renderAsistTitoria()">
+   <option value="">Todos os meses</option>
+  </select>
+  <button class="btn btn-ghost btn-sm" onclick="renderAsistTitoria()" style="margin-left:auto">↺ Actualizar</button>
+ </div>
+ <div id="asist-titoria-lista"></div>
+</div>
+
+<div class="section" id="sec-informe">
+ <div style="display:grid;grid-template-columns:260px 1fr;gap:14px">
+  <!-- Selector alumno -->
+  <div>
+   <div style="font-family:'DM Serif Display',Georgia,serif;font-size:.9rem;color:var(--purple);margin-bottom:8px">👤 Seleccionar alumno/a</div>
+   <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden">
+    <div id="informe-lista-alumnos" style="max-height:65vh;overflow-y:auto"></div>
+   </div>
+  </div>
+  <!-- Editor informe -->
+  <div id="informe-editor">
+   <div class="card" style="text-align:center;padding:3rem;color:var(--muted)">
+    <div style="font-size:3rem;margin-bottom:.75rem">📄</div>
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem">Selecciona un alumno/a para xerar o informe</div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div class="license-bar">© 2026 Montserrat Blanco Vázquez · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.gl" target="_blank">CC BY-NC-SA 4.0</a></div>
+
+
+<div class="section" id="sec-acordos" style="display:none">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--gold)">✅ Seguimento de acordos</div>
+    <select id="ac-fil-alumno" onchange="renderAcordos()" style="height:30px;padding:0 8px;border-radius:8px;border:1.5px solid var(--border2);background:var(--card2);color:var(--white);font-size:.75rem;font-weight:700;cursor:pointer"><option value="">Todos os alumnos/as</option></select>
+    <select id="ac-fil-estado" onchange="renderAcordos()" style="height:30px;padding:0 8px;border-radius:8px;border:1.5px solid var(--border2);background:var(--card2);color:var(--white);font-size:.75rem;font-weight:700;cursor:pointer"><option value="">Todos</option><option value="pendente">⏳ Pendente</option><option value="en_curso">🔄 En curso</option><option value="cumprido">✅ Cumprido</option><option value="incumprido">❌ Non cumprido</option></select>
+    <button onclick="novoAcordo()" style="height:30px;padding:0 12px;border-radius:8px;border:1.5px solid rgba(251,191,36,.3);background:rgba(251,191,36,.1);color:var(--gold);font-size:.72rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:auto">+ Novo acordo</button>
+  </div>
+  <div id="acordos-list"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════════════════════════════════
+const S={
+ get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch(e){return d;}},
+ set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+};
+
+// ── DATOS ──────────────────────────────────────────────────────────────────
+let alumnos    = S.get('pc_alumnos',[]); // Sincronizado co Panel
+let familias   = S.get('tit_familias',{}); // {nome: {titor,telefono,email,lingua,situacion,horario,obs}}
+let reunions   = S.get('tit_reunions',[]); // [{id,alumno,data,hora,tipo,temas,acordos,obs}]
+let citas      = S.get('tit_citas',[]); // [{id,alumno,data,hora,motivo,estado}]
+let comuns     = S.get('tit_comuns',[]); // [{id,alumno,data,hora,canal,resumo}]
+
+let acordos=S.get('tit_acordos',[]);
+
+function renderAcordos(){
+  const filAl=document.getElementById('ac-fil-alumno')?.value||'';
+  const filEst=document.getElementById('ac-fil-estado')?.value||'';
+  const list=acordos.filter(a=>(!filAl||a.alumno===filAl)&&(!filEst||a.estado===filEst))
+    .sort((a,b)=>b.data.localeCompare(a.data));
+  const el=document.getElementById('acordos-list');if(!el)return;
+  if(!list.length){el.innerHTML='<div style="color:var(--muted);font-size:.78rem;text-align:center;padding:2rem">Sen acordos rexistrados</div>';return;}
+  const estCols={pendente:{c:'#fbbf24',l:'⏳ Pendente'},en_curso:{c:'#60a5fa',l:'🔄 En curso'},cumprido:{c:'#34d399',l:'✅ Cumprido'},incumprido:{c:'#f87171',l:'❌ Non cumprido'}};
+  el.innerHTML=list.map(a=>{
+    const ec=estCols[a.estado]||{c:'#94a3b8',l:a.estado};
+    return `<div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px;border-left:3px solid ${ec.c}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+        <span style="font-size:.72rem;font-weight:900;color:var(--white)">${a.alumno||'—'}</span>
+        <span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:999px;background:${ec.c}18;color:${ec.c}">${ec.l}</span>
+        <span style="font-size:.62rem;color:var(--muted)">${a.data}</span>
+        <div style="margin-left:auto;display:flex;gap:4px">
+          ${Object.entries(estCols).map(([k,v])=>`<button onclick="cambiarEstadoAcordo('${a.id}','${k}')" style="height:20px;padding:0 6px;border-radius:4px;border:1px solid ${a.estado===k?v.c+'66':' var(--border)'};background:${a.estado===k?v.c+'18':'transparent'};color:${a.estado===k?v.c:'var(--muted)'};font-size:.55rem;font-weight:800;cursor:pointer">${v.l}</button>`).join('')}
+          <button onclick="borrarAcordo('${a.id}')" style="height:20px;padding:0 5px;border-radius:4px;border:1px solid rgba(248,113,113,.3);background:transparent;color:#f87171;font-size:.6rem;cursor:pointer">✕</button>
+        </div>
+      </div>
+      <div style="font-size:.78rem;font-weight:700;line-height:1.4">${a.texto}</div>
+      ${a.prazo?`<div style="font-size:.6rem;color:var(--muted);margin-top:3px">📅 Prazo: ${a.prazo}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function novoAcordo(){
+  const alumnos2=S.get('pc_alumnos',S.get('sn3_alumnos',[]));
+  const alOpts=alumnos2.map(a=>`<option value="${a}">${a}</option>`).join('');
+  openModal(`<h3>✅ Novo acordo</h3>
+    <label style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Alumno/a</label>
+    <select id="na-al" style="width:100%;height:34px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:0 10px;outline:none;cursor:pointer;margin-bottom:10px"><option value="">—</option>${alOpts}</select>
+    <label style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Acordo / Compromiso</label>
+    <textarea id="na-txt" rows="3" style="width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;padding:8px 10px;outline:none;resize:vertical;margin-bottom:10px" placeholder="Describe o acordo alcanzado..."></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><label style="font-size:.6rem;font-weight:900;color:var(--muted);display:block;margin-bottom:4px">Data</label>
+        <input id="na-data" type="date" value="${new Date().toISOString().split('T')[0]}" style="width:100%;height:30px;padding:0 8px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-size:.78rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+      <div><label style="font-size:.6rem;font-weight:900;color:var(--muted);display:block;margin-bottom:4px">Prazo (opcional)</label>
+        <input id="na-prazo" type="date" style="width:100%;height:30px;padding:0 8px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-size:.78rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModal()" class="btn btn-ghost">Cancelar</button>
+      <button onclick="gardarAcordo()" class="btn btn-gold">Gardar</button>
+    </div>`);
+}
+
+function xerarCartaCitacion(){
+  const alumnos2=S.get('pc_alumnos',S.get('sn3_alumnos',[]));
+  const alOpts=alumnos2.map(a=>`<option value="${a}">${a}</option>`).join('');
+  openModal(`<h3>📨 Xerador de carta de citación</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><label style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Alumno/a</label>
+        <select id="cc-al" style="width:100%;height:32px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;padding:0 8px;outline:none;cursor:pointer"><option value="">—</option>${alOpts}</select>
+      </div>
+      <div><label style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Data da reunión</label>
+        <input id="cc-data" type="date" style="width:100%;height:32px;padding:0 8px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;outline:none"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><label style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Hora</label>
+        <input id="cc-hora" type="time" value="17:00" style="width:100%;height:32px;padding:0 8px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;outline:none"/></div>
+      <div><label style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Lugar</label>
+        <input id="cc-lugar" value="Aula de 4º B" style="width:100%;height:32px;padding:0 8px;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;outline:none"/></div>
+    </div>
+    <div><label style="font-size:.6rem;font-weight:900;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Motivo (opcional)</label>
+      <textarea id="cc-motivo" rows="2" style="width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.78rem;padding:8px;outline:none;resize:vertical;margin-bottom:10px" placeholder="Ex: Seguimento académico, resultados do 2º trimestre..."></textarea>
+    </div>
+    <div class="modal-row">
+      <button onclick="closeModal()" class="btn btn-ghost">Cancelar</button>
+      <button onclick="imprimirCartaCitacion()" class="btn btn-gold">📨 Xerar carta</button>
+    </div>`);
+}
+
+function imprimirCartaCitacion(){
+  const al=document.getElementById('cc-al')?.value;
+  const data=document.getElementById('cc-data')?.value;
+  const hora=document.getElementById('cc-hora')?.value||'17:00';
+  const lugar=document.getElementById('cc-lugar')?.value||'Aula de 4º B';
+  const motivo=document.getElementById('cc-motivo')?.value.trim()||'Seguimento académico';
+  if(!al||!data){alert('Selecciona alumno/a e data');return;}
+  const fam=S.get('tit_familias',{})[al]||{};
+  const dataParts=data.split('-');
+  const dataStr=new Date(data+'T12:00:00').toLocaleDateString('gl-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const horaStr=hora;
+  const hoxeStr=new Date().toLocaleDateString('gl-ES',{day:'numeric',month:'long',year:'numeric'});
+  const titor=fam.titor||'Familia de '+al;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8"><title>Citación · ${al}</title>
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Georgia,serif;padding:3cm 3.5cm;color:#1e293b;font-size:12px;line-height:1.8}
+  .header{text-align:center;margin-bottom:32px;padding-bottom:16px;border-bottom:2px solid #1e2a4a}
+  .logo{font-size:18px;font-weight:900;color:#1e2a4a;margin-bottom:4px}
+  .escola{font-size:11px;color:#64748b}
+  .data-lugar{text-align:right;margin-bottom:24px;font-size:11px;color:#64748b}
+  .destinatario{margin-bottom:20px;font-size:12px}
+  .corpo{margin-bottom:24px;text-align:justify}
+  .firma{margin-top:40px}
+  .firma-linha{border-top:1px solid #1e2a4a;width:200px;padding-top:6px;font-size:11px;color:#64748b}
+  .acuse{margin-top:32px;border:1px solid #e2e8f0;border-radius:8px;padding:16px;background:#f8fafc}
+  .acuse-title{font-size:11px;font-weight:900;text-transform:uppercase;color:#64748b;margin-bottom:8px}
+  @page{size:A4;margin:2cm}@media print{body{padding:2cm}}
+  </style></head><body>
+  <div class="header">
+    <div class="logo">CEIP Pío XII</div>
+    <div class="escola">Santiago de Compostela · Galicia</div>
+  </div>
+  <div class="data-lugar">Santiago de Compostela, ${hoxeStr}</div>
+  <div class="destinatario">
+    <div>${titor}</div>
+    <div style="color:#64748b;font-size:11px">Familia de ${al} · 4º B</div>
+  </div>
+  <div class="corpo">
+    <p style="margin-bottom:12px">Estimada familia,</p>
+    <p style="margin-bottom:12px">Por medio da presente, póñome en contacto con vostede para <strong>convidala/o a unha reunión de titoría</strong> co fin de tratar os seguintes asuntos: <em>${motivo}</em>.</p>
+    <p style="margin-bottom:12px">A reunión terá lugar o <strong>${dataStr}</strong>, ás <strong>${horaStr} horas</strong>, en <strong>${lugar}</strong>.</p>
+    <p style="margin-bottom:12px">Rogámoslles que confirmen a súa asistencia ao centro ou a través da axenda escolar.</p>
+    <p>Grazas pola súa colaboración.</p>
+  </div>
+  <div class="firma">
+    <div class="firma-linha">A titora · 4º B</div>
+  </div>
+  <div class="acuse" style="margin-top:32px">
+    <div class="acuse-title">✂ Recortar e devolver ao centro</div>
+    <p style="font-size:11px">D./Dna. _____________________________, nai/pai/titor/a legal de <strong>${al}</strong>, confirma a súa asistencia á reunión do día <strong>${dataStr}</strong> ás <strong>${horaStr}h</strong>.</p>
+    <div style="margin-top:12px;font-size:11px">Sinatura: ___________________________</div>
+  </div>
+  <script>_aplicarCabeceira();</script>
+</body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+  closeModal();
+}
+
+function gardarAcordo(){
+  const alumno=document.getElementById('na-al')?.value;
+  const texto=document.getElementById('na-txt')?.value.trim();
+  if(!alumno||!texto){alert('Selecciona alumno/a e escribe o acordo');return;}
+  acordos.unshift({id:'ac_'+Date.now(),alumno,texto,data:document.getElementById('na-data')?.value||'',prazo:document.getElementById('na-prazo')?.value||'',estado:'pendente',creado:new Date().toISOString()});
+  S.set('tit_acordos',acordos);
+  closeModal();renderAcordos();
+}
+
+function cambiarEstadoAcordo(id,estado){
+  const a=acordos.find(x=>x.id===id);if(a){a.estado=estado;S.set('tit_acordos',acordos);renderAcordos();}
+}
+
+function borrarAcordo(id){
+  _confirmar('Borrar este acordo?',()=>{
+  acordos=acordos.filter(x=>x.id!==id);S.set('tit_acordos',acordos);renderAcordos();
+});
+
+function save(){
+ S.set('tit_familias',familias);
+ S.set('tit_reunions',reunions);
+ S.set('tit_citas',citas);
+ S.set('tit_comuns',comuns);
+}
+
+// ── CORES AVATARES ─────────────────────────────────────────────────────────
+const AVCOLS=['#6366f1','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fbbf24','#ef4444','#06b6d4','#84cc16'];
+function ac(i){return AVCOLS[i%AVCOLS.length];}
+function ini(n){const m=n.match(/^(\d+)/);if(m)return m[1].substring(0,2);return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════════════════════
+function showTab(t){
+ document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+t));
+ document.querySelectorAll('.section').forEach(el=>el.classList.toggle('show',el.id==='sec-'+t));
+ if(t==='familias') renderFamiliasList();
+ if(t==='reunions'){populateAlumnoSelects();renderReunions();}
+ if(t==='acordos'){populateAlumnoSelects();
+   // Populate alumno filter
+   const afil=document.getElementById('ac-fil-alumno');
+   if(afil&&afil.options.length<=1){const al=S.get('pc_alumnos',S.get('sn3_alumnos',[]));al.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;afil.appendChild(o);});}
+   renderAcordos();
+ }
+ if(t==='citas') renderCitas();
+ if(t==='comun'){populateAlumnoSelects();renderComun();}
+ if(t==='asistencia'){populateAlumnoSelects();renderAsistTitoria();}
+ if(t==='informe') renderInformeAlumnos();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+function openModal(h){document.getElementById('modal-content').innerHTML=h;document.getElementById('modal-bg').classList.add('show');}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;document.getElementById('modal-bg').classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modal-bg').classList.remove('show');});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODO CLARO/ESCURO
+// ══════════════════════════════════════════════════════════════════════════════
+function toggleModo(){
+ const actual=S.get('tit_modo','escuro');
+ const novo=actual==='escuro'?'claro':'escuro';
+ aplicarModo(novo);
+}
+function aplicarModo(m){
+ document.body.classList.toggle('claro',m==='claro');
+ const btn=document.getElementById('btn-modo');
+ if(btn) btn.textContent=m==='claro'?'🌙 Escuro':'☀️ Claro';
+ S.set('tit_modo',m);
+}
+aplicarModo(S.get('tit_modo','escuro'));
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SINCRONIZAR ALUMNOS CO PANEL DE CLASE
+// ══════════════════════════════════════════════════════════════════════════════
+function sincronizarAlumnos(){
+ const novos=S.get('pc_alumnos',[]);
+ if(!novos.length){alert('Non se atoparon alumnos do Panel de Clase.\nAbre o Panel de Clase primeiro.');return;}
+ alumnos=novos;
+ renderFamiliasList();
+ populateAlumnoSelects();
+ showToast('✓ Alumnado sincronizado dende Panel de Clase','#22c55e');
+}
+
+// Escoitar cambios do Panel en tempo real
+window.addEventListener('storage',e=>{
+ if(e.key==='pc_alumnos'){alumnos=JSON.parse(e.newValue||'[]');renderFamiliasList();populateAlumnoSelects();}
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FAMILIAS
+// ══════════════════════════════════════════════════════════════════════════════
+let selAlumno=null;
+
+function renderFamiliasList(){
+ const q=document.getElementById('search-familias')?.value.toLowerCase()||'';
+ const lista=document.getElementById('familias-list');
+ if(!lista) return;
+ const filtrados=alumnos.filter(a=>a.toLowerCase().includes(q));
+ lista.innerHTML=filtrados.length
+  ?filtrados.map((a,i)=>{
+   const idx=alumnos.indexOf(a);
+   const col=ac(idx);
+   const f=familias[a]||{};
+   const tenDatos=!!(f.titor||f.telefono||f.email);
+   return `<div class="alumno-item${a===selAlumno?' sel':''}" onclick="selFamilia('${a.replace(/'/g,"\\'")}')">
+    <div class="alumno-avatar" style="background:${col}">${ini(a)}</div>
+    <div style="flex:1">
+     <div style="font-size:.82rem;font-weight:800">${a}</div>
+     ${f.titor?`<div style="font-size:.62rem;color:var(--muted)">${f.titor}</div>`:''}
+    </div>
+    <div class="semaf-dot" style="background:${tenDatos?'var(--green)':'var(--border)'}"></div>
+   </div>`;
+  }).join('')
+  :'<div style="padding:1rem;text-align:center;color:var(--muted);font-size:.8rem">Sen resultados</div>';
+}
+
+function selFamilia(nome){
+ selAlumno=nome;
+ renderFamiliasList();
+ renderFichaFamilia();
+}
+
+function renderFichaFamilia(){
+ const name=selAlumno; if(!name) return;
+ const idx=alumnos.indexOf(name);
+ const col=ac(idx);
+ const f=familias[name]||{};
+ const numReunions=reunions.filter(r=>r.alumno===name).length;
+ const numCitas=citas.filter(c=>c.alumno===name).length;
+ const numComuns=comuns.filter(c=>c.alumno===name).length;
+
+ document.getElementById('ficha-familia').innerHTML=`
+  <div class="card">
+   <!-- Cabeceira -->
+   <div style="display:flex;align-items:center;gap:14px;margin-bottom:1rem;flex-wrap:wrap">
+    <div style="width:52px;height:52px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;color:white;flex-shrink:0">${ini(name)}</div>
+    <div>
+     <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;color:var(--white)">${name}</div>
+     <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+      <span style="font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(167,139,250,.15);color:var(--purple)">📝 ${numReunions} reunión${numReunions!==1?'s':''}</span>
+      <span style="font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(45,212,191,.12);color:var(--teal)">📅 ${numCitas} cita${numCitas!==1?'s':''}</span>
+      <span style="font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,.12);color:var(--blue)">📞 ${numComuns} comunicación${numComuns!==1?'s':''}</span>
+     </div>
+    </div>
+    <button class="btn btn-purple btn-sm" onclick="editarFamilia('${name.replace(/'/g,"\\'")}');" style="margin-left:auto">✏️ Editar datos</button>
+   </div>
+   <!-- Datos familia -->
+   <div class="form-grid" style="margin-bottom:1rem">
+    <div><span class="label">👤 Titor/a</span><div style="font-size:.85rem;font-weight:800;color:var(--white)">${f.titor||'<span style="color:var(--muted)">Non rexistrado</span>'}</div></div>
+    <div><span class="label">📞 Teléfono</span><div style="font-size:.85rem;font-weight:800;color:var(--white)">${f.telefono?`<a href="tel:${f.telefono}" style="color:var(--teal);text-decoration:none">${f.telefono}</a>`:'<span style="color:var(--muted)">Non rexistrado</span>'}</div></div>
+    <div><span class="label">📧 Correo</span><div style="font-size:.85rem;font-weight:800;color:var(--white)">${f.email?`<a href="mailto:${f.email}" style="color:var(--teal);text-decoration:none">${f.email}</a>`:'<span style="color:var(--muted)">Non rexistrado</span>'}</div></div>
+    <div><span class="label">🕐 Mellor horario</span><div style="font-size:.85rem;font-weight:800;color:var(--white)">${f.horario||'<span style="color:var(--muted)">Non indicado</span>'}</div></div>
+    <div><span class="label">🗣️ Lingua na casa</span><div style="font-size:.85rem;font-weight:800;color:var(--white)">${f.lingua||'<span style="color:var(--muted)">Non indicada</span>'}</div></div>
+    <div><span class="label">🏠 Situación familiar</span><div style="font-size:.85rem;font-weight:700;color:var(--white)">${f.situacion||'<span style="color:var(--muted)">Non rexistrada</span>'}</div></div>
+   </div>
+   ${f.obs?`<div style="background:var(--card2);border-radius:10px;padding:10px 13px;border-left:3px solid var(--purple)"><span class="label">📋 Observacións</span><div style="font-size:.82rem;font-weight:700;color:var(--white);line-height:1.55">${f.obs}</div></div>`:''}
+   <!-- Últimas reunións -->
+   ${numReunions>0?`
+   <div style="margin-top:1rem">
+    <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">Últimas reunións</div>
+    ${reunions.filter(r=>r.alumno===name).slice(-3).reverse().map(r=>`
+     <div style="background:var(--card2);border-radius:9px;padding:7px 11px;margin-bottom:4px;display:flex;align-items:center;gap:8px">
+      <span style="font-family:'DM Serif Display',Georgia,serif;font-size:.78rem;color:var(--purple)">${r.data}</span>
+      <span style="font-size:.7rem;font-weight:800;color:var(--white);flex:1">${r.temas||'—'}</span>
+     </div>`).join('')}
+   </div>`:''}
+   <!-- Accións rápidas -->
+   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+    <button class="btn btn-purple btn-sm" onclick="openNovareunion('${name.replace(/'/g,"\\'")}')">📝 Nova reunión</button>
+    <button class="btn btn-ghost btn-sm" onclick="openNovaCita('${name.replace(/'/g,"\\'")}')">📅 Nova cita</button>
+    <button class="btn btn-ghost btn-sm" onclick="openNovaComun('${name.replace(/'/g,"\\'")}')">📞 Comunicación</button>
+    <button class="btn btn-gold btn-sm" onclick="selInformeAlumno('${name.replace(/'/g,"\\'")}');showTab('informe')" style="margin-left:auto">📄 Xerar informe</button>
+   </div>
+  </div>
+
+  <!-- FICHA FAMILIAR RECIBIDA -->
+  <div class="card" style="margin-top:10px">
+   <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;color:var(--purple)">📋 Ficha familiar recibida</div>
+    <div id="ff-badge-${name.replace(/\s/g,'_')}" style="margin-left:4px"></div>
+    <button class="btn btn-purple btn-sm" onclick="ffGardar('${name.replace(/'/g,"\\'")}');this.textContent='✅ Gardado';setTimeout(()=>this.textContent='💾 Gardar',1500)" style="margin-left:auto;font-size:.7rem">💾 Gardar</button>
+   </div>
+   ${renderFFFormulario(name, lsGet('tit_ff_'+name,{}))}
+  </div>`;
+}
+
+// ── FICHA FAMILIAR RECIBIDA ──────────────────────────────────────────────────
+function lsGet(k,def){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):def;}catch{return def;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+function renderFFFormulario(nome,d){
+ const chk=(id,val)=>`<input type="checkbox" id="ff-${id}-${nome.replace(/\s/g,'_')}" ${d[id]?'checked':''} style="accent-color:var(--purple);width:14px;height:14px;cursor:pointer"/>`;
+ const sel=(id,opts,placeholder)=>`<select id="ff-${id}-${nome.replace(/\s/g,'_')}" class="inp" style="font-size:.78rem;height:30px;cursor:pointer">
+  <option value="">${placeholder}</option>
+  ${opts.map(o=>`<option value="${o}"${d[id]===o?' selected':''}>${o}</option>`).join('')}
+ </select>`;
+ const txt=(id,placeholder,rows=2)=>`<textarea id="ff-${id}-${nome.replace(/\s/g,'_')}" class="inp" rows="${rows}" placeholder="${placeholder}" style="font-size:.78rem;line-height:1.5;resize:vertical">${d[id]||''}</textarea>`;
+ const inp=(id,placeholder,type='text')=>`<input type="${type}" id="ff-${id}-${nome.replace(/\s/g,'_')}" class="inp" value="${d[id]||''}" placeholder="${placeholder}" style="font-size:.78rem;height:30px"/>`;
+
+ return `
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+  <div><label class="label">📅 Data de entrega da ficha</label>${inp('dataEntrega','DD/MM/AAAA')}</div>
+  <div><label class="label">📅 Data de recepción</label>${inp('dataRecepcion','DD/MM/AAAA')}</div>
+ </div>
+
+ <!-- Hábitos de estudo -->
+ <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">📚 Hábitos de estudo</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+  <div style="background:var(--card2);border-radius:8px;padding:8px 10px">
+   <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:6px">Estuda / repasa en casa</div>
+   ${sel('estudaEnCasa',['Nunca','Ás veces','Sempre'],'Seleccionar...')}
+  </div>
+  <div style="background:var(--card2);border-radius:8px;padding:8px 10px">
+   <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:6px">Realiza tarefas sen axuda</div>
+   ${sel('tareasAutonomo',['Nunca','Ás veces','Sempre'],'Seleccionar...')}
+  </div>
+  <div style="background:var(--card2);border-radius:8px;padding:8px 10px">
+   <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:6px">Ten lugar e horario fixo</div>
+   ${sel('lugarFixo',['Nunca','Ás veces','Sempre'],'Seleccionar...')}
+  </div>
+  <div style="background:var(--card2);border-radius:8px;padding:8px 10px">
+   <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:6px">Tempo diario en tarefas</div>
+   ${sel('tempoTarefas',['<15 min','15–30 min','30–60 min','+1 hora'],'Seleccionar...')}
+  </div>
+ </div>
+
+ <!-- Pantallas -->
+ <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">📱 Pantallas e dispositivos</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+  <div style="background:var(--card2);border-radius:8px;padding:8px 10px">
+   <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:6px">Ten dispositivos propios</div>
+   ${sel('dispositivosPropios',['Non','Si'],'Seleccionar...')}
+  </div>
+  <div style="background:var(--card2);border-radius:8px;padding:8px 10px">
+   <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:6px">Tempo diario de pantallas</div>
+   ${sel('tempoPantallas',['<1h','1–2h','2–3h','+3h'],'Seleccionar...')}
+  </div>
+  <div style="background:var(--card2);border-radius:8px;padding:8px 10px;grid-column:span 2">
+   <div style="font-size:.75rem;font-weight:800;color:var(--white);margin-bottom:6px">A familia supervisa o uso</div>
+   ${sel('supervisionPantallas',['Nunca','Ás veces','Sempre'],'Seleccionar...')}
+  </div>
+ </div>
+
+ <!-- Alertas -->
+ <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">⚠️ Aspectos a seguir</div>
+ <div style="background:var(--card2);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+   <label style="display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--white);cursor:pointer">${chk('alertaEstudo','estudoAlerta')} Non estuda en casa</label>
+   <label style="display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--white);cursor:pointer">${chk('alertaPantallas','pantallasAlerta')} Exceso de pantallas</label>
+   <label style="display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--white);cursor:pointer">${chk('alertaAutonomia','autonomiaAlerta')} Pouca autonomía nas tarefas</label>
+   <label style="display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--white);cursor:pointer">${chk('alertaSituacion','situacionAlerta')} Situación familiar a ter en conta</label>
+  </div>
+ </div>
+
+ <!-- Observacións da familia e notas da titora -->
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+  <div>
+   <label class="label">💬 Observacións da familia (o que escribiron)</label>
+   ${txt('obsFamily','Transcribe aquí o que escribiu a familia...',3)}
+  </div>
+  <div>
+   <label class="label">🗒️ Notas propias da titora</label>
+   ${txt('notasTitora','As túas notas, impresións, acordos...',3)}
+  </div>
+ </div>`;
+}
+
+function ffGardar(nome){
+ const k=nome.replace(/\s/g,'_');
+ const d={
+  dataEntrega: document.getElementById(`ff-dataEntrega-${k}`)?.value||'',
+  dataRecepcion: document.getElementById(`ff-dataRecepcion-${k}`)?.value||'',
+  estudaEnCasa: document.getElementById(`ff-estudaEnCasa-${k}`)?.value||'',
+  tareasAutonomo: document.getElementById(`ff-tareasAutonomo-${k}`)?.value||'',
+  lugarFixo: document.getElementById(`ff-lugarFixo-${k}`)?.value||'',
+  tempoTarefas: document.getElementById(`ff-tempoTarefas-${k}`)?.value||'',
+  dispositivosPropios: document.getElementById(`ff-dispositivosPropios-${k}`)?.value||'',
+  tempoPantallas: document.getElementById(`ff-tempoPantallas-${k}`)?.value||'',
+  supervisionPantallas: document.getElementById(`ff-supervisionPantallas-${k}`)?.value||'',
+  alertaEstudo: document.getElementById(`ff-alertaEstudo-${k}`)?.checked||false,
+  alertaPantallas: document.getElementById(`ff-alertaPantallas-${k}`)?.checked||false,
+  alertaAutonomia: document.getElementById(`ff-alertaAutonomia-${k}`)?.checked||false,
+  alertaSituacion: document.getElementById(`ff-alertaSituacion-${k}`)?.checked||false,
+  obsFamily: document.getElementById(`ff-obsFamily-${k}`)?.value.trim()||'',
+  notasTitora: document.getElementById(`ff-notasTitora-${k}`)?.value.trim()||'',
+ };
+ lsSet('tit_ff_'+nome, d);
+ // Actualizar badge
+ const alertas=[d.alertaEstudo,d.alertaPantallas,d.alertaAutonomia,d.alertaSituacion].filter(Boolean).length;
+ const badge=document.getElementById(`ff-badge-${k}`);
+ if(badge) badge.innerHTML=alertas?`<span style="font-size:.65rem;font-weight:900;padding:2px 8px;border-radius:999px;background:rgba(239,68,68,.15);color:#ef4444">⚠️ ${alertas} alerta${alertas>1?'s':''}</span>`:'<span style="font-size:.65rem;font-weight:900;padding:2px 8px;border-radius:999px;background:rgba(34,197,94,.12);color:#22c55e">✅ Cuberta</span>';
+}
+function editarFamilia(nome){
+ const f=familias[nome]||{};
+ openModal(`<h3>✏️ Datos de ${nome}</h3>
+  <div class="form-grid">
+   <div><label class="label">👤 Titor/a</label><input class="inp" id="ef-titor" value="${f.titor||''}" placeholder="Nome completo"/></div>
+   <div><label class="label">📞 Teléfono</label><input class="inp" id="ef-tel" type="tel" value="${f.telefono||''}" placeholder="Ex: 981 000 000"/></div>
+   <div><label class="label">📧 Correo</label><input class="inp" id="ef-email" type="email" value="${f.email||''}" placeholder="correo@exemplo.com"/></div>
+   <div><label class="label">🕐 Mellor horario contacto</label><input class="inp" id="ef-horario" value="${f.horario||''}" placeholder="Ex: Tardes 16-18h"/></div>
+   <div><label class="label">🗣️ Lingua habitual na casa</label>
+    <select class="inp" id="ef-lingua" style="cursor:pointer">
+     <option value="">Seleccionar...</option>
+     <option value="Galego"${f.lingua==='Galego'?' selected':''}>Galego</option>
+     <option value="Castelán"${f.lingua==='Castelán'?' selected':''}>Castelán</option>
+     <option value="Ambas"${f.lingua==='Ambas'?' selected':''}>Ambas</option>
+     <option value="Outra"${f.lingua==='Outra'?' selected':''}>Outra</option>
+    </select>
+   </div>
+   <div><label class="label">🏠 Situación familiar</label><input class="inp" id="ef-sit" value="${f.situacion||''}" placeholder="Ex: Familia monoparental..."/></div>
+  </div>
+  <div style="margin-top:8px"><label class="label">📋 Observacións</label>
+   <textarea class="textarea" id="ef-obs">${f.obs||''}</textarea></div>
+  <div class="modal-row">
+   <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+   <button class="btn btn-purple" onclick="gardarFamilia('${nome.replace(/'/g,"\\'")}')">💾 Gardar</button>
+  </div>`);
+}
+
+function gardarFamilia(nome){
+ familias[nome]={
+  titor:document.getElementById('ef-titor')?.value.trim()||'',
+  telefono:document.getElementById('ef-tel')?.value.trim()||'',
+  email:document.getElementById('ef-email')?.value.trim()||'',
+  horario:document.getElementById('ef-horario')?.value.trim()||'',
+  lingua:document.getElementById('ef-lingua')?.value||'',
+  situacion:document.getElementById('ef-sit')?.value.trim()||'',
+  obs:document.getElementById('ef-obs')?.value.trim()||'',
+ };
+ save();
+ closeModal();
+ renderFamiliasList();
+ renderFichaFamilia();
+ showToast('✓ Datos gardados','#22c55e');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// REUNIÓNS
+// ══════════════════════════════════════════════════════════════════════════════
+function openNovareunion(alumnoPresel=''){
+ const alumnoOpts=alumnos.map(a=>`<option value="${a}"${a===alumnoPresel?' selected':''}>${a}</option>`).join('');
+ openModal(`<h3>📝 Nova reunión</h3>
+  <div class="form-grid">
+   <div><label class="label">👤 Alumno/a</label>
+    <select class="inp" id="nr-alumno" style="cursor:pointer"><option value="">Seleccionar...</option>${alumnoOpts}</select></div>
+   <div><label class="label">📅 Data</label><input class="inp" type="date" id="nr-data" value="${new Date().toISOString().split('T')[0]}"/></div>
+   <div><label class="label">🕐 Hora</label><input class="inp" type="time" id="nr-hora" value="16:00"/></div>
+   <div><label class="label">📋 Tipo</label>
+    <select class="inp" id="nr-tipo" style="cursor:pointer">
+     <option value="presencial">🤝 Presencial</option>
+     <option value="telefonica">📞 Telefónica</option>
+     <option value="virtual">💻 Virtual</option>
+     <option value="escrita">📧 Escrita</option>
+    </select></div>
+  </div>
+  <div style="margin-top:8px"><label class="label">📌 Temas tratados</label>
+   <textarea class="textarea" id="nr-temas" placeholder="Temas abordados na reunión..."></textarea></div>
+  <div style="margin-top:8px"><label class="label">✅ Acordos e compromisos</label>
+   <textarea class="textarea" id="nr-acordos" placeholder="Acordos alcanzados, compromisos da familia e do centro..."></textarea></div>
+  <div style="margin-top:8px"><label class="label">📋 Observacións</label>
+   <textarea class="textarea" id="nr-obs" style="min-height:52px" placeholder="Outras anotacións..."></textarea></div>
+  <div class="modal-row">
+   <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+   <button class="btn btn-purple" onclick="gardarReunion()">💾 Gardar</button>
+  </div>`);
+}
+
+function gardarReunion(editId=''){
+ const alumno=document.getElementById('nr-alumno')?.value;
+ const data=document.getElementById('nr-data')?.value;
+ if(!alumno||!data){alert('Selecciona alumno/a e data.');return;}
+ const obj={
+  id:editId||'r'+Date.now(),alumno,
+  data,hora:document.getElementById('nr-hora')?.value||'',
+  tipo:document.getElementById('nr-tipo')?.value||'presencial',
+  temas:document.getElementById('nr-temas')?.value.trim()||'',
+  acordos:document.getElementById('nr-acordos')?.value.trim()||'',
+  obs:document.getElementById('nr-obs')?.value.trim()||'',
+ };
+ if(editId){const i=reunions.findIndex(r=>r.id===editId);if(i>-1)reunions[i]=obj;}
+ else reunions.push(obj);
+ reunions.sort((a,b)=>b.data.localeCompare(a.data));
+ save();closeModal();renderReunions();
+ showToast('✓ Reunión gardada','#22c55e');
+}
+
+function renderReunions(){
+ const lista=document.getElementById('reunions-lista');if(!lista)return;
+ const fA=document.getElementById('filtro-reunion-alumno')?.value||'';
+ const fT=document.getElementById('filtro-reunion-tipo')?.value||'';
+ const TIPOS={presencial:'🤝 Presencial',telefonica:'📞 Telefónica',virtual:'💻 Virtual',escrita:'📧 Escrita'};
+ let data=[...reunions];
+ if(fA) data=data.filter(r=>r.alumno===fA);
+ if(fT) data=data.filter(r=>r.tipo===fT);
+ if(!data.length){lista.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-family:\'Georgia\',serif">Sen reunións rexistradas</div>';return;}
+ lista.innerHTML=data.map(r=>`
+  <div class="reunion-card">
+   <div class="reunion-header">
+    <span class="reunion-data">${r.data}${r.hora?' · '+r.hora:''}</span>
+    <span class="reunion-tipo">${TIPOS[r.tipo]||r.tipo}</span>
+    <span class="reunion-alumno">👤 ${r.alumno}</span>
+    <div style="margin-left:auto;display:flex;gap:4px">
+     <button class="btn btn-ghost btn-sm" onclick="editarReunion('${r.id}')" style="font-size:.62rem">✏️</button>
+     <button class="btn btn-red btn-sm" onclick="eliminarReunion('${r.id}')" style="font-size:.62rem">✕</button>
+    </div>
+   </div>
+   ${r.temas?`<div class="reunion-txt"><strong style="color:var(--white)">Temas:</strong> ${r.temas}</div>`:''}
+   ${r.acordos?`<div class="reunion-txt"><strong style="color:var(--gold)">✅ Acordos:</strong> ${r.acordos}</div>`:''}
+   ${r.obs?`<div class="reunion-txt" style="opacity:.7">${r.obs}</div>`:''}
+  </div>`).join('');
+}
+
+function editarReunion(id){
+ const r=reunions.find(x=>x.id===id);if(!r)return;
+ const alumnoOpts=alumnos.map(a=>`<option value="${a}"${a===r.alumno?' selected':''}>${a}</option>`).join('');
+ openModal(`<h3>✏️ Editar reunión</h3>
+  <div class="form-grid">
+   <div><label class="label">👤 Alumno/a</label>
+    <select class="inp" id="nr-alumno" style="cursor:pointer"><option value="">Seleccionar...</option>${alumnoOpts}</select></div>
+   <div><label class="label">📅 Data</label><input class="inp" type="date" id="nr-data" value="${r.data}"/></div>
+   <div><label class="label">🕐 Hora</label><input class="inp" type="time" id="nr-hora" value="${r.hora||'16:00'}"/></div>
+   <div><label class="label">📋 Tipo</label>
+    <select class="inp" id="nr-tipo" style="cursor:pointer">
+     <option value="presencial"${r.tipo==='presencial'?' selected':''}>🤝 Presencial</option>
+     <option value="telefonica"${r.tipo==='telefonica'?' selected':''}>📞 Telefónica</option>
+     <option value="virtual"${r.tipo==='virtual'?' selected':''}>💻 Virtual</option>
+     <option value="escrita"${r.tipo==='escrita'?' selected':''}>📧 Escrita</option>
+    </select></div>
+  </div>
+  <div style="margin-top:8px"><label class="label">📌 Temas tratados</label>
+   <textarea class="textarea" id="nr-temas">${r.temas||''}</textarea></div>
+  <div style="margin-top:8px"><label class="label">✅ Acordos e compromisos</label>
+   <textarea class="textarea" id="nr-acordos">${r.acordos||''}</textarea></div>
+  <div style="margin-top:8px"><label class="label">📋 Observacións</label>
+   <textarea class="textarea" id="nr-obs" style="min-height:52px">${r.obs||''}</textarea></div>
+  <div class="modal-row">
+   <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+   <button class="btn btn-purple" onclick="gardarReunion('${id}')">💾 Gardar</button>
+  </div>`);
+}
+
+function eliminarReunion(id){
+ _confirmar('Eliminar esta reunión?',()=>{
+ reunions=reunions.filter(r=>r.id!==id);
+ save();renderReunions();
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CITAS
+// ══════════════════════════════════════════════════════════════════════════════
+function openNovaCita(alumnoPresel=''){
+ const alumnoOpts=alumnos.map(a=>`<option value="${a}"${a===alumnoPresel?' selected':''}>${a}</option>`).join('');
+ openModal(`<h3>📅 Nova cita</h3>
+  <div class="form-grid">
+   <div><label class="label">👤 Alumno/a</label>
+    <select class="inp" id="nc-alumno" style="cursor:pointer"><option value="">Seleccionar...</option>${alumnoOpts}</select></div>
+   <div><label class="label">📅 Data</label><input class="inp" type="date" id="nc-data" value="${new Date().toISOString().split('T')[0]}"/></div>
+   <div><label class="label">🕐 Hora</label><input class="inp" type="time" id="nc-hora" value="16:00"/></div>
+   <div><label class="label">📍 Lugar / Modalidade</label><input class="inp" id="nc-lugar" placeholder="Ex: Sala titorías, Videochamada..."/></div>
+  </div>
+  <div style="margin-top:8px"><label class="label">📋 Motivo</label>
+   <textarea class="textarea" id="nc-motivo" style="min-height:60px" placeholder="Motivo ou obxecto da cita..."></textarea></div>
+  <div class="modal-row">
+   <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+   <button class="btn btn-purple" onclick="gardarCita()">💾 Gardar</button>
+  </div>`);
+}
+
+function gardarCita(){
+ const alumno=document.getElementById('nc-alumno')?.value;
+ const data=document.getElementById('nc-data')?.value;
+ if(!alumno||!data){alert('Selecciona alumno/a e data.');return;}
+ citas.push({
+  id:'c'+Date.now(),alumno,data,
+  hora:document.getElementById('nc-hora')?.value||'',
+  lugar:document.getElementById('nc-lugar')?.value.trim()||'',
+  motivo:document.getElementById('nc-motivo')?.value.trim()||'',
+ });
+ citas.sort((a,b)=>a.data.localeCompare(b.data));
+ save();closeModal();renderCitas();
+ showToast('✓ Cita gardada','#22c55e');
+}
+
+function renderCitas(){
+ const lista=document.getElementById('citas-lista');if(!lista)return;
+ const mostrarPasadas=document.getElementById('mostrar-pasadas')?.checked;
+ const hoxe=new Date().toISOString().split('T')[0];
+ const GL=['Domingo','Luns','Martes','Mércores','Xoves','Venres','Sábado'];
+ let data=[...citas];
+ if(!mostrarPasadas) data=data.filter(c=>c.data>=hoxe);
+ if(!data.length){lista.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-family:\'Georgia\',serif">Sen citas próximas</div>';return;}
+ // Agrupar por mes
+ const grupos={};
+ data.forEach(c=>{
+  const mes=c.data.substring(0,7);
+  if(!grupos[mes])grupos[mes]=[];
+  grupos[mes].push(c);
+ });
+ lista.innerHTML=Object.entries(grupos).map(([mes,cits])=>{
+  const [ano,m]=mes.split('-');
+  const GL_MESES=['Xaneiro','Febreiro','Marzo','Abril','Maio','Xuño','Xullo','Agosto','Setembro','Outubro','Novembro','Decembro'];
+  return `<div style="margin-bottom:1rem">
+   <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px">${GL_MESES[parseInt(m)-1]} ${ano}</div>
+   ${cits.map(c=>{
+    const d=new Date(c.data+'T12:00:00');
+    const pasada=c.data<hoxe;
+    const idx=alumnos.indexOf(c.alumno);
+    const col=ac(idx);
+    return `<div class="cita-card${pasada?' pasada':''}">
+     <div>
+      <div class="cita-data">${GL[d.getDay()]} ${d.getDate()}</div>
+      <div class="cita-hora">${c.hora||'—'}</div>
+      ${c.lugar?`<div style="font-size:.6rem;color:var(--muted);font-weight:800">${c.lugar}</div>`:''}
+     </div>
+     <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
+       <div style="width:22px;height:22px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:white;flex-shrink:0">${ini(c.alumno)}</div>
+       <span style="font-weight:900;font-size:.82rem">${c.alumno}</span>
+      </div>
+      ${c.motivo?`<div style="font-size:.75rem;color:var(--muted);font-weight:700">${c.motivo}</div>`:''}
+     </div>
+     <button class="btn btn-red btn-sm" onclick="eliminarCita('${c.id}')" style="font-size:.62rem">✕</button>
+    </div>`;
+   }).join('')}
+  </div>`;
+ }).join('');
+}
+
+function eliminarCita(id){
+ _confirmar('Eliminar esta cita?',()=>{
+ citas=citas.filter(c=>c.id!==id);
+ save();renderCitas();
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COMUNICACIÓNS
+// ══════════════════════════════════════════════════════════════════════════════
+const COMUN_CANAIS={
+ chamada:{icon:'📞',label:'Chamada'},email:{icon:'📧',label:'Correo'},
+ nota:{icon:'📝',label:'Nota'},presencial:{icon:'🤝',label:'Presencial'},
+ app:{icon:'📱',label:'App/Mensaxe'},
+};
+
+function openNovaComun(alumnoPresel=''){
+ const alumnoOpts=alumnos.map(a=>`<option value="${a}"${a===alumnoPresel?' selected':''}>${a}</option>`).join('');
+ const canalOpts=Object.entries(COMUN_CANAIS).map(([k,v])=>`<option value="${k}">${v.icon} ${v.label}</option>`).join('');
+ openModal(`<h3>📞 Nova comunicación</h3>
+  <div class="form-grid">
+   <div><label class="label">👤 Alumno/a</label>
+    <select class="inp" id="nc2-alumno" style="cursor:pointer"><option value="">Seleccionar...</option>${alumnoOpts}</select></div>
+   <div><label class="label">📅 Data</label><input class="inp" type="date" id="nc2-data" value="${new Date().toISOString().split('T')[0]}"/></div>
+   <div><label class="label">🕐 Hora</label><input class="inp" type="time" id="nc2-hora" value="${new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0')}"/></div>
+   <div><label class="label">📡 Canal</label>
+    <select class="inp" id="nc2-canal" style="cursor:pointer">${canalOpts}</select></div>
+  </div>
+  <div style="margin-top:8px"><label class="label">📋 Resumo</label>
+   <textarea class="textarea" id="nc2-resumo" placeholder="Resumo da comunicación..."></textarea></div>
+  <div class="modal-row">
+   <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+   <button class="btn btn-purple" onclick="gardarComun()">💾 Gardar</button>
+  </div>`);
+}
+
+function gardarComun(){
+ const alumno=document.getElementById('nc2-alumno')?.value;
+ if(!alumno){alert('Selecciona alumno/a.');return;}
+ comuns.unshift({
+  id:'k'+Date.now(),alumno,
+  data:document.getElementById('nc2-data')?.value||'',
+  hora:document.getElementById('nc2-hora')?.value||'',
+  canal:document.getElementById('nc2-canal')?.value||'chamada',
+  resumo:document.getElementById('nc2-resumo')?.value.trim()||'',
+ });
+ save();closeModal();renderComun();
+ showToast('✓ Comunicación rexistrada','#22c55e');
+}
+
+function renderComun(){
+ const lista=document.getElementById('comun-lista');if(!lista)return;
+ const fA=document.getElementById('filtro-comun-alumno')?.value||'';
+ let data=[...comuns];
+ if(fA) data=data.filter(c=>c.alumno===fA);
+ if(!data.length){lista.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-family:\'Georgia\',serif">Sen comunicacións rexistradas</div>';return;}
+ lista.innerHTML=data.map(c=>{
+  const can=COMUN_CANAIS[c.canal]||{icon:'📋',label:c.canal};
+  const idx=alumnos.indexOf(c.alumno);const col=ac(idx);
+  return `<div class="reunion-card" style="border-left-color:var(--blue)">
+   <div class="reunion-header">
+    <span class="reunion-data">${c.data}${c.hora?' · '+c.hora:''}</span>
+    <span style="font-size:.62rem;font-weight:900;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,.15);color:var(--blue)">${can.icon} ${can.label}</span>
+    <div style="display:flex;align-items:center;gap:6px">
+     <div style="width:20px;height:20px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:white">${ini(c.alumno)}</div>
+     <span class="reunion-alumno">${c.alumno}</span>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:4px">
+     <button onclick="editarComun('${c.id}')" style="height:26px;padding:0 10px;background:rgba(96,165,250,.15);border:1.5px solid rgba(96,165,250,.5);border-radius:8px;color:var(--blue);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">✏️ Editar</button>
+     <button class="btn btn-red btn-sm" onclick="eliminarComun('${c.id}')" style="font-size:.62rem">✕</button>
+    </div>
+   </div>
+   ${c.resumo?`<div class="reunion-txt">${c.resumo}</div>`:''}
+  </div>`;
+ }).join('');
+}
+
+function eliminarComun(id){
+ _confirmar('Eliminar esta comunicación?',()=>{
+ comuns=comuns.filter(c=>c.id!==id);
+ save();renderComun();
+});
+
+function editarComun(id){
+ const comun=comuns.find(x=>x.id===id);
+ if(!comun)return;
+ const alumnoOpts=alumnos.map(a=>`<option value="${a}"${a===comun.alumno?' selected':''}>${a}</option>`).join('');
+ const canalOpts=Object.entries(COMUN_CANAIS).map(([k,v])=>`<option value="${k}"${k===comun.canal?' selected':''}>${v.icon} ${v.label}</option>`).join('');
+ openModal(`<h3>✏️ Editar comunicación</h3>
+  <div class="form-grid">
+   <div><label class="label">👤 Alumno/a</label>
+    <select class="inp" id="ec-alumno" style="cursor:pointer">${alumnoOpts}</select></div>
+   <div><label class="label">📅 Data</label><input class="inp" type="date" id="ec-data" value="${comun.data}"/></div>
+   <div><label class="label">🕐 Hora</label><input class="inp" type="time" id="ec-hora" value="${comun.hora||''}"/></div>
+   <div><label class="label">📡 Canal</label>
+    <select class="inp" id="ec-canal" style="cursor:pointer">${canalOpts}</select></div>
+  </div>
+  <div style="margin-top:8px"><label class="label">📋 Resumo</label>
+   <textarea class="textarea" id="ec-resumo">${comun.resumo||''}</textarea></div>
+  <div class="modal-row">
+   <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+   <button class="btn btn-purple" onclick="gardarEditComun('${id}')">💾 Gardar</button>
+  </div>`);
+}
+
+function gardarEditComun(id){
+ const comun=comuns.find(x=>x.id===id);
+ if(!comun)return;
+ const alumno=document.getElementById('ec-alumno')?.value;
+ if(!alumno){alert('Selecciona alumno/a.');return;}
+ comun.alumno=alumno;
+ comun.data=document.getElementById('ec-data')?.value||comun.data;
+ comun.hora=document.getElementById('ec-hora')?.value||'';
+ comun.canal=document.getElementById('ec-canal')?.value||comun.canal;
+ comun.resumo=document.getElementById('ec-resumo')?.value.trim()||'';
+ save();closeModal();renderComun();
+ showToast('✓ Comunicación actualizada','#22c55e');
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ✅ XESTIÓN DE ASISTENCIA (Titoría)
+// ══════════════════════════════════════════════════════════════════════════════
+const SESSIONS = ['1','2','3','4','5'];
+
+function renderAsistTitoria(){
+ const lista = document.getElementById('asist-titoria-lista');
+ if(!lista) return;
+
+ const fA = document.getElementById('filtro-asist-alumno')?.value || '';
+ const fM = document.getElementById('filtro-asist-mes')?.value || '';
+ const asist = S.get('pc_asist',{});
+ const xustData = S.get('tit_xustificadas',{});
+
+ // Collect all falta entries
+ const faltas = []; // {data, sess, alumno, xust, key}
+ Object.entries(asist).sort(([a],[b])=>b.localeCompare(a)).forEach(([dk, diaData])=>{
+   if(fM && !dk.startsWith(fM)) return;
+   SESSIONS.forEach(sess=>{
+     const sesData = diaData[sess] || {};
+     Object.entries(sesData).forEach(([al, est])=>{
+       if(est !== 'ausente' && est !== 'xustificada') return;
+       if(fA && al !== fA) return;
+       const key = al+'|'+dk+'|'+sess;
+       const isXust = est==='xustificada' || !!xustData[key];
+       faltas.push({data:dk, sess, alumno:al, xust:isXust, key});
+     });
+   });
+ });
+
+ // Populate mes filter
+ const mesSel = document.getElementById('filtro-asist-mes');
+ if(mesSel && mesSel.options.length <= 1){
+   const meses = [...new Set(Object.keys(asist).map(dk=>dk.substring(0,7)))].sort().reverse();
+   const GL_M=['Xan','Feb','Mar','Abr','Mai','Xuñ','Xul','Ago','Set','Out','Nov','Dec'];
+   meses.forEach(m=>{
+     const opt=document.createElement('option');
+     opt.value=m;
+     const [y,mo]=m.split('-');
+     opt.textContent=GL_M[parseInt(mo)-1]+' '+y;
+     mesSel.appendChild(opt);
+   });
+ }
+
+ if(!faltas.length){
+   lista.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-family:\'Georgia\',serif">Sen faltas rexistradas' + (fA?' para '+fA:'') + '</div>';
+   return;
+ }
+
+ // Group by date
+ const byDate = {};
+ faltas.forEach(f=>{
+   if(!byDate[f.data]) byDate[f.data]=[];
+   byDate[f.data].push(f);
+ });
+
+ lista.innerHTML = Object.entries(byDate).map(([dk, dFaltas])=>{
+   const rows = dFaltas.map(f=>{
+     const idx = alumnos.indexOf(f.alumno);
+     const col = ac(idx);
+     return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div style="width:22px;height:22px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:white;flex-shrink:0">${ini(f.alumno)}</div>
+      <span style="flex:1;font-size:.82rem;font-weight:800">${f.alumno}</span>
+      <span style="font-size:.72rem;font-weight:700;color:var(--muted)">Sesión ${f.sess}</span>
+      <button onclick="toggleXustificada('${f.key}')"
+       style="height:26px;padding:0 10px;border-radius:8px;border:1.5px solid ${f.xust?'rgba(234,179,8,.5)':'rgba(239,68,68,.4)'};background:${f.xust?'rgba(234,179,8,.1)':'rgba(239,68,68,.08)'};color:${f.xust?'#ca8a04':'var(--red)'};font-family:'DM Sans',sans-serif;font-size:.68rem;font-weight:900;cursor:pointer">
+       ${f.xust?'✓ Xustificada':'✕ Sen xustificar'}
+      </button>
+     </div>`;
+   }).join('');
+   const nXust = dFaltas.filter(f=>f.xust).length;
+   const nSin = dFaltas.length - nXust;
+   return `<div style="background:var(--card2);border-radius:12px;padding:10px 14px;margin-bottom:8px;border-left:4px solid var(--green)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+     <span style="font-weight:900;font-size:.85rem">${dk}</span>
+     ${nSin?`<span style="font-size:.62rem;font-weight:900;padding:1px 7px;border-radius:999px;background:rgba(239,68,68,.12);color:var(--red)">${nSin} sen xust.</span>`:''}
+     ${nXust?`<span style="font-size:.62rem;font-weight:900;padding:1px 7px;border-radius:999px;background:rgba(234,179,8,.12);color:#ca8a04">${nXust} xust.</span>`:''}
+    </div>
+    ${rows}
+   </div>`;
+ }).join('');
+}
+
+function toggleXustificada(key){
+ const xustData = S.get('tit_xustificadas',{});
+ if(xustData[key]) delete xustData[key];
+ else xustData[key] = true;
+ S.set('tit_xustificadas', xustData);
+ save();
+ renderAsistTitoria();
+ showToast(xustData[key]===undefined?'Falta marcada sen xustificar':'Falta xustificada ✓','#22c55e');
+}
+
+function exportComunCSV(){
+ const rows=['Data,Hora,Alumno/a,Canal,Resumo'];
+ comuns.forEach(c=>{
+  const can=COMUN_CANAIS[c.canal]||{label:c.canal};
+  rows.push(`"${c.data}","${c.hora}","${c.alumno}","${can.label}","${(c.resumo||'').replace(/"/g,'""')}"`);
+ });
+ const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+ a.download=`comunicacions_${new Date().toLocaleDateString('gl').replace(/\//g,'-')}.csv`;a.click();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INFORME PARA A FAMILIA
+// ══════════════════════════════════════════════════════════════════════════════
+let selInformeNome=null;
+
+function renderInformeAlumnos(){
+ const lista=document.getElementById('informe-lista-alumnos');if(!lista)return;
+ lista.innerHTML=alumnos.map((a,i)=>{
+  const col=ac(i);
+  const nInformes=_listaInformes(a).length;
+  return `<div class="alumno-item${a===selInformeNome?' sel':''}" onclick="selInformeAlumno('${a.replace(/'/g,"\\'")}')">
+   <div class="alumno-avatar" style="background:${col}">${ini(a)}</div>
+   <span style="font-size:.82rem;font-weight:800;flex:1">${a}</span>
+   ${nInformes?`<span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:999px;background:rgba(167,139,250,.15);color:var(--purple)">${nInformes}</span>`:''}
+  </div>`;
+ }).join('');
+ if(selInformeNome) renderInformeEditor();
+}
+
+function selInformeAlumno(nome){
+ selInformeNome=nome;
+ renderInformeAlumnos();
+ renderInformeEditor();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ÍTEMS DO INFORME (checklists)
+// ══════════════════════════════════════════════════════════════════════════════
+const INF_ITEMS = {
+ rendemento: {
+  label: '📊 Rendemento académico',
+  pos: [
+   'Traballa ao ritmo da clase',
+   'Presenta as tarefas completas e no prazo',
+   'Mellora progresiva ao longo do trimestre',
+   'Aproveita ben o tempo na clase',
+   'Demostra esforzo e dedicación',
+   'Supera os obxectivos propostos',
+   'Destaca academicamente no grupo',
+   'Amosa interese polas materias',
+  ],
+  neg: [
+   'Ten dificultades en algunha(s) materia(s)',
+   'Rendemento por baixo do esperado para as súas capacidades',
+   'Non entrega as tarefas con regularidade',
+   'Presenta as tarefas incompletas ou sen coidado',
+   'Non aproveita o tempo na clase',
+   'Acumula contidos sen asimilar',
+   'Precisa reforzo continuado en casa',
+   'O rendemento empeorou respecto ao trimestre anterior',
+   'Non trae o material necesario á clase',
+   'Ten dificultades para seguir o ritmo do grupo',
+  ],
+ },
+ conduta: {
+  label: '😊 Conduta e actitude',
+  pos: [
+   'Respecta as normas de convivencia',
+   'Mantén unha actitude positiva cara á aprendizaxe',
+   'Participa activamente nas clases',
+   'Traballa ben en grupo',
+   'Amosa autonomía e iniciativa',
+   'Ten boa relación cos compañeiros/as e co profesorado',
+   'Respecta a quenda de palabra',
+   'Acepta ben as correccións e indicacións',
+  ],
+  neg: [
+   'Distráese con facilidade e distrae aos demais',
+   'Interrompe o traballo dos compañeiros/as',
+   'Amosa desinterese ou desmotivación',
+   'Ten dificultades para respectar as normas',
+   'Non acepta ben as correccións',
+   'Mantén conflitos frecuentes con compañeiros/as',
+   'Amosa actitude pasiva ou de indiferenza',
+   'Falta ao respecto ao profesorado ou compañeiros/as',
+   'Ten dificultades para traballar en grupo',
+   'Responde de forma inapropiada ante as indicacións',
+  ],
+ },
+ fortes: {
+  label: '⭐ Puntos fortes',
+  pos: [
+   'Gran capacidade creativa e artística',
+   'Habilidade para as matemáticas e o razoamento lóxico',
+   'Boa expresión oral',
+   'Boa expresión escrita',
+   'Habilidade musical ou corporal',
+   'Capacidade de liderado positivo',
+   'Empatía e sensibilidade cara aos demais',
+   'Curiosidade e ganas de aprender',
+   'Boa memoria e capacidade de retención',
+   'Gran capacidade de esforzo e perseveranza',
+   'Destacada habilidade para as linguas',
+   'Boa comprensión lectora',
+   'Capacidade para resolver problemas de forma autónoma',
+   'Habilidade para as novas tecnoloxías',
+   'Destacada capacidade de concentración',
+  ],
+  neg: [],
+ },
+ mellora: {
+  label: '📈 Áreas de mellora',
+  pos: [],
+  neg: [
+   'Mellorar a presentación e limpeza dos traballos',
+   'Aumentar o ritmo de traballo',
+   'Mellorar a organización do material e da mochila',
+   'Traballar a atención e a concentración na clase',
+   'Repasar en casa os contidos traballados na clase',
+   'Mellorar a lectura en voz alta e a fluidez lectora',
+   'Ampliar o vocabulario en galego e castelán',
+   'Mellorar a caligrafía e a ortografía',
+   'Desenvolver maior autonomía no traballo',
+   'Mellorar a xestión do tempo nas probas escritas',
+   'Traballar a expresión escrita',
+   'Mellorar a participación oral nas clases',
+   'Reforzar o cálculo mental',
+   'Traballar a comprensión lectora',
+   'Desenvolver hábitos de estudo regulares en casa',
+   'Mellorar as relacións sociais co grupo',
+  ],
+ },
+ acordos: {
+  label: '✅ Acordos e compromisos',
+  subsec: [
+   {
+    sub: 'Familia',
+    items: [
+     'A familia comprométese a revisar o caderno diariamente',
+     'A familia comprométese a supervisar as tarefas escolares',
+     'A familia establecerá un horario fixo de estudo en casa',
+     'A familia limitará o tempo de pantallas nos días lectivos',
+     'A familia asegurarase de que o alumno/a chegue puntualmente',
+     'A familia contactará co centro ante calquera dúbida ou incidencia',
+     'A familia colaborará no traballo de hábitos de conduta',
+     'A familia comprométese a acudir ás reunións convocadas polo centro',
+    ],
+   },
+   {
+    sub: 'Centro / Titor/a',
+    items: [
+     'O centro informará puntualmente de calquera incidencia',
+     'Acordamos reunirnos de novo no próximo trimestre',
+     'Solicitamos apoio do departamento de orientación',
+     'Aplicarase un plan de reforzo individualizado',
+     'Realizarase un seguimento máis próximo do alumno/a',
+     'Coordinación co equipo docente para aplicar medidas de apoio',
+     'Derivación ao departamento de orientación para valoración',
+    ],
+   },
+   {
+    sub: 'Alumno/a',
+    items: [
+     'O alumno/a comprométese a traer o material necesario',
+     'O alumno/a comprométese a mellorar a actitude na clase',
+     'O alumno/a comprométese a entregar as tarefas no prazo',
+     'O alumno/a comprométese a respectar as normas de convivencia',
+     'O alumno/a comprométese a pedir axuda cando a precise',
+    ],
+   },
+  ],
+ },
+ obs: {
+  label: '📋 Observacións',
+  pos: [
+   'Excelente integración no grupo clase',
+   'Mellora notable respecto ao trimestre anterior',
+   'Boa relación entre a familia e o centro',
+   'Valoración global positiva do trimestre',
+  ],
+  neg: [
+   'O alumno/a atravesa un momento persoal ou familiar delicado',
+   'Recoméndase valoración polo departamento de orientación',
+   'Empeoramento respecto ao trimestre anterior',
+   'Precisa adaptación ou modificación de materiais',
+   'Detectada posible dificultade de aprendizaxe (lectura, escritura, cálculo...)',
+   'O alumno/a amosa sinais de ansiedade ou estrés escolar',
+   'Absentismo frecuente que afecta ao rendemento',
+   'Conduta pendente de seguimento no próximo trimestre',
+   'Situación que require intervención urxente',
+  ],
+ },
+};
+
+// Xerar HTML dun bloque de checklist
+function _checkBlock(secId, items, tipo, cor, etiqueta) {
+ if(!items.length) return '';
+ return `<div style="margin-bottom:6px">
+  <div style="font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:${cor};margin-bottom:4px">${etiqueta}</div>
+  ${items.map((it,i)=>`<label style="display:flex;align-items:flex-start;gap:7px;padding:4px 6px;border-radius:7px;cursor:pointer;transition:background .1s;font-size:.82rem;font-weight:700;line-height:1.4" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'">
+   <input type="checkbox" id="${secId}_${tipo}_${i}" style="margin-top:2px;accent-color:var(--purple);flex-shrink:0"/>
+   <span>${it}</span>
+  </label>`).join('')}
+ </div>`;
+}
+
+function _checkBlockSub(subsec) {
+ return subsec.map(({sub,items})=>`
+  <div style="margin-bottom:8px">
+   <div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin-bottom:4px">${sub}</div>
+   ${items.map((it,i)=>`<label style="display:flex;align-items:flex-start;gap:7px;padding:4px 6px;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;line-height:1.4" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'">
+    <input type="checkbox" id="acordos_${sub.replace(/\W/g,'')}_${i}" style="margin-top:2px;accent-color:var(--purple);flex-shrink:0"/>
+    <span>${it}</span>
+   </label>`).join('')}
+  </div>`).join('');
+}
+
+function _seccionEditor(secId, cfg) {
+ const hasSubsec = !!cfg.subsec;
+ const inner = hasSubsec
+  ? _checkBlockSub(cfg.subsec)
+  : _checkBlock(secId, cfg.pos||[], 'pos','#22c55e','✅ Positivo') +
+    _checkBlock(secId, cfg.neg||[], 'neg','#ef4444','❌ Negativo');
+ return '<div class="card" style="margin-bottom:8px;padding:.9rem 1.1rem">' +
+  '<div style="font-family:\'Georgia\',serif;font-size:.9rem;color:var(--purple);margin-bottom:.6rem">' + cfg.label + '</div>' +
+  inner +
+  '</div>';
+}
+
+// ── PERSISTENCIA DO INFORME ──────────────────────────────────────────────────
+// ── PERSISTENCIA MÚLTIPLES INFORMES ─────────────────────────────────────────
+// Estrutura: tit_informes_NOME = [ {id, titulo, data, estado}, ... ]
+let selInformeId = null; // ID do informe activo
+
+function _infListKey(nome){ return 'tit_informes_' + nome.replace(/\s/g,'_'); }
+function _infDataKey(nome,id){ return 'tit_inf_' + nome.replace(/\s/g,'_') + '_' + id; }
+
+function _listaInformes(nome){ return S.get(_infListKey(nome),[]); }
+
+function _gardadoEstado(nome){
+ const ns=_listaInformes(nome); if(!ns.length) return null;
+ const estado = { data: Date.now() };
+ const matsBase=['Lingua Galega','Lingua Castelá','Matemáticas','CC. Naturais','CC. Sociais'];
+ estado.mats = matsBase.map((_,i)=>!!document.getElementById(`mat_dif_${i}`)?.checked);
+ estado.matOutra = !!document.getElementById('mat_dif_outra')?.checked;
+ estado.matOutraNome = document.getElementById('mat_dif_outra_nome')?.value||'';
+ estado.secs = {};
+ Object.entries(INF_ITEMS).forEach(([k,v])=>{
+  if(v.subsec){
+   estado.secs[k]={};
+   v.subsec.forEach(({sub,items})=>{
+    const subKey=sub.replace(/\W/g,'');
+    estado.secs[k][subKey]=items.map((_,i)=>!!document.getElementById(`acordos_${subKey}_${i}`)?.checked);
+   });
+  } else {
+   estado.secs[k]={
+    pos:(v.pos||[]).map((_,i)=>!!document.getElementById(`${k}_pos_${i}`)?.checked),
+    neg:(v.neg||[]).map((_,i)=>!!document.getElementById(`${k}_neg_${i}`)?.checked),
+   };
+  }
+ });
+ estado.infData = document.getElementById('inf-data')?.value||'';
+ estado.infTitor = document.getElementById('inf-titor')?.value||'';
+ estado.infTitulo = document.getElementById('inf-titulo')?.value||'';
+ return estado;
+}
+
+// ── Flags de opcións por informe (notas, etc.) ───────────────────────────────
+function _infNotasFlagKey(nome,id){ return 'tit_infopt_'+nome.replace(/\s/g,'_')+'_'+id; }
+function _infNotasFlag(nome,id){
+  try{ const v=localStorage.getItem(_infNotasFlagKey(nome,id)); return v===null?true:v==='1'; }catch{return true;}
+}
+function _setInfNotasFlag(nome,id,val){
+  try{ localStorage.setItem(_infNotasFlagKey(nome,id),val?'1':'0'); }catch{}
+}
+
+function gardarInforme(nome){
+ if(!selInformeId) return;
+ const estado = _gardadoEstado(nome); if(!estado) return;
+ S.set(_infDataKey(nome,selInformeId), estado);
+ // Actualizar título e data na lista SEN reconstruír o editor
+ const lista = _listaInformes(nome);
+ const idx = lista.findIndex(x=>x.id===selInformeId);
+ if(idx>-1){
+  lista[idx].ultima = Date.now();
+  lista[idx].titulo = estado.infTitulo || lista[idx].titulo;
+  S.set(_infListKey(nome), lista);
+ }
+ // Mostrar indicador visual de gardado (sen re-renderizar)
+ const ind=document.getElementById('inf-saved-ind');
+ if(ind){ ind.textContent='✓ Gardado'; ind.style.opacity='1'; clearTimeout(ind._t); ind._t=setTimeout(()=>ind.style.opacity='0',2000); }
+ // Actualizar só o contador de informes no panel lateral (sen reconstruír o editor)
+ const item = document.querySelector(`[data-inf-id="${selInformeId}"] .inf-ts`);
+ if(item){ const d=new Date().toLocaleDateString('gl-ES',{day:'2-digit',month:'2-digit',year:'numeric'}); item.textContent='Última edición: '+d; }
+ // Notificar ao XESTOR BBDD
+ try{ localStorage.setItem('bbdd_last_backup', new Date().toISOString()); }catch(e){}
+}
+
+function cargarInforme(nome,id){
+ const estado = S.get(_infDataKey(nome,id), null); if(!estado) return;
+ const matsBase=['Lingua Galega','Lingua Castelá','Matemáticas','CC. Naturais','CC. Sociais'];
+ (estado.mats||[]).forEach((v,i)=>{ const el=document.getElementById(`mat_dif_${i}`); if(el) el.checked=v; });
+ const elOutra=document.getElementById('mat_dif_outra'); if(elOutra) elOutra.checked=!!estado.matOutra;
+ const elOutraNome=document.getElementById('mat_dif_outra_nome'); if(elOutraNome) elOutraNome.value=estado.matOutraNome||'';
+ Object.entries(estado.secs||{}).forEach(([k,val])=>{
+  const cfg=INF_ITEMS[k]; if(!cfg) return;
+  if(cfg.subsec){
+   cfg.subsec.forEach(({sub,items})=>{
+    const subKey=sub.replace(/\W/g,'');
+    (val[subKey]||[]).forEach((v,i)=>{ const el=document.getElementById(`acordos_${subKey}_${i}`); if(el) el.checked=v; });
+   });
+  } else {
+   (val.pos||[]).forEach((v,i)=>{ const el=document.getElementById(`${k}_pos_${i}`); if(el) el.checked=v; });
+   (val.neg||[]).forEach((v,i)=>{ const el=document.getElementById(`${k}_neg_${i}`); if(el) el.checked=v; });
+  }
+ });
+ const elData=document.getElementById('inf-data'); if(elData&&estado.infData) elData.value=estado.infData;
+ const elTitor=document.getElementById('inf-titor'); if(elTitor&&estado.infTitor) elTitor.value=estado.infTitor;
+ const elTit=document.getElementById('inf-titulo'); if(elTit&&estado.infTitulo) elTit.value=estado.infTitulo;
+}
+
+function novoInforme(nome){
+ const id = 'inf_' + Date.now();
+ const trimestres=['1º Trimestre','2º Trimestre','3º Trimestre','Informe final'];
+ const usados=_listaInformes(nome).map(x=>x.titulo);
+ const seguinte=trimestres.find(t=>!usados.includes(t))||('Informe '+(usados.length+1));
+ const lista = _listaInformes(nome);
+ lista.push({id, titulo:seguinte, creado:Date.now(), ultima:Date.now()});
+ S.set(_infListKey(nome), lista);
+ selInformeId = id;
+ renderInformeEditor();
+ renderInformeAlumnos();
+ showToast('✓ Novo informe creado','#22c55e');
+}
+
+function selInformeItem(nome,id){
+ selInformeId = id;
+ renderInformeEditor();
+}
+
+function borrarInforme(nome,id){
+ _confirmar('Borrar este informe?',()=>{
+ localStorage.removeItem(_infDataKey(nome,id));
+ const lista = _listaInformes(nome).filter(x=>x.id!==id);
+ S.set(_infListKey(nome), lista);
+ if(selInformeId===id){
+  selInformeId = lista.length ? lista[lista.length-1].id : null;
+ }
+ renderInformeEditor();
+ renderInformeAlumnos();
+ showToast('🗑️ Informe eliminado','#ef4444');
+});
+
+function _engadirAutogardado(nome){
+ const ed=document.getElementById('informe-editor'); if(!ed) return;
+ let _timer=null;
+ const fn=()=>{ clearTimeout(_timer); _timer=setTimeout(()=>gardarInforme(nome),1500); };
+ ed.addEventListener('change',fn);
+ ed.addEventListener('input',fn);
+}
+
+function _tenInformeGardado(nome){
+ return _listaInformes(nome).length > 0;
+}
+
+function renderInformeEditor() {
+ const ed = document.getElementById('informe-editor'); if(!ed||!selInformeNome) return;
+ const nome = selInformeNome;
+ const f = familias[nome]||{};
+ const lista = _listaInformes(nome);
+
+ // Se non hai informe seleccionado, mostrar pantalla de selección
+ if(!selInformeId||!lista.find(x=>x.id===selInformeId)){
+  const notasLS=S.get('sn3_notas',[]);
+  const materias=S.get('sn3_materias',[]);
+  const escala=S.get('sn3_escala',10);
+  const notasMat=materias.filter(m=>m.id!=='outras').map(m=>{
+   const ns=notasLS.filter(n=>n.alumno===nome&&n.materia===m.id);
+   if(!ns.length) return null;
+   return {m,med:+(ns.reduce((s,n)=>s+n.valor,0)/ns.length).toFixed(2)};
+  }).filter(Boolean);
+
+  ed.innerHTML=`<div>
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--purple)">📄 Informes de ${nome}</div>
+    <button class="btn btn-purple btn-sm" onclick="novoInforme('${nome.replace(/'/g,"\\'")}')">+ Novo informe</button>
+   </div>
+   ${lista.length?`<div style="display:flex;flex-direction:column;gap:6px">
+    ${lista.map(inf=>{
+     const d=new Date(inf.ultima).toLocaleDateString('gl-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+     return `<div class="card" style="display:flex;align-items:center;gap:12px;padding:.75rem 1rem;cursor:pointer;border-left:3px solid var(--purple)" onclick="selInformeItem('${nome.replace(/'/g,"\\'")}','${inf.id}')">
+      <div style="flex:1">
+       <div style="font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;color:var(--white)">${inf.titulo}</div>
+       <div style="font-size:.62rem;color:var(--muted);font-weight:700">Última edición: ${d}</div>
+      </div>
+      <button class="btn btn-purple btn-sm" onclick="event.stopPropagation();selInformeItem('${nome.replace(/'/g,"\\'")}','${inf.id}')" style="font-size:.68rem">✏️ Editar</button>
+      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();xerarInformeFamiliaById('${nome.replace(/'/g,"\\'")}','${inf.id}')" style="font-size:.68rem">🖨️</button>
+      <button class="btn btn-red btn-sm" onclick="event.stopPropagation();borrarInforme('${nome.replace(/'/g,"\\'")}','${inf.id}')" style="font-size:.62rem">✕</button>
+     </div>`;
+    }).join('')}
+   </div>`:`<div style="text-align:center;padding:2rem;color:var(--muted)">
+    <div style="font-size:2rem;margin-bottom:.5rem">📄</div>
+    <div style="font-family:'DM Serif Display',Georgia,serif">Aínda non hai informes. Crea o primeiro.</div>
+   </div>`}
+   ${notasMat.length?`<div style="margin-top:8px;padding:10px 14px;background:var(--card2);border-radius:10px;border:1px solid var(--border)">
+    <div style="font-size:.6rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Notas do Caderno</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+     ${notasMat.map(({m,med})=>`<span style="font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:8px;background:${m.color}18;color:${m.color}">${m.icon} ${m.nome}: ${med}/${escala}</span>`).join('')}
+    </div>
+   </div>`:''}
+  </div>`;
+  return;
+ }
+
+ const infActual = lista.find(x=>x.id===selInformeId);
+ const notasLS=S.get('sn3_notas',[]);
+ const materias=S.get('sn3_materias',[]);
+ const escala=S.get('sn3_escala',10);
+ const notasMat=materias.filter(m=>m.id!=='outras').map(m=>{
+  const ns=notasLS.filter(n=>n.alumno===nome&&n.materia===m.id);
+  if(!ns.length) return null;
+  return {m,med:+(ns.reduce((s,n)=>s+n.valor,0)/ns.length).toFixed(2)};
+ }).filter(Boolean);
+
+ const secsHtml = Object.entries(INF_ITEMS).map(([k,v])=>_seccionEditor(k,v)).join('');
+ const matsChk = ['Lingua Galega','Lingua Castelá','Matemáticas','CC. Naturais','CC. Sociais'];
+
+ ed.innerHTML=`<div>
+  <!-- Nav -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+   <button class="btn btn-ghost btn-sm" onclick="selInformeId=null;renderInformeEditor()" style="font-size:.72rem">← Volver</button>
+   <div style="font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;color:var(--purple);flex:1">${infActual.titulo}</div>
+   <span id="inf-saved-ind" style="font-size:.68rem;font-weight:800;color:var(--green);opacity:0;transition:opacity .3s">✓ Gardado</span>
+   <button class="btn btn-ghost btn-sm" onclick="gardarInforme('${nome.replace(/'/g,"\\'")}');setTimeout(()=>renderInformeAlumnos(),50);" style="font-size:.72rem">💾 Gardar</button>
+   <button class="btn btn-purple btn-sm" onclick="xerarInformeFamiliaById('${nome.replace(/'/g,"\\'")}','${selInformeId}')">🖨️ Imprimir</button>
+  </div>
+  <!-- Título e datos -->
+  <div class="card" style="margin-bottom:8px;padding:.9rem 1.1rem">
+   <div style="font-family:'DM Serif Display',Georgia,serif;font-size:.9rem;color:var(--purple);margin-bottom:.6rem">📝 Datos do informe</div>
+   <div class="form-grid">
+    <div><label class="label">📌 Título</label>
+     <input class="inp" id="inf-titulo" value="${infActual.titulo}" placeholder="Ex: 1º Trimestre"/></div>
+    <div><label class="label">📅 Data</label>
+     <input class="inp" type="date" id="inf-data" value="${new Date().toISOString().split('T')[0]}"/></div>
+    <div style="grid-column:1/-1"><label class="label">👩‍🏫 Titor/a</label>
+     <input class="inp" id="inf-titor" value="Montserrat Blanco Vázquez"/></div>
+   </div>
+  </div>
+  <!-- Materias con dificultades -->
+  <div class="card" style="margin-bottom:8px;padding:.9rem 1.1rem">
+   <div style="font-family:'DM Serif Display',Georgia,serif;font-size:.9rem;color:var(--purple);margin-bottom:.6rem">📚 Materias con dificultades</div>
+   <div style="display:flex;flex-wrap:wrap;gap:6px 18px">
+    ${matsChk.map((m,i)=>`<label style="display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;cursor:pointer">
+     <input type="checkbox" id="mat_dif_${i}" style="accent-color:var(--purple)"/> ${m}
+    </label>`).join('')}
+    <label style="display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;cursor:pointer">
+     <input type="checkbox" id="mat_dif_outra" style="accent-color:var(--purple)"/> Outra:
+     <input class="inp" id="mat_dif_outra_nome" placeholder="Nome da materia" style="height:26px;width:150px;font-size:.78rem"/>
+    </label>
+   </div>
+  </div>
+  <!-- Checklists -->
+  ${secsHtml}
+  <!-- Notas caderno -->
+  ${notasMat.length?`<div style="margin-top:8px;padding:10px 14px;background:var(--card2);border-radius:10px;border:1px solid var(--border)">
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px">
+    <div style="font-size:.6rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">📊 Notas por materia</div>
+    <label style="display:flex;align-items:center;gap:5px;font-size:.68rem;font-weight:800;color:var(--muted);cursor:pointer">
+     <input type="checkbox" id="inf-inc-notas" style="accent-color:var(--purple)" ${_infNotasFlag(nome,selInformeId)?'checked':''}
+      onchange="_setInfNotasFlag('${nome.replace(/'/g,"\\'")}','${selInformeId}',this.checked)">
+     Incluír no impreso
+    </label>
+   </div>
+   <div style="display:flex;flex-wrap:wrap;gap:6px">
+    ${notasMat.map(({m,med})=>`<span style="font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:8px;background:${m.color}18;color:${m.color}">${m.icon} ${m.nome}: ${med}/${escala}</span>`).join('')}
+   </div>
+  </div>`:''}
+ </div>`;
+
+ cargarInforme(nome, selInformeId);
+ _engadirAutogardado(nome);
+}
+
+function _getChecked(secId, tipo, items) {
+ return items.filter((_,i)=>document.getElementById(`${secId}_${tipo}_${i}`)?.checked).map(it=>it);
+}
+
+function _getCheckedSub(subsec) {
+ return subsec.flatMap(({sub,items})=>
+  items.filter((_,i)=>document.getElementById(`acordos_${sub.replace(/\W/g,'')}_${i}`)?.checked)
+ );
+}
+
+function xerarInformeFamiliaById(nome,id){
+ // Gardar primeiro o estado actual se é o informe activo
+ if(id===selInformeId) gardarInforme(nome);
+ // Cargar o estado gardado dese id específico
+ const estadoGard=S.get(_infDataKey(nome,id),null);
+ // Facer render temporal para cargar ese estado e xerar
+ if(estadoGard&&id!==selInformeId){
+  // Gardar estado temporal, mudar, xerar, restaurar
+  const idPrev=selInformeId;
+  selInformeId=id;
+  renderInformeEditor();
+  setTimeout(()=>{
+   xerarInformeFamilia(nome);
+   selInformeId=idPrev;
+   renderInformeEditor();
+  },100);
+  return;
+ }
+ xerarInformeFamilia(nome);
+}
+
+function xerarInformeFamilia(nome) {
+ const f = familias[nome]||{};
+ const data = document.getElementById('inf-data')?.value||new Date().toISOString().split('T')[0];
+
+ // ── Calcular asistencia por SESIÓN dende pc_asist ───────────────────────────
+ const _asist = S.get('pc_asist',{});
+ const _xustData = S.get('tit_xustificadas',{}); // {alumno|YYYY-MM-DD|sess: true}
+ const SESSIONS = ['1','2','3','4','5'];
+ let _sesPresentes=0, _sesAusentes=0, _sesXust=0;
+ const _faltasSes = []; // [{data, sess, xust}]
+
+ Object.entries(_asist).sort(([a],[b])=>a.localeCompare(b)).forEach(([dk,diaData])=>{
+   SESSIONS.forEach(sess=>{
+     const sesData = diaData[sess] || {};
+     const est = sesData[nome];
+     const xKey = nome+'|'+dk+'|'+sess;
+     const isXustInTit = !!_xustData[xKey];
+     if(est==='presente') _sesPresentes++;
+     else if(est==='xustificada' || (est==='ausente' && isXustInTit)){
+       // Xustificada: marcada directamente en Panel de Clase OU en Titoría
+       _sesXust++;
+       _faltasSes.push({data:dk, sess, xust:true, key:xKey});
+     }
+     else if(est==='ausente'){
+       _sesAusentes++;
+       _faltasSes.push({data:dk, sess, xust:false, key:xKey});
+     }
+   });
+ });
+ const _totalSes = _sesPresentes+_sesAusentes+_sesXust;
+ const _pctAsist = _totalSes>0?Math.round(_sesPresentes/_totalSes*100):null;
+ const titor = document.getElementById('inf-titor')?.value||'';
+
+ // Recoller ítems marcados
+ const marcados = {};
+ Object.entries(INF_ITEMS).forEach(([k,v])=>{
+  if(v.subsec) marcados[k] = _getCheckedSub(v.subsec);
+  else marcados[k] = [..._getChecked(k,'pos',v.pos||[]),..._getChecked(k,'neg',v.neg||[])];
+ });
+
+ // Materias con dificultades
+ const matsBase=['Lingua Galega','Lingua Castelá','Matemáticas','CC. Naturais','CC. Sociais'];
+ const matsDif=matsBase.filter((_,i)=>document.getElementById(`mat_dif_${i}`)?.checked);
+ if(document.getElementById('mat_dif_outra')?.checked){
+  const outNome=document.getElementById('mat_dif_outra_nome')?.value.trim();
+  if(outNome) matsDif.push(outNome);
+ }
+
+ // Notas do caderno
+ const notasLS=S.get('sn3_notas',[]);
+ const materias=S.get('sn3_materias',[]);
+ const escala=S.get('sn3_escala',10);
+ const notasMat=materias.filter(m=>m.id!=='outras').map(m=>{
+  const ns=notasLS.filter(n=>n.alumno===nome&&n.materia===m.id);
+  if(!ns.length) return null;
+  const med=+(ns.reduce((s,n)=>s+n.valor,0)/ns.length).toFixed(2);
+  return {m,med};
+ }).filter(Boolean);
+
+ // Xerar sección imprimible
+ const secPrint=(titulo,items)=>{
+  if(!items||!items.length) return '';
+  return `<div style="margin-bottom:1.1rem">
+   <div style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid #e2e8f0">${titulo}</div>
+   <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:4px">
+    ${items.map(it=>`<li style="display:flex;align-items:flex-start;gap:8px;font-size:.85rem;color:#1e293b;line-height:1.5">
+     <span style="color:#6366f1;font-size:.7rem;margin-top:3px;flex-shrink:0">◆</span>${it}
+    </li>`).join('')}
+   </ul>
+  </div>`;
+ };
+
+ const [ano,mes,dia]=data.split('-');
+ const GL_MESES2=['xaneiro','febreiro','marzo','abril','maio','xuño','xullo','agosto','setembro','outubro','novembro','decembro'];
+ const dataLong=`${parseInt(dia)} de ${GL_MESES2[parseInt(mes)-1]} de ${ano}`;
+
+ const html=`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+ <title>Informe de Titoría · ${nome}</title>
+ 
+ <style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:#f8fafc;color:#1e293b;padding:2rem;max-width:720px;margin:0 auto;font-size:13px}
+  @media print{body{padding:.4cm;background:white}@page{margin:1.6cm;size:A4}.no-print{display:none}}
+  .no-print{margin-top:1.5rem;display:flex;gap:8px}
+  button{height:34px;padding:0 18px;font-family:'DM Serif Display',Georgia,serif;font-size:.85rem;border:none;border-radius:9px;cursor:pointer}
+ </style></head><body>
+
+ <!-- Cabeceira -->
+ <div style="background:linear-gradient(135deg,#6366f1,#a78bfa);border-radius:16px;padding:20px 26px;margin-bottom:1.25rem;color:white">
+  <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.18em;opacity:.75;margin-bottom:3px">Informe de Titoría · Confidencial</div>
+  <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;margin-bottom:6px">${nome}</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:.78rem;opacity:.9">
+   ${f.titor?`<span>👤 ${f.titor}</span>`:''}
+   <span>📅 ${dataLong}</span>
+   <span>👩‍🏫 Titor/a: ${titor}</span>
+  </div>
+ </div>
+
+ <div style="background:white;border-radius:14px;padding:18px 22px;border:1px solid #e2e8f0;margin-bottom:1rem">
+
+  <!-- Materias con dificultades -->
+  ${matsDif.length?`<div style="margin-bottom:1.1rem">
+   <div style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid #e2e8f0">📚 Materias con dificultades</div>
+   <div style="display:flex;flex-wrap:wrap;gap:6px">
+    ${matsDif.map(m=>`<span style="font-size:.82rem;font-weight:800;padding:3px 12px;border-radius:999px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca">${m}</span>`).join('')}
+   </div>
+  </div>`:''}
+
+  <!-- Notas do caderno -->
+  ${(notasMat.length&&_infNotasFlag(nome,selInformeId))?`<div style="margin-bottom:1.1rem">
+   <div style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #e2e8f0">📊 Notas por materia</div>
+   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px">
+    ${notasMat.map(({m,med})=>{
+     const pct=med/escala;
+     const col=pct>=.9?'#15803d':pct>=.7?'#1d4ed8':pct>=.5?'#b45309':'#dc2626';
+     return `<div style="background:#f8fafc;border-radius:9px;padding:7px 11px;border-left:3px solid ${col}">
+      <div style="font-size:.62rem;font-weight:900;color:#64748b">${m.icon} ${m.nome}</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.15rem;color:${col}">${med}<span style="font-size:.65rem;opacity:.7">/${escala}</span></div>
+     </div>`;
+    }).join('')}
+   </div>
+  </div>`:''}
+
+  ${secPrint(INF_ITEMS.rendemento.label, marcados.rendemento)}
+  ${secPrint(INF_ITEMS.conduta.label, marcados.conduta)}
+  ${secPrint(INF_ITEMS.fortes.label, marcados.fortes)}
+  ${secPrint(INF_ITEMS.mellora.label, marcados.mellora)}
+  ${secPrint(INF_ITEMS.acordos.label, marcados.acordos)}
+  ${secPrint(INF_ITEMS.obs.label, marcados.obs)}
+
+  <!-- SECCIÓN ASISTENCIA -->
+  ${(_sesAusentes+_sesXust+_sesPresentes)>0?`
+  <div style="margin-bottom:1.1rem;page-break-inside:avoid">
+   <div style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid #e2e8f0">📋 Rexistro de asistencia (por sesión)</div>
+   <div style="display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap">
+    <div style="text-align:center;padding:8px 14px;background:#f1f5f9;border-radius:8px">
+     <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:#22c55e">${_sesPresentes}</div>
+     <div style="font-size:.65rem;color:#64748b;font-weight:700">Sesións asistidas</div>
+    </div>
+    <div style="text-align:center;padding:8px 14px;background:#fef2f2;border-radius:8px">
+     <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:#ef4444">${_sesAusentes}</div>
+     <div style="font-size:.65rem;color:#64748b;font-weight:700">Faltas sen xustificar</div>
+    </div>
+    <div style="text-align:center;padding:8px 14px;background:#fef9c3;border-radius:8px">
+     <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:#d97706">${_sesXust}</div>
+     <div style="font-size:.65rem;color:#64748b;font-weight:700">Faltas xustificadas</div>
+    </div>
+    ${_pctAsist!==null?`<div style="text-align:center;padding:8px 14px;background:#f0fdf4;border-radius:8px">
+     <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;color:${_pctAsist>=95?'#16a34a':_pctAsist>=85?'#d97706':'#dc2626'}">${_pctAsist}%</div>
+     <div style="font-size:.65rem;color:#64748b;font-weight:700">% Asistencia</div>
+    </div>`:''}
+   </div>
+   ${_faltasSes.length>0?`<div style="font-size:.72rem;color:#475569;font-weight:700;margin-bottom:4px">Detalle de faltas:</div>
+   <div style="display:flex;flex-wrap:wrap;gap:4px">
+    ${_faltasSes.map(f=>`<span style="font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:6px;background:${f.xust?'#fef9c3':'#fef2f2'};color:${f.xust?'#92400e':'#991b1b'};border:1px solid ${f.xust?'#fcd34d':'#fca5a5'}">${f.data} S${f.sess}${f.xust?' ✓':''}</span>`).join('')}
+   </div>`:''}
+  </div>`:''}
+
+ </div>
+
+ <div style="font-size:.6rem;color:#94a3b8;text-align:center;padding:.4rem 0">
+  Este informe é confidencial e de uso exclusivo para a familia. · © 2026 Montserrat Blanco Vázquez · CC BY-NC-SA 4.0
+ </div>
+ <div class="no-print">
+  <button onclick="window.print()" style="background:#6366f1;color:white">🖨️ Imprimir / Gardar PDF</button>
+  <button onclick="window.close()" style="background:#f1f5f9;color:#475569">✕ Pechar</button>
+ </div>
+ </body></html>`;
+
+ const w=window.open('','_blank','width=820,height=780');
+ if(!w){
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`informe_${nome.replace(/\s/g,'_')}.html`;a.click();return;
+ }
+ w.document.write(html);w.document.close();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UTILIDADES
+// ══════════════════════════════════════════════════════════════════════════════
+function populateAlumnoSelects(){
+ ['filtro-reunion-alumno','filtro-comun-alumno','filtro-asist-alumno'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  const actual=el.value;
+  el.innerHTML='<option value="">Todos os alumnos/as</option>'+
+   alumnos.map(a=>`<option value="${a}"${a===actual?' selected':''}>${a}</option>`).join('');
+ });
+}
+
+function showToast(msg,color){
+ let t=document.getElementById('tit-toast');
+ if(!t){t=document.createElement('div');t.id='tit-toast';
+  t.style.cssText='position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:9999;padding:9px 22px;border-radius:12px;font-family:Georgia,serif;font-size:.92rem;color:white;box-shadow:0 4px 24px rgba(0,0,0,.5);transition:opacity .4s;pointer-events:none;white-space:nowrap';
+  document.body.appendChild(t);}
+ t.textContent=msg;t.style.background=color;t.style.opacity='1';
+ clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderFamiliasList();
+populateAlumnoSelects();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 💾 EXPORTAR / IMPORTAR DATOS
+// ══════════════════════════════════════════════════════════════════════════════
+function titAbrirEditorAlumnos(){
+ document.getElementById('tit-backup-menu').style.display='none';
+ const actual=alumnos.slice();
+ openModal(`<h3>👥 Editar alumnado</h3>
+  <p style="font-size:.72rem;color:var(--muted);font-weight:700;margin-bottom:.5rem">
+   Un nome por liña. Esta lista sincronízase co Panel de Clase e o Caderno Docente.
+  </p>
+  <textarea id="tit-ea-ta" rows="16"
+   style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;
+   color:var(--white);font-family:'DM Sans',system-ui,sans-serif;font-size:.9rem;font-weight:700;
+   padding:12px;resize:vertical;outline:none;line-height:1.9"
+   oninput="document.getElementById('tit-ea-cnt').textContent=this.value.split('\\n').map(l=>l.trim()).filter(Boolean).length+' alumnos/as'"
+  >${actual.join('\n')}</textarea>
+  <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+   <span id="tit-ea-cnt" style="font-size:.72rem;font-weight:800;color:var(--muted);flex:1">${actual.length} alumnos/as</span>
+   <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+   <button class="btn btn-purple" onclick="titGardarAlumnos()">💾 Gardar e actualizar</button>
+  </div>`);
+ setTimeout(()=>document.getElementById('tit-ea-ta')?.focus(),100);
+}
+
+function titGardarAlumnos(){
+ const novos=document.getElementById('tit-ea-ta')?.value.split('\n').map(n=>n.trim()).filter(Boolean)||[];
+ if(!novos.length){alert('A lista non pode estar baleira.');return;}
+ alumnos=novos;
+ // Gardar en pc_alumnos (clave compartida con Panel e Caderno)
+ try{localStorage.setItem('pc_alumnos',JSON.stringify(novos));}catch{}
+ save();
+ closeModal();
+ renderFamiliasList();
+ showToast(`✓ ${novos.length} alumnos/as gardados`,'#22c55e');
+}
+
+function toggleTitBackup(){
+ const m=document.getElementById('tit-backup-menu');
+ if(!m) return;
+ const open=m.style.display==='block';
+ m.style.display=open?'none':'block';
+ if(!open){
+  const close=e=>{ if(!document.getElementById('tit-bkp-wrap')?.contains(e.target)){ m.style.display='none'; document.removeEventListener('click',close); } };
+  setTimeout(()=>document.addEventListener('click',close),50);
+ }
+}
+
+function exportarTitoriaJSON(){
+ // Recoller tamén os informes e fichas familiares gardados
+ const informesKeys=Object.keys(localStorage).filter(k=>k.startsWith('tit_inf')||k.startsWith('tit_informes'));
+ const informes={};
+ informesKeys.forEach(k=>{ try{ informes[k]=JSON.parse(localStorage.getItem(k)); }catch{} });
+ const ffKeys=Object.keys(localStorage).filter(k=>k.startsWith('tit_ff_'));
+ const fichasFam={};
+ ffKeys.forEach(k=>{ try{ fichasFam[k]=JSON.parse(localStorage.getItem(k)); }catch{} });
+
+ const datos={
+  version:1,
+  exportado:new Date().toISOString(),
+  tit_familias: S.get('tit_familias',{}),
+  tit_reunions: S.get('tit_reunions',[]),
+  tit_citas:    S.get('tit_citas',[]),
+  tit_comuns:   S.get('tit_comuns',[]),
+  tit_modo:     S.get('tit_modo','escuro'),
+  informes,
+  fichasFam,
+ };
+ const blob=new Blob([JSON.stringify(datos,null,2)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=`titoría_backup_${new Date().toLocaleDateString('gl').replace(/\//g,'-')}.json`;
+ a.click();
+ document.getElementById('tit-backup-menu').style.display='none';
+ showToast('📤 Datos exportados correctamente','#22c55e');
+}
+
+function importarTitoriaJSON(event){
+ const file=event.target.files?.[0]; if(!file) return;
+ const reader=new FileReader();
+ reader.onload=e=>{
+  try{
+   const datos=JSON.parse(e.target.result);
+   if(!datos.tit_familias&&!datos.tit_reunions) throw new Error('Formato incorrecto');
+   if(!confirm(`Importar datos de Titoría?\nEsto substituirá os datos actuais.\n\nExportado o: ${datos.exportado?new Date(datos.exportado).toLocaleString('gl-ES'):'data descoñecida'}`)) return;
+
+   if(datos.tit_familias) S.set('tit_familias',datos.tit_familias);
+   if(datos.tit_reunions) S.set('tit_reunions',datos.tit_reunions);
+   if(datos.tit_citas)    S.set('tit_citas',datos.tit_citas);
+   if(datos.tit_comuns)   S.set('tit_comuns',datos.tit_comuns);
+   if(datos.tit_modo)     S.set('tit_modo',datos.tit_modo);
+   // Restaurar informes
+   if(datos.informes){
+    Object.entries(datos.informes).forEach(([k,v])=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch{} });
+   }
+   // Recargar datos en memoria
+   familias=S.get('tit_familias',{});
+   reunions=S.get('tit_reunions',[]);
+   citas=S.get('tit_citas',[]);
+   comuns=S.get('tit_comuns',[]);
+   renderFamiliasList();
+   populateAlumnoSelects();
+   aplicarModo(S.get('tit_modo','escuro'));
+   showToast('📥 Datos importados correctamente','#22c55e');
+  } catch(err){
+   alert('Erro ao importar: '+err.message);
+  }
+  event.target.value='';
+ };
+ reader.readAsText(file);
+ document.getElementById('tit-backup-menu').style.display='none';
+}
+
+function confirmarBorrarTitoria(){
+ if(!confirm('Borrar TODOS os datos de Titoría?\nEsta acción non se pode desfacer.')) return;
+ ['tit_familias','tit_reunions','tit_citas','tit_comuns'].forEach(k=>localStorage.removeItem(k));
+ // Borrar informes
+ Object.keys(localStorage).filter(k=>k.startsWith('tit_inf')||k.startsWith('tit_informes')).forEach(k=>localStorage.removeItem(k));
+ familias={};reunions=[];citas=[];comuns=[];
+ selAlumno=null;selInformeNome=null;selInformeId=null;
+ renderFamiliasList();
+ populateAlumnoSelects();
+ document.getElementById('ficha-familia').innerHTML='<div class="card" style="text-align:center;padding:3rem;color:var(--muted)"><div style="font-size:3rem;margin-bottom:.75rem">👆</div><div style="font-family:\'Georgia\',serif;font-size:1rem">Selecciona un alumno/a para ver a súa ficha familiar</div></div>';
+ document.getElementById('tit-backup-menu').style.display='none';
+ showToast('🗑️ Todos os datos borrados','#ef4444');
+}
+
+// ── PLANTILLA FAMILIAS ───────────────────────────────────────────────────────
+function imprimirPlantillaFamilias(){
+ const css=`*{margin:0;padding:0;box-sizing:border-box}
+ body{font-family:Georgia,serif;background:#fff;color:#1a1a1a}
+ .pagina{width:210mm;min-height:297mm;padding:14mm 16mm 12mm;page-break-after:always;position:relative;display:flex;flex-direction:column;gap:0}
+ .pagina:last-child{page-break-after:auto}
+ .cab{display:flex;align-items:center;gap:10px;border-bottom:2.5px solid #1a1a1a;padding-bottom:7px;margin-bottom:10px}
+ .cab-logo{font-size:22px}
+ .cab-titulo h1{font-size:13px;font-weight:900;letter-spacing:.02em;text-transform:uppercase}
+ .cab-titulo p{font-size:9px;color:#555;margin-top:1px}
+ .seccion{border:1px solid #ccc;border-radius:6px;padding:9px 12px;margin-bottom:9px}
+ .seccion-tit{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#444;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+ .seccion-tit::after{content:'';flex:1;height:1px;background:#ddd}
+ .campo{display:flex;align-items:baseline;gap:6px;margin-bottom:5px}
+ .campo label{font-size:9px;color:#444;white-space:nowrap;min-width:110px}
+ .campo .lin{flex:1;border-bottom:1px solid #aaa;height:18px}
+ .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .escala-tit{font-size:8.5px;color:#444;margin-bottom:4px}
+ .escala-fila{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+ .escala-fila label{font-size:9px;flex:1}
+ .escala-opcions{display:flex;gap:10px}
+ .escala-opcions span{display:flex;align-items:center;gap:3px;font-size:8.5px;color:#333}
+ .caixa{width:13px;height:13px;border:1.5px solid #888;border-radius:2px;flex-shrink:0}
+ .area{border:1px solid #ccc;border-radius:4px;width:100%;height:200px;margin-top:3px}
+ .area-alta{height:220px}
+ .idioma-tag{display:inline-block;font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;padding:1px 7px;border-radius:999px;margin-bottom:6px}
+ .gl .idioma-tag{background:#eaf3de;color:#3b6d11}
+ .es .idioma-tag{background:#fef3c7;color:#92400e}
+ .pie{margin-top:auto;padding-top:6px;border-top:1px solid #ddd;font-size:7.5px;color:#888;text-align:center}
+ @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact} @page{size:A4;margin:0}}`;
+
+ const camposContacto=(lbl1,lbl2,lbl3,lbl4,lbl5,lbl6,lbl7,lbl8)=>`
+  <div class="cols">
+   <div>
+    <div class="campo"><label>${lbl1}</label><div class="lin"></div></div>
+    <div class="campo"><label>${lbl2}</label><div class="lin"></div></div>
+    <div class="campo"><label>${lbl3}</label><div class="lin"></div></div>
+   </div>
+   <div>
+    <div class="campo"><label>${lbl4}</label><div class="lin"></div></div>
+    <div class="campo"><label>${lbl5}</label><div class="lin"></div></div>
+    <div class="campo"><label>${lbl6}</label><div class="lin"></div></div>
+   </div>
+  </div>
+  <div class="cols" style="margin-top:4px">
+   <div class="campo"><label>${lbl7}</label><div class="lin"></div></div>
+   <div class="campo"><label>${lbl8}</label><div class="lin"></div></div>
+  </div>`;
+
+ const escalaHabitos=(l1,l2,l3,lTit,lNunca,lAveces,lSempre,lTempo,lt1,lt2,lt3,lt4)=>`
+  <div class="escala-tit">${lTit} &nbsp; <strong>✗</strong> ${lNunca} &nbsp;·&nbsp; <strong>±</strong> ${lAveces} &nbsp;·&nbsp; <strong>✓</strong> ${lSempre}</div>
+  <div class="escala-fila"><label>${l1}</label><div class="escala-opcions"><span><div class="caixa"></div> ✗</span><span><div class="caixa"></div> ±</span><span><div class="caixa"></div> ✓</span></div></div>
+  <div class="escala-fila"><label>${l2}</label><div class="escala-opcions"><span><div class="caixa"></div> ✗</span><span><div class="caixa"></div> ±</span><span><div class="caixa"></div> ✓</span></div></div>
+  <div class="escala-fila"><label>${l3}</label><div class="escala-opcions"><span><div class="caixa"></div> ✗</span><span><div class="caixa"></div> ±</span><span><div class="caixa"></div> ✓</span></div></div>
+  <div class="campo" style="margin-top:4px"><label>${lTempo}</label><div class="escala-opcions" style="gap:8px"><span><div class="caixa"></div> ${lt1}</span><span><div class="caixa"></div> ${lt2}</span><span><div class="caixa"></div> ${lt3}</span><span><div class="caixa"></div> ${lt4}</span></div></div>`;
+
+ const escalaPantallas=(l1,l2,l3,lNo,lSi,lTempo,lt1,lt2,lt3,lt4)=>`
+  <div class="escala-fila"><label>${l1}</label><div class="escala-opcions"><span><div class="caixa"></div> ${lNo}</span><span><div class="caixa"></div> ${lSi}</span></div></div>
+  <div class="campo"><label>${lTempo}</label><div class="escala-opcions" style="gap:8px"><span><div class="caixa"></div> ${lt1}</span><span><div class="caixa"></div> ${lt2}</span><span><div class="caixa"></div> ${lt3}</span><span><div class="caixa"></div> ${lt4}</span></div></div>
+  <div class="escala-fila"><label>${l3}</label><div class="escala-opcions"><span><div class="caixa"></div> ✗</span><span><div class="caixa"></div> ±</span><span><div class="caixa"></div> ✓</span></div></div>`;
+
+ const html=`<!DOCTYPE html><html lang="gl"><head><meta charset="UTF-8">
+  <title>Ficha de datos familiares — CEIP Pío XII</title>
+  <style>${css}</style></head><body>
+
+  <div class="pagina gl">
+   <div style="margin-bottom:8px"><span class="idioma-tag">Versión en galego</span></div>
+   <div class="cab"><div class="cab-logo">🏫</div><div class="cab-titulo"><h1>Ficha de datos familiares</h1><p>CEIP Pío XII · Santiago de Compostela · Titora: Montserrat Blanco Vázquez</p></div></div>
+   <div class="seccion"><div class="seccion-tit">👤 Datos do alumno/a</div><div class="campo"><label>Nome e apelidos:</label><div class="lin"></div></div></div>
+   <div class="seccion"><div class="seccion-tit">👨‍👩‍👧 Datos de contacto da familia</div>
+    ${camposContacto('Titor/a 1 (nome):','Teléfono:','Correo electrónico:','Titor/a 2 (nome):','Teléfono:','Correo electrónico:','Horario de contacto preferido:','Lingua habitual na casa:')}
+   </div>
+   <div class="seccion"><div class="seccion-tit">📚 Hábitos de estudo e tarefas</div>
+    ${escalaHabitos('O/A neno/a estuda ou repasa en casa de forma habitual','Realiza as tarefas sen axuda ou con pouca axuda','Ten un lugar e un horario fixo para estudar','Valora cada aspecto:','Nunca','Ás veces','Sempre','Tempo diario dedicado ás tarefas:','&lt;15 min','15–30 min','30–60 min','+1 hora')}
+   </div>
+   <div class="seccion"><div class="seccion-tit">📱 Uso de pantallas e dispositivos</div>
+    ${escalaPantallas('Ten dispositivos propios (tablet, móbil, consola...)','','A familia supervisa o contido e o tempo de uso','Non','Si','Tempo diario de pantallas (aprox.):','&lt;1h','1–2h','2–3h','+3h')}
+   </div>
+   <div class="seccion"><div class="seccion-tit">💬 Observacións da familia</div>
+    <div style="font-size:8.5px;color:#555;margin-bottom:5px">Hai algunha información relevante que queira comunicar á titora? (situacións médicas, familiares, dificultades...)</div>
+    <div class="area area-alta"></div>
+   </div>
+   <div class="pie">© 2026 Montserrat Blanco Vázquez · CEIP Pío XII · CC BY-NC-SA 4.0 · Documento confidencial de uso exclusivo para a titoría</div>
+  </div>
+
+  <div class="pagina es">
+   <div style="margin-bottom:8px"><span class="idioma-tag">Versión en castellano</span></div>
+   <div class="cab"><div class="cab-logo">🏫</div><div class="cab-titulo"><h1>Ficha de datos familiares</h1><p>CEIP Pío XII · Santiago de Compostela · Tutora: Montserrat Blanco Vázquez</p></div></div>
+   <div class="seccion"><div class="seccion-tit">👤 Datos del alumno/a</div><div class="campo"><label>Nombre y apellidos:</label><div class="lin"></div></div></div>
+   <div class="seccion"><div class="seccion-tit">👨‍👩‍👧 Datos de contacto de la familia</div>
+    ${camposContacto('Tutor/a 1 (nombre):','Teléfono:','Correo electrónico:','Tutor/a 2 (nombre):','Teléfono:','Correo electrónico:','Horario de contacto preferido:','Lengua habitual en casa:')}
+   </div>
+   <div class="seccion"><div class="seccion-tit">📚 Hábitos de estudio y tareas</div>
+    ${escalaHabitos('El/la niño/a estudia o repasa en casa de forma habitual','Realiza las tareas sin ayuda o con poca ayuda','Tiene un lugar y un horario fijo para estudiar','Valora cada aspecto:','Nunca','A veces','Siempre','Tiempo diario dedicado a las tareas:','&lt;15 min','15–30 min','30–60 min','+1 hora')}
+   </div>
+   <div class="seccion"><div class="seccion-tit">📱 Uso de pantallas y dispositivos</div>
+    ${escalaPantallas('Tiene dispositivos propios (tablet, móvil, consola...)','','La familia supervisa el contenido y el tiempo de uso','No','Sí','Tiempo diario de pantallas (aprox.):','&lt;1h','1–2h','2–3h','+3h')}
+   </div>
+   <div class="seccion"><div class="seccion-tit">💬 Observaciones de la familia</div>
+    <div style="font-size:8.5px;color:#555;margin-bottom:5px">¿Hay alguna información relevante que quiera comunicar a la tutora? (situaciones médicas, familiares, dificultades...)</div>
+    <div class="area area-alta"></div>
+   </div>
+   <div class="pie">© 2026 Montserrat Blanco Vázquez · CEIP Pío XII · CC BY-NC-SA 4.0 · Documento confidencial de uso exclusivo para la tutoría</div>
+  </div>
+
+  <script>window.onload=()=>window.print()<\/script>
+ </body></html>`;
+
+ const w=window.open('','_blank');
+ if(w){w.document.write(html);w.document.close();}
+ else{
+  const a=document.createElement('a');
+  a.href='data:text/html;charset=utf-8,'+encodeURIComponent(html);
+  a.download='plantilla_familias.html';
+  a.click();
+ }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AUTOGUARDADO — BORRADOR, AVISO DE SAÍDA E GARDADO PERIÓDICO
+// ══════════════════════════════════════════════════════════════════════════════
+const TIT_DRAFT_KEY = 'tit_draft';
+let _hayCambiosSinGardar = false;
+
+document.addEventListener('input', (e) => {
+  const modal = e.target.closest('.modal-overlay, .modal, [id^="modal"]');
+  if (!modal) return;
+  _hayCambiosSinGardar = true;
+  const campos = {};
+  modal.querySelectorAll('input:not([type="file"]):not([type="checkbox"]):not([type="radio"]), textarea, select').forEach(el => {
+    if (el.id) campos[el.id] = el.value;
+  });
+  try { localStorage.setItem(TIT_DRAFT_KEY, JSON.stringify({ campos, ts: Date.now() })); } catch(e) {}
+});
+
+const _origCloseModal_tit = typeof closeModal === 'function' ? closeModal : null;
+if (_origCloseModal_tit) {
+  closeModal = function(...args) {
+    _hayCambiosSinGardar = false;
+    try { localStorage.removeItem(TIT_DRAFT_KEY); } catch(e) {}
+    _origCloseModal_tit(...args);
+  };
+}
+
+window.addEventListener('beforeunload', (e) => {
+  if (typeof save === 'function') save();
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(err) {}
+  if (_hayCambiosSinGardar) {
+    e.preventDefault();
+    e.returnValue = 'Tes cambios sen gardar nun formulario. Garda antes de saír.';
+  }
+});
+setInterval(() => {
+  if (typeof gardar === 'function') gardar();
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+}, 30000);
+
+
+setInterval(() => {
+  if (typeof save === 'function') save();
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(err) {}
+}, 30000);
+
+
+function _checkPrefillComun() {
+  try {
+    var raw = localStorage.getItem('pc_notif_prefill');
+    if (!raw) return;
+    var prefill = JSON.parse(raw);
+    if (!prefill || Date.now() - prefill.ts > 60000) { // só válido 60s
+      localStorage.removeItem('pc_notif_prefill');
+      return;
+    }
+    localStorage.removeItem('pc_notif_prefill');
+
+    // Open nova comunicación modal with pre-filled data
+    var alumnoOpts = alumnos.map(function(a) {
+      return '<option value="' + a + '"' + (a===prefill.alumno?' selected':'') + '>' + a + '</option>';
+    }).join('');
+    var canalOpts = Object.entries(COMUN_CANAIS).map(function(e) {
+      return '<option value="'+e[0]+'">' + e[1].icon + ' ' + e[1].label + '</option>';
+    }).join('');
+
+    openModal('<h3>\uD83D\uDCDE Nova comunicaci\xF3n (pre-enchida)</h3>'
+      + '<div style="font-size:.68rem;padding:5px 10px;border-radius:8px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:#a78bfa;margin-bottom:.75rem">'
+      + '\uD83D\uDEA8 Pre-enchida desde Panel de Clase \xB7 Alerta de absentismo: ' + prefill.alumno + '</div>'
+      + '<div class="form-grid">'
+      + '<div><label class="label">\uD83D\uDC64 Alumno/a</label>'
+      + '<select class="inp" id="nc2-alumno" style="cursor:pointer"><option value="">Seleccionar...</option>' + alumnoOpts + '</select></div>'
+      + '<div><label class="label">\uD83D\uDCC5 Data</label><input class="inp" type="date" id="nc2-data" value="' + new Date().toISOString().split('T')[0] + '"/></div>'
+      + '<div><label class="label">\uD83D\uDD50 Hora</label><input class="inp" type="time" id="nc2-hora" value="' + new Date().getHours().toString().padStart(2,'0') + ':' + new Date().getMinutes().toString().padStart(2,'0') + '"/></div>'
+      + '<div><label class="label">\uD83D\uDCE1 Canal</label><select class="inp" id="nc2-canal" style="cursor:pointer">' + canalOpts + '</select></div>'
+      + '</div>'
+      + '<div style="margin-top:8px"><label class="label">\uD83D\uDCCB Resumo</label>'
+      + '<textarea class="textarea" id="nc2-resumo" style="height:120px">' + (prefill.texto||'') + '</textarea></div>'
+      + '<div class="modal-row">'
+      + '<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>'
+      + '<button class="btn btn-purple" onclick="gardarComun()">\uD83D\uDCBE Gardar</button>'
+      + '</div>');
+  } catch(e) {
+    localStorage.removeItem('pc_notif_prefill');
+  }
+}
+
+function calMostrarDetalle(dateStr) {
+  // Close if same day clicked again
+  var panel = document.getElementById('cal-detail');
+  var tit = document.getElementById('cal-detail-titulo');
+  var body = document.getElementById('cal-detail-body');
+  if (!panel || !tit || !body) return;
+
+  var parts = dateStr.split('-');
+  var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  var GL_DAYS_C = ['Domingo','Luns','Martes','M\xE9rcores','Xoves','Venres','S\xE1bado'];
+  var GL_MESES_C = ['Xaneiro','Febreiro','Marzo','Abril','Maio','Xu\xF1o','Xullo','Agosto','Setembro','Outubro','Novembro','Decembro'];
+
+  var citasDia = citas.filter(function(c) { return c.data === dateStr; });
+
+  if (panel.classList.contains('show') && tit.dataset.day === dateStr) {
+    panel.classList.remove('show');
+    return;
+  }
+
+  tit.textContent = GL_DAYS_C[d.getDay()] + ', ' + d.getDate() + ' de ' + GL_MESES_C[d.getMonth()];
+  tit.dataset.day = dateStr;
+
+  var AVCOLS_C = ['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fbbf24','#ef4444','#06b6d4','#84cc16'];
+
+  body.innerHTML = citasDia.map(function(c) {
+    var idx = alumnos.indexOf(c.alumno);
+    var col = AVCOLS_C[((idx < 0 ? 0 : idx) % AVCOLS_C.length)];
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
+      + '<div style="width:28px;height:28px;border-radius:50%;background:' + col + ';display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:white;flex-shrink:0">' + ini(c.alumno) + '</div>'
+      + '<div style="flex:1">'
+      + '<div style="font-weight:800;font-size:.82rem">' + c.alumno + (c.hora ? ' <span style="color:var(--muted);font-weight:700">\xB7 ' + c.hora + '</span>' : '') + '</div>'
+      + (c.motivo ? '<div style="font-size:.72rem;color:var(--muted);font-weight:700">' + c.motivo + '</div>' : '')
+      + (c.lugar ? '<div style="font-size:.65rem;color:var(--muted)">\uD83D\uDCCD ' + c.lugar + '</div>' : '')
+      + '</div>'
+      + '<button onclick="editarCita(\'' + c.id + '\')" style="background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.25);border-radius:7px;color:var(--purple);font-size:.65rem;font-weight:800;padding:3px 8px;cursor:pointer">\u270F\uFE0F Editar</button>'
+      + '<button onclick="if(confirm(\'Eliminar?\'))eliminarCita(\'' + c.id + '\')" style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:7px;color:var(--red);font-size:.65rem;font-weight:800;padding:3px 8px;cursor:pointer">\u2715</button>'
+      + '</div>';
+  }).join('') + '<button onclick="openNovaCita(\'\',\'' + dateStr + '\')" style="margin-top:.6rem;width:100%;height:30px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:.72rem;font-weight:700;cursor:pointer">+ Engadir cita neste d\xEDa</button>';
+
+  panel.classList.add('show');
+  // Scroll to detail
+  setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
+}
+
+function calNavHoxe() { _calMesOffset = 0; renderCitas(); }
+
+function calNavMes(d) { _calMesOffset += d; renderCitas(); }
+
+function calPecharDetalle() {
+  document.getElementById('cal-detail')?.classList.remove('show');
+}
+
+function renderCitasCalendario(lista) {
+  var now = new Date();
+  var viewDate = new Date(now.getFullYear(), now.getMonth() + _calMesOffset, 1);
+  var ano = viewDate.getFullYear();
+  var mes = viewDate.getMonth(); // 0-indexed
+  var GL_MESES_LONG = ['Xaneiro','Febreiro','Marzo','Abril','Maio','Xu\xF1o','Xullo','Agosto','Setembro','Outubro','Novembro','Decembro'];
+  var GL_DOW = ['Lun','Mar','M\xE9r','Xov','Ven','S\xE1b','Dom'];
+
+  // Update mes label
+  var mesLabel = document.getElementById('cal-mes-label');
+  if (mesLabel) mesLabel.textContent = GL_MESES_LONG[mes] + ' ' + ano;
+
+  // Build day grid: first day of month, padded to Monday start
+  var firstDay = new Date(ano, mes, 1);
+  var lastDay = new Date(ano, mes + 1, 0);
+  var startDow = (firstDay.getDay() + 6) % 7; // 0=Mon
+
+  // Index citas by date
+  var citasByDay = {};
+  citas.forEach(function(c) {
+    if (!c.data) return;
+    var parts = c.data.split('-');
+    var y = parseInt(parts[0]), mo = parseInt(parts[1]) - 1, d = parseInt(parts[2]);
+    if (y === ano && mo === mes) {
+      if (!citasByDay[d]) citasByDay[d] = [];
+      citasByDay[d].push(c);
+    }
+  });
+
+  var hoxeStr = now.getFullYear() + '-' + (now.getMonth()+1).toString().padStart(2,'0') + '-' + now.getDate().toString().padStart(2,'0');
+  var todayDay = (now.getFullYear() === ano && now.getMonth() === mes) ? now.getDate() : -1;
+
+  // Build grid cells
+  var cells = [];
+  // Previous month padding
+  for (var i = 0; i < startDow; i++) {
+    var prevDay = new Date(ano, mes, -startDow + 1 + i);
+    cells.push({ day: prevDay.getDate(), cur: false, cits: [] });
+  }
+  // Current month
+  for (var d = 1; d <= lastDay.getDate(); d++) {
+    cells.push({ day: d, cur: true, cits: citasByDay[d] || [] });
+  }
+  // Next month padding to complete grid rows
+  var remaining = 7 - (cells.length % 7);
+  if (remaining < 7) {
+    for (var j = 1; j <= remaining; j++) {
+      cells.push({ day: j, cur: false, cits: [] });
+    }
+  }
+
+  // Colour pool for alumnos
+  var AVCOLS_C = ['#3b82f6','#22c55e','#f97316','#a78bfa','#f472b6','#2dd4bf','#fbbf24','#ef4444','#06b6d4','#84cc16'];
+  function colAlumno(nome) {
+    var idx = alumnos.indexOf(nome);
+    return AVCOLS_C[((idx < 0 ? 0 : idx) % AVCOLS_C.length)];
+  }
+
+  var dowHtml = GL_DOW.map(function(d) {
+    return '<div class="cal-dow">' + d + '</div>';
+  }).join('');
+
+  var cellsHtml = cells.map(function(cell) {
+    var isToday = cell.cur && cell.day === todayDay;
+    var hasCitas = cell.cur && cell.cits.length > 0;
+    var cls = 'cal-day' + (isToday ? ' cal-today' : '') + (!cell.cur ? ' cal-other-month' : '') + (hasCitas ? ' cal-has-citas' : '');
+
+    var chipsHtml = '';
+    if (hasCitas) {
+      var visible = cell.cits.slice(0, 2);
+      visible.forEach(function(c) {
+        var col = colAlumno(c.alumno);
+        chipsHtml += '<span class="cal-cita-chip" style="background:' + col + '22;color:' + col + '">'
+          + (c.hora ? c.hora.substring(0,5) + ' ' : '')
+          + c.alumno.split(' ')[0]
+          + '</span>';
+      });
+      if (cell.cits.length > 2) {
+        chipsHtml += '<div class="cal-more">+' + (cell.cits.length - 2) + ' m\xE1is</div>';
+      }
+    }
+
+    var dayDate = cell.cur ? (ano + '-' + (mes+1).toString().padStart(2,'0') + '-' + cell.day.toString().padStart(2,'0')) : '';
+    var onclick = hasCitas ? 'onclick="calMostrarDetalle(\'' + dayDate + '\')"' : (cell.cur ? 'onclick="openNovaCita(\'\',\'' + dayDate + '\')"' : '');
+
+    return '<div class="' + cls + '" ' + onclick + ' title="' + (cell.cur && !hasCitas ? 'Clic para engadir cita' : '') + '">'
+      + '<div class="cal-day-num">' + cell.day + '</div>'
+      + chipsHtml
+      + '</div>';
+  }).join('');
+
+  // Detail panel (hidden by default)
+  var detailHtml = '<div class="cal-detail-panel" id="cal-detail"><div class="cal-detail-title"><span id="cal-detail-titulo">—</span><button onclick="calPecharDetalle()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem">&#x2715;</button></div><div id="cal-detail-body"></div></div>';
+
+  lista.innerHTML = '<div class="cal-grid">' + dowHtml + cellsHtml + '</div>' + detailHtml;
+}
+
+function renderCitasLista(lista) {
+  var mostrarPasadas = document.getElementById('mostrar-pasadas')?.checked;
+  var hoxe = new Date().toISOString().split('T')[0];
+  var GL = ['Domingo','Luns','Martes','Mércores','Xoves','Venres','Sábado'];
+  var data = [...citas];
+  if (!mostrarPasadas) data = data.filter(function(c) { return c.data >= hoxe; });
+  if (!data.length) {
+    lista.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-family:\'DM Serif Display\',Georgia,serif">Sen citas pr\xF3ximas</div>';
+    return;
+  }
+  var grupos = {};
+  data.forEach(function(c) {
+    var mes = c.data.substring(0, 7);
+    if (!grupos[mes]) grupos[mes] = [];
+    grupos[mes].push(c);
+  });
+  var GL_MESES = ['Xaneiro','Febreiro','Marzo','Abril','Maio','Xu\xF1o','Xullo','Agosto','Setembro','Outubro','Novembro','Decembro'];
+  lista.innerHTML = Object.entries(grupos).map(function(entry) {
+    var mes = entry[0], cits = entry[1];
+    var parts = mes.split('-');
+    var ano = parts[0], m = parts[1];
+    return '<div style="margin-bottom:1rem">'
+      + '<div style="font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px">' + GL_MESES[parseInt(m)-1] + ' ' + ano + '</div>'
+      + cits.map(function(c) {
+          var d = new Date(c.data + 'T12:00:00');
+          var pasada = c.data < hoxe;
+          var idx = alumnos.indexOf(c.alumno);
+          var col = ac(idx);
+          return '<div class="cita-card' + (pasada ? ' pasada' : '') + '">'
+            + '<div><div class="cita-data">' + GL[d.getDay()] + ' ' + d.getDate() + '</div>'
+            + '<div class="cita-hora">' + (c.hora || '\u2014') + '</div>'
+            + (c.lugar ? '<div style="font-size:.6rem;color:var(--muted);font-weight:800">' + c.lugar + '</div>' : '')
+            + '</div>'
+            + '<div style="flex:1">'
+            + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">'
+            + '<div style="width:22px;height:22px;border-radius:50%;background:' + col + ';display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:white;flex-shrink:0">' + ini(c.alumno) + '</div>'
+            + '<span style="font-weight:900;font-size:.82rem">' + c.alumno + '</span></div>'
+            + (c.motivo ? '<div style="font-size:.75rem;color:var(--muted);font-weight:700">' + c.motivo + '</div>' : '')
+            + '</div>'
+            + '<button class="btn btn-ghost btn-sm" onclick="editarCita(\'' + c.id + '\')" style="font-size:.62rem">\u270F\uFE0F</button>'
+            + '<button class="btn btn-red btn-sm" onclick="eliminarCita(\'' + c.id + '\')" style="font-size:.62rem">\u2715</button>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+}
+
+function setCitasVista(v) {
+  _citasVista = v;
+  document.getElementById('cvb-lista')?.classList.toggle('active', v === 'lista');
+  document.getElementById('cvb-cal')?.classList.toggle('active', v === 'calendario');
+  var navWrap = document.getElementById('cal-nav-wrap');
+  var pasadasWrap = document.getElementById('cal-pasadas-wrap');
+  if (navWrap) navWrap.style.display = v === 'calendario' ? 'flex' : 'none';
+  if (pasadasWrap) pasadasWrap.style.display = v === 'lista' ? 'flex' : 'none';
+  renderCitas();
+}
+
+
+// ── CONFIG DOCENTE (lectura) ──────────────────────────────────────────────────
+function _getConf(){try{const v=localStorage.getItem('sn3_config');return v?JSON.parse(v):{}}catch{return {};}}
+function _aplicarCabeceira(){
+  const c=_getConf();
+  const parts=[];
+  if(c.docente) parts.push(c.docente);
+  if(c.grupo) parts.push(c.grupo);
+  if(c.curso) parts.push(c.curso);
+  const t=document.getElementById('_hdr-info');
+  if(t){t.textContent=parts.join(' · ');t.style.display=parts.length?'block':'none';}
+  const g=c.grupo||'';
+  document.querySelectorAll('._grupo-dyn').forEach(el=>el.textContent=g?(' · '+g):'');
+  document.querySelectorAll('title._title-dyn').forEach(el=>{
+    el.textContent=el.dataset.base+(g?' · '+g:'');
+  });
+}
+
+// ── MODAL CONFIRMAR BORRAR ────────────────────────────────────────────────────
+function _confirmar(msg, onSi){
+  const ov=document.createElement('div');
+  ov.id='_conf-del-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-del-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+</script>
+</body>
+</html>

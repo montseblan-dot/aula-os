@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obradoiro de Problemas – Aula</title>
+<meta name="author" content="Montserrat Blanco Vázquez" />
+<meta name="copyright" content="© 2026 Montserrat Blanco Vázquez. CC BY-NC-SA 4.0" />
+<meta name="license" content="https://creativecommons.org/licenses/by-nc-sa/4.0/" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+ --bg: #f0f9ff;
+ --card: #ffffff;
+ --border: #bfdbfe;
+ --text: #0f172a;
+ --muted: #64748b;
+ --blue: #1d4ed8;
+ --blueL: #dbeafe;
+ --green: #15803d;
+ --greenL: #dcfce7;
+ --yellow: #b45309;
+ --yellowL:#fef9c3;
+ --red: #b91c1c;
+ --redL: #fee2e2;
+ --purple: #6d28d9;
+ --purpleL:#ede9fe;
+ --orange: #c2410c;
+ --orangeL:#ffedd5;
+}
+body {
+ font-family: 'Nunito', sans-serif;
+ background: var(--bg);
+ min-height: 100vh;
+ color: var(--text);
+}
+
+/* Layout */
+.page { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+/* Header */
+.header { text-align: center; margin-bottom: 1.75rem; }
+.header h1 { font-family: 'Fredoka One', cursive; font-size: clamp(1.8rem,5vw,2.6rem); color: var(--blue); line-height: 1; }
+.header p { font-size: 0.85rem; color: var(--muted); margin-top: 5px; }
+
+/* Problem input card */
+.problem-card {
+ background: white; border: 2px solid var(--border);
+ border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem;
+ box-shadow: 0 4px 20px rgba(29,78,216,0.07);
+}
+.problem-label {
+ font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+ letter-spacing: 0.15em; color: var(--muted); margin-bottom: 8px;
+ display: flex; align-items: center; gap: 8px;
+}
+.problem-textarea {
+ width: 100%; min-height: 100px; padding: 12px 14px; resize: vertical;
+ border: 2px solid var(--border); border-radius: 12px;
+ font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700;
+ color: var(--text); background: #f8faff; outline: none; line-height: 1.6;
+ transition: border-color 0.2s;
+}
+.problem-textarea:focus { border-color: var(--blue); background: white; }
+.problem-textarea::placeholder { color: var(--muted); font-weight: 400; }
+.problem-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btn-primary {
+ height: 40px; padding: 0 20px;
+ font-family: 'Fredoka One', cursive; font-size: 1rem;
+ background: var(--blue); color: white; border: none;
+ border-radius: 11px; cursor: pointer;
+ transition: transform 0.12s, box-shadow 0.15s;
+ box-shadow: 0 4px 14px rgba(29,78,216,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(29,78,216,0.4); }
+.btn-secondary {
+ height: 40px; padding: 0 16px;
+ font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 800;
+ background: white; color: var(--muted); border: 2px solid var(--border);
+ border-radius: 11px; cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary:hover { color: var(--text); border-color: #93c5fd; }
+
+/* Problemas de exemplo */
+.examples-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.example-chip {
+ font-size: 0.72rem; font-weight: 800; padding: 4px 12px;
+ border-radius: 999px; border: 1px solid var(--border);
+ background: var(--blueL); color: var(--blue); cursor: pointer;
+ transition: background 0.15s;
+}
+.example-chip:hover { background: #bfdbfe; }
+
+/* Progress steps */
+.progress-bar {
+ display: flex; gap: 0; margin-bottom: 1.5rem;
+ background: white; border: 2px solid var(--border);
+ border-radius: 16px; overflow: hidden;
+ box-shadow: 0 2px 8px rgba(29,78,216,0.06);
+}
+.step-tab {
+ flex: 1; padding: 10px 6px; text-align: center; cursor: pointer;
+ transition: background 0.2s; border-right: 1px solid var(--border);
+ display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.step-tab:last-child { border-right: none; }
+.step-tab .step-icon { font-size: 1.2rem; }
+.step-tab .step-name { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.step-tab.active { background: var(--blue); }
+.step-tab.active .step-name { color: rgba(255,255,255,0.85); }
+.step-tab.done { background: var(--greenL); }
+.step-tab.done .step-name { color: var(--green); }
+
+/* Step cards */
+.step-card {
+ display: none;
+ background: white; border: 2px solid var(--border);
+ border-radius: 20px; padding: 1.5rem; margin-bottom: 1rem;
+ box-shadow: 0 4px 20px rgba(29,78,216,0.07);
+ animation: slide-in 0.3s ease both;
+}
+.step-card.active { display: block; }
+@keyframes slide-in {
+ from { transform: translateY(12px); opacity: 0; }
+ to { transform: translateY(0); opacity: 1; }
+}
+
+.step-header {
+ display: flex; align-items: center; gap: 12px; margin-bottom: 1.1rem;
+ padding-bottom: 1rem; border-bottom: 2px solid var(--border);
+}
+.step-number {
+ width: 44px; height: 44px; border-radius: 50%;
+ display: flex; align-items: center; justify-content: center;
+ font-family: 'Fredoka One', cursive; font-size: 1.4rem;
+ color: white; flex-shrink: 0;
+}
+.step-title { font-family: 'Fredoka One', cursive; font-size: 1.2rem; }
+.step-subtitle { font-size: 0.78rem; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+/* Textarea steps */
+.step-textarea {
+ width: 100%; min-height: 70px; padding: 10px 12px; resize: vertical;
+ border: 2px solid var(--border); border-radius: 11px;
+ font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700;
+ color: var(--text); background: #f8faff; outline: none; line-height: 1.6;
+ transition: border-color 0.2s; margin-bottom: 8px;
+}
+.step-textarea:focus { border-color: var(--blue); background: white; }
+.step-textarea::placeholder { color: var(--muted); font-weight: 400; }
+
+/* Data table — identificar datos */
+.data-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.data-table th {
+ background: var(--blueL); color: var(--blue);
+ font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;
+ padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border);
+}
+.data-table td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
+.data-table input {
+ width: 100%; background: none; border: none; outline: none;
+ font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 700;
+ color: var(--text);
+}
+.data-table input::placeholder { color: #cbd5e1; font-weight: 400; }
+.btn-add-row {
+ font-size: 0.78rem; font-weight: 800; color: var(--blue);
+ background: var(--blueL); border: none; border-radius: 8px;
+ padding: 5px 14px; cursor: pointer; transition: background 0.15s;
+}
+.btn-add-row:hover { background: #bfdbfe; }
+
+/* Operación selector */
+.op-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.op-choice {
+ padding: 8px 16px; border: 2px solid var(--border); border-radius: 11px;
+ font-family: 'Fredoka One', cursive; font-size: 1.1rem; cursor: pointer;
+ background: white; transition: all 0.15s; color: var(--muted);
+}
+.op-choice:hover { border-color: var(--blue); color: var(--text); }
+.op-choice.selected { border-color: transparent; color: white; }
+.op-choice[data-op="sum"].selected { background: var(--purple); }
+.op-choice[data-op="sub"].selected { background: var(--orange); }
+.op-choice[data-op="mult"].selected { background: #0284c7; }
+.op-choice[data-op="div"].selected { background: var(--green); }
+
+/* Operation builder */
+.op-builder {
+ display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+ background: #f8faff; border: 2px solid var(--border);
+ border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+}
+.op-field {
+ width: 90px; height: 44px; text-align: center;
+ font-family: 'Fredoka One', cursive; font-size: 1.4rem;
+ border: 2px solid var(--border); border-radius: 9px;
+ background: white; color: var(--text); outline: none;
+ transition: border-color 0.2s;
+}
+.op-field:focus { border-color: var(--blue); }
+.op-symbol { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: var(--muted); }
+.op-equals { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: var(--blue); }
+.op-result-box {
+ min-width: 90px; height: 44px; padding: 0 12px;
+ display: flex; align-items: center; justify-content: center;
+ font-family: 'Fredoka One', cursive; font-size: 1.4rem;
+ background: var(--greenL); border: 2px solid #86efac; border-radius: 9px;
+ color: var(--green);
+}
+
+/* Check step */
+.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.check-item {
+ padding: 12px; border: 2px solid var(--border); border-radius: 12px;
+ background: #f8faff; cursor: pointer; transition: all 0.15s;
+}
+.check-item:hover { border-color: var(--blue); }
+.check-item.ticked { background: var(--greenL); border-color: #86efac; }
+.check-item-icon { font-size: 1.4rem; margin-bottom: 4px; }
+.check-item-label { font-size: 0.8rem; font-weight: 800; color: var(--text); }
+.check-item.ticked .check-item-label { color: var(--green); }
+
+/* Final summary */
+.summary-card {
+ background: linear-gradient(135deg, #1d4ed8, #4f46e5);
+ border-radius: 20px; padding: 1.5rem; color: white; text-align: center;
+ margin-bottom: 1rem; display: none;
+}
+.summary-card.show { display: block; animation: slide-in 0.4s ease both; }
+.summary-star { font-size: 3.5rem; margin-bottom: 0.5rem; }
+.summary-title { font-family: 'Fredoka One', cursive; font-size: 1.8rem; margin-bottom: 0.5rem; }
+.summary-text { font-size: 0.9rem; opacity: 0.85; line-height: 1.6; }
+.summary-answer {
+ font-family: 'Fredoka One', cursive; font-size: 2.4rem;
+ background: rgba(255,255,255,0.2); border-radius: 14px;
+ padding: 10px 24px; margin: 1rem auto; display: inline-block;
+}
+
+/* Nav buttons */
+.nav-row { display: flex; gap: 10px; justify-content: space-between; margin-top: 1rem; }
+.btn-nav {
+ height: 44px; padding: 0 24px;
+ font-family: 'Fredoka One', cursive; font-size: 1rem;
+ border: 2px solid var(--border); border-radius: 12px; cursor: pointer;
+ transition: all 0.15s; background: white; color: var(--muted);
+}
+.btn-nav:hover { color: var(--text); border-color: #93c5fd; }
+.btn-nav.fwd {
+ background: var(--blue); color: white; border-color: var(--blue);
+ box-shadow: 0 4px 14px rgba(29,78,216,0.3);
+}
+.btn-nav.fwd:hover { background: #1e40af; }
+
+/* Hint box */
+.hint-box {
+ background: var(--yellowL); border: 1px solid #fde68a;
+ border-radius: 10px; padding: 10px 14px; margin-bottom: 10px;
+ font-size: 0.82rem; font-weight: 700; color: var(--yellow); line-height: 1.5;
+}
+
+/* Licenza */
+.license-footer { padding: 0.9rem 1rem; background: white; border: 1px solid var(--border); border-radius: 12px; margin-top: 1.5rem; }
+.license-cc { display: flex; gap: 4px; margin-bottom: 5px; }
+.cc-pill { font-size: 0.6rem; font-weight: 900; padding: 2px 7px; border-radius: 999px; background: var(--blueL); color: var(--blue); }
+.license-footer p { font-size: 0.65rem; color: var(--muted); line-height: 1.5; }
+.license-footer a { color: var(--blue); text-decoration: none; }
+
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="page">
+
+ <div class="header">
+ <h1>🔢 Obradoiro de Problemas<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a></h1>
+ <p>Aprende a resolver problemas matemáticos paso a paso</p>
+ <div id="op-ud-chip" style="margin-top:6px;display:none"></div>
+ </div>
+
+ <!-- Problema input -->
+ <div class="problem-card">
+ <div class="problem-label">📝 Escribe ou pega o problema aquí</div>
+ <textarea class="problem-textarea" id="problem-text"
+ placeholder="Ex: Na biblioteca hai 248 libros de aventuras e 175 de ciencia. Cantos libros hai en total?"></textarea>
+ <div class="problem-actions">
+ <button class="btn-primary" onclick="startProblem()">🚀 Comezar a resolver!</button>
+ <button class="btn-secondary" onclick="clearAll()">↺ Novo problema</button>
+ </div>
+ <div class="examples-row">
+ <span style="font-size:0.7rem;color:var(--muted);font-weight:800;align-self:center">Exemplos:</span>
+ <div class="example-chip" onclick="loadExample(0)">Biblioteca 📚</div>
+ <div class="example-chip" onclick="loadExample(1)">Mazás 🍎</div>
+ <div class="example-chip" onclick="loadExample(2)">Billetes 💶</div>
+ <div class="example-chip" onclick="loadExample(3)">Caramelos 🍬</div>
+ <div class="example-chip" onclick="loadExample(4)">Viaxe 🚌</div>
+ </div>
+ </div>
+
+ <!-- Progress -->
+ <div class="progress-bar" id="progress-bar">
+ <div class="step-tab active" id="tab-0" onclick="goStep(0)">
+ <div class="step-icon">📖</div>
+ <div class="step-name">Leo</div>
+ </div>
+ <div class="step-tab" id="tab-1" onclick="goStep(1)">
+ <div class="step-icon">🔍</div>
+ <div class="step-name">Datos</div>
+ </div>
+ <div class="step-tab" id="tab-2" onclick="goStep(2)">
+ <div class="step-icon">❓</div>
+ <div class="step-name">Pregunta</div>
+ </div>
+ <div class="step-tab" id="tab-3" onclick="goStep(3)">
+ <div class="step-icon">➕</div>
+ <div class="step-name">Operación</div>
+ </div>
+ <div class="step-tab" id="tab-4" onclick="goStep(4)">
+ <div class="step-icon">🧮</div>
+ <div class="step-name">Calculo</div>
+ </div>
+ <div class="step-tab" id="tab-5" onclick="goStep(5)">
+ <div class="step-icon">✅</div>
+ <div class="step-name">Comproba</div>
+ </div>
+ </div>
+
+ <!-- PASO 0: Leo e comprendo -->
+ <div class="step-card active" id="step-0">
+ <div class="step-header">
+ <div class="step-number" style="background:#1d4ed8">1</div>
+ <div>
+ <div class="step-title" style="color:#1d4ed8">📖 Leo e comprendo</div>
+ <div class="step-subtitle">Le o problema con atención. Explícao con palabras túas.</div>
+ </div>
+ </div>
+ <div class="hint-box">💡 Consello: le o problema dúas veces. A primeira vez enteiro, a segunda fixándote nos números e nas palabras clave.</div>
+ <div class="problem-label" style="margin-bottom:6px">🔤 O problema di...</div>
+ <div id="problem-display" style="background:#f8faff;border:2px solid var(--border);border-radius:12px;padding:14px;font-size:1rem;font-weight:700;color:var(--text);line-height:1.7;margin-bottom:1rem;min-height:60px"></div>
+ <div class="problem-label" style="margin-bottom:6px">✏️ Explícao con palabras túas</div>
+ <textarea class="step-textarea" id="s0-explain" placeholder="Neste problema fálase de... e pídese..."></textarea>
+ <div class="problem-label" style="margin-bottom:6px">🔑 Palabras clave que atopei</div>
+ <textarea class="step-textarea" id="s0-keywords" style="min-height:44px" placeholder="Ex: total, entre todos, quedan, reparten..."></textarea>
+ <div class="nav-row">
+ <div></div>
+ <button class="btn-nav fwd" onclick="goStep(1)">Seguinte: Identificar datos →</button>
+ </div>
+ </div>
+
+ <!-- PASO 1: Identifico os datos -->
+ <div class="step-card" id="step-1">
+ <div class="step-header">
+ <div class="step-number" style="background:#7c3aed">2</div>
+ <div>
+ <div class="step-title" style="color:#7c3aed">🔍 Identifico os datos</div>
+ <div class="step-subtitle">Que números e informacións me dan no problema?</div>
+ </div>
+ </div>
+ <div class="hint-box">💡 Os datos son os números que aparecen no enunciado. Subliña cada un e escribe que representa.</div>
+ <table class="data-table" id="data-table">
+ <thead><tr><th>Dato (número)</th><th>Que representa?</th></tr></thead>
+ <tbody id="data-body">
+ <tr>
+ <td><input type="text" placeholder="Ex: 248" /></td>
+ <td><input type="text" placeholder="Ex: libros de aventuras" /></td>
+ </tr>
+ <tr>
+ <td><input type="text" placeholder="Ex: 175" /></td>
+ <td><input type="text" placeholder="Ex: libros de ciencia" /></td>
+ </tr>
+ </tbody>
+ </table>
+ <button class="btn-add-row" onclick="addDataRow()">+ Engadir dato</button>
+ <div class="nav-row">
+ <button class="btn-nav" onclick="goStep(0)">← Anterior</button>
+ <button class="btn-nav fwd" onclick="goStep(2)">Seguinte: A pregunta →</button>
+ </div>
+ </div>
+
+ <!-- PASO 2: Identifico a pregunta -->
+ <div class="step-card" id="step-2">
+ <div class="step-header">
+ <div class="step-number" style="background:#c2410c">3</div>
+ <div>
+ <div class="step-title" style="color:#c2410c">❓ Identifico a pregunta</div>
+ <div class="step-subtitle">Que me pide exactamente o problema?</div>
+ </div>
+ </div>
+ <div class="hint-box">💡 A pregunta é o que tes que atopar. Normalmente vai ao final e ten un signo de interrogación.</div>
+ <div class="problem-label" style="margin-bottom:6px">🎯 O problema pídeme que atope...</div>
+ <textarea class="step-textarea" id="s2-question" placeholder="Ex: Cantos libros hai en total na biblioteca?"></textarea>
+ <div class="problem-label" style="margin-bottom:6px">🔢 A incógnita (o que non sei) é...</div>
+ <textarea class="step-textarea" id="s2-unknown" style="min-height:44px" placeholder="Ex: o número total de libros"></textarea>
+ <div class="nav-row">
+ <button class="btn-nav" onclick="goStep(1)">← Anterior</button>
+ <button class="btn-nav fwd" onclick="goStep(3)">Seguinte: Elixir operación →</button>
+ </div>
+ </div>
+
+ <!-- PASO 3: Elixo a operación -->
+ <div class="step-card" id="step-3">
+ <div class="step-header">
+ <div class="step-number" style="background:#0284c7">4</div>
+ <div>
+ <div class="step-title" style="color:#0284c7">➕ Elixo a operación</div>
+ <div class="step-subtitle">Cal é a operación que necesito para resolver o problema?</div>
+ </div>
+ </div>
+ <div class="hint-box">💡 Pistas: "en total / entre todos / xuntos" → SUMA · "quedan / menos / diferenza" → RESTA · "veces / cada" → MULTIPLICACIÓN · "reparten / partes iguais" → DIVISIÓN</div>
+ <div class="op-selector">
+ <div class="op-choice" data-op="sum" onclick="selectOp('sum')">➕ Suma</div>
+ <div class="op-choice" data-op="sub" onclick="selectOp('sub')">➖ Resta</div>
+ <div class="op-choice" data-op="mult" onclick="selectOp('mult')">✖️ Multiplicación</div>
+ <div class="op-choice" data-op="div" onclick="selectOp('div')">➗ División</div>
+ </div>
+ <div class="problem-label" style="margin-bottom:6px">✏️ Por que escolliches esa operación?</div>
+ <textarea class="step-textarea" id="s3-reason" style="min-height:52px" placeholder="Escollo a suma porque o problema pide xuntar dúas cantidades..."></textarea>
+ <div class="nav-row">
+ <button class="btn-nav" onclick="goStep(2)">← Anterior</button>
+ <button class="btn-nav fwd" onclick="goStep(4)">Seguinte: Calcular →</button>
+ </div>
+ </div>
+
+ <!-- PASO 4: Calculo -->
+ <div class="step-card" id="step-4">
+ <div class="step-header">
+ <div class="step-number" style="background:#15803d">5</div>
+ <div>
+ <div class="step-title" style="color:#15803d">🧮 Realizo o cálculo</div>
+ <div class="step-subtitle">Fai a operación e escribe o resultado.</div>
+ </div>
+ </div>
+ <div class="hint-box">💡 Escribe a operación completa antes de resolver. Así podes comprobar que non te equivocas.</div>
+ <div class="problem-label" style="margin-bottom:8px">🔢 Plantexa a operación</div>
+ <div class="op-builder">
+ <input class="op-field" id="op-a" type="text" placeholder="?" oninput="calcResult()" />
+ <div class="op-symbol" id="op-sym">○</div>
+ <input class="op-field" id="op-b" type="text" placeholder="?" oninput="calcResult()" />
+ <div class="op-equals">=</div>
+ <div class="op-result-box" id="op-result">?</div>
+ </div>
+ <div class="problem-label" style="margin-bottom:6px">📝 Escribe o resultado con unidades</div>
+ <textarea class="step-textarea" id="s4-result" style="min-height:52px" placeholder="Ex: Na biblioteca hai 423 libros en total."></textarea>
+ <div class="nav-row">
+ <button class="btn-nav" onclick="goStep(3)">← Anterior</button>
+ <button class="btn-nav fwd" onclick="goStep(5)">Seguinte: Comprobar →</button>
+ </div>
+ </div>
+
+ <!-- PASO 5: Comproba -->
+ <div class="step-card" id="step-5">
+ <div class="step-header">
+ <div class="step-number" style="background:#b45309">6</div>
+ <div>
+ <div class="step-title" style="color:#b45309">✅ Comproba o resultado</div>
+ <div class="step-subtitle">Antes de dar o problema por rematado, comproba que ten sentido.</div>
+ </div>
+ </div>
+ <div class="hint-box">💡 Un bo/a matemático/a sempre comproba o seu traballo. Podes verificar o resultado facendo a operación inversa.</div>
+ <div class="check-grid">
+ <div class="check-item" id="chk-0" onclick="tickCheck(0)">
+ <div class="check-item-icon">📖</div>
+ <div class="check-item-label">Relin o problema e respondín o que pedía</div>
+ </div>
+ <div class="check-item" id="chk-1" onclick="tickCheck(1)">
+ <div class="check-item-icon">🔢</div>
+ <div class="check-item-label">Usei todos os datos importantes</div>
+ </div>
+ <div class="check-item" id="chk-2" onclick="tickCheck(2)">
+ <div class="check-item-icon">➕</div>
+ <div class="check-item-label">A operación que elixín é a correcta</div>
+ </div>
+ <div class="check-item" id="chk-3" onclick="tickCheck(3)">
+ <div class="check-item-icon">💡</div>
+ <div class="check-item-label">O resultado ten sentido (non é estraño)</div>
+ </div>
+ <div class="check-item" id="chk-4" onclick="tickCheck(4)">
+ <div class="check-item-icon">📝</div>
+ <div class="check-item-label">Escribín as unidades na resposta</div>
+ </div>
+ <div class="check-item" id="chk-5" onclick="tickCheck(5)">
+ <div class="check-item-icon">🔄</div>
+ <div class="check-item-label">Comprobei con a operación inversa</div>
+ </div>
+ </div>
+ <div class="problem-label" style="margin-bottom:6px">📝 A miña resposta final</div>
+ <textarea class="step-textarea" id="s5-final" placeholder="Escribe a resposta completa en forma de frase..."></textarea>
+ <div class="nav-row">
+ <button class="btn-nav" onclick="goStep(4)">← Anterior</button>
+ <button class="btn-nav fwd" onclick="finish()" style="background:#15803d;border-color:#15803d">🎉 Rematei o problema!</button>
+ </div>
+ </div>
+
+ <!-- Resumo final -->
+ <div class="summary-card" id="summary">
+ <div class="summary-star">⭐</div>
+ <div class="summary-title">Problema resolto!</div>
+ <div class="summary-answer" id="summary-answer">—</div>
+ <div class="summary-text" id="summary-text"></div>
+ <div style="margin-top:1.25rem;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+ <button class="btn-primary" onclick="clearAll()" style="background:white;color:#1d4ed8">🔢 Novo problema</button>
+ <button class="btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+ </div>
+ </div>
+
+ <div class="license-footer">
+ <div class="license-cc">
+ <span class="cc-pill">CC</span><span class="cc-pill">BY</span>
+ <span class="cc-pill">NC</span><span class="cc-pill">SA</span>
+ </div>
+ <p>© 2026 Montserrat Blanco Vázquez · <br>
+ <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.gl" target="_blank">CC BY-NC-SA 4.0</a>
+ — Libre para uso educativo non comercial
+ </p>
+ </div>
+</div>
+
+<script>
+// ── Exemplos ──────────────────────────────────────────────────────────────────
+const EXAMPLES = [
+ 'Na biblioteca hai 248 libros de aventuras e 175 de ciencia. Cantos libros hai en total?',
+ 'Nunha cesta había 36 mazás. Vendéronse 19. Cantas mazás quedan?',
+ 'Marta ten 3 billetes de 10 euros e 2 de 5 euros. Canto diñeiro ten en total?',
+ 'Repartiron 56 caramelos entre 8 nenos por igual. Cantos caramelos lle tocan a cada un?',
+ 'Un autobús fixo 4 viaxes e en cada viaxe levou 32 persoas. Cantas persoas levou en total?',
+];
+
+function loadExample(i) {
+ document.getElementById('problem-text').value = EXAMPLES[i];
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentStep = 0;
+let selectedOp = null;
+let checkedItems = new Set();
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+function startProblem() {
+ const txt = document.getElementById('problem-text').value.trim();
+ if (!txt) { document.getElementById('problem-text').focus(); return; }
+ document.getElementById('problem-display').textContent = txt;
+ goStep(0);
+ document.getElementById('summary').classList.remove('show');
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function goStep(n) {
+ currentStep = n;
+ // Cards
+ document.querySelectorAll('.step-card').forEach((c, i) => {
+ c.classList.toggle('active', i === n);
+ });
+ // Tabs
+ document.querySelectorAll('.step-tab').forEach((t, i) => {
+ t.classList.remove('active', 'done');
+ if (i === n) t.classList.add('active');
+ else if (i < n) t.classList.add('done');
+ });
+ // Update op symbol in step 4
+ updateOpSymbol();
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ if (typeof opGardar === 'function') opGardar();
+}
+
+// ── Op selection ──────────────────────────────────────────────────────────────
+const OP_SYMBOLS = { sum: '+', sub: '−', mult: '×', div: '÷' };
+
+function selectOp(op) {
+ selectedOp = op;
+ document.querySelectorAll('.op-choice').forEach(el => {
+ el.classList.toggle('selected', el.dataset.op === op);
+ });
+ updateOpSymbol();
+}
+
+function updateOpSymbol() {
+ const sym = document.getElementById('op-sym');
+ if (sym && selectedOp) sym.textContent = OP_SYMBOLS[selectedOp] || '○';
+}
+
+// ── Calc result ───────────────────────────────────────────────────────────────
+function calcResult() {
+ const a = parseFloat(document.getElementById('op-a').value);
+ const b = parseFloat(document.getElementById('op-b').value);
+ const box = document.getElementById('op-result');
+ if (isNaN(a) || isNaN(b) || !selectedOp) { box.textContent = '?'; return; }
+ let result;
+ if (selectedOp === 'sum') result = a + b;
+ if (selectedOp === 'sub') result = a - b;
+ if (selectedOp === 'mult') result = a * b;
+ if (selectedOp === 'div') result = b !== 0 ? (Math.round((a / b) * 1000) / 1000) : '∞';
+ box.textContent = result;
+}
+
+// ── Data rows ─────────────────────────────────────────────────────────────────
+function addDataRow() {
+ const tbody = document.getElementById('data-body');
+ const tr = document.createElement('tr');
+ tr.innerHTML = `<td><input type="text" placeholder="Número" /></td>
+ <td><input type="text" placeholder="Que representa?" /></td>`;
+ tbody.appendChild(tr);
+}
+
+// ── Check items ───────────────────────────────────────────────────────────────
+function tickCheck(i) {
+ const el = document.getElementById(`chk-${i}`);
+ if (checkedItems.has(i)) { checkedItems.delete(i); el.classList.remove('ticked'); }
+ else { checkedItems.add(i); el.classList.add('ticked'); }
+ if (typeof opGardar === 'function') opGardar();
+}
+
+// ── Finish ────────────────────────────────────────────────────────────────────
+function finish() {
+ const finalAnswer = document.getElementById('s5-final').value.trim();
+ const result = document.getElementById('op-result').textContent;
+ const checked = checkedItems.size;
+
+ document.getElementById('summary').classList.add('show');
+ document.getElementById('summary-answer').textContent = finalAnswer || result;
+
+ let stars = '⭐';
+ if (checked >= 5) stars = '🌟🌟🌟';
+ else if (checked >= 3) stars = '⭐⭐';
+
+ document.getElementById('summary-text').innerHTML =
+ `${stars}<br>Completaches ${checked} de 6 comprobacións.<br>` +
+ (checked >= 5 ? 'Traballo excelente! Resolveches o problema correctamente paso a paso.' :
+ checked >= 3 ? 'Bo traballo! Lembra comprobar todos os pasos a próxima vez.' :
+ 'Completa as comprobacións antes de dar o problema por rematado.');
+
+ document.querySelector('.summary-star').textContent = checked >= 5 ? '🏆' : checked >= 3 ? '⭐' : '💪';
+ document.getElementById('summary').scrollIntoView({ behavior: 'smooth' });
+ if (checked >= 4) launchConfetti('#1d4ed8');
+}
+
+// ── Clear ─────────────────────────────────────────────────────────────────────
+function clearAll() {
+ document.getElementById('problem-text').value = '';
+ document.getElementById('problem-display').textContent = '';
+ ['s0-explain','s0-keywords','s2-question','s2-unknown','s3-reason','s4-result','s5-final'].forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ document.getElementById('op-a').value = '';
+ document.getElementById('op-b').value = '';
+ document.getElementById('op-result').textContent = '?';
+ document.getElementById('op-sym').textContent = '○';
+ document.getElementById('data-body').innerHTML = `
+ <tr><td><input type="text" placeholder="Ex: 248" /></td><td><input type="text" placeholder="Ex: libros de aventuras" /></td></tr>
+ <tr><td><input type="text" placeholder="Ex: 175" /></td><td><input type="text" placeholder="Ex: libros de ciencia" /></td></tr>`;
+ selectedOp = null;
+ checkedItems = new Set();
+ document.querySelectorAll('.op-choice').forEach(el => el.classList.remove('selected'));
+ document.querySelectorAll('.check-item').forEach(el => el.classList.remove('ticked'));
+ document.getElementById('summary').classList.remove('show');
+ goStep(0);
+ document.getElementById('problem-text').focus();
+}
+
+// ── Confetti ──────────────────────────────────────────────────────────────────
+let confettiFrame = null;
+function launchConfetti(accent) {
+ if (confettiFrame) { cancelAnimationFrame(confettiFrame); confettiFrame = null; }
+ const c = document.getElementById('confetti');
+ const cx = c.getContext('2d');
+ c.width = window.innerWidth; c.height = window.innerHeight;
+ const palette = [accent, '#ffd700', '#ffffff', '#22c55e', '#f472b6', '#60a5fa'];
+ const pieces = Array.from({ length: 110 }, () => ({
+ x: Math.random() * c.width, y: -10,
+ w: 6 + Math.random() * 8, h: 10 + Math.random() * 7,
+ color: palette[Math.floor(Math.random() * palette.length)],
+ vx: (Math.random() - 0.5) * 6, vy: 3 + Math.random() * 5,
+ rot: Math.random() * 360, rotV: (Math.random() - 0.5) * 9, alpha: 1
+ }));
+ function draw() {
+ cx.clearRect(0, 0, c.width, c.height);
+ let alive = false;
+ pieces.forEach(p => {
+ if (p.alpha <= 0) return; alive = true;
+ p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+ if (p.y > c.height * 0.65) p.alpha -= 0.022;
+ cx.save(); cx.globalAlpha = Math.max(0, p.alpha);
+ cx.translate(p.x, p.y); cx.rotate(p.rot * Math.PI / 180);
+ cx.fillStyle = p.color; cx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+ cx.restore();
+ });
+ if (alive) confettiFrame = requestAnimationFrame(draw);
+ else { cx.clearRect(0, 0, c.width, c.height); confettiFrame = null; }
+ }
+ draw();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PERSISTENCIA localStorage
+// ══════════════════════════════════════════════════════════════════════════════
+const OP_KEY = 'op_estado';
+
+function opGardar() {
+  // Recoller datos da táboa
+  const rows = [];
+  document.querySelectorAll('#data-body tr').forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    if (inputs.length >= 2) rows.push([inputs[0].value, inputs[1].value]);
+  });
+  // Recoller checks
+  const checks = Array.from(checkedItems);
+  const estado = {
+    problemText: (document.getElementById('problem-text')||{}).value || '',
+    problemDisplay: (document.getElementById('problem-display')||{}).textContent || '',
+    currentStep,
+    selectedOp,
+    checks,
+    dataRows: rows,
+    fields: {},
+    ts: Date.now()
+  };
+  ['s0-explain','s0-keywords','s2-question','s2-unknown','s3-reason','s4-result','s5-final'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) estado.fields[id] = el.value;
+  });
+  const opA = document.getElementById('op-a');
+  const opB = document.getElementById('op-b');
+  if (opA) estado.opA = opA.value;
+  if (opB) estado.opB = opB.value;
+  try { localStorage.setItem(OP_KEY, JSON.stringify(estado)); } catch(e) {}
+}
+
+function opCargar() {
+  try {
+    const raw = localStorage.getItem(OP_KEY);
+    if (!raw) return;
+    const e = JSON.parse(raw);
+
+    const pt = document.getElementById('problem-text');
+    const pd = document.getElementById('problem-display');
+    if (pt && e.problemText) pt.value = e.problemText;
+    if (pd && e.problemDisplay) pd.textContent = e.problemDisplay;
+
+    if (e.fields) {
+      Object.entries(e.fields).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      });
+    }
+
+    if (e.opA !== undefined) { const el = document.getElementById('op-a'); if(el) { el.value = e.opA; } }
+    if (e.opB !== undefined) { const el = document.getElementById('op-b'); if(el) { el.value = e.opB; } }
+    if (e.selectedOp) { selectedOp = e.selectedOp; updateOpSymbol(); document.querySelectorAll('.op-choice').forEach(el => { el.classList.toggle('selected', el.dataset.op === selectedOp); }); }
+    calcResult();
+
+    if (e.dataRows && e.dataRows.length) {
+      const tbody = document.getElementById('data-body');
+      if (tbody) {
+        tbody.innerHTML = '';
+        e.dataRows.forEach(([num, desc]) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><input type="text" placeholder="Número" value="${num||''}" /></td><td><input type="text" placeholder="Que representa?" value="${desc||''}" /></td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    if (e.checks) { checkedItems = new Set(e.checks); checkedItems.forEach(i => { const el = document.getElementById('chk-'+i); if(el) el.classList.add('ticked'); }); }
+    if (typeof e.currentStep === 'number') goStep(e.currentStep);
+  } catch(err) {}
+}
+
+// Autogardar en cada cambio de campo
+document.querySelectorAll('textarea, input[type="text"]').forEach(el => {
+  el.addEventListener('input', opGardar);
+});
+
+// Engadir autoguardado a clearAll para limpar localStorage
+const _origClearAll = clearAll;
+const _clearAllConStorage = function() { _origClearAll(); localStorage.removeItem(OP_KEY); };
+// clearAll con confirmación modal
+clearAll = function() {
+  _confirmar(
+    'Borrar o problema en curso? Perderanse todos os datos introducidos.',
+    () => { _clearAllConStorage(); }
+  );
+};
+
+// Cargar estado ao iniciar
+opCargar();
+
+// Chip UD activa en cabeceira
+(function(){
+  try{
+    const chip=document.getElementById('op-ud-chip');
+    if(!chip) return;
+    const notas=JSON.parse(localStorage.getItem('sn3_notas')||'[]');
+    const mats=JSON.parse(localStorage.getItem('sn3_materias')||'[]');
+    const matMates=mats.find(m=>m.id==='mates')||mats.find(m=>m.nome?.toLowerCase().includes('mat'))||null;
+    // Priorizar matemáticas
+    const notasFilt=matMates?notas.filter(n=>n.materia===matMates.id&&n.unidade?.num):notas.filter(n=>n.unidade?.num);
+    const udAct=notasFilt.sort((a,b)=>new Date(b.data)-new Date(a.data))[0]?.unidade||null;
+    if(udAct){
+      chip.style.display='inline-flex';
+      chip.style.cssText='display:inline-flex;align-items:center;gap:5px;font-size:.65rem;font-weight:900;padding:2px 10px;border-radius:999px;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.25)';
+      chip.textContent='📚 UD'+udAct.num+(udAct.tit?' · '+udAct.tit.substring(0,20):'');
+    }
+  }catch{}
+})();
+
+// ── AUTOGUARDADO ──────────────────────────────────────────────────────────────
+window.addEventListener('beforeunload', () => {
+  if (typeof opGardar === 'function') opGardar();
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+});
+setInterval(() => {
+  if (typeof opGardar === 'function') opGardar();
+  try { localStorage.setItem('bbdd_last_backup', new Date().toISOString()); } catch(e) {}
+}, 30000);
+
+
+function gardarResultadoOp(resposta, checks) {
+  var alumno = document.getElementById('op-alumno')?.value;
+  if (!alumno) return;
+  var enunciado = document.getElementById('problem-text')?.value?.trim() || '';
+  var key = 'op_hist_' + alumno.replace(/\s+/g, '_');
+  var hist = [];
+  try { hist = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+  hist.unshift({
+    id: 'o' + Date.now(),
+    data: new Date().toLocaleDateString('gl-ES'),
+    hora: new Date().toLocaleTimeString('gl-ES', {hour:'2-digit', minute:'2-digit'}),
+    enunciado: enunciado.substring(0, 120),
+    resposta: resposta,
+    checks: checks,
+    estrelas: checks >= 5 ? 3 : checks >= 3 ? 2 : 1
+  });
+  if (hist.length > 50) hist = hist.slice(0, 50);
+  try { localStorage.setItem(key, JSON.stringify(hist)); } catch(e) {}
+}
+
+function renderOpHist() {
+  var sel = document.getElementById('op-hist-sel');
+  var alumno = sel ? sel.value : '';
+  var el = document.getElementById('op-hist-list');
+  if (!el) return;
+
+  var alumnos = [];
+  try { alumnos = JSON.parse(localStorage.getItem('pc_alumnos') || '[]'); } catch(e) {}
+  var lista = alumno ? [alumno] : alumnos;
+
+  var allEntries = [];
+  lista.forEach(function(a) {
+    var key = 'op_hist_' + a.replace(/\s+/g, '_');
+    try {
+      var h = JSON.parse(localStorage.getItem(key) || '[]');
+      h.forEach(function(e) { e._alumno = a; });
+      allEntries = allEntries.concat(h);
+    } catch(e) {}
+  });
+  allEntries.sort(function(a,b) { return (b.id||'').localeCompare(a.id||''); });
+
+  if (!allEntries.length) {
+    el.innerHTML = '<div style="text-align:center;padding:2rem;color:rgba(238,242,255,.3);font-size:.85rem">'
+      + (alumno ? alumno + ' aínda non ten problemas gardados' : 'Non hai historial gardado') + '</div>';
+    return;
+  }
+
+  el.innerHTML = allEntries.slice(0, 40).map(function(e) {
+    var stars = '\u2B50'.repeat(e.estrelas||1);
+    return '<div style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid rgba(255,255,255,.06)">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+      + '<span style="font-size:.78rem;font-weight:800;color:#f0f4ff;flex:1">' + (e._alumno||'') + '</span>'
+      + '<span style="font-size:.62rem;color:rgba(238,242,255,.35)">' + e.data + ' ' + e.hora + '</span>'
+      + '<span style="font-size:.75rem">' + stars + '</span>'
+      + '</div>'
+      + '<div style="font-size:.72rem;color:rgba(238,242,255,.55);margin-bottom:3px">' + (e.enunciado||'').substring(0,80) + (e.enunciado&&e.enunciado.length>80?'...':'') + '</div>'
+      + '<div style="font-size:.68rem;color:rgba(238,242,255,.35)">Resposta: ' + (e.resposta||'\u2014') + ' \xB7 ' + (e.checks||0) + '/6 comprobaci\xF3ns</div>'
+      + '</div>';
+  }).join('');
+}
+
+function verHistorialOp() {
+  var alumno = document.getElementById('op-alumno')?.value;
+  var alumnos = [];
+  try { alumnos = JSON.parse(localStorage.getItem('pc_alumnos') || '[]'); } catch(e) {}
+
+  var alumnoOpts = '<option value="">Todos os alumnos/as</option>'
+    + alumnos.map(function(a) { return '<option value="' + a + '"' + (a===alumno?' selected':'') + '>' + a + '</option>'; }).join('');
+
+  var ov = document.getElementById('op-hist-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'op-hist-overlay';
+    ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);overflow-y:auto;padding:1rem';
+    ov.innerHTML = '<div style="max-width:700px;margin:0 auto;background:#0f172a;border-radius:20px;padding:1.5rem;border:1px solid rgba(255,255,255,.1)">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">'
+      + '<span style="font-size:1.3rem">\uD83D\uDCCB</span>'
+      + '<div style="font-family:\'Fredoka One\',cursive;font-size:1.1rem;color:var(--blue,#3b82f6);flex:1">Historial por alumno/a</div>'
+      + '<select id="op-hist-sel" onchange="renderOpHist()" style="height:28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#f0f4ff;font-family:\'DM Sans\',sans-serif;font-size:.75rem;font-weight:700;padding:0 8px;outline:none;cursor:pointer">'
+      + alumnoOpts + '</select>'
+      + '<button onclick="document.getElementById(\'op-hist-overlay\').style.display=\'none\'" style="height:30px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(238,242,255,.5);cursor:pointer;font-size:.8rem">\u2715</button>'
+      + '</div>'
+      + '<div id="op-hist-list"></div>'
+      + '</div>';
+    document.body.appendChild(ov);
+  } else {
+    var s = document.getElementById('op-hist-sel');
+    if (s) { s.innerHTML = alumnoOpts; }
+  }
+  ov.style.display = 'block';
+  renderOpHist();
+  document.addEventListener('keydown', function h(e) {
+    if (e.key==='Escape') { ov.style.display='none'; document.removeEventListener('keydown',h); }
+  });
+}
+
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='inline';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+</script>
+</body>
+</html>

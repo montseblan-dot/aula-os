@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Importar Programación Didáctica · LOMLOE</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263347;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);--white:#f1f5f9;--muted:rgba(241,245,249,.45);--gold:#fbbf24;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--purple:#a78bfa;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,sans-serif;min-height:100vh}
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold)}
+.hdr-right{margin-left:auto;display:flex;gap:8px}
+.btn{height:32px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:800;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn-ghost{background:rgba(255,255,255,.07);color:var(--white);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.13)}
+.btn-gold{background:var(--gold);color:#0f172a}
+.btn-gold:disabled{opacity:.4;cursor:not-allowed}
+.btn-green{background:var(--green);color:#052e16}
+.main{max-width:900px;margin:0 auto;padding:24px 20px}
+/* Upload zone */
+.upload-zone{border:2px dashed var(--border2);border-radius:16px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:rgba(251,191,36,.04)}
+.upload-zone.drag{transform:scale(1.01)}
+.upload-icon{font-size:2.5rem;margin-bottom:10px}
+.upload-title{font-size:.95rem;font-weight:800;margin-bottom:4px}
+.upload-sub{font-size:.72rem;color:var(--muted)}
+/* Steps */
+.steps{display:flex;gap:0;margin-bottom:24px}
+.step{flex:1;text-align:center;padding:10px;position:relative}
+.step::after{content:'';position:absolute;top:50%;right:0;transform:translateY(-50%);width:1px;height:60%;background:var(--border)}
+.step:last-child::after{display:none}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--card2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;margin:0 auto 5px;transition:all .3s}
+.step-num.done{background:var(--green);border-color:var(--green);color:#052e16}
+.step-num.active{background:var(--gold);border-color:var(--gold);color:#0f172a}
+.step-label{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+/* Previsualización */
+.preview-section{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.preview-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.preview-header h2{font-family:'DM Serif Display',Georgia,serif;font-size:.95rem;flex:1}
+.preview-body{padding:14px 16px}
+/* UD cards */
+.ud-card{background:var(--card2);border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border)}
+.ud-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ud-num{font-size:.65rem;font-weight:900;padding:2px 8px;border-radius:999px;background:rgba(251,191,36,.12);color:var(--gold);border:1px solid rgba(251,191,36,.2)}
+.ud-title{font-size:.82rem;font-weight:800;flex:1}
+.ud-meta{font-size:.62rem;color:var(--muted)}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:.6rem;font-weight:800;margin:2px}
+/* Comp bars */
+.comp-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.comp-key{font-size:.6rem;font-weight:900;min-width:44px}
+.comp-bar-bg{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:999px}
+.comp-bar{height:100%;border-radius:999px}
+.comp-pct{font-size:.58rem;font-weight:800;min-width:28px;text-align:right}
+/* Status */
+.status-ok{color:var(--green)}
+.status-warn{color:var(--gold)}
+.alert-box{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:.75rem;line-height:1.6}
+.success-box{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:.75rem}
+/* Materia selector */
+.mat-sel{width:100%;height:36px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 12px;outline:none;margin-bottom:12px}
+.inp{width:100%;height:36px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;padding:0 12px;outline:none;margin-bottom:8px}
+/* Contido edit */
+.cont-edit{background:rgba(255,255,255,.03);border-radius:8px;padding:8px 10px;margin-bottom:5px;border:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.4rem">📥</span>
+  <div>
+    <h1>Importar Programación Didáctica</h1>
+    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+  </div>
+  <div class="hdr-right">
+    <a href="competencias_lomloe.html" class="btn btn-ghost" style="text-decoration:none">🎓 LOMLOE</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none">🏠 Portal</a>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Steps -->
+  <div class="steps" id="steps">
+    <div class="step"><div class="step-num active" id="s1">1</div><div class="step-label">Subir PDF</div></div>
+    <div class="step"><div class="step-num" id="s2">2</div><div class="step-label">Revisar datos</div></div>
+    <div class="step"><div class="step-num" id="s3">3</div><div class="step-label">Asignar materia</div></div>
+    <div class="step"><div class="step-num" id="s4">4</div><div class="step-label">Importar</div></div>
+  </div>
+
+  <!-- PASO 1: Upload -->
+  <div id="paso1">
+    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <div class="upload-icon">📄</div>
+      <div class="upload-title">Arrastra o PDF ou Word da programación didáctica aquí</div>
+      <div class="upload-sub" style="margin-top:6px">ou fai clic para seleccionar o ficheiro · Formatos admitidos: PDF, DOCX</div>
+      <input type="file" id="file-inp" accept=".pdf,.docx" style="display:none" onchange="procesarFicheiro(this.files[0])">
+    </div>
+    <div class="alert-box">
+      <strong>📋 Carga manual de JSON</strong> — se tes a programación en Word ou texto, pídelle a Claude que xere o JSON e pégao aquí directamente.<br>
+      <span style="font-size:.68rem;opacity:.8">Sen necesidade de API nin conversión de ficheiros.</span><br>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn btn-gold" style="font-size:.68rem" onclick="abrirModalJSON()">📋 Cargar JSON manualmente</button>
+        <button class="btn btn-ghost" style="font-size:.68rem" onclick="cargarDatosDirectos()">⚡ Exemplo: Ciencias da Natureza</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal JSON manual -->
+  <div id="modal-json" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--card);border-radius:16px;border:1px solid var(--border2);width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.2rem">📋</span>
+        <span style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;flex:1">Cargar JSON manualmente</span>
+        <button class="btn btn-ghost" style="font-size:.7rem" onclick="cerrarModalJSON()">✕ Pechar</button>
+      </div>
+      <div style="padding:16px 20px;overflow-y:auto;flex:1">
+        <p style="font-size:.73rem;color:var(--muted);margin-bottom:10px;line-height:1.6">
+          Pega aquí o JSON da programación xerado por Claude. Estrutura esperada:<br>
+          <code style="font-size:.65rem;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px">{ "materia": "...", "curso": "...", "sesionsAnuais": N, "uds": [...] }</code>
+        </p>
+        <textarea id="json-textarea" style="width:100%;height:280px;background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:monospace;font-size:.72rem;padding:12px;outline:none;resize:vertical;line-height:1.5" placeholder='{
+  "materia": "Lingua Galega",
+  "curso": "4º Primaria",
+  "sesionsAnuais": 175,
+  "uds": [
+    {
+      "num": 1,
+      "tit": "Título da UD",
+      "sesions": 20,
+      "trimestre": 1,
+      "peso": 17,
+      "criterios": ["LCG1.1"],
+      "contidos": [
+        {
+          "id": "c1_1",
+          "label": "Descrición do contido",
+          "comps": { "CCL": 4, "CPSAA": 2 }
+        }
+      ]
+    }
+  ]
+}'></textarea>
+        <div id="json-error" style="display:none;color:var(--red);font-size:.72rem;margin-top:8px;padding:8px 10px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2)"></div>
+      </div>
+      <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="cerrarModalJSON()">Cancelar</button>
+        <button class="btn btn-gold" onclick="cargarDesdeJSON()">📥 Cargar e previsualizar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2+: Previsualización e edición -->
+  <div id="paso2" style="display:none"></div>
+
+</div>
+
+<script>
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+
+const COMP_COLS={CCL:'#3b82f6',CP:'#06b6d4',STEM:'#f97316',CD:'#8b5cf6',CPSAA:'#ec4899',CC:'#14b8a6',CE:'#fbbf24',CCEC:'#a78bfa'};
+
+// ── DATOS EXTRAÍDOS DO PDF ─────────────────────────────────────────────────
+// Baseados na programación LOMLOE de Ciencias da Natureza 4º · CEIP Pío XII 2025/2026
+// Criterios de avaliación → competencias: derivado da táboa de obxectivos páx. 3-4
+// CA1.x (cultura científica) → CCL+STEM+CD
+// CA2.x (corpo humano/saúde) → STEM+CPSAA+CC
+// CA3.x (medio natural) → STEM+CC+CE
+// CA4.x (tecnoloxía dixital) → CD+STEM+CE+CPSAA
+const DATOS_CIENCIAS = {
+  materia: 'Ciencias da Natureza',
+  curso: '4º Primaria',
+  sesionsAnuais: 70,
+  uds: [
+    {
+      num: 1, tit: 'As persoas somos seres vivos', sesions: 12, trimestre: 1, peso: 17,
+      ia: [{tipo:'PE',pct:48},{tipo:'TI',pct:52}],
+      criterios: ['CA1.2','CA2.1','CA1.1','CA1.3','CA2.3'],
+      contidos: [
+        {id:'c1_1', label:'Funcións vitais do ser humano', comps:{STEM:4, CCL:2, CPSAA:1}},
+        {id:'c1_2', label:'Morfoloxía externa e interna: aparellos e órganos', comps:{STEM:4, CCL:2}},
+        {id:'c1_3', label:'Órganos dos sentidos e coidado', comps:{STEM:3, CPSAA:2, CC:1}},
+        {id:'c1_4', label:'Método científico: observación, hipóteses', comps:{STEM:3, CCL:2, CD:1}},
+        {id:'c1_5', label:'Busca e selección de información científica', comps:{CCL:3, STEM:2, CD:2}},
+      ]
+    },
+    {
+      num: 2, tit: 'A relación e a reprodución', sesions: 12, trimestre: 1, peso: 17,
+      ia: [{tipo:'PE',pct:95},{tipo:'TI',pct:5}],
+      criterios: ['CA1.4','CA2.1','CA2.3','CA1.1'],
+      contidos: [
+        {id:'c2_1', label:'Sistema nervioso e aparello locomotor', comps:{STEM:4, CPSAA:2, CCL:1}},
+        {id:'c2_2', label:'Ósos, articulacións e músculos. Hixiene postural', comps:{STEM:3, CPSAA:2, CC:1}},
+        {id:'c2_3', label:'A reprodución humana', comps:{STEM:3, CPSAA:2, CC:2}},
+        {id:'c2_4', label:'Comunicación de resultados de investigacións', comps:{CCL:4, STEM:2, CD:1}},
+        {id:'c2_5', label:'Benestar emocional e relacións afectivas', comps:{CPSAA:4, CC:3, CCL:1}},
+      ]
+    },
+    {
+      num: 3, tit: 'A nutrición é importante', sesions: 12, trimestre: 2, peso: 17,
+      ia: [{tipo:'TI',pct:100}],
+      criterios: ['CA2.2'],
+      contidos: [
+        {id:'c3_1', label:'Aparello dixestivo, respiratorio, circulatorio e excretor', comps:{STEM:5, CPSAA:2, CCL:1}},
+        {id:'c3_2', label:'Pirámide alimentaria e clasificación nutrientes', comps:{STEM:3, CPSAA:3, CC:2}},
+        {id:'c3_3', label:'Alimentación saudable e sustentable', comps:{CPSAA:3, CC:3, STEM:2, CCL:1}},
+        {id:'c3_4', label:'Hábitos de vida saudable', comps:{CPSAA:4, CC:2, STEM:2}},
+      ]
+    },
+    {
+      num: 4, tit: 'Coidas a saúde?', sesions: 12, trimestre: 2, peso: 16,
+      ia: [{tipo:'PE',pct:80},{tipo:'TI',pct:20}],
+      criterios: ['CA2.3','CA3.4','CA2.2'],
+      contidos: [
+        {id:'c4_1', label:'Saúde emocional e social. Hixiene do sono e lecer', comps:{CPSAA:4, CC:3, CCL:1}},
+        {id:'c4_2', label:'Prevención de enfermidades e accidentes', comps:{CPSAA:3, STEM:3, CC:2}},
+        {id:'c4_3', label:'Uso responsable dispositivos dixitais e benestar', comps:{CD:3, CPSAA:3, CC:2}},
+        {id:'c4_4', label:'Problemas ecosociais e hábitos sustentables', comps:{CC:4, STEM:2, CE:2}},
+        {id:'c4_5', label:'Cambios da materia. Calor: condutores e illantes', comps:{STEM:4, CCL:2}},
+      ]
+    },
+    {
+      num: 5, tit: 'Forzas e máquinas por todas partes', sesions: 11, trimestre: 3, peso: 17,
+      ia: [{tipo:'PE',pct:70},{tipo:'TI',pct:30}],
+      criterios: ['CA3.3','CA3.1','CA3.2'],
+      contidos: [
+        {id:'c5_1', label:'Forzas de contacto e a distancia. Efectos sobre obxectos', comps:{STEM:5, CCL:2}},
+        {id:'c5_2', label:'Calor: produción, efectos, instrumentos de medición', comps:{STEM:5, CD:1, CCL:1}},
+        {id:'c5_3', label:'Máquinas simples: efecto, aplicacións, montaxe', comps:{STEM:4, CE:3, CD:1}},
+        {id:'c5_4', label:'Uso responsable dos recursos naturais', comps:{CC:4, STEM:2, CE:2}},
+        {id:'c5_5', label:'Propiedades dos elementos do medio natural', comps:{STEM:4, CCL:2, CC:1}},
+      ]
+    },
+    {
+      num: 6, tit: 'Navegamos por Internet', sesions: 11, trimestre: 3, peso: 16,
+      ia: [{tipo:'PE',pct:70},{tipo:'TI',pct:30}],
+      criterios: ['CA4.4','CA4.1','CA4.2','CA4.3','CA4.5'],
+      contidos: [
+        {id:'c6_1', label:'Dispositivos e recursos dixitais. Busca guiada internet', comps:{CD:5, CCL:2}},
+        {id:'c6_2', label:'Seguridade e privacidade na internet. Etiqueta dixital', comps:{CD:4, CC:3, CPSAA:1}},
+        {id:'c6_3', label:'Benestar dixital: riscos e estratexias de actuación', comps:{CD:3, CPSAA:3, CC:2}},
+        {id:'c6_4', label:'Programación e pensamento computacional', comps:{CD:4, STEM:3, CE:2}},
+        {id:'c6_5', label:'Proxectos de deseño: fases, prototipado e comunicación', comps:{CE:4, CD:3, CPSAA:2, CCL:1}},
+        {id:'c6_6', label:'Traballo cooperativo: roles, xestión conflitos', comps:{CPSAA:3, CC:3, CE:2}},
+      ]
+    }
+  ]
+};
+
+let datosImport = null;
+let matSelId = null;
+
+// ── MODAL JSON MANUAL ────────────────────────────────────────────────────────
+function abrirModalJSON(){
+  const m=document.getElementById('modal-json');
+  m.style.display='flex';
+  document.getElementById('json-error').style.display='none';
+  document.getElementById('json-textarea').value='';
+  setTimeout(()=>document.getElementById('json-textarea').focus(),100);
+}
+function cerrarModalJSON(){
+  document.getElementById('modal-json').style.display='none';
+}
+function cargarDesdeJSON(){
+  const raw=document.getElementById('json-textarea').value.trim();
+  const errEl=document.getElementById('json-error');
+  errEl.style.display='none';
+  if(!raw){errEl.textContent='⚠️ O campo está baleiro. Pega o JSON da programación.';errEl.style.display='block';return;}
+  try{
+    const parsed=JSON.parse(raw);
+    if(!parsed.uds||!Array.isArray(parsed.uds)||parsed.uds.length===0)
+      throw new Error('O JSON non contén o campo "uds" ou está baleiro.');
+    if(!parsed.materia) throw new Error('Falta o campo "materia" no JSON.');
+    parsed.curso = parsed.curso||'4º Primaria';
+    parsed.sesionsAnuais = parsed.sesionsAnuais||null;
+    parsed.uds = parsed.uds.map((ud,i)=>({
+      num: ud.num||i+1,
+      tit: ud.tit||ud.titulo||`UD ${i+1}`,
+      sesions: ud.sesions||ud.sesiones||10,
+      trimestre: ud.trimestre||1,
+      peso: ud.peso||Math.round(100/parsed.uds.length),
+      criterios: ud.criterios||[],
+      ia: ud.ia||[],
+      contidos:(ud.contidos||[]).map((c,j)=>({
+        id: c.id||`c${i+1}_${j+1}`,
+        label: c.label||c.titulo||`Contido ${j+1}`,
+        comps: c.comps||{}
+      }))
+    }));
+    datosImport=parsed;
+    cerrarModalJSON();
+    mostrarPrevisualizacion();
+  }catch(e){
+    errEl.textContent='⚠️ JSON non válido: '+e.message;
+    errEl.style.display='block';
+  }
+}
+
+// ── FILE DROP ────────────────────────────────────────────────────────────────
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type==='application/pdf') procesarFicheiro(f);
+}
+
+function procesarFicheiro(f){
+  const isPDF = f && f.type === 'application/pdf';
+  const isDOCX = f && (f.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || f.name.toLowerCase().endsWith('.docx'));
+  if(!f || (!isPDF && !isDOCX)){alert('Selecciona un ficheiro PDF ou DOCX.');return;}
+  setStep(2);
+  document.getElementById('paso1').style.display='none';
+  const p=document.getElementById('paso2');
+  p.style.display='block';
+  const tipoLabel = isPDF ? 'PDF' : 'Word';
+  p.innerHTML=`<div style="text-align:center;padding:48px 20px">
+    <div style="font-size:2rem;margin-bottom:12px">🤖</div>
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;margin-bottom:8px">Analizando a programación con IA...</div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:20px">Claude está lendo o ${tipoLabel} e extraendo as unidades didácticas, contidos e competencias</div>
+    <div style="display:flex;justify-content:center;gap:6px">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1s infinite"></div>
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1s .2s infinite"></div>
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1s .4s infinite"></div>
+    </div>
+    <style>@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}</style>
+  </div>`;
+
+  // Read file as base64
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const b64=e.target.result.split(',')[1];
+    await extraerConIA(b64, f.name, isPDF);
+  };
+  reader.readAsDataURL(f);
+}
+
+async function extraerConIA(b64, fileName, isPDF=true){
+  const p=document.getElementById('paso2');
+  const PROMPT=`Analiza esta programación didáctica LOMLOE galega e extrae a información estruturada.
+
+Devolve ÚNICAMENTE un obxecto JSON válido (sen texto antes nin despois, sen backticks) co seguinte formato exacto:
+{
+  "materia": "nome da área/materia",
+  "curso": "curso (ex: 4º Primaria)",
+  "sesionsAnuais": número ou null,
+  "uds": [
+    {
+      "num": número da UD,
+      "tit": "título da UD",
+      "sesions": número de sesións,
+      "trimestre": 1|2|3,
+      "peso": porcentaxe peso na materia (número),
+      "criterios": ["CA1.1", "CA2.3", ...],
+      "contidos": [
+        {
+          "id": "c{num_ud}_{n}",
+          "label": "descrición curta do contido (máx 60 chars)",
+          "comps": {
+            "CCL": peso_numérico_0_a_5,
+            "STEM": peso_numérico_0_a_5,
+            "CD": peso_numérico_0_a_5,
+            "CPSAA": peso_numérico_0_a_5,
+            "CC": peso_numérico_0_a_5,
+            "CE": peso_numérico_0_a_5,
+            "CP": peso_numérico_0_a_5,
+            "CCEC": peso_numérico_0_a_5
+          }
+        }
+      ]
+    }
+  ]
+}
+
+REGRAS PARA OS PESOS COMPETENCIAIS:
+- Basea os pesos nos criterios de avaliación de cada UD e nos obxectivos da área
+- Só inclúe competencias con peso > 0
+- Os pesos son relativos entre si (non teñen que sumar 100)
+- Extrae entre 3 e 6 contidos por UD directamente dos "Contidos" listados no PDF
+- Para o trimestre: busca as columnas "1º trim", "2º trim", "3º trim" na táboa de UDs
+- Para criterios: extrae os códigos tipo CA1.1, CA2.3... que aparecen en cada UD`;
+
+  try {
+    const mediaType = isPDF ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{
+          role: 'user',
+          content: [
+            {type:'document', source:{type:'base64', media_type: mediaType, data:b64}},
+            {type:'text', text:PROMPT}
+          ]
+        }]
+      })
+    });
+
+    const data = await resp.json();
+    if(data.error){throw new Error(data.error.message);}
+    const text = data.content.map(b=>b.text||'').join('');
+    // Clean and parse JSON
+    const clean = text.replace(/```json|```/g,'').trim();
+    const extracted = JSON.parse(clean);
+    datosImport = extracted;
+    mostrarPrevisualizacion();
+
+  } catch(err) {
+    p.innerHTML=`<div style="text-align:center;padding:40px">
+      <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;margin-bottom:8px;color:var(--gold)">Erro ao procesar o PDF</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:16px">${err.message}</div>
+      <button class="btn btn-ghost" onclick="location.reload()">↩ Intentar de novo</button>
+    </div>`;
+  }
+}
+
+function cargarDatosDirectos(){
+  datosImport=JSON.parse(JSON.stringify(DATOS_CIENCIAS));
+  mostrarPrevisualizacion();
+}
+
+// Helper global: calcular estado dunha UD para unha materia dada
+function _udEstado(matId, udNum){
+  if(!matId) return null;
+  try{
+    const notas=JSON.parse(localStorage.getItem('sn3_notas')||'[]');
+    const ns=notas.filter(n=>n.materia===matId && n.unidade && n.unidade.num===udNum);
+    if(!ns.length) return {label:'Sen notas',color:'#64748b',bg:'rgba(100,116,139,.12)',icon:'○'};
+    const alumnos=[...new Set(ns.map(n=>n.alumno))];
+    const total=JSON.parse(localStorage.getItem('sn3_alumnos')||'[]').length||1;
+    if(alumnos.length>=total) return {label:'Completa',color:'#22c55e',bg:'rgba(34,197,94,.12)',icon:'✓'};
+    return {label:`En curso (${alumnos.length} alumnos/as)`,color:'#fbbf24',bg:'rgba(251,191,36,.12)',icon:'◐'};
+  }catch{return null;}
+}
+
+function mostrarPrevisualizacion(vacia){
+  setStep(2);
+  const d=datosImport;
+  const p=document.getElementById('paso2');
+  document.getElementById('paso1').style.display='none';
+  p.style.display='block';
+
+  if(vacia){
+    p.innerHTML=`<div class="alert-box">
+      <strong>⚠️ PDF non recoñecido automaticamente</strong><br>
+      Este ficheiro non corresponde a ningunha programación con datos integrados. 
+      Podes usar a opción de <strong>cargar datos directos</strong> para Ciencias da Natureza.<br>
+      <button class="btn btn-gold" style="margin-top:8px" onclick="cargarDatosDirectos()">⚡ Cargar Ciencias da Natureza</button>
+      <button class="btn btn-ghost" style="margin-top:8px;margin-left:6px" onclick="location.reload()">↩ Volver</button>
+    </div>`;
+    return;
+  }
+
+  // Calcular pesos competenciais por UD para preview
+  const udsHtml=d.uds.map(ud=>{
+    const pesosComp={};
+    let pesTotal=0;
+    ud.contidos.forEach(c=>{
+      Object.entries(c.comps).forEach(([k,p])=>{
+        pesosComp[k]=(pesosComp[k]||0)+p; pesTotal+=p;
+      });
+    });
+    const compBars=Object.entries(pesosComp).sort((a,b)=>b[1]-a[1]).map(([k,p])=>{
+      const pct=pesTotal?Math.round(p/pesTotal*100):0;
+      const col=COMP_COLS[k]||'#64748b';
+      return `<div class="comp-row">
+        <span class="comp-key" style="color:${col}">${k}</span>
+        <div class="comp-bar-bg"><div class="comp-bar" style="width:${pct}%;background:${col}"></div></div>
+        <span class="comp-pct" style="color:${col}">${pct}%</span>
+      </div>`;
+    }).join('');
+    const iaTags=(ud.ia||[]).map(i=>`<span class="tag" style="background:rgba(255,255,255,.06);color:var(--muted)">${i.tipo} ${i.pct}%</span>`).join('');
+    const trimTag=`<span class="tag" style="background:rgba(99,102,241,.12);color:#818cf8">T${ud.trimestre}</span>`;
+    const pesoTag=`<span class="tag" style="background:rgba(251,191,36,.1);color:var(--gold)">${ud.peso}%</span>`;
+    const contList=ud.contidos.map(c=>`<div style="font-size:.65rem;color:var(--muted);padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="color:var(--white);font-weight:700">${c.label}</span>
+      <span style="margin-left:6px">${Object.entries(c.comps).map(([k,v])=>`<span style="color:${COMP_COLS[k]||'#fff'}">${k}×${v}</span>`).join(' ')}</span>
+    </div>`).join('');
+    // Estado actual no caderno (calculado co matSelId actual)
+    const est=_udEstado(matSelId, ud.num);
+    const estHtml=est?`<span style="font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:999px;background:${est.bg};color:${est.color};margin-left:4px">${est.icon} ${est.label}</span>`:'';
+    return `<div class="ud-card" id="ud-card-${ud.num}">
+      <div class="ud-header">
+        <span class="ud-num">UD${ud.num}</span>
+        <span class="ud-title">${ud.tit}</span>
+        <span class="ud-meta" style="display:flex;align-items:center;flex-wrap:wrap;gap:3px">${ud.sesions} sess.${trimTag}${pesoTag}${iaTags}${estHtml}</span>
+      </div>
+      <details>
+        <summary style="font-size:.68rem;font-weight:800;color:var(--muted);cursor:pointer;margin-bottom:6px;list-style:none">▶ ${ud.contidos.length} contidos con pesos competenciais</summary>
+        <div style="margin:6px 0 8px;padding:8px;background:rgba(0,0,0,.2);border-radius:6px">${contList}</div>
+      </details>
+      ${compBars}
+    </div>`;
+  }).join('');
+
+  const mats=LS.get('sn3_materias',[]).filter(m=>m.id!=='outras');
+  const matOpts=mats.length
+    ? mats.map(m=>`<option value="${m.id}">${m.icon||''} ${m.nome}</option>`).join('')
+    : '<option value="">— Non hai materias no Caderno —</option>';
+
+  p.innerHTML=`
+    <div class="success-box">
+      ✅ <strong>Programación detectada correctamente</strong> — ${d.materia} · ${d.curso} · ${d.sesionsAnuais} sesións anuais · ${d.uds.length} unidades didácticas
+    </div>
+
+    <!-- Paso 3: Selección materia -->
+    <div class="preview-section">
+      <div class="preview-header">
+        <span style="font-size:1.1rem">🔗</span>
+        <h2>Paso 3 — Asignar a materia do Caderno Docente</h2>
+      </div>
+      <div class="preview-body">
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:10px">A programación importarase como as UDs da materia seleccionada en Competencias LOMLOE e no Caderno Docente.</p>
+        <select class="mat-sel" id="mat-sel" onchange="seleccionarMateria(this.value)">
+          <option value="">— Selecciona a materia —</option>
+          ${matOpts}
+        </select>
+        ${!mats.length?'<div style="font-size:.72rem;color:var(--gold);margin-top:4px">⚠️ Define as materias no Caderno Docente primeiro e volve aquí.</div>':''}
+      </div>
+    </div>
+
+    <!-- Paso 2: Previsualización UDs -->
+    <div class="preview-section">
+      <div class="preview-header">
+        <span style="font-size:1.1rem">📋</span>
+        <h2>Unidades didácticas extraídas</h2>
+        <span style="font-size:.7rem;color:var(--muted)">${d.uds.length} UDs · Competencias calculadas dos criterios de avaliación</span>
+      </div>
+      <div class="preview-body">
+        ${udsHtml}
+      </div>
+    </div>
+
+    <!-- Acción final -->
+    <div style="display:flex;gap:10px;align-items:center;padding:16px 0">
+      <button class="btn btn-ghost" onclick="location.reload()">↩ Cancelar</button>
+      <div style="flex:1"></div>
+      <span id="import-status" style="font-size:.72rem;color:var(--muted)">Selecciona a materia para importar</span>
+      <button class="btn btn-ghost" id="btn-borrar" onclick="borrarProgramacion()" disabled style="border-color:rgba(239,68,68,.4);color:#ef4444">🗑 Borrar programación</button>
+      <button class="btn btn-green" id="btn-import" onclick="executarImport()" disabled>📥 Importar ao sistema</button>
+    </div>
+  `;
+}
+
+function seleccionarMateria(id){
+  matSelId=id||null;
+  const btn=document.getElementById('btn-import');
+  const btnBorrar=document.getElementById('btn-borrar');
+  const st=document.getElementById('import-status');
+  if(id){
+    btn.disabled=!datosImport;
+    const mat=LS.get('sn3_materias',[]).find(m=>m.id===id);
+    // Contar UDs con notas
+    const conNotas=datosImport?datosImport.uds.filter(ud=>{
+      const e=_udEstado(id,ud.num);
+      return e&&e.label!=='Sen notas';
+    }).length:0;
+    const aviso=conNotas>0?` · <strong style="color:var(--gold)">⚠️ ${conNotas} UDs xa con notas</strong>`:'';
+    if(datosImport) st.innerHTML=`Importará ${datosImport.uds.length} UDs para "<strong>${mat?.nome||id}</strong>"${aviso}`;
+    // Activar borrar se hai programación existente
+    const existing=(LS.get('lomloe_uds',{})[id]||[]).length;
+    if(btnBorrar) btnBorrar.disabled=existing===0;
+    st.style.color='var(--green)';
+    // Refrescar indicadores de estado en cada tarxeta
+    if(!datosImport) return;
+    datosImport.uds.forEach(ud=>{
+      const card=document.getElementById('ud-card-'+ud.num);
+      if(!card) return;
+      const meta=card.querySelector('.ud-meta');
+      if(!meta) return;
+      // Eliminar estado anterior
+      meta.querySelectorAll('span[data-estado]').forEach(s=>s.remove());
+      const est=_udEstado(id,ud.num);
+      if(est){
+        const s=document.createElement('span');
+        s.dataset.estado='1';
+        s.style.cssText=`font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:999px;background:${est.bg};color:${est.color};margin-left:4px`;
+        s.textContent=`${est.icon} ${est.label}`;
+        meta.appendChild(s);
+      }
+    });
+  } else {
+    btn.disabled=true;
+    if(document.getElementById('btn-borrar')) document.getElementById('btn-borrar').disabled=true;
+    st.textContent='Selecciona a materia para importar';
+    st.style.color='var(--muted)';
+    // Limpar indicadores
+    datosImport?.uds.forEach(ud=>{
+      document.getElementById('ud-card-'+ud.num)?.querySelectorAll('span[data-estado]').forEach(s=>s.remove());
+    });
+  }
+}
+
+function borrarProgramacion(){
+  if(!matSelId) return;
+  const mat=LS.get('sn3_materias',[]).find(m=>m.id===matSelId);
+  const nome=mat?.nome||matSelId;
+  const lomloeUDs=LS.get('lomloe_uds',{});
+  const n=(lomloeUDs[matSelId]||[]).length;
+  if(!n){ alert('Esta materia non ten programación gardada.'); return; }
+  const backupUDs=JSON.parse(JSON.stringify(lomloeUDs[matSelId]||[]));
+  const backupAsign=JSON.parse(JSON.stringify((LS.get('lomloe_asign',{})[matSelId])||[]));
+  _confirmar(
+    `Borrar as ${n} UDs programadas de "${nome}"? As notas existentes non se eliminan, só a programación didáctica.`,
+    ()=>{
+      delete lomloeUDs[matSelId];
+      LS.set('lomloe_uds', lomloeUDs);
+      const asign=LS.get('lomloe_asign',{});
+      delete asign[matSelId];
+      LS.set('lomloe_asign', asign);
+      document.getElementById('btn-borrar').disabled=true;
+      const st=document.getElementById('import-status');
+      st.innerHTML=`<span style="color:#22c55e">✓ Programación de "${nome}" eliminada.</span>`;
+      setTimeout(()=>{ if(datosImport) seleccionarMateria(matSelId); },1500);
+      _toastDesfacer(
+        `Programación de "${nome}" eliminada`,
+        ()=>{
+          const uds=LS.get('lomloe_uds',{});
+          uds[matSelId]=backupUDs;
+          LS.set('lomloe_uds',uds);
+          const as2=LS.get('lomloe_asign',{});
+          as2[matSelId]=backupAsign;
+          LS.set('lomloe_asign',as2);
+          seleccionarMateria(matSelId);
+        },
+        7000
+      );
+    },'Borrar programación'
+  );
+}
+
+function executarImport(){
+  if(!matSelId||!datosImport){return;}
+  const lomloeUDs=LS.get('lomloe_uds',{});
+  // Check if already has data
+  const existing=(lomloeUDs[matSelId]||[]).length;
+  if(existing>0){
+    _confirmar(
+      `Esta materia xa ten ${existing} UDs programadas. Sobreescribir con as ${datosImport.uds.length} da programación importada?`,
+      ()=>_doExecutarImport(),
+      'Sobreescribir'
+    );
+    return;
+  }
+
+  _doExecutarImport();
+}
+
+function _doExecutarImport(){
+  if(!matSelId||!datosImport){return;}
+  const lomloeUDs=LS.get('lomloe_uds',{});
+  // Build the UD structure for lomloe_uds
+  lomloeUDs[matSelId]=datosImport.uds.map(ud=>({
+    num: ud.num,
+    tit: ud.tit,
+    sesions: ud.sesions,
+    trimestre: ud.trimestre,
+    peso: ud.peso,
+    criterios: ud.criterios||[],
+    contidos: ud.contidos.map(c=>({
+      id: c.id,
+      label: c.label,
+      comps: {...c.comps}
+    }))
+  }));
+
+  LS.set('lomloe_uds', lomloeUDs);
+
+  // Also set lomloe_asign for this materia with the main competences
+  const asign=LS.get('lomloe_asign',{});
+  const allComps=new Set();
+  datosImport.uds.forEach(ud=>ud.contidos.forEach(c=>Object.keys(c.comps).forEach(k=>allComps.add(k))));
+  asign[matSelId]=[...allComps];
+  LS.set('lomloe_asign',asign);
+
+  setStep(4);
+  mostrarResultado();
+}
+
+function mostrarResultado(){
+  const mat=LS.get('sn3_materias',[]).find(m=>m.id===matSelId);
+  document.getElementById('paso2').innerHTML=`
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:3rem;margin-bottom:14px">✅</div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;margin-bottom:8px">Programación importada correctamente</div>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:24px">
+        ${datosImport.uds.length} unidades didácticas de <strong style="color:var(--white)">${mat?.nome||matSelId}</strong><br>
+        cargadas en Competencias LOMLOE e dispoñibles no Caderno Docente
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-gold" onclick="window.location.href='competencias_lomloe.html'">🎓 Ver en Competencias LOMLOE</button>
+        <button class="btn btn-ghost" onclick="window.location.href='caderno_docente.html'">📓 Ir ao Caderno Docente</button>
+        <button class="btn btn-ghost" onclick="location.reload()">📥 Importar outra programación</button>
+      </div>
+      <div style="margin-top:24px;background:var(--card);border-radius:12px;padding:16px;text-align:left;border:1px solid var(--border)">
+        <div style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px">Resumo do importado</div>
+        ${datosImport.uds.map(ud=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.73rem">
+          <span style="font-size:.6rem;font-weight:900;padding:1px 7px;border-radius:999px;background:rgba(251,191,36,.1);color:var(--gold)">UD${ud.num}</span>
+          <span style="flex:1;font-weight:700">${ud.tit}</span>
+          <span style="color:var(--muted)">${ud.contidos.length} contidos</span>
+          <span style="color:#818cf8;font-size:.6rem">T${ud.trimestre}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function setStep(n){
+  [1,2,3,4].forEach(i=>{
+    const el=document.getElementById('s'+i);
+    el.classList.remove('done','active');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  });
+}
+
+// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
+(function _aplicarCabeceira(){
+  try{
+    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
+    const parts=[];
+    if(c.docente) parts.push(c.docente);
+    if(c.grupo)   parts.push(c.grupo);
+    if(c.curso)   parts.push(c.curso);
+    const el=document.getElementById('_hdr-info');
+    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
+  }catch(e){}
+})();
+
+// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
+function _confirmar(msg,onSi,lblSi='Confirmar'){
+  const ov=document.createElement('div');
+  ov.id='_conf-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
+  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:420px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
+    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
+    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
+      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+}
+
+// ── TOAST DESFACER ────────────────────────────────────────────────────────────
+function _toastDesfacer(msg,onDesfacer,durMs=5500){
+  document.getElementById('_toast-desfacer')?.remove();
+  const t=document.createElement('div');
+  t.id='_toast-desfacer';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
+    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
+    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+  t.innerHTML=`
+    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
+    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
+      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
+      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
+      ↩ Desfacer
+    </button>`;
+  document.body.appendChild(t);
+  let timer=setTimeout(()=>t.remove(),durMs);
+  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+}
+</script>
+</body>
+</html>
