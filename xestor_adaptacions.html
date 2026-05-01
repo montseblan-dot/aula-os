@@ -46,15 +46,13 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',system-ui,san
 <body>
 <div class="header">
   <span style="font-size:1.2rem">📋</span>
-  <div>
-    <h1>Xestor de Adaptacións Curriculares</h1>
-    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
-  </div>
+  <h1>Xestor de Adaptacións Curriculares</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
   <div class="hdr-right">
     <button class="btn btn-gold" onclick="novaAdaptacion()">+ Nova adaptación</button>
     <button class="btn btn-gold" onclick="exportarInformePDF()" id="btn-pdf-al" style="display:none">🖨️ Informe PDF</button>
     <button class="btn" onclick="exportarJSON()">📥 Exportar</button>
-    <a href="PORTAL_DOCENTE.html" class="btn" style="text-decoration:none;display:inline-flex;align-items:center" title="Configuración docente">⚙️</a>
+    <a href="PORTAL_DOCENTE.html" title="Configuración docente" style="font-size:.75rem;text-decoration:none">&#x2699;&#xFE0F;</a>
     <a href="PORTAL_DOCENTE.html"><button class="btn">🏠 Portal</button></a>
   </div>
 </div>
@@ -213,21 +211,9 @@ function gardarAdaptacion(){
 }
 
 function borrarAdaptacion(){
-  const eliminada=adaptacions.find(x=>x.id===selId);
-  if(!eliminada)return;
+  if(!confirm('Borrar esta adaptación?')) return;
   adaptacions=adaptacions.filter(x=>x.id!==selId);
-  LS.set('xa_adaptacions',adaptacions);
-  const idEliminado=selId;
-  selId=null;renderSidebar();renderForm();
-  _toastDesfacer(
-    `Adaptación de ${eliminada.alumno||'alumno/a'} eliminada`,
-    ()=>{
-      adaptacions.unshift(eliminada);
-      LS.set('xa_adaptacions',adaptacions);
-      selId=idEliminado;
-      renderSidebar();renderForm();
-    }
-  );
+  LS.set('xa_adaptacions',adaptacions);selId=null;renderSidebar();renderForm();
 }
 
 const BANCO_OBXECTIVOS={
@@ -331,21 +317,7 @@ function gardarObxectivo(){
 }
 
 function toggleObx(i,val){const a=adaptacions.find(x=>x.id===selId);if(a?.obxectivos[i]){a.obxectivos[i].logrado=val;LS.set('xa_adaptacions',adaptacions);}}
-function borrarObx(i){
-  const a=adaptacions.find(x=>x.id===selId);
-  if(!a)return;
-  const eliminado=a.obxectivos[i];
-  if(!eliminado)return;
-  a.obxectivos.splice(i,1);
-  LS.set('xa_adaptacions',adaptacions);renderForm();
-  _toastDesfacer(
-    `Obxectivo eliminado`,
-    ()=>{
-      const a2=adaptacions.find(x=>x.id===selId);
-      if(a2){a2.obxectivos.splice(i,0,eliminado);LS.set('xa_adaptacions',adaptacions);renderForm();}
-    }
-  );
-}
+function borrarObx(i){const a=adaptacions.find(x=>x.id===selId);if(!a) return;a.obxectivos.splice(i,1);LS.set('xa_adaptacions',adaptacions);renderForm();}
 
 function novoSeguimento(){
   const hoxe=new Date().toISOString().split('T')[0];
@@ -437,39 +409,28 @@ function showToast(msg,col){const t=document.createElement('div');t.style.cssTex
 
 renderSidebar();renderForm();
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
 }
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

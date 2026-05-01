@@ -133,7 +133,6 @@ body.claro .bg-mesh::after{background:radial-gradient(circle,rgba(45,212,191,.05
   <div class="hdr-logo">🏫</div>
   <div>
    <div class="hdr-title">Portal Docente</div>
-   <div class="hdr-sub" id="hdr-docente-info" style="display:none"></div>
   </div>
   <div id="notif-bell" style="position:relative;cursor:pointer;margin-right:4px" onclick="verNotificacions()" title="Alertas do sistema">
     <span style="font-size:1.2rem">🔔</span>
@@ -149,7 +148,6 @@ body.claro .bg-mesh::after{background:radial-gradient(circle,rgba(45,212,191,.05
     </div>
    </div>
    <!-- Modo claro -->
-   <button class="btn-modo" onclick="abrirConfig()" title="Configuración docente" style="background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.25);color:var(--gold)">⚙️ Config</button>
    <button class="btn-modo" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
    <!-- Reloxo -->
    <div class="hdr-clock">
@@ -660,67 +658,6 @@ fetchMeteo();
 // ── LS HELPER ─────────────────────────────────────────────────────────────────
 function ls(k,d){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}}
 
-// ── CONFIGURACIÓN DOCENTE ─────────────────────────────────────────────────────
-function getConf(){return ls('sn3_config',{});}
-function saveConf(obj){try{const c=getConf();Object.assign(c,obj);localStorage.setItem('sn3_config',JSON.stringify(c));}catch{}}
-
-function aplicarInfoDocente(){
-  const c=getConf();
-  const parts=[];
-  if(c.docente) parts.push(c.docente);
-  if(c.grupo) parts.push(c.grupo);
-  if(c.curso) parts.push(c.curso);
-  const el=document.getElementById('hdr-docente-info');
-  if(el){if(parts.length){el.textContent=parts.join(' · ');el.style.display='block';}else{el.style.display='none';}}
-}
-
-function abrirConfig(){
-  const c=getConf();
-  const overlay=document.createElement('div');
-  overlay.id='conf-overlay';
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
-  overlay.innerHTML=`
-    <div style="background:var(--card);border-radius:20px;padding:1.75rem;max-width:420px;width:100%;border:1px solid var(--border2)">
-      <h3 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--gold);margin-bottom:1.25rem">⚙️ Configuración docente</h3>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div>
-          <label style="display:block;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px">Nome do/a docente</label>
-          <input id="conf-docente" value="${c.docente||''}" placeholder="Ex: Marta Rodríguez" style="width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.84rem;padding:0 12px;outline:none"/>
-        </div>
-        <div>
-          <label style="display:block;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px">Grupo / clase</label>
-          <input id="conf-grupo" value="${c.grupo||''}" placeholder="Ex: 4º B" style="width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.84rem;padding:0 12px;outline:none"/>
-        </div>
-        <div>
-          <label style="display:block;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px">Ano académico</label>
-          <input id="conf-curso" value="${c.curso||''}" placeholder="Ex: 2024-2025" style="width:100%;height:36px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.84rem;padding:0 12px;outline:none"/>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end">
-        <button onclick="document.getElementById('conf-overlay').remove()" style="height:36px;padding:0 16px;background:transparent;border:1.5px solid var(--border2);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer">Cancelar</button>
-        <button onclick="gardarConfig()" style="height:36px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer">💾 Gardar</button>
-      </div>
-      <p style="font-size:.62rem;color:var(--muted);margin-top:.9rem;text-align:center;line-height:1.5">Os datos gárdanse localmente e propáganse a todos os módulos</p>
-    </div>`;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
-}
-
-function gardarConfig(){
-  const docente=document.getElementById('conf-docente')?.value.trim()||'';
-  const grupo=document.getElementById('conf-grupo')?.value.trim()||'';
-  const curso=document.getElementById('conf-curso')?.value.trim()||'';
-  saveConf({docente,grupo,curso});
-  document.getElementById('conf-overlay')?.remove();
-  aplicarInfoDocente();
-  // Toasr
-  const t=document.createElement('div');
-  t.textContent='✓ Configuración gardada';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.4);color:var(--green);padding:8px 20px;border-radius:10px;font-size:.78rem;font-weight:800;z-index:9999;pointer-events:none;font-family:"DM Sans",sans-serif';
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2200);
-}
-
 // ── DATOS EN TEMPO REAL ───────────────────────────────────────────────────────
 function cargarDatos(){
  const el=id=>document.getElementById(id);
@@ -1197,7 +1134,6 @@ function cargarDatos(){
 }
 
 cargarDatos();
-aplicarInfoDocente();
 setTimeout(renderAccesosRapidos,100);
 setTimeout(actualizarBadgeNotif,200);
 setTimeout(fetchMeteo,300);
@@ -1923,6 +1859,29 @@ function xerarNotificacions(){
  return notifs;
 }
 
+
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

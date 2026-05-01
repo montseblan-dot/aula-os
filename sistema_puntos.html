@@ -162,16 +162,14 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 </div>
 <div class="header">
   <div style="font-size:1.9rem">&#x1F3C6;</div>
-  <div>
-    <h1>Sistema de Puntos</h1>
-    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
-  </div>
+  <h1>Sistema de Puntos</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
   <button onclick="exportarClasifPDF()" style="height:28px;padding:0 12px;border-radius:8px;border:1.5px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);color:var(--green);font-family:'DM Sans',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer">🖨️ PDF clasif.</button>
   <button onclick="verRankingUD()" style="height:28px;padding:0 12px;border-radius:8px;border:1.5px solid rgba(129,140,248,.3);background:rgba(129,140,248,.08);color:#818cf8;font-family:'DM Sans',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer">📚 Ranking por UD</button>
   <div id="sp-ud-widget" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;margin-left:8px"></div>
   <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
-    <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 12px;border-radius:8px;border:1.5px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center" title="Configuración docente">⚙️ Portal</a>
-    <div class="backup-wrap" id="bkp-wrap">
+    <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted,rgba(238,242,255,.45));font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap" title="Portal Docente / Configuración">&#x2699;&#xFE0F;</a>
+      <div class="backup-wrap" id="bkp-wrap">
       <button class="btn btn-ghost btn-sm" onclick="toggleBackupMenu()">&#x2699;&#xFE0F; Datos</button>
       <div class="backup-menu" id="backup-menu">
         <button class="backup-item" onclick="exportarJSON()"><span>&#x1F4E4;</span>Exportar JSON</button>
@@ -619,16 +617,7 @@ function renderHistorial(){
       +'</div>';
   }).join('')||'<div style="text-align:center;padding:2rem;color:var(--muted)">Sen movementos</div>';
 }
-function clearHistorial(){
-  const backup=[...historial];
-  _confirmar('Borrar todo o historial de puntos? Pódese desfacer durante 6 segundos.',
-    ()=>{
-      historial=[];save();renderHistorial();
-      _toastDesfacer('Historial de puntos borrado',
-        ()=>{historial=backup;save();renderHistorial();},6000);
-    }
-  );
-}
+function clearHistorial(){if(!confirm('Borrar todo o historial?'))return;historial=[];save();renderHistorial();}
 function openReset(){
   document.getElementById('backup-menu').classList.remove('open');
   openModal('<h3>🔄 Resetear puntos</h3>'
@@ -640,20 +629,9 @@ function openReset(){
     +'<div class="modal-row"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button></div>');
 }
 function doReset(tipo){
-  const backupPuntos=JSON.parse(JSON.stringify(puntos));
-  _confirmar('Resetear puntos de tipo «'+tipo+'»? Esta acción pódese desfacer durante 6 segundos.',
-    ()=>{
-      alumnos.forEach(nome=>{const p=gP(nome);
-        if(tipo==='individual'||tipo==='todo')p.individual=0;
-        if(tipo==='equipo'||tipo==='todo')p.equipo=0;
-        if(tipo==='racha'||tipo==='todo')p.racha=0;
-        puntos[nome]=p;});
-      save();closeModal();showToast('Puntos reseteados','#f97316');
-      renderIndividual();renderEquipos();renderRanking();
-      _toastDesfacer('Puntos reseteados',
-        ()=>{puntos=backupPuntos;save();renderIndividual();renderEquipos();renderRanking();},6000);
-    },'Resetear'
-  );
+  if(!confirm('Confirmas o reset?'))return;
+  alumnos.forEach(nome=>{const p=gP(nome);if(tipo==='individual'||tipo==='todo')p.individual=0;if(tipo==='equipo'||tipo==='todo')p.equipo=0;if(tipo==='racha'||tipo==='todo')p.racha=0;puntos[nome]=p;});
+  save();closeModal();showToast('Puntos reseteados','#f97316');renderIndividual();renderEquipos();renderRanking();
 }
 function renderConfig(){
   // Mostrar estado de sincronización
@@ -1440,18 +1418,17 @@ function podioSetTipo(t){
 }
 
 function restaurarArquivoTrim(key) {
-  _confirmar('Restaurar este arquivo? Substituirá os puntos actuais.',()=>{
+  if (!confirm('Restaurar este arquivo? Substituir\xE1 os puntos actuais.')) return;
   try {
     var d = JSON.parse(localStorage.getItem(key));
-    if (!d || !d.puntos) { showToast('Arquivo non válido', '#ef4444'); return; }
+    if (!d || !d.puntos) { showToast('Arquivo non v\xE1lido', '#ef4444'); return; }
     puntos = d.puntos;
     if (d.historial) historial = d.historial;
     save();
     closeModal();
-    showToast('✅ Arquivo ' + d.label + ' restaurado', '#22c55e');
+    showToast('\u2705 Arquivo ' + d.label + ' restaurado', '#22c55e');
     renderIndividual(); renderEquipos(); renderRanking();
   } catch(e) { showToast('Erro ao restaurar', '#ef4444'); }
-  },'Restaurar');
 }
 
 function toggleSilencioso() {
@@ -1461,58 +1438,28 @@ function toggleSilencioso() {
 }
 
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
-function _confirmar(msg,onSi,lblSi='Confirmar'){
-  const ov=document.createElement('div');
-  ov.id='_conf-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:400px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
 }
 
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
-}
+_aplicarCabeceira();
 </script>
 </body>
 </html>

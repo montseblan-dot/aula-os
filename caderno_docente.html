@@ -202,7 +202,8 @@ body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--b
 <div class="modal-bg" id="modal-bg" onclick="closeModal(event)"><div class="modal" id="modal-content"></div></div>
 <div class="header">
  <div style="font-size:1.9rem">📒</div>
- <h1>Caderno Docente<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted);margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted);text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a></h1>
+ <h1>Caderno Docente</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
  <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:nowrap">
   <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 CSV</button>
   <button class="btn btn-indigo btn-sm" onclick="importarCSV()" title="Importar notas desde un ficheiro CSV">📤 Importar CSV</button>
@@ -219,7 +220,8 @@ body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--b
     </div>
     <span id="ud-progress-txt" style="font-size:.65rem;font-weight:800;color:var(--gold)">0/0</span>
   </div>
-  <div class="backup-wrap" id="bkp-wrap">
+  <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted,rgba(238,242,255,.45));font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap" title="Portal Docente / Configuración">&#x2699;&#xFE0F;</a>
+      <div class="backup-wrap" id="bkp-wrap">
    <button class="btn btn-ghost btn-sm" onclick="openBuscadorNotas()" title="Buscar e editar notas en masa">🔍 Buscar notas</button>
    <button class="btn btn-ghost btn-sm" onclick="toggleBackupMenu()" title="Exportar / Importar datos">⚙️ Datos</button>
    <div class="backup-menu" id="backup-menu">
@@ -1859,7 +1861,7 @@ function notaCard(n){
  <div class="nota-top" onclick="openEditNota(${n.id})" style="cursor:pointer"><span style="font-size:.9rem">${t.icon}</span><span class="nota-label" style="color:${t.color}">${t.label}</span>${n.peso?`<span class="peso-badge">${n.peso}%</span>`:''}</div>
  <div style="position:absolute;top:6px;right:6px;display:flex;gap:3px">
   <button onclick="event.stopPropagation();copiarNotaAOutros(${n.id})" title="Copiar a outros alumnos/as" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.4);font-size:.62rem;padding:1px 6px;cursor:pointer;line-height:1.4;transition:all .15s" onmouseover="this.style.background='rgba(99,102,241,.2)';this.style.color='#a78bfa';this.style.borderColor='rgba(99,102,241,.4)'" onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.color='rgba(255,255,255,.4)';this.style.borderColor='rgba(255,255,255,.12)'">📋</button>
-  <button onclick="event.stopPropagation();_confirmar('Borrar esta nota? Esta acción non se pode desfacer.',()=>{delNota(${n.id});})" title="Borrar esta nota" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.4);font-size:.62rem;padding:1px 6px;cursor:pointer;line-height:1.4;transition:all .15s" onmouseover="this.style.background='rgba(239,68,68,.2)';this.style.color='#ef4444';this.style.borderColor='rgba(239,68,68,.4)'" onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.color='rgba(255,255,255,.4)';this.style.borderColor='rgba(255,255,255,.12)'">🗑️</button>
+  <button onclick="event.stopPropagation();if(confirm('Borrar esta nota?')){delNota(${n.id})}" title="Borrar esta nota" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.4);font-size:.62rem;padding:1px 6px;cursor:pointer;line-height:1.4;transition:all .15s" onmouseover="this.style.background='rgba(239,68,68,.2)';this.style.color='#ef4444';this.style.borderColor='rgba(239,68,68,.4)'" onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.color='rgba(255,255,255,.4)';this.style.borderColor='rgba(255,255,255,.12)'">🗑️</button>
  </div>
  <div class="nota-value" style="color:${gc(n.valor)}">${n.valor}<span style="font-size:.75rem;color:var(--muted)">/${escala}</span></div>
  <div class="nota-sub">${n.materia==='outras'&&n.materiaNome?`<span style="color:#94a3b8">📌 ${n.materiaNome}</span>`:''} ${n.unidade?`<span style="background:rgba(251,191,36,.12);color:var(--gold);padding:0 5px;border-radius:4px;font-size:.55rem;font-weight:900">UD${n.unidade.num}${n.unidade.tit?' '+n.unidade.tit.substring(0,12):''}</span>`:''} ${n.label?`<span>${n.label}</span>`:''}<span style="color:var(--muted)">${n.data}</span></div>
@@ -3492,11 +3494,11 @@ function saveConfig(){
  save();renderAlumnosList();const ok=document.getElementById('cfg-ok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2000);
 }
 function clearAllData(){
- _confirmar('Borrar TODAS as notas? Esta acción non se pode desfacer.',()=>{
+ if(!confirm('Borrar TODAS as notas?'))return;
  notas=[];LS.set('sn3_notas',[]);selAlumno=null;
  document.getElementById('ficha-alumno').innerHTML='<div style="background:var(--card);border-radius:16px;padding:3rem;text-align:center;color:var(--muted)"><div style="font-size:3rem">🗑️</div></div>';
  renderAlumnosList();
-});
+}
 function importarCSV(){
   // Amosar instrucións e abrir selector de ficheiro
   openModal(`<h3>📤 Importar notas desde CSV</h3>
@@ -3829,7 +3831,7 @@ function exportarCSVBackup(){
 
 function confirmBorrarDatos(){
  document.getElementById('backup-menu').classList.remove('open');
- _confirmar('Borrar TODOS os datos gardados? Esta acción non se pode desfacer.',()=>{
+ if(!confirm('Borrar TODOS os datos gardados? Esta acción non se pode desfacer.')) return;
  _BACKUP_KEYS.forEach(k=>localStorage.removeItem(k));
  showBackupToast('🗑️ Datos borrados. Recargando...','#f97316');
  setTimeout(()=>location.reload(),1000);
@@ -4295,7 +4297,6 @@ async function _xerarEMostrarInforme(nome,trimNum,xen,cab,mellora,usarIA){
   <button class="semaf-prox-close" onclick="document.getElementById('semaf-proxector').classList.remove('show');document.body.style.overflow=''">✕ ESC · Pechar</button>
   <div class="semaf-prox-grid" id="semaf-prox-grid"></div>
 </div>
-<script>_aplicarCabeceira();</script>
 </body></html>`;
 
  const w=window.open('','_blank','width=860,height=760');
@@ -6165,40 +6166,27 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 
-// ── CONFIG DOCENTE (lectura) ──────────────────────────────────────────────────
-function _getConf(){try{const v=localStorage.getItem('sn3_config');return v?JSON.parse(v):{}}catch{return {};}}
-function _aplicarCabeceira(){
-  const c=_getConf();
-  const parts=[];
-  if(c.docente) parts.push(c.docente);
-  if(c.grupo) parts.push(c.grupo);
-  if(c.curso) parts.push(c.curso);
-  const t=document.getElementById('_hdr-info');
-  if(t){t.textContent=parts.join(' · ');t.style.display=parts.length?'block':'none';}
-  const g=c.grupo||'';
-  document.querySelectorAll('._grupo-dyn').forEach(el=>el.textContent=g?(' · '+g):'');
-  document.querySelectorAll('title._title-dyn').forEach(el=>{
-    el.textContent=el.dataset.base+(g?' · '+g:'');
-  });
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
 }
 
-// ── MODAL CONFIRMAR BORRAR ────────────────────────────────────────────────────
-function _confirmar(msg, onSi){
-  const ov=document.createElement('div');
-  ov.id='_conf-del-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-del-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-}
-
+_aplicarCabeceira();
 </script>
 </body>

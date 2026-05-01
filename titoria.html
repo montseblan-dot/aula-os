@@ -114,9 +114,11 @@ body.claro{--bg:#f0f4ff;--card:#ffffff;--card2:#f5f7ff;--border:rgba(0,0,0,.08);
 <!-- HEADER -->
 <div class="header">
  <div style="font-size:1.8rem">👨‍👩‍👧</div>
- <h1>Titoría con Familias<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted);margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted);text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a></h1>
+ <h1>Titoría con Familias</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
  <div class="hdr-right">
-  <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
+  <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted,rgba(238,242,255,.45));font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap" title="Portal Docente / Configuración">&#x2699;&#xFE0F;</a>
+      <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
   <div style="position:relative;display:inline-flex" id="tit-bkp-wrap">
    <button class="btn btn-ghost btn-sm" onclick="toggleTitBackup()" title="Exportar / Importar datos">⚙️ Datos</button>
    <div id="tit-backup-menu" style="display:none;position:absolute;top:38px;right:0;z-index:200;background:var(--card);border:1.5px solid var(--border2);border-radius:14px;padding:6px;min-width:210px;box-shadow:0 8px 32px rgba(0,0,0,.5)">
@@ -416,8 +418,7 @@ function imprimirCartaCitacion(){
     <p style="font-size:11px">D./Dna. _____________________________, nai/pai/titor/a legal de <strong>${al}</strong>, confirma a súa asistencia á reunión do día <strong>${dataStr}</strong> ás <strong>${horaStr}h</strong>.</p>
     <div style="margin-top:12px;font-size:11px">Sinatura: ___________________________</div>
   </div>
-  <script>_aplicarCabeceira();</script>
-</body></html>`);
+  </body></html>`);
   w.document.close();setTimeout(()=>w.print(),400);
   closeModal();
 }
@@ -436,9 +437,9 @@ function cambiarEstadoAcordo(id,estado){
 }
 
 function borrarAcordo(id){
-  _confirmar('Borrar este acordo?',()=>{
+  if(!confirm('Borrar este acordo?')) return;
   acordos=acordos.filter(x=>x.id!==id);S.set('tit_acordos',acordos);renderAcordos();
-});
+}
 
 function save(){
  S.set('tit_familias',familias);
@@ -866,10 +867,10 @@ function editarReunion(id){
 }
 
 function eliminarReunion(id){
- _confirmar('Eliminar esta reunión?',()=>{
+ if(!confirm('Eliminar esta reunión?'))return;
  reunions=reunions.filter(r=>r.id!==id);
  save();renderReunions();
-});
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // CITAS
@@ -953,10 +954,10 @@ function renderCitas(){
 }
 
 function eliminarCita(id){
- _confirmar('Eliminar esta cita?',()=>{
+ if(!confirm('Eliminar esta cita?'))return;
  citas=citas.filter(c=>c.id!==id);
  save();renderCitas();
-});
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // COMUNICACIÓNS
@@ -1029,10 +1030,10 @@ function renderComun(){
 }
 
 function eliminarComun(id){
- _confirmar('Eliminar esta comunicación?',()=>{
+ if(!confirm('Eliminar esta comunicación?'))return;
  comuns=comuns.filter(c=>c.id!==id);
  save();renderComun();
-});
+}
 
 function editarComun(id){
  const comun=comuns.find(x=>x.id===id);
@@ -1506,7 +1507,7 @@ function selInformeItem(nome,id){
 }
 
 function borrarInforme(nome,id){
- _confirmar('Borrar este informe?',()=>{
+ if(!confirm('Borrar este informe?')) return;
  localStorage.removeItem(_infDataKey(nome,id));
  const lista = _listaInformes(nome).filter(x=>x.id!==id);
  S.set(_infListKey(nome), lista);
@@ -1516,7 +1517,7 @@ function borrarInforme(nome,id){
  renderInformeEditor();
  renderInformeAlumnos();
  showToast('🗑️ Informe eliminado','#ef4444');
-});
+}
 
 function _engadirAutogardado(nome){
  const ed=document.getElementById('informe-editor'); if(!ed) return;
@@ -2420,41 +2421,28 @@ function setCitasVista(v) {
 }
 
 
-// ── CONFIG DOCENTE (lectura) ──────────────────────────────────────────────────
-function _getConf(){try{const v=localStorage.getItem('sn3_config');return v?JSON.parse(v):{}}catch{return {};}}
-function _aplicarCabeceira(){
-  const c=_getConf();
-  const parts=[];
-  if(c.docente) parts.push(c.docente);
-  if(c.grupo) parts.push(c.grupo);
-  if(c.curso) parts.push(c.curso);
-  const t=document.getElementById('_hdr-info');
-  if(t){t.textContent=parts.join(' · ');t.style.display=parts.length?'block':'none';}
-  const g=c.grupo||'';
-  document.querySelectorAll('._grupo-dyn').forEach(el=>el.textContent=g?(' · '+g):'');
-  document.querySelectorAll('title._title-dyn').forEach(el=>{
-    el.textContent=el.dataset.base+(g?' · '+g:'');
-  });
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
 }
 
-// ── MODAL CONFIRMAR BORRAR ────────────────────────────────────────────────────
-function _confirmar(msg, onSi){
-  const ov=document.createElement('div');
-  ov.id='_conf-del-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-del-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-}
-
+_aplicarCabeceira();
 </script>
 </body>
 </html>

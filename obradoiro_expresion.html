@@ -1095,18 +1095,20 @@ function exportarAoCaderno() {
 }
 
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) { t.textContent = parts.join(' · '); t.style.display = parts.length ? 'block' : 'none'; }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

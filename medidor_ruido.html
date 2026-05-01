@@ -171,10 +171,10 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--accent);height:4px;c
     <div class="hdr-icon">🔊</div>
     <div>
       <div class="hdr-title">Medidor de Ruído</div>
-      <div class="hdr-sub" id="_hdr-info">Cargando...</div>
+      <div class="hdr-sub">CEIP Pío XII · Aula 4º B</div>
     </div>
     <div class="hdr-right">
-      <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none;font-size:.75rem" title="Configuración docente">⚙️</a>
+      <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted,rgba(238,242,255,.45));font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap" title="Portal Docente / Configuración">&#x2699;&#xFE0F;</a>
       <button class="btn btn-ghost" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
       <button class="btn btn-teal" onclick="entrarProxector()">📺 Proxector</button>
       <button class="btn btn-primary" id="btn-mic" onclick="toggleMic()">🎤 Activar</button>
@@ -687,26 +687,12 @@ function engadirIncidenciaManual(){
 }
 
 function borrarLog(){
-  const backup=[...logItems];
-  _confirmar(
-    'Borrar todo o rexistro de incidencias desta sesión? Esta acción pódese desfacer durante 6 segundos.',
-    ()=>{
-      logItems=[];
-      LS.set(MR_LOG_KEY,[]);
-      LS.set(MR_STAT_KEY,{});
-      totalAmostras=0;somaAmostras=0;maxDb=0;tempoVerde=0;tempoAmarelo=0;tempoVermello=0;
-      renderLog();actualizarStats();
-      _toastDesfacer(
-        'Rexistro de incidencias borrado',
-        ()=>{
-          logItems=backup;
-          LS.set(MR_LOG_KEY,logItems);
-          renderLog();actualizarStats();
-        },
-        6000
-      );
-    }
-  );
+  if(!confirm('Borrar todo o rexistro de incidencias?'))return;
+  logItems=[];
+  LS.set(MR_LOG_KEY,[]);
+  LS.set(MR_STAT_KEY,{});
+  totalAmostras=0;somaAmostras=0;maxDb=0;tempoVerde=0;tempoAmarelo=0;tempoVermello=0;
+  renderLog();actualizarStats();
 }
 
 function exportarLog(){
@@ -884,22 +870,9 @@ function abrirResumoSesion() {
 }
 
 function borrarSesionHist(id) {
-  var allHist = JSON.parse(localStorage.getItem(MR_HIST_KEY)||'[]');
-  var eliminada = allHist.find(function(s){return s.id===id;});
-  if(!eliminada) return;
-  var hist = allHist.filter(function(s){return s.id!==id;});
+  var hist = JSON.parse(localStorage.getItem(MR_HIST_KEY)||'[]').filter(function(s){return s.id!==id;});
   localStorage.setItem(MR_HIST_KEY, JSON.stringify(hist));
   verSesionsHist();
-  _toastDesfacer(
-    'Sesión ' + (eliminada.data||'eliminada') + ' eliminada do historial',
-    function(){
-      var cur = JSON.parse(localStorage.getItem(MR_HIST_KEY)||'[]');
-      cur.push(eliminada);
-      cur.sort(function(a,b){return (b.ts||0)-(a.ts||0);});
-      localStorage.setItem(MR_HIST_KEY, JSON.stringify(cur));
-      verSesionsHist();
-    }
-  );
 }
 
 function gardarSesionHist() {
@@ -990,58 +963,28 @@ function verSesionsHist() {
 }
 
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el) el.textContent=parts.length?parts.join(' · '):'Medidor de Ruído';
-  }catch(e){}
-})();
-
-// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
-function _confirmar(msg,onSi){
-  const ov=document.createElement('div');
-  ov.id='_conf-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
 }
 
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
-}
+_aplicarCabeceira();
 </script>
 </body>
 </html>

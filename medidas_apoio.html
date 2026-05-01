@@ -174,10 +174,7 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;mi
 <!-- HEADER -->
 <div class="hdr">
   <span style="font-size:1.5rem">📋</span>
-  <div style="flex:1">
-    <div class="hdr-title">Medidas de Apoio</div>
-    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:1px"></div>
-  </div>
+  <div class="hdr-title">Medidas de Apoio · <em>4º B</em></div>
   <span class="save-flash" id="save-flash">✓ GARDADO</span>
   <div style="display:flex;gap:6px;flex-wrap:wrap">
     <button class="btn" id="btn-pdf-al" style="display:none" onclick="exportarPDFAlumno()">🖨️ PDF alumno/a</button>
@@ -185,8 +182,8 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;mi
     <button class="btn" onclick="exportarMemoriaPDF()">📚 Memoria completa</button>
     <button class="btn btn-ghost" onclick="exportarJSON()">📤 JSON</button>
     <button class="btn btn-ghost" onclick="importarJSON()">📥 JSON</button>
-    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none" title="Configuración docente">⚙️</a>
-    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none">🏠 Portal</a>
+    <button class="btn btn-ghost" href="PORTAL_DOCENTE.html" title="Configuración docente" style="background:transparent;border:none;cursor:pointer;font-size:.7rem;text-decoration:none">&#x2699;&#xFE0F;</a>
+    <button onclick="window.location.href='PORTAL_DOCENTE.html'">🏠 Portal</button>
   </div>
 </div>
 
@@ -741,18 +738,9 @@ function setNivel(al,trim,nivel,btn){
 function setTrimObs(al,trim,val){getFicha(al).trim[trim].obs=val;gardar();}
 
 function borrarSeg(al,idx){
-  const f=getFicha(al);
-  const eliminado=f.seguimento[idx];
-  if(!eliminado)return;
-  f.seguimento.splice(idx,1);
+  if(!confirm('Borrar este rexistro de seguimento?')) return;
+  getFicha(al).seguimento.splice(idx,1);
   gardar();renderFicha(al);
-  _toastDesfacer(
-    `Seguimento do ${eliminado.data||'rexistro'} eliminado`,
-    ()=>{
-      getFicha(al).seguimento.splice(idx,0,eliminado);
-      gardar();renderFicha(al);
-    }
-  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -928,16 +916,8 @@ function gardarReunion(){
 }
 
 function borrarReunion(idx){
-  const eliminada=reunions[idx];
-  if(!eliminada)return;
+  if(!confirm('Borrar esta reunión?')) return;
   reunions.splice(idx,1);gardar();renderReunions();
-  _toastDesfacer(
-    `Reunión ${eliminada.data||''} ${eliminada.participantes||''} eliminada`.trim(),
-    ()=>{
-      reunions.splice(idx,0,eliminada);
-      gardar();renderReunions();
-    }
-  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -968,6 +948,7 @@ function exportarPDFAlumno(){
   @page{size:A4;margin:2cm}@media print{body{padding:0}}</style>
   </head><body>
   <h1>📋 Medidas de Apoio à Diversidade</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
   <div class="meta">CEIP Pío XII · 4º B · ${al} · Xerado o ${new Date().toLocaleDateString('gl-ES')}</div>
   ${meta?`<div style="padding:8px 12px;background:${meta.bg.replace('var(--re-bg)','#fff3e0').replace('var(--ec-bg)','#ede9fe').replace('var(--ac-bg)','#d1fae5')};border-left:4px solid ${meta.color.replace('var(--re)','#f97316').replace('var(--ec)','#818cf8').replace('var(--ac)','#34d399')};border-radius:4px;margin-bottom:14px;">
       <strong>${meta.ico} ${meta.long}</strong>
@@ -1129,39 +1110,28 @@ function importarJSON(){
 // ══════════════════════════════════════════════════════════════════════════════
 init();
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
 }
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

@@ -132,10 +132,10 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--orange)}
     <div class="hdr-icon">🚪</div>
     <div>
       <div class="hdr-title">Control de Saídas</div>
-      <div class="hdr-sub" id="_hdr-info">Cargando...</div>
+      <div class="hdr-sub">CEIP Pío XII · Aula 4º B</div>
     </div>
     <div class="hdr-right">
-      <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="font-size:.75rem;text-decoration:none;padding:0 10px" title="Configuración docente">⚙️</a>
+      <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted,rgba(238,242,255,.45));font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap" title="Portal Docente / Configuración">&#x2699;&#xFE0F;</a>
       <button class="btn btn-ghost" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
       <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">📤 JSON</button>
       <button class="btn btn-ghost btn-sm" onclick="importarJSON()">📥 Importar</button>
@@ -615,28 +615,7 @@ function engadirDestino(){
   document.getElementById('novo-destino').value='';
   renderDestinos();
 }
-function eliminarDestino(i){
-  const eliminado=destinos[i];
-  // Mover á papelera temporal de sesión
-  if(!window._papeleiraDestinos) window._papeleiraDestinos=[];
-  window._papeleiraDestinos.push({val:eliminado,pos:i});
-  destinos.splice(i,1);
-  LS.set(KEY_DEST,destinos);
-  renderDestinos();
-  // Toast con opción de desfacer
-  _toastDesfacer(
-    `Destino "${eliminado}" eliminado`,
-    ()=>{
-      // Restaurar na posición orixinal (ou ao final se xa non existe)
-      const p=window._papeleiraDestinos.find(x=>x.val===eliminado);
-      const pos=p?Math.min(p.pos,destinos.length):destinos.length;
-      destinos.splice(pos,0,eliminado);
-      if(p) window._papeleiraDestinos=window._papeleiraDestinos.filter(x=>x!==p);
-      LS.set(KEY_DEST,destinos);
-      renderDestinos();
-    }
-  );
-}
+function eliminarDestino(i){destinos.splice(i,1);LS.set(KEY_DEST,destinos);renderDestinos();}
 document.getElementById('sl-alerta').value=cfg.alertaMins;
 document.getElementById('sl-limite').value=cfg.limiteDia;
 document.getElementById('val-alerta').textContent=cfg.alertaMins+' min';
@@ -769,44 +748,28 @@ function setStatsPer(p) {
 }
 
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el) el.textContent=parts.length?parts.join(' · '):'Control de Saídas';
-  }catch(e){}
-})();
-
-// ── TOAST DESFACER (papelera temporal de sesión) ─────────────────────────────
-function _toastDesfacer(msg, onDesfacer, durMs=5000){
-  // Eliminar toast previo se existe
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(251,146,60,.15);
-      border:1.5px solid rgba(251,146,60,.4);border-radius:7px;color:var(--orange,#fb923c);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(), durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{
-    clearTimeout(timer);
-    t.remove();
-    onDesfacer();
-  };
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
 }
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

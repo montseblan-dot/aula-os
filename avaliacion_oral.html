@@ -98,10 +98,8 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:
 
 <div class="header">
   <span style="font-size:1.4rem">🎤</span>
-  <div>
-    <h1>Avaliación Oral en Directo</h1>
-    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
-  </div>
+  <h1>Avaliación Oral en Directo</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
   <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
     <button class="btn btn-ghost btn-sm" onclick="abrirConfigRubrica()">⚙️ Rúbrica</button>
     <button class="btn btn-ghost btn-sm" onclick="abrirProxector()" id="btn-prox" style="display:none">📺 Proxector</button>
@@ -109,8 +107,8 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:
     <button class="btn btn-ghost btn-sm" onclick="exportarPDF('individual')">📋 PDF individual</button>
     <button class="btn btn-ghost btn-sm" onclick="abrirEnviarAoCaderno()">📒 Enviar ao Caderno</button>
     <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">📊 CSV</button>
-    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Ir ao Portal / Configuración">⚙️ Portal</a>
-    <button class="btn btn-ghost btn-sm" onclick="toggleModo()">☀️ Claro</button>
+    <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted,rgba(238,242,255,.45));font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap" title="Portal Docente / Configuración">&#x2699;&#xFE0F;</a>
+      <button class="btn btn-ghost btn-sm" onclick="toggleModo()">☀️ Claro</button>
   </div>
 </div>
 
@@ -369,32 +367,21 @@ function actualizarSes() {
 }
 
 function novaSesion() {
-  _confirmar(
-    'Crear nova sesión de avaliación? A sesión actual gárdase automaticamente.',
-    ()=>{
-      selSesionId = null;
-      getSesionActual();
-      renderContent();
-      toast('Nova sesión creada', '#22c55e');
-    }
-  );
+  if (!confirm('Crear nova sesión de avaliación? A sesión actual gárdase.')) return;
+  selSesionId = null;
+  getSesionActual();
+  renderContent();
+  toast('Nova sesión creada', '#22c55e');
 }
 
 function borrarPunts() {
-  if (!selAlumno) return;
+  if (!selAlumno || !confirm(`Limpar puntuación de ${selAlumno}?`)) return;
   const ses = getSesionActual();
-  const backup = ses.punts[selAlumno] ? {...ses.punts[selAlumno]} : null;
-  if (!backup) return;
   delete ses.punts[selAlumno];
-  gardar(); renderContent(); renderAlumnos();
-  _toastDesfacer(
-    `Puntuación de ${selAlumno} eliminada`,
-    ()=>{
-      const s = getSesionActual();
-      s.punts[selAlumno] = backup;
-      gardar(); renderContent(); renderAlumnos();
-    }
-  );
+  gardar();
+  renderContent();
+  renderAlumnos();
+  toast('Puntuación eliminada', '#ef4444');
 }
 
 function gardarEnCaderno() {
@@ -487,18 +474,8 @@ function engadirCrit() {
 
 function eliminarCrit(i) {
   if (criterios.length <= 1) { alert('Debe haber polo menos un criterio.'); return; }
-  const eliminado = criterios[i];
   criterios.splice(i, 1);
-  LS.set('ao_criterios', criterios);
   abrirConfigRubrica();
-  _toastDesfacer(
-    `Criterio "${eliminado.label}" eliminado`,
-    ()=>{
-      criterios.splice(i, 0, eliminado);
-      LS.set('ao_criterios', criterios);
-      abrirConfigRubrica();
-    }
-  );
 }
 
 function gardarCriterios() {
@@ -1245,58 +1222,28 @@ function setProxVista(v) {
 }
 
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
-function _confirmar(msg,onSi,lblSi='Confirmar'){
-  const ov=document.createElement('div');
-  ov.id='_conf-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(251,191,36,.15);border:1.5px solid rgba(251,191,36,.4);border-radius:9px;color:var(--gold,#fbbf24);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">${lblSi}</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
 }
 
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
-}
+_aplicarCabeceira();
 </script>
 </body>
 </html>

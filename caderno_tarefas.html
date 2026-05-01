@@ -96,10 +96,8 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 
 <div class="header">
   <span style="font-size:1.5rem">📋</span>
-  <div>
-    <h1>Caderno de Tarefas</h1>
-    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
-  </div>
+  <h1>Caderno de Tarefas</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
   <div class="header-right">
     <button class="btn btn-gold" onclick="abrirNovaTarefa()">+ Nova tarefa</button>
     <button class="btn btn-ghost btn-sm" onclick="imprimirTarefas()">&#x1F5A8;&#xFE0F; Imprimir</button>
@@ -107,8 +105,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
     <button class="btn btn-ghost btn-sm" id="btn-modo" onclick="toggleModo()">&#x2600;&#xFE0F; Claro</button>
     <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">&#x1F4E4; JSON</button>
     <button class="btn btn-ghost btn-sm" onclick="importarJSON()">&#x1F4E5; Importar</button>
-    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none">🏠 Portal</a>
-    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
+    <button class="btn btn-ghost btn-sm" onclick="window.location.href='PORTAL_DOCENTE.html'">&#x1F3E0; Portal</button>
   </div>
 </div>
 
@@ -366,25 +363,10 @@ function toggleFeita(id){
   gardar(); renderSidebar(); renderStats(); renderTarefas();
 }
 
-function borrarTarefa(id, pecharModal=false){
-  const eliminada = tarefas.find(t=>t.id===id);
-  if(!eliminada) return;
+function borrarTarefa(id){
+  if(!confirm('Eliminar esta tarefa?')) return;
   tarefas = tarefas.filter(t=>t.id!==id);
   gardar(); renderSidebar(); renderStats(); renderTarefas();
-  if(pecharModal) closeModal();
-  _toastDesfacer(
-    `Tarefa "${eliminada.titulo.substring(0,40)}" eliminada`,
-    ()=>{
-      tarefas.push(eliminada);
-      tarefas.sort((a,b)=>{
-        if(!a.data&&!b.data) return 0;
-        if(!a.data) return 1;
-        if(!b.data) return -1;
-        return a.data.localeCompare(b.data);
-      });
-      gardar(); renderSidebar(); renderStats(); renderTarefas();
-    }
-  );
 }
 
 // ── MODAL NOVA/EDITAR TAREFA ──────────────────────────────────────────────────
@@ -436,7 +418,7 @@ function editarTarefa(id){
       ${(()=>{try{const lomloeUDs=JSON.parse(localStorage.getItem('lomloe_uds')||'{}');const allUDs=new Map();Object.values(lomloeUDs).forEach(arr=>arr.forEach(u=>{if(!allUDs.has(u.num))allUDs.set(u.num,u.tit||'');}));return [...allUDs.entries()].sort((a,b)=>a[0]-b[0]).map(([num,tit])=>`<option value="${num}"${t.udNum===num?' selected':''}>UD${num}${tit?' · '+tit.substring(0,20):''}</option>`).join('');}catch{return '';}})()}
     </select>
     <div class="modal-row">
-      <button class="btn btn-red btn-sm" onclick="borrarTarefa('${id}',true)">🗑 Borrar</button>
+      <button class="btn btn-red btn-sm" onclick="borrarTarefa('${id}');closeModal()">🗑 Borrar</button>
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-gold" onclick="gardarTarefa('${id}')">💾 Gardar</button>
     </div>`);
@@ -580,39 +562,28 @@ function imprimirTarefas(){
   setTimeout(()=>w.print(),500);
 }
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
 }
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

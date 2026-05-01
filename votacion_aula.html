@@ -135,6 +135,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 </style>
 </head>
 <body>
+<a href="PORTAL_DOCENTE.html" style="position:fixed;top:12px;right:12px;z-index:9998;height:30px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.4);color:rgba(238,242,255,.5);font-size:.72rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;backdrop-filter:blur(4px)" title="Portal / Configuración">&#x2699;&#xFE0F;</a>
 <canvas id="confetti"></canvas>
 
 <!-- FULLSCREEN -->
@@ -153,15 +154,15 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 <div class="header">
  <div style="font-size:2rem">🗳️</div>
  <div>
-  <h1>Votación de Aula</h1>
-  <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:2px"></div>
+ <h1>Votación de Aula</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
+ 
  </div>
  <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
  <button class="btn btn-ghost btn-sm" onclick="launchFS()">⛶ Proxector</button>
  <button class="btn btn-ghost btn-sm" onclick="gardarResultado()">💾 Gardar</button>
     <button class="btn btn-ghost btn-sm" onclick="exportarJSON()">📤 JSON</button>
     <button class="btn btn-ghost btn-sm" onclick="importarJSON()">📥 Importar</button>
- <a href="PORTAL_DOCENTE.html" class="btn btn-ghost btn-sm" style="text-decoration:none" title="Configuración docente">⚙️</a>
  <button class="btn btn-gold btn-sm" onclick="openNovaPregunta()">+ Nova pregunta</button>
  </div>
 </div>
@@ -324,10 +325,8 @@ function saveBanco() { localStorage.setItem('va_banco', JSON.stringify(banco)); 
 // EDITAR / BORRAR HISTORIAL
 // ══════════════════════════════════════════════════════════════════════════════
 function borrarVotacion(hid){
+ if(!confirm('Eliminar esta votación do historial?')) return;
  const idx = historial.findIndex(h => h.hid === hid);
- const eliminada = idx !== -1 ? historial[idx]
-   : historial.find(h => String(h.id)===String(hid));
- if(!eliminada) return;
  if(idx !== -1){
   historial.splice(idx, 1);
  } else {
@@ -335,14 +334,6 @@ function borrarVotacion(hid){
  }
  saveHistorial();
  renderHistorial();
- _toastDesfacer(
-  `Votación "${(eliminada.titulo||eliminada.pregunta||'sen título').substring(0,40)}" eliminada`,
-  ()=>{
-   historial.push(eliminada);
-   historial.sort((a,b)=>(b.ts||b.id||0)-(a.ts||a.id||0));
-   saveHistorial(); renderHistorial();
-  }
- );
 }
 
 function editarVotacion(id){
@@ -810,18 +801,8 @@ function renderHistorial() {
  }).join('');
 }
 function clearHistorial() {
- const backup=[...historial];
- _confirmar(
-  'Borrar todo o historial de votacións? Pódese desfacer durante 6 segundos.',
-  ()=>{
-   historial=[]; saveHistorial(); renderHistorial();
-   _toastDesfacer(
-    'Historial de votacións borrado',
-    ()=>{ historial=backup; saveHistorial(); renderHistorial(); },
-    6000
-   );
-  }
- );
+ if(!confirm('Borrar todo o historial?')) return;
+ historial=[]; saveHistorial(); renderHistorial();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1277,58 +1258,23 @@ function toggleHistBars(hid){
   div.style.display = open ? 'block' : 'none';
   if(btn) btn.innerHTML = open ? '\u25B2 Ocultar' : '\u25BC Ver';
 }
-
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── MODAL CONFIRMAR ───────────────────────────────────────────────────────────
-function _confirmar(msg,onSi){
-  const ov=document.createElement('div');
-  ov.id='_conf-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',_esc);}});
-}
-
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
-}
-
 </script>
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) { t.textContent = parts.join(' · '); t.style.display = 'block'; }
+    else { t.style.display = 'none'; }
+  }
+}
+
+_aplicarCabeceira();
+

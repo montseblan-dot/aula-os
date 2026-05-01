@@ -146,15 +146,12 @@ body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;mi
 
 <div class="hdr">
   <span style="font-size:1.5rem">📖</span>
-  <div style="flex:1">
-    <div class="hdr-title">Lectura · <em>Velocidade e Comprensión</em></div>
-    <div id="_hdr-info" style="display:none;font-size:.65rem;font-weight:700;color:var(--muted,rgba(238,242,255,.45));margin-top:1px"></div>
-  </div>
+  <div class="hdr-title">Lectura · <em>Velocidade e Comprensión</em></div>
   <span class="save-flash" id="save-flash">✓ GARDADO</span>
   <div style="display:flex;gap:6px;flex-wrap:wrap">
     <button class="btn" onclick="showTab('baremos')">📊 Baremos</button>
-    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none" title="Configuración docente">⚙️</a>
-    <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" style="text-decoration:none">🏠 Portal</a>
+    <button class="btn btn-ghost" href="PORTAL_DOCENTE.html" title="Configuración docente" style="background:transparent;border:none;cursor:pointer;font-size:.7rem;text-decoration:none">&#x2699;&#xFE0F;</a>
+    <button onclick="window.location.href='PORTAL_DOCENTE.html'">🏠 Portal</button>
   </div>
 </div>
 
@@ -1283,6 +1280,7 @@ function imprimirTexto(){
   .pal{display:inline-block;border-bottom:1px solid #e2e8f0;min-width:20px;padding:0 2px}
   @page{size:A4;margin:2cm}</style></head><body>
   <h1>${t.titulo}</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
   <div class="meta">${t.tipo} · ${t.lingua==='gl'?'Galego':'Castelán'} · ${t.curso}º Primaria · ${t.total_palabras} palabras</div>
   <p style="font-size:14px;line-height:2;white-space:pre-wrap">${t.texto}</p>
   <hr style="margin:24px 0;border-color:#e2e8f0">
@@ -1778,19 +1776,10 @@ function gardarTextoPropio(){
 }
 
 function borrarTextoPropio(id){
-  const eliminado=textosPersonalizados.find(t=>t.id===id);
-  if(!eliminado)return;
+  if(!confirm('Borrar este texto?')) return;
   textosPersonalizados=textosPersonalizados.filter(t=>t.id!==id);
   LS.set('lectura_textos_propios',textosPersonalizados);
   renderTextosSelect();renderBancoTextos();
-  _toastDesfacer(
-    `Texto "${eliminado.titulo||'sen título'}" eliminado`,
-    ()=>{
-      textosPersonalizados.push(eliminado);
-      LS.set('lectura_textos_propios',textosPersonalizados);
-      renderTextosSelect();renderBancoTextos();
-    }
-  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1833,39 +1822,28 @@ function closeModal(){document.getElementById('modal-bg').classList.remove('show
 // ══════════════════════════════════════════════════════════════════════════════
 init();
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--card,#141f33);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--white,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:var(--indigo,#818cf8);
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
 }
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

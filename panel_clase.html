@@ -462,6 +462,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);min-hei
 </style>
 </head>
 <body>
+<a href="PORTAL_DOCENTE.html" style="position:fixed;top:12px;right:12px;z-index:9998;height:30px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.4);color:rgba(238,242,255,.5);font-size:.72rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;backdrop-filter:blur(4px)" title="Portal / Configuración">&#x2699;&#xFE0F;</a>
 
 <!-- MODALS -->
 <div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
@@ -485,7 +486,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);min-hei
 <div class="header">
  <div>🏫</div>
  <div>
- <h1>Panel de Clase<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted);margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted);text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a> </h1>
+ <h1>Panel de Clase – </h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
  
  </div>
  <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
@@ -1835,7 +1837,7 @@ function renameAlumno(i, newName) {
 }
 
 function deleteAlumno(i) {
- _confirmar(`Eliminar a ${state.alumnos[i]} da lista?`,()=>{
+ if (!confirm(`Eliminar a ${state.alumnos[i]} da lista?`)) return;
  const name = state.alumnos[i];
  state.alumnos.splice(i,1);
  // Remove from records
@@ -1845,7 +1847,7 @@ function deleteAlumno(i) {
  save('alumnos', state.alumnos);
  save('asist', state.asist);
  renderAsist(); renderPanelAsist();
-});
+}
 
 function renderAsist() {
  const grid = document.getElementById('asist-grid'); if (!grid) return;
@@ -2310,7 +2312,7 @@ function engadirAsignatura() {
 }
 
 function eliminarAsignatura(i) {
- _confirmar(`Eliminar "\${ASIGNATURAS[i].label}"?`,()=>{
+ if (!confirm(`Eliminar "${ASIGNATURAS[i].label}"?`)) return;
  ASIGNATURAS.splice(i, 1);
  renderModalAsignaturas();
 }
@@ -2330,12 +2332,12 @@ function gardarAsignaturas() {
 }
 
 function resetAsignaturas() {
- _confirmar('Restaurar asignaturas por defecto?',()=>{
+ if (!confirm('Restaurar asignaturas por defecto?')) return;
  ASIGNATURAS.length = 0;
  ASIGNATURAS_DEFAULT.forEach(m => ASIGNATURAS.push({...m}));
  saveAsignaturas();
  closeModal();
-});
+}
 
 
 function getTipo(id) {
@@ -4678,8 +4680,7 @@ function imprimirInformeAlumnos() {
   </div>
   ${bloques || '<p style="color:#aaa;padding:1rem">Sen datos para imprimir</p>'}
   <div class="pie">© ${new Date().getFullYear()} ${centro || 'Panel de Clase'} · CC BY-NC-SA 4.0 · Montserrat Blanco Vázquez</div>
- <script>_aplicarCabeceira();</script>
-</body></html>`;
+ </body></html>`;
 
  const w = window.open('', '_blank', 'width=900,height=700');
  if(!w){
@@ -5090,10 +5091,10 @@ function coopGardarGrupo(){
  }, 100);
 }
 function coopEliminarGrupo(id){
- _confirmar('Eliminar este grupo e todos os seus datos?',()=>{
+ if(!confirm('Eliminar este grupo e todos os seus datos?'))return;
  _cdb.grupos=_cdb.grupos.filter(g=>g.id!==id);
  coopSaveDb();renderCoopGrupos();renderPanelCoop();coopToast('Grupo eliminado');
-});
+}
 
 // ── ROTACIÓN ─────────────────────────────────────────────────────────────────
 function renderCoopRotacion(){
@@ -7467,40 +7468,23 @@ function aplicarEstacion() {
 }
 
 aplicarEstacion();
-
-// ── CONFIG DOCENTE (lectura) ──────────────────────────────────────────────────
-function _getConf(){try{const v=localStorage.getItem('sn3_config');return v?JSON.parse(v):{}}catch{return {};}}
-function _aplicarCabeceira(){
-  const c=_getConf();
-  const parts=[];
-  if(c.docente) parts.push(c.docente);
-  if(c.grupo) parts.push(c.grupo);
-  if(c.curso) parts.push(c.curso);
-  const t=document.getElementById('_hdr-info');
-  if(t){t.textContent=parts.join(' · ');t.style.display=parts.length?'block':'none';}
-  const g=c.grupo||'';
-  document.querySelectorAll('._grupo-dyn').forEach(el=>el.textContent=g?(' · '+g):'');
-  document.querySelectorAll('title._title-dyn').forEach(el=>{
-    el.textContent=el.dataset.base+(g?' · '+g:'');
-  });
-}
-
-// ── MODAL CONFIRMAR BORRAR ────────────────────────────────────────────────────
-function _confirmar(msg, onSi){
-  const ov=document.createElement('div');
-  ov.id='_conf-del-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-del-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-}
-
 </script>
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) { t.textContent = parts.join(' · '); t.style.display = 'block'; }
+    else { t.style.display = 'none'; }
+  }
+}
+
+_aplicarCabeceira();
+

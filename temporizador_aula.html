@@ -146,10 +146,10 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);min-height:
     <div class="hdr-icon">⏱️</div>
     <div>
       <div class="hdr-title">Temporizador de Aula</div>
-      <div class="hdr-sub" id="_hdr-info">Cargando...</div>
+      <div class="hdr-sub">CEIP Pío XII · 4º B</div>
     </div>
     <div class="hdr-right">
-      <a href="PORTAL_DOCENTE.html" class="btn btn-ghost" title="Configuración docente" style="font-size:.75rem;text-decoration:none;padding:0 10px">⚙️</a>
+      <a href="PORTAL_DOCENTE.html" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border2,rgba(255,255,255,.15));background:transparent;color:var(--muted,rgba(238,242,255,.45));font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap" title="Portal Docente / Configuración">&#x2699;&#xFE0F;</a>
       <button class="btn btn-ghost" id="btn-modo" onclick="toggleModo()">☀️ Claro</button>
       <button class="btn btn-teal" onclick="entrarProxector()">📺 Proxector</button>
     </div>
@@ -777,18 +777,28 @@ function toggleSonPanel() {
 }
 
 
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el) el.textContent=parts.length?parts.join(' · '):'Temporizador de Aula';
-  }catch(e){}
-})();
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
 </script>
 </body>
 </html>

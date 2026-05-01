@@ -76,7 +76,8 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 <body>
 <div class="header">
   <span style="font-size:1.5rem">📓</span>
-  <h1>Diario de Aula<span id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;color:var(--muted);margin-left:10px;vertical-align:middle"></span><a href="PORTAL_DOCENTE.html" style="font-size:.62rem;font-weight:700;color:var(--muted);text-decoration:none;margin-left:6px;opacity:.7;vertical-align:middle" title="Configuración docente">⚙️</a></h1>
+  <h1>Diario de Aula · 4º B</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div>
   <div class="hdr-right">
     <button class="btn btn-gold" onclick="mostrarFormHoxe()">+ Entrada hoxe</button>
     <button class="btn btn-ghost btn-sm" onclick="imprimirDiario()">&#x1F5A8;&#xFE0F; Imprimir</button>
@@ -382,7 +383,7 @@ function gardarEntrada(dk,editId){
 }
 
 function editarEntrada(id){const e=entries.find(x=>x.id===id);if(e)abrirFormEntrada(e.data,e.hora,id);}
-function borrarEntrada(id){_confirmar('Borrar esta entrada do diario? Esta acción non se pode desfacer.',()=>{entries=entries.filter(e=>e.id!==id);gardar();renderCal();renderMain();});}
+function borrarEntrada(id){if(!confirm('Borrar esta entrada?'))return;entries=entries.filter(e=>e.id!==id);gardar();renderCal();renderMain();}
 
 // ── GARDAR ────────────────────────────────────────────────────────────────────
 function gardar(){LS.set('da_entries',entries);try{localStorage.setItem('bbdd_last_backup',new Date().toISOString());}catch{}}
@@ -471,47 +472,33 @@ function imprimirDiario(){
   <h1>&#x1F4D3; Diario de Aula \xB7 4\xBA B</h1>
   <p style="font-size:9pt;color:#64748b;margin-bottom:20px">CEIP P\xEDo XII \xB7 Titora: M. Blanco V\xE1zquez \xB7 ${sorted.length} entradas</p>
   ${sections||'<p style="color:#94a3b8">Sen entradas rexistradas</p>'}
-  <script>_aplicarCabeceira();</script>
-</body></html>`);
+  </body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),500);
 }
 
-// ── CONFIG DOCENTE (lectura) ──────────────────────────────────────────────────
-function _getConf(){try{const v=localStorage.getItem('sn3_config');return v?JSON.parse(v):{}}catch{return {};}}
-function _aplicarCabeceira(){
-  const c=_getConf();
-  const parts=[];
-  if(c.docente) parts.push(c.docente);
-  if(c.grupo) parts.push(c.grupo);
-  if(c.curso) parts.push(c.curso);
-  const t=document.getElementById('_hdr-info');
-  if(t){t.textContent=parts.join(' · ');t.style.display=parts.length?'block':'none';}
-  const g=c.grupo||'';
-  document.querySelectorAll('._grupo-dyn').forEach(el=>el.textContent=g?(' · '+g):'');
-  document.querySelectorAll('title._title-dyn').forEach(el=>{
-    el.textContent=el.dataset.base+(g?' · '+g:'');
-  });
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
 }
 
-// ── MODAL CONFIRMAR BORRAR ────────────────────────────────────────────────────
-function _confirmar(msg, onSi){
-  const ov=document.createElement('div');
-  ov.id='_conf-del-ov';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
-  ov.innerHTML=`<div style="background:var(--card,#141f33);border-radius:16px;padding:1.5rem;max-width:380px;width:100%;border:1px solid var(--border2,rgba(255,255,255,.15))">
-    <p style="font-family:'DM Serif Display',Georgia,serif;font-size:1rem;color:var(--white,#eef2ff);margin-bottom:.5rem">⚠️ Confirmar acción</p>
-    <p style="font-size:.82rem;color:var(--muted,rgba(238,242,255,.5));margin-bottom:1.25rem;line-height:1.55">${msg}</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('_conf-del-ov').remove()" style="height:34px;padding:0 16px;background:transparent;border:1.5px solid var(--border2,rgba(255,255,255,.15));border-radius:9px;color:var(--muted,rgba(238,242,255,.5));font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">Cancelar</button>
-      <button id="_conf-si" style="height:34px;padding:0 20px;background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);border-radius:9px;color:#ef4444;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer">🗑 Borrar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(ov);
-  ov.querySelector('#_conf-si').onclick=()=>{ov.remove();onSi();};
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-}
-
+_aplicarCabeceira();
 </script>
 </body>
 </html>

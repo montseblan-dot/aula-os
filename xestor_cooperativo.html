@@ -5,7 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Xestor Cooperativo v4</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
+// ── CONFIG DOCENTE ──────────────────────────────────────────────────────────
+function _getConf() {
+  try { var v = localStorage.getItem('sn3_config'); return v ? JSON.parse(v) : {}; } catch(e) { return {}; }
+}
+function _aplicarCabeceira() {
+  var c = _getConf();
+  var parts = [];
+  if (c.docente) parts.push(c.docente);
+  if (c.grupo) parts.push(c.grupo);
+  if (c.curso) parts.push(c.curso);
+  var t = document.getElementById('_hdr-info');
+  if (t) {
+    if (parts.length) {
+      t.textContent = parts.join(' · ');
+      t.style.display = 'block';
+    } else {
+      t.style.display = 'none';
+    }
+  }
+}
+
+_aplicarCabeceira();
+</script>
 <style>
 :root{
   --bg:#0D1117;--surface:#161B27;--card:#1C2233;
@@ -251,6 +274,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 </style>
 </head>
 <body>
+<a href="PORTAL_DOCENTE.html" style="position:fixed;top:12px;right:12px;z-index:9998;height:30px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.4);color:rgba(238,242,255,.5);font-size:.72rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;backdrop-filter:blur(4px)" title="Portal / Configuración">&#x2699;&#xFE0F;</a>
 <div class="app">
 
 <!-- ─── SIDEBAR ─────────────────────────── -->
@@ -258,7 +282,6 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
   <div class="sb-brand">
     <div class="sb-logo">🤝 Equi<span>pos</span></div>
     <div class="sb-tag">Xestor Cooperativo v4</div>
-    <div id="_hdr-info" style="display:none;font-size:.6rem;font-weight:600;color:var(--muted,rgba(238,242,255,.4));margin-top:2px;padding:0 16px"></div>
   </div>
   <div class="sb-sec">
     <span class="sb-lbl">Xeral</span>
@@ -304,15 +327,15 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
    <button onclick="openModal('mo-confirm');xcToggleDatos()" style="display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border-radius:8px;border:none;background:none;color:var(--danger);font-size:12px;font-weight:600;cursor:pointer;text-align:left" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'">🗑️ Borrar todo</button>
   </div>
  </div>
- <a href="PORTAL_DOCENTE.html" style="height:30px;padding:0 12px;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:600;border:1px solid var(--border2);background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center" title="Configuración docente">⚙️</a>
- <a href="PORTAL_DOCENTE.html" style="height:30px;padding:0 12px;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:600;border:1px solid var(--border2);background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center">🏠 Portal</a>
+ <button onclick="window.location.href='portal_docente.html'" style="height:30px;padding:0 12px;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:600;border:1px solid var(--border2);background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">🏠 Portal</button>
 </div>
 
 <!-- ══ PANEL DE HOXE ══ -->
 <div class="view active" id="view-hoxe">
   <div class="ph">
     <div class="ph-row">
-      <div><h1>📺 Panel de hoxe</h1><p id="hoxe-data-lbl"></p></div>
+      <div><h1>📺 Panel de hoxe</h1>
+<div id="_hdr-info" style="display:none;font-size:.62rem;font-weight:700;letter-spacing:.04em;color:rgba(238,242,255,.45);margin-top:2px;padding-left:2px"></div><p id="hoxe-data-lbl"></p></div>
       <div style="display:flex;gap:7px;align-items:center">
         <label style="font-size:11px;color:var(--muted)">Semana:</label>
         <input type="number" id="hoxe-sem" min="1" max="40" value="1" style="width:58px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:5px 8px;color:var(--text);font-family:'Courier New',monospace;font-size:13px" oninput="renderHoxe()">
@@ -1116,13 +1139,7 @@ function saveDiario(){
   toast(editId?'Sesión actualizada':'Sesión gardada','ok');
 }
 function editDiario(id){openModalDiario(id);}
-function delDiario(id){
-  const el=_db.diarios.find(e=>e.id===id);if(!el)return;
-  _db.diarios=_db.diarios.filter(e=>e.id!==id);
-  saveDb();renderDiario();updateBadges();
-  _toastDesfacer('Sesión de diario eliminada',
-    ()=>{_db.diarios.push(el);saveDb();renderDiario();updateBadges();});
-}
+function delDiario(id){if(!confirm('Eliminar?')) return;_db.diarios=_db.diarios.filter(e=>e.id!==id);saveDb();renderDiario();updateBadges();toast('Eliminada','ok');}
 
 // ═══ AUTOAVALIACIÓN ═══
 function autoMediaGrupo(gid){
@@ -1272,13 +1289,7 @@ function saveAutoaval(){
   }
   saveDb();closeModal('mo-auto');clearDirty('mo-auto');renderAutoaval();updateBadges();
 }
-function delAutoaval(id){
-  const el=_db.autoavals.find(e=>e.id===id);if(!el)return;
-  _db.autoavals=_db.autoavals.filter(e=>e.id!==id);
-  saveDb();renderAutoaval();updateBadges();
-  _toastDesfacer('Autoavaliación eliminada',
-    ()=>{_db.autoavals.push(el);saveDb();renderAutoaval();updateBadges();});
-}
+function delAutoaval(id){if(!confirm('Eliminar?')) return;_db.autoavals=_db.autoavals.filter(e=>e.id!==id);saveDb();renderAutoaval();updateBadges();toast('Eliminada','ok');}
 
 // ═══ SEGUIMENTO ═══
 function renderSeg(){
@@ -1376,13 +1387,7 @@ function saveSeg(){
   }
   saveDb();closeModal('mo-seg');clearDirty('mo-seg');renderSeg();updateBadges();
 }
-function delSeg(id){
-  const el=_db.seguimentos.find(e=>e.id===id);if(!el)return;
-  _db.seguimentos=_db.seguimentos.filter(e=>e.id!==id);
-  saveDb();renderSeg();updateBadges();
-  _toastDesfacer('Observación de seguimento eliminada',
-    ()=>{_db.seguimentos.push(el);saveDb();renderSeg();updateBadges();});
-}
+function delSeg(id){if(!confirm('Eliminar?')) return;_db.seguimentos=_db.seguimentos.filter(e=>e.id!==id);saveDb();renderSeg();updateBadges();toast('Eliminada','ok');}
 
 // ═══ RÚBRICA — clic interactivo ═══
 const RUB_DEF=[
@@ -1530,13 +1535,7 @@ function saveRub(){
   }
   saveDb();closeModal('mo-rub');clearDirty('mo-rub');renderRub();updateBadges();
 }
-function delRub(id){
-  const el=_db.rubricas.find(e=>e.id===id);if(!el)return;
-  _db.rubricas=_db.rubricas.filter(e=>e.id!==id);
-  saveDb();renderRub();updateBadges();
-  _toastDesfacer('Rúbrica de avaliación eliminada',
-    ()=>{_db.rubricas.push(el);saveDb();renderRub();updateBadges();});
-}
+function delRub(id){if(!confirm('Eliminar?')) return;_db.rubricas=_db.rubricas.filter(e=>e.id!==id);saveDb();renderRub();updateBadges();toast('Eliminada','ok');}
 
 // ═══ ALERTAS ═══
 function renderAlertas(){
@@ -1694,13 +1693,9 @@ function saveGrupo(){
   toast(editId?'Grupo actualizado':'Grupo creado','ok');
 }
 function deleteGrupo(id){
-  const eliminado=_db.grupos.find(g=>g.id===id);if(!eliminado)return;
+  if(!confirm('Eliminar este grupo?')) return;
   _db.grupos=_db.grupos.filter(g=>g.id!==id);
-  saveDb();renderGrupos();updateBadges();
-  _toastDesfacer(
-    `Grupo "${eliminado.nome}" eliminado`,
-    ()=>{_db.grupos.push(eliminado);saveDb();renderGrupos();updateBadges();}
-  );
+  saveDb();renderGrupos();updateBadges();toast('Grupo eliminado','ok');
 }
 
 // ═══ PDI ═══
@@ -1737,12 +1732,7 @@ function importData(e){
   r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(!d.grupos) throw 0;_db=d;if(!_db.notas)_db.notas={};saveDb();nav('hoxe');updateBadges();toast(`Importados: ${d.grupos.length} grupos`,'ok');}catch{toast('Erro: ficheiro inválido','err');}};
   r.readAsText(file);e.target.value='';
 }
-function clearAll(){
-  const backup=JSON.parse(JSON.stringify(_db));
-  _db=emptyDb();saveDb();closeModal('mo-confirm');nav('hoxe');updateBadges();
-  _toastDesfacer('Todos os datos eliminados',
-    ()=>{_db=backup;saveDb();nav('hoxe');updateBadges();},8000);
-}
+function clearAll(){_db=emptyDb();saveDb();closeModal('mo-confirm');nav('hoxe');updateBadges();toast('Datos eliminados','ok');}
 
 // ═══ HELPERS ═══
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
@@ -2600,41 +2590,6 @@ function xerarInformeCoop() {
   const w = window.open('', '_blank', 'width=900,height=700');
   if (w) { w.document.write(docHTML); w.document.close(); }
   else { toast('\u26A0\uFE0F Permite as vent\xE1s emerxentes', 'err'); }
-}
-
-
-// ── CONFIG DOCENTE ────────────────────────────────────────────────────────────
-(function _aplicarCabeceira(){
-  try{
-    const c=JSON.parse(localStorage.getItem('sn3_config')||'{}');
-    const parts=[];
-    if(c.docente) parts.push(c.docente);
-    if(c.grupo)   parts.push(c.grupo);
-    if(c.curso)   parts.push(c.curso);
-    const el=document.getElementById('_hdr-info');
-    if(el&&parts.length){el.textContent=parts.join(' · ');el.style.display='block';}
-  }catch(e){}
-})();
-
-// ── TOAST DESFACER ────────────────────────────────────────────────────────────
-function _toastDesfacer(msg,onDesfacer,durMs=5500){
-  document.getElementById('_toast-desfacer')?.remove();
-  const t=document.createElement('div');
-  t.id='_toast-desfacer';
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
-    +'background:var(--surface,#1e2030);border:1px solid var(--border2,rgba(255,255,255,.15));'
-    +'border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;'
-    +'z-index:9999;font-family:"DM Sans",sans-serif;min-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
-  t.innerHTML=`
-    <span style="font-size:.8rem;font-weight:700;color:var(--text,#eef2ff);flex:1">${msg}</span>
-    <button id="_toast-undo-btn" style="height:28px;padding:0 12px;background:rgba(99,102,241,.15);
-      border:1.5px solid rgba(99,102,241,.4);border-radius:7px;color:#818cf8;
-      font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap">
-      ↩ Desfacer
-    </button>`;
-  document.body.appendChild(t);
-  let timer=setTimeout(()=>t.remove(),durMs);
-  t.querySelector('#_toast-undo-btn').onclick=()=>{clearTimeout(timer);t.remove();onDesfacer();};
 }
 
 </script>
